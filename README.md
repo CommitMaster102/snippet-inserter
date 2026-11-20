@@ -15,7 +15,9 @@ The panel is modeled on the snippet manager in QuillBot's browser extension, wit
 ```
 extension/            The extension itself; this is the folder to load.
   manifest.json
-  content.js          Detects the double tap and abbreviations, places the panel, inserts.
+  content.js          Runs in every frame: the double tap, the shortcut and menu messages, and
+                      typed abbreviations.
+  content-main.js     Loaded when a frame needs it: places the panel and inserts the snippet.
   panel.html/.css/.js The snippet panel, shown in an extension iframe.
   options.html/.css/.js
                       The snippet manager, opened from the toolbar icon.
@@ -171,16 +173,21 @@ whose id is in use, and drops an abbreviation that is already taken. A file with
 ## Resource use
 
 The extension adds no network traffic, timers, or caches, and nothing runs while a page is
-idle. Measured in Playwright's Chromium 159 on Windows, as the median of five page loads:
+idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page loads:
 
 - **Each frame of a page**: the browser itself spends about 170 KB on any extension's content
-  script. This extension's own code adds about 35 to 70 KB of memory, and 0.3 to 0.9 ms of
-  script time when the frame loads.
-- **Each typed character**: about 7 microseconds of script, or about 12 microseconds with 50
+  script. This extension's own code adds about 25 to 40 KB of memory, less than version 1.1.1
+  did, and 0.2 to 0.6 ms of script time when the frame loads. Close to half of that time is the
+  browser setting up the message listener that the keyboard shortcut and the menu items need.
+- **What loads where**: every frame gets `content.js`, about 17 KB, which only watches for the
+  double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 36 KB,
+  loads only in a frame where the panel opens or an abbreviation matches.
+- **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
+  press, so frames nobody types in, such as ads, never read storage. The snippet text is read
+  only when the panel opens or an abbreviation matches.
+- **Each typed character**: about 7 microseconds of script, or about 14 microseconds with 50
   abbreviations stored. The abbreviation check looks only at the last few characters before
   the cursor, so the size of the field does not matter.
-- **At load**: one storage read per frame, for the settings and the abbreviation list, never
-  the snippet text. The snippet text is read when the panel opens or an abbreviation matches.
 - **The panel** exists only while it is open, and the service worker runs only for the toolbar
   icon, the menu items, and the shortcut.
 

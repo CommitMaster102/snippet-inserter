@@ -10,8 +10,8 @@
  *   {input:Label}  a value the user types in the panel's fill-in form before the insert
  *
  * Only these exact forms are recognized, so other text in braces, such as JSON, is inserted as
- * written. Loaded by the content script, the panel, and the manager page; also exported for the
- * Node unit tests.
+ * written. Imported by content-main.js, loaded by the panel and the manager page, and exported
+ * for the Node unit tests.
  */
 (function (root) {
   'use strict';
