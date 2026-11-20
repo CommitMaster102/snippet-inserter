@@ -319,6 +319,22 @@ select:focus {
   resize: vertical;
 }
 
+.placeholder-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: -4px 0 0;
+  font-size: 12px;
+}
+
+.placeholder-pill {
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--brand-subtle);
+  color: var(--brand-default);
+}
+
 .field-error {
   margin: -4px 0 0;
   color: var(--text-error);

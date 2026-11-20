@@ -42,6 +42,7 @@ const els = {
   titleError: $('titleError'),
   content: $('content'),
   contentError: $('contentError'),
+  placeholderList: $('placeholderList'),
   count: $('count'),
   duplicate: $('duplicate'),
   delete: $('delete'),
@@ -259,8 +260,15 @@ function isDirty() {
   return !els.editor.hidden && !sameFields(fields(), state.snapshot);
 }
 
+// The character count, and the placeholders the text contains, which are replaced on insert.
 function updateCount() {
   els.count.textContent = lib.characterCount(els.content.value);
+  const found = lib.placeholders.listPlaceholders(els.content.value);
+  els.placeholderList.hidden = !found.length;
+  els.placeholderList.replaceChildren();
+  if (!found.length) return;
+  els.placeholderList.append(el('span', 'muted', 'Placeholders'));
+  for (const token of found) els.placeholderList.append(el('span', 'placeholder-pill', token));
 }
 
 // Shows `snippet` in the editor, or an empty new snippet when it is null.

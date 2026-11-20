@@ -51,6 +51,8 @@
   const LAST_POINTER_MAX_AGE_MS = 60_000;
   const NOTICE_MS = 6000;
   const PASTE_KEYS = navigator.userAgent.includes('Mac OS') ? 'Cmd+V' : 'Ctrl+V';
+  // lib/placeholders.js, which the manifest loads before this script.
+  const placeholders = globalThis.SnippetInserter.placeholders;
 
   let settings = { ...DEFAULT_SETTINGS };
   let lastKeyDown = null;
@@ -462,6 +464,8 @@
       const caret = docsCaretRect();
       return {
         ...target,
+        // The document's language, for {date} and {time}.
+        locale: (document.documentElement.getAttribute('lang') || navigator.language || '').toLowerCase(),
         selectedText: docsSelectedText(target.el),
         caret: caret || docsFallbackRect(),
         caretFound: Boolean(caret),
@@ -599,16 +603,35 @@
   // The spacing rule. When the field holds more than whitespace, the snippet gets a leading space
   // if the character before it is not a space or line break, and a trailing space if the
   // character after it is not a space, a line break, or punctuation (. and , always, plus ; : ! ?
-  // except in French text).
-  function addSpaces(content, ctx) {
-    if (ctx.blank) return content;
+  // except in French text). Returns which of the two spaces to add.
+  function spacing(ctx) {
+    if (ctx.blank) return { left: false, right: false };
     const before = ctx.before;
     const after = ctx.after;
     const punctuation = new RegExp(`[.,${ctx.locale.startsWith('fr') ? '' : ';:!?'}]`);
-    const left = Boolean(before) && !SPACE_CHARS.test(before) && before !== '\n';
-    const right =
-      Boolean(after) && !SPACE_CHARS.test(after) && !punctuation.test(after) && after !== '\n';
-    return (left ? ' ' : '') + content + (right ? ' ' : '');
+    return {
+      left: Boolean(before) && !SPACE_CHARS.test(before) && before !== '\n',
+      right: Boolean(after) && !SPACE_CHARS.test(after) && !punctuation.test(after) && after !== '\n',
+    };
+  }
+
+  // joinLines() for a text with a {cursor} position. A private-use character marks the position
+  // while the lines are joined; snippet text does not contain it.
+  const CURSOR_MARK = String.fromCharCode(0xe000);
+  function joinLinesKeepingCursor(text, cursor) {
+    if (cursor === null) return { text: joinLines(text), cursor: null };
+    const marked = text.slice(0, cursor) + CURSOR_MARK + text.slice(cursor);
+    const joined = joinLines(marked).replace(` ${CURSOR_MARK} `, ` ${CURSOR_MARK}`);
+    const at = joined.indexOf(CURSOR_MARK);
+    return { text: joined.slice(0, at) + joined.slice(at + 1), cursor: at };
+  }
+
+  // Moves the caret back by `count` characters after a paste into a rich-text editor. A line
+  // break in the snippet counts as one character, as it does for the Left key.
+  function moveCaretBack(ctx, count) {
+    const selection = selectionFor(ctx.el);
+    if (!selection || typeof selection.modify !== 'function') return;
+    for (let i = 0; i < count; i++) selection.modify('move', 'backward', 'character');
   }
 
   // Inserting the snippet.
@@ -641,24 +664,39 @@
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async function insertSnippet(ctx, content) {
+  // Placeholders are filled in first, with `values` from the panel's fill-in form. In a
+  // single-line field the lines are joined next, and the spacing rule runs last. `caret`, the
+  // {cursor} position inside the text, is carried through each step.
+  async function insertSnippet(ctx, content, values = {}) {
     if (!restoreSelection(ctx)) return;
+    const expanded = placeholders.expand(content, { values, locale: ctx.locale, now: new Date() });
     if (ctx.kind === 'docs') {
+      // The extension cannot move the Docs caret, so {cursor} has no effect in Docs.
+      const text = expanded.text;
       await wait(SELECTION_SETTLE_MS);
       // Without any caret the insert cannot be confirmed, and counts as failed.
       const before = docsCaretRect() || (ctx.caretFound ? ctx.caret : null);
-      pasteIntoDocs(ctx, content);
-      if (!(await docsCaretMoved(before))) await docsInsertFallback(content);
+      pasteIntoDocs(ctx, text);
+      if (!(await docsCaretMoved(before))) await docsInsertFallback(text);
       return;
     }
-    const text = addSpaces(ctx.kind === 'input' ? joinLines(content) : content, ctx);
+    const body = ctx.kind === 'input' ? joinLinesKeepingCursor(expanded.text, expanded.cursor) : expanded;
+    const { left, right } = spacing(ctx);
+    const text = (left ? ' ' : '') + body.text + (right ? ' ' : '');
+    const caret = body.cursor === null ? null : body.cursor + (left ? 1 : 0);
     if (isValueField(ctx)) {
       if (!fitsMaxLength(ctx, text)) return;
       insertIntoTextarea(ctx.el, ctx.start, ctx.end, text);
+      if (caret !== null) ctx.el.setSelectionRange(ctx.start + caret, ctx.start + caret);
       return;
     }
     await wait(SELECTION_SETTLE_MS);
     pasteIntoRichEditor(ctx, text);
+    if (caret !== null) {
+      // Editors that handle the paste themselves may update the page a moment later.
+      await wait(SELECTION_SETTLE_MS);
+      moveCaretBack(ctx, text.length - caret);
+    }
   }
 
   // A field with a maxlength attribute would cut the snippet short, so nothing is inserted and a
@@ -951,6 +989,17 @@
     closePanel(false);
   }
 
+  // The fill-in values sent by the panel, keeping only string entries.
+  function fillInValues(values) {
+    const result = {};
+    if (values && typeof values === 'object') {
+      for (const [label, value] of Object.entries(values)) {
+        if (typeof value === 'string') result[label] = value;
+      }
+    }
+    return result;
+  }
+
   function onPanelMessage(event) {
     if (!panel || event.source !== panel.frame.contentWindow) return;
     const message = event.data;
@@ -972,7 +1021,7 @@
       case 'insert': {
         const ctx = panel.ctx;
         closePanel(false);
-        insertSnippet(ctx, String(message.content));
+        insertSnippet(ctx, String(message.content), fillInValues(message.values));
         break;
       }
       case 'close':

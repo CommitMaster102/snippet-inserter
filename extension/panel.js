@@ -11,6 +11,7 @@
 'use strict';
 
 const lib = window.SnippetInserter;
+const placeholders = lib.placeholders;
 
 const SEARCH_DEBOUNCE_MS = 100;
 const HOTKEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -52,6 +53,10 @@ const TEXT = {
   searchPlaceholder: `Search snippets ${ELLIPSIS}`,
   undoDeleted: 'Snippet deleted.',
   undo: 'Undo',
+  placeholders: 'Placeholders',
+  fillCount: (n) => `Fill in ${n} ${n === 1 ? 'field' : 'fields'}`,
+  preview: 'Preview',
+  insertApply: 'Insert',
   edit: 'Edit',
   back: 'Back (Esc)',
   close: 'Close (Esc)',
@@ -90,8 +95,10 @@ const els = {
 };
 
 const state = {
-  view: 'insert', // 'insert', 'create', or 'edit'
+  view: 'insert', // 'insert', 'create', 'edit', or 'fill'
   editId: null,
+  // The snippet whose fill-in fields the 'fill' view asks for.
+  fillId: null,
   snippets: [],
   search: '',
   isNewId: undefined,
@@ -230,6 +237,7 @@ async function start() {
 function render() {
   els.error.hidden = true;
   if (state.view === 'insert') renderInsert();
+  else if (state.view === 'fill') renderFill();
   else renderForm();
   reportSize();
 }
@@ -393,8 +401,10 @@ function renderForm() {
   const contentMessage = el('div', 'feedback');
   contentMessage.hidden = true;
   const count = el('div', 'count');
+  const placeholderList = el('div', 'placeholder-list');
   const updateCount = () => {
     count.textContent = lib.characterCount(content.value);
+    renderPlaceholderList(placeholderList, content.value);
   };
   updateCount();
 
@@ -416,7 +426,7 @@ function renderForm() {
     titleMessage.hidden = true;
   });
 
-  form.append(contentField, contentMessage, count, titleField, titleMessage);
+  form.append(contentField, contentMessage, placeholderList, count, titleField, titleMessage);
   els.body.append(form);
 
   if (isEdit) {
@@ -438,6 +448,77 @@ function renderForm() {
   autosize(content);
   content.focus();
   content.setSelectionRange(content.value.length, content.value.length);
+}
+
+// The placeholders found in the text, shown under it so the user sees which parts will be
+// replaced when the snippet is inserted.
+function renderPlaceholderList(container, text) {
+  const found = placeholders.listPlaceholders(text);
+  container.hidden = !found.length;
+  container.replaceChildren();
+  if (!found.length) return;
+  container.append(el('span', 'placeholder-label', TEXT.placeholders));
+  for (const token of found) container.append(el('span', 'placeholder-pill', token));
+}
+
+// The fill-in form for a snippet with {input:Label} placeholders: one field per label, a preview
+// of the text as it will be inserted, and Insert. Enter moves to the next field and inserts from
+// the last one; Ctrl+Enter inserts from any field.
+function renderFill() {
+  clearTimeout(searchTimer);
+  els.searchBar.hidden = true;
+  els.back.hidden = state.mode === 'fill-only';
+  els.body.replaceChildren();
+  items = [];
+  currentForm = null;
+  renderUndoBar();
+
+  const snippet = state.snippets.find((s) => s.id === state.fillId);
+  if (!snippet) {
+    showError(TEXT.notFound);
+    setPrimary(null);
+    return;
+  }
+  els.caption.textContent = lib.displayTitle(snippet);
+  const labels = placeholders.inputLabels(snippet.content);
+  const form = el('div', 'form fill');
+  form.append(el('div', 'fill-count', TEXT.fillCount(labels.length)));
+
+  const inputs = labels.map((label) => {
+    const field = el('label', 'fill-field');
+    const input = el('input', 'input fill-input');
+    input.type = 'text';
+    input.dataset.label = label;
+    field.append(el('span', 'fill-label', label), input);
+    form.append(field);
+    return input;
+  });
+
+  form.append(el('div', 'fill-label', TEXT.preview));
+  const preview = el('div', 'fill-preview');
+  form.append(preview);
+  const values = () => Object.fromEntries(inputs.map((input) => [input.dataset.label, input.value]));
+  const updatePreview = () => {
+    preview.textContent = placeholders.expand(snippet.content, { values: values() }).text;
+    reportSize();
+  };
+  inputs.forEach((input) => input.addEventListener('input', updatePreview));
+  updatePreview();
+  els.body.append(form);
+
+  currentForm = {
+    inputs,
+    submit: () => post({ type: 'insert', content: snippet.content, values: values() }),
+  };
+  setPrimary(TEXT.insertApply, currentForm.submit, IS_MAC ? COMMAND_KEY + RETURN_KEY : `Ctrl ${RETURN_KEY}`);
+  if (inputs.length) inputs[0].focus();
+}
+
+function openFill(id) {
+  state.view = 'fill';
+  state.fillId = id;
+  state.undoEntry = null;
+  render();
 }
 
 function autosize(textarea) {
@@ -552,14 +633,16 @@ async function moveFocused(step) {
   reportSize();
 }
 
+// A snippet with fill-in fields opens the fill-in form first; any other is inserted at once.
 function insertSnippet(snippet) {
-  post({ type: 'insert', content: snippet.content });
+  if (placeholders.inputLabels(snippet.content).length) openFill(snippet.id);
+  else post({ type: 'insert', content: snippet.content, values: {} });
 }
 
-// Escape leaves a form for the list, and closes the panel from the list. In create-only mode
-// there is no list, so it closes the panel.
+// Escape leaves a form for the list, and closes the panel from the list. A panel opened for one
+// form only (create-only or fill-only) has no list, so it closes.
 function goBack() {
-  if (state.view !== 'insert' && state.mode !== 'create-only') backToList();
+  if (state.view !== 'insert' && state.mode === 'insert') backToList();
   else post({ type: 'close' });
 }
 
@@ -613,6 +696,16 @@ document.addEventListener(
       } else if (event.key === 'Enter' && !event.shiftKey && items.length && event.target.tagName !== 'BUTTON') {
         event.preventDefault();
         items[state.focusIndex].activate();
+      }
+      return;
+    }
+
+    if (state.view === 'fill') {
+      if (event.key === 'Enter' && currentForm && !event.shiftKey && event.target.tagName !== 'BUTTON') {
+        event.preventDefault();
+        const index = currentForm.inputs.indexOf(event.target);
+        if (!modifier && index !== -1 && index < currentForm.inputs.length - 1) currentForm.inputs[index + 1].focus();
+        else currentForm.submit();
       }
       return;
     }
