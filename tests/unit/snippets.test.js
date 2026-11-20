@@ -116,3 +116,45 @@ test('preview line and character count', () => {
   assert.equal(lib.characterCount('x', 'en-US'), '1 character');
   assert.equal(lib.characterCount('x'.repeat(7693), 'en-US'), '7,693 characters');
 });
+
+// A stand-in for chrome.storage.local that keeps values in a Map and copies them like the real
+// storage does.
+function fakeStorage() {
+  const values = new Map();
+  const copy = (value) => (value === undefined ? undefined : JSON.parse(JSON.stringify(value)));
+  globalThis.chrome = {
+    storage: {
+      local: {
+        async get(keys) {
+          const result = {};
+          for (const key of [].concat(keys)) if (values.has(key)) result[key] = copy(values.get(key));
+          return result;
+        },
+        async set(items) {
+          for (const [key, value] of Object.entries(items)) values.set(key, copy(value));
+        },
+      },
+    },
+  };
+  return values;
+}
+
+test('every change to the list rewrites the abbreviation index with it', async () => {
+  const values = fakeStorage();
+  const index = () => values.get(lib.ABBREVIATIONS_KEY);
+  try {
+    const { snippet: a } = await lib.createSnippet({ content: 'A', title: '', abbreviation: ';a1' });
+    const { snippet: b } = await lib.createSnippet({ content: 'B', title: '', abbreviation: '' });
+    assert.deepEqual(index(), { ';a1': a.id });
+    await lib.updateSnippet(b.id, { content: 'B', title: '', abbreviation: ';b1' });
+    assert.deepEqual(index(), { ';a1': a.id, ';b1': b.id });
+    await lib.deleteSnippet(a.id);
+    assert.deepEqual(index(), { ';b1': b.id });
+    await lib.restoreSnippet(a.id);
+    assert.deepEqual(index(), { ';a1': a.id, ';b1': b.id });
+    await lib.updateSnippet(a.id, { content: 'A', title: '', abbreviation: '' });
+    assert.deepEqual(index(), { ';b1': b.id });
+  } finally {
+    delete globalThis.chrome;
+  }
+});
