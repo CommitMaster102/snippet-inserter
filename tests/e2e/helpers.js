@@ -110,6 +110,14 @@ async function pressInPanel(page, key, { ctrl = false } = {}) {
   );
 }
 
+/** Open the manager page (the extension's options page) at one of its views. */
+async function openManager(context, extensionId, view = 'snippets') {
+  const manager = await context.newPage();
+  await manager.goto(`chrome-extension://${extensionId}/options.html#${view}`);
+  await expect(manager.locator(`#view-${view}`)).toBeVisible();
+  return manager;
+}
+
 async function expectPanelClosed(page) {
   await expect(page.locator(PANEL)).toHaveCount(0);
 }
@@ -132,6 +140,7 @@ module.exports = {
   doubleTap,
   openPanel,
   pressInPanel,
+  openManager,
   expectPanelClosed,
   longText,
 };

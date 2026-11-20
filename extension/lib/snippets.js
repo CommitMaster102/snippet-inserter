@@ -205,6 +205,125 @@
     return null;
   }
 
+  // Backup files. An export is a JSON object with a format name and a version, so a later
+  // version of the extension can recognize an older file and convert it. Import also accepts a
+  // bare array of records, such as a copy of the stored value.
+
+  const EXPORT_FORMAT = 'snippet-inserter';
+  const EXPORT_VERSION = 1;
+
+  function buildExport(snippets, now = new Date()) {
+    const data = {
+      format: EXPORT_FORMAT,
+      version: EXPORT_VERSION,
+      exportedAt: now.toISOString(),
+      snippets: snippets.map(record),
+    };
+    return `${JSON.stringify(data, null, 2)}\n`;
+  }
+
+  // snippets-YYYY-MM-DD.json, in the local date.
+  function exportFileName(now = new Date()) {
+    const pad = (n) => String(n).padStart(2, '0');
+    return `snippets-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}.json`;
+  }
+
+  // Reads a backup file and decides what to add to `existing`. It never changes or removes a
+  // stored snippet:
+  // - a record whose title and text both match a stored snippet, or an earlier record in the
+  //   file, is skipped;
+  // - a record whose id is in use gets a new id;
+  // - a record whose abbreviation clashes with one in use is added without it;
+  // - a record without text is counted as invalid and skipped;
+  // - a title longer than TITLE_MAX_LENGTH is cut to that length.
+  // A file that is not a backup throws an Error whose message can be shown to the user.
+  function parseImport(text, existing) {
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error('This file is not a snippet backup: it is not valid JSON.');
+    }
+    let records;
+    if (Array.isArray(data)) {
+      records = data;
+    } else if (data && data.format === EXPORT_FORMAT && Array.isArray(data.snippets)) {
+      if (typeof data.version === 'number' && data.version > EXPORT_VERSION) {
+        throw new Error('This backup was made by a newer version of Snippet Inserter. Update the extension and try again.');
+      }
+      records = data.snippets;
+    } else {
+      throw new Error('This file is not a snippet backup.');
+    }
+
+    const known = existing.slice();
+    const taken = new Set(existing.map((s) => s.id));
+    const sameText = (s) => `${s.title || ''}\u0000${s.content}`;
+    const seen = new Set(existing.map(sameText));
+    const result = { add: [], skipped: 0, invalid: 0, renamed: 0, abbreviationsDropped: 0 };
+
+    for (const raw of records) {
+      if (!raw || typeof raw !== 'object' || typeof raw.content !== 'string' || !raw.content.trim()) {
+        result.invalid++;
+        continue;
+      }
+      const title = typeof raw.title === 'string' ? raw.title.slice(0, TITLE_MAX_LENGTH) : '';
+      const key = sameText({ title, content: raw.content });
+      if (seen.has(key)) {
+        result.skipped++;
+        continue;
+      }
+      seen.add(key);
+
+      let id = typeof raw.id === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(raw.id) ? raw.id : '';
+      if (!id || taken.has(id)) {
+        if (id) result.renamed++;
+        id = freshId(taken);
+      }
+      taken.add(id);
+
+      let abbreviation = typeof raw.abbreviation === 'string' ? raw.abbreviation : '';
+      if (abbreviation && abbreviationProblem(abbreviation, known)) {
+        abbreviation = '';
+        result.abbreviationsDropped++;
+      }
+      const createdAt =
+        typeof raw.createdAt === 'string' && !Number.isNaN(Date.parse(raw.createdAt))
+          ? raw.createdAt
+          : new Date().toISOString();
+      const added = record({ createdAt, content: raw.content, title, id, abbreviation });
+      result.add.push(added);
+      known.push(added);
+    }
+    return result;
+  }
+
+  // The sentence shown after an import.
+  function importReport(result) {
+    const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+    const parts = [`Imported ${plural(result.add.length, 'snippet', 'snippets')}.`];
+    if (result.skipped) {
+      parts.push(`Skipped ${plural(result.skipped, 'snippet that was', 'snippets that were')} already here.`);
+    }
+    if (result.invalid) {
+      parts.push(`Skipped ${plural(result.invalid, 'record', 'records')} without text.`);
+    }
+    if (result.abbreviationsDropped) {
+      parts.push(
+        `${plural(result.abbreviationsDropped, 'snippet', 'snippets')} lost an abbreviation that another snippet already uses.`
+      );
+    }
+    return parts.join(' ');
+  }
+
+  // Adds the snippets in a backup file to the end of the list, in one storage write.
+  async function importSnippets(text) {
+    const list = await readSnippets();
+    const result = parseImport(text, list);
+    if (result.add.length) await writeSnippets([...list, ...result.add]);
+    return result;
+  }
+
   // Panel and manager helpers that do not touch storage.
 
   // The name shown for a snippet: its title, or the first line of its text.
@@ -267,6 +386,11 @@
     purgeDeleted,
     moveSnippet,
     abbreviationProblem,
+    buildExport,
+    exportFileName,
+    parseImport,
+    importReport,
+    importSnippets,
     displayTitle,
     previewLine,
     filterSnippets,

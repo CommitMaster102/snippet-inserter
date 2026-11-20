@@ -1,0 +1,396 @@
+/*
+ * Snippet manager styles. The colors match panel.css: the variables hold the light theme, and
+ * the prefers-color-scheme block redefines them for dark mode.
+ */
+
+:root {
+  --brand-default: #239aff;
+  --brand-subtle: #ecf6ff;
+  --text-default: #2f3237;
+  --text-subtle: #5e636e;
+  --text-error: #d01941;
+  --text-ok: #1d7f45;
+  --border-default: #dee3ed;
+  --bg-default: #ffffff;
+  --bg-neutral: #f1f3f9;
+  --bg-error-subtle: #ffeef2;
+  --radius: 8px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand-default: #5eb5ff;
+    --brand-subtle: #041a37;
+    --text-default: #f1f3f9;
+    --text-subtle: #c2c9d6;
+    --text-error: #ff7a94;
+    --text-ok: #6fd69b;
+    --border-default: #2f3237;
+    --bg-default: #111213;
+    --bg-neutral: #1f2124;
+    --bg-error-subtle: #26020a;
+    color-scheme: dark;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-default);
+  color: var(--text-default);
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.muted {
+  color: var(--text-subtle);
+}
+
+kbd {
+  font: inherit;
+  padding: 0 4px;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.primary {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--brand-default);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.secondary {
+  padding: 5px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-default);
+}
+
+.secondary:hover {
+  background: var(--bg-neutral);
+}
+
+.danger {
+  color: var(--text-error);
+}
+
+.input,
+select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius);
+  background: var(--bg-default);
+  color: var(--text-default);
+  font: inherit;
+}
+
+select {
+  width: auto;
+}
+
+.input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--brand-default);
+}
+
+/* Page layout: a top bar, a navigation column, and the current view. */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.topbar h1 {
+  flex: 1;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  min-height: calc(100vh - 58px);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 10px;
+  border-right: 1px solid var(--border-default);
+}
+
+.nav a {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  color: var(--text-default);
+  text-decoration: none;
+}
+
+.nav a:hover {
+  background: var(--bg-neutral);
+}
+
+.nav a[aria-current="page"] {
+  background: var(--brand-subtle);
+  font-weight: 600;
+}
+
+.nav-count {
+  color: var(--text-subtle);
+  font-weight: 400;
+}
+
+.view-page {
+  width: 100%;
+  max-width: 680px;
+  padding: 20px 24px;
+}
+
+.view-page h2:not(:first-child) {
+  margin-top: 28px;
+}
+
+/* Snippets view: the list on the left and the editor on the right. */
+
+.view-snippets {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+}
+
+.list-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-right: 1px solid var(--border-default);
+}
+
+.snippet-list,
+.deleted-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: var(--radius);
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.row:hover {
+  background: var(--bg-neutral);
+}
+
+.row[aria-selected="true"] {
+  background: var(--brand-subtle);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--brand-default);
+  outline-offset: -2px;
+}
+
+.row.dragging {
+  opacity: 0.5;
+}
+
+.row.drop-before {
+  border-top-color: var(--brand-default);
+}
+
+.row.drop-after {
+  border-bottom-color: var(--brand-default);
+}
+
+.handle {
+  display: inline-flex;
+  color: var(--text-subtle);
+  cursor: grab;
+}
+
+.row-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.row-name,
+.row-preview {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.row-preview {
+  color: var(--text-subtle);
+  font-size: 12px;
+}
+
+.pill {
+  flex-shrink: 0;
+  padding: 0 6px;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  color: var(--text-subtle);
+  font-size: 12px;
+}
+
+.undo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--bg-neutral);
+}
+
+.undo span {
+  flex: 1;
+}
+
+.editor-pane {
+  padding: 16px 20px;
+  min-width: 0;
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-weight: 600;
+}
+
+.field-grow {
+  flex: 1;
+}
+
+.content {
+  min-height: 320px;
+  height: 100%;
+  resize: vertical;
+}
+
+.field-error {
+  margin: -4px 0 0;
+  color: var(--text-error);
+  font-size: 12px;
+}
+
+.editor-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--bg-neutral);
+}
+
+.notice span:first-child {
+  flex: 1;
+}
+
+.notice-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.status {
+  min-height: 21px;
+  margin: 0;
+  color: var(--brand-default);
+}
+
+.status-ok {
+  color: var(--text-ok);
+}
+
+.status-error {
+  color: var(--text-error);
+}
+
+/* Recently deleted. */
+
+.deleted-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+/* Settings and backup. */
+
+.setting {
+  margin-bottom: 12px;
+}
+
+.setting-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

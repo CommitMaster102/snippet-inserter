@@ -19,6 +19,25 @@ const { test: base, chromium, expect } = require('@playwright/test');
 const EXTENSION_PATH = path.resolve(process.env.EXTENSION_PATH || path.join(__dirname, '..', '..', 'extension'));
 const PAGES_DIR = path.resolve(__dirname, '..', 'pages');
 
+// A persistent context is required for extensions. An empty profile path makes Playwright use a
+// new temporary profile, and the "chromium" channel runs the full browser, whose headless mode
+// supports extensions.
+function launchContext() {
+  return chromium.launchPersistentContext('', {
+    channel: 'chromium',
+    viewport: { width: 1000, height: 720 },
+    acceptDownloads: true,
+    args: [`--disable-extensions-except=${EXTENSION_PATH}`, `--load-extension=${EXTENSION_PATH}`],
+  });
+}
+
+// The extension's service worker in `context`, and the extension id taken from its address.
+async function extensionWorker(context) {
+  let [worker] = context.serviceWorkers();
+  if (!worker) worker = await context.waitForEvent('serviceworker');
+  return { worker, id: new URL(worker.url()).host };
+}
+
 const test = base.extend({
   // A static server for tests/pages, shared by all tests in one worker process.
   pagesUrl: [
@@ -42,23 +61,14 @@ const test = base.extend({
     { scope: 'worker' },
   ],
 
-  // A persistent context is required for extensions. An empty profile path makes Playwright use
-  // a new temporary profile, and the "chromium" channel runs the full browser, whose headless
-  // mode supports extensions.
   context: async ({}, use) => {
-    const context = await chromium.launchPersistentContext('', {
-      channel: 'chromium',
-      viewport: { width: 1000, height: 720 },
-      args: [`--disable-extensions-except=${EXTENSION_PATH}`, `--load-extension=${EXTENSION_PATH}`],
-    });
+    const context = await launchContext();
     await use(context);
     await context.close();
   },
 
   serviceWorker: async ({ context }, use) => {
-    let [worker] = context.serviceWorkers();
-    if (!worker) worker = await context.waitForEvent('serviceworker');
-    await use(worker);
+    await use((await extensionWorker(context)).worker);
   },
 
   extensionId: async ({ serviceWorker }, use) => {
@@ -72,4 +82,4 @@ const test = base.extend({
   },
 });
 
-module.exports = { test, expect };
+module.exports = { test, expect, launchContext, extensionWorker };

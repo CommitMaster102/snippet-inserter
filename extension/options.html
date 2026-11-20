@@ -2,87 +2,106 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Snippet Inserter settings</title>
-    <style>
-      :root {
-        color-scheme: light dark;
-        --text: #2f3237;
-        --subtle: #5e636e;
-        --border: #dee3ed;
-        --bg: #ffffff;
-        --brand: #239aff;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --text: #f1f3f9;
-          --subtle: #c2c9d6;
-          --border: #2f3237;
-          --bg: #111213;
-          --brand: #5eb5ff;
-        }
-      }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      }
-      main {
-        max-width: 560px;
-        margin: 40px auto;
-        padding: 0 16px;
-      }
-      h1 {
-        font-size: 20px;
-        margin: 0 0 16px;
-      }
-      label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 6px;
-      }
-      select {
-        font: inherit;
-        padding: 6px 8px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        background: var(--bg);
-        color: var(--text);
-      }
-      p {
-        color: var(--subtle);
-      }
-      kbd {
-        font: inherit;
-        padding: 0 4px;
-        border: 1px solid var(--border);
-        border-radius: 4px;
-      }
-      #status {
-        color: var(--brand);
-        min-height: 21px;
-      }
-    </style>
+    <title>Snippet Inserter</title>
+    <link rel="stylesheet" href="options.css" />
   </head>
   <body>
-    <main>
+    <header class="topbar">
       <h1>Snippet Inserter</h1>
-      <label for="hotkey">Open the snippet panel with</label>
-      <select id="hotkey">
-        <option value="Control">Double tap Ctrl</option>
-        <option value="Shift">Double tap Shift</option>
-        <option value="Alt">Double tap Alt</option>
-        <option value="off">Off</option>
-      </select>
-      <p id="status" role="status"></p>
-      <p>
-        Click in a text box, a rich-text editor, or a Google Docs document and tap the key twice
-        quickly. In the panel, pick a snippet with the mouse, the arrow keys and <kbd>Enter</kbd>, or <kbd>Ctrl</kbd>+<kbd>2</kbd>
-        to <kbd>Ctrl</kbd>+<kbd>9</kbd>. <kbd>Ctrl</kbd>+<kbd>1</kbd> creates a snippet, and if text
-        is selected when the panel opens, the new snippet starts with that text. Snippets have no
-        length limit.
-      </p>
-    </main>
+      <button id="newSnippet" class="primary" type="button">New snippet</button>
+    </header>
+    <div class="layout">
+      <nav class="nav" aria-label="Sections">
+        <a href="#snippets" data-view="snippets">Snippets <span id="snippetCount" class="nav-count"></span></a>
+        <a href="#deleted" data-view="deleted">Recently deleted <span id="deletedCount" class="nav-count"></span></a>
+        <a href="#settings" data-view="settings">Settings and backup</a>
+      </nav>
+
+      <section id="view-snippets" class="view view-snippets" hidden>
+        <div class="list-pane">
+          <input id="search" class="input" type="search" placeholder="Search snippets..." autocomplete="off" spellcheck="false" />
+          <ol id="snippetList" class="snippet-list" aria-label="Snippets"></ol>
+          <p id="listEmpty" class="muted" hidden>No snippets yet. Click New snippet to create one.</p>
+          <div id="undoBar" class="undo" role="status" hidden>
+            <span>Snippet deleted.</span>
+            <button id="undoButton" class="secondary" type="button">Undo</button>
+          </div>
+        </div>
+
+        <div class="editor-pane">
+          <p id="editorEmpty" class="muted">Select a snippet, or click New snippet.</p>
+          <form id="editor" class="editor" hidden novalidate>
+            <div id="editorNotice" class="notice" role="status" hidden>
+              <span id="editorNoticeText"></span>
+              <span class="notice-actions">
+                <button id="noticePrimary" class="secondary" type="button"></button>
+                <button id="noticeSecondary" class="secondary" type="button"></button>
+              </span>
+            </div>
+            <h2 id="editorHeading"></h2>
+            <label class="field">
+              <span class="field-label">Name</span>
+              <input id="title" class="input" type="text" placeholder="Optional" autocomplete="off" />
+            </label>
+            <p id="titleError" class="field-error" hidden></p>
+            <label class="field field-grow">
+              <span class="field-label">Text</span>
+              <textarea id="content" class="input content" spellcheck="true"></textarea>
+            </label>
+            <p id="contentError" class="field-error" hidden></p>
+            <div class="editor-footer">
+              <span id="count" class="muted"></span>
+              <span class="spacer"></span>
+              <button id="duplicate" class="secondary" type="button">Duplicate</button>
+              <button id="delete" class="secondary danger" type="button">Delete</button>
+              <button id="save" class="primary" type="submit">Save</button>
+            </div>
+            <p id="editorStatus" class="status" role="status"></p>
+          </form>
+        </div>
+      </section>
+
+      <section id="view-deleted" class="view view-page" hidden>
+        <h2>Recently deleted</h2>
+        <p class="muted">The last 20 deleted snippets stay here until you restore them or delete them for good.</p>
+        <ol id="deletedList" class="deleted-list"></ol>
+        <p id="deletedEmpty" class="muted" hidden>Nothing was deleted recently.</p>
+      </section>
+
+      <section id="view-settings" class="view view-page" hidden>
+        <h2>Settings</h2>
+        <div class="setting">
+          <label for="hotkey" class="setting-label">Open the snippet panel with</label>
+          <select id="hotkey">
+            <option value="Control">Double tap Ctrl</option>
+            <option value="Shift">Double tap Shift</option>
+            <option value="Alt">Double tap Alt</option>
+            <option value="off">Off</option>
+          </select>
+          <p id="status" class="status" role="status"></p>
+        </div>
+        <p class="muted">
+          Click in a text box, a rich-text editor, or a Google Docs document and tap the key twice
+          quickly. In the panel, pick a snippet with the mouse, the arrow keys and <kbd>Enter</kbd>,
+          or <kbd>Ctrl</kbd>+<kbd>2</kbd> to <kbd>Ctrl</kbd>+<kbd>9</kbd>. <kbd>Ctrl</kbd>+<kbd>1</kbd>
+          creates a snippet, and if text is selected when the panel opens, the new snippet starts
+          with that text. Snippets have no length limit.
+        </p>
+
+        <h2>Backup</h2>
+        <div class="setting setting-row">
+          <button id="export" class="secondary" type="button">Export snippets</button>
+          <span id="exportNote" class="muted"></span>
+        </div>
+        <div class="setting setting-row">
+          <button id="import" class="secondary" type="button">Import snippets</button>
+          <span class="muted">Adds the snippets in a backup file. Snippets you already have are skipped.</span>
+          <input id="importFile" type="file" accept=".json,application/json" hidden />
+        </div>
+        <p id="importResult" class="status" role="status"></p>
+      </section>
+    </div>
+    <script src="lib/snippets.js"></script>
     <script src="options.js"></script>
   </body>
 </html>

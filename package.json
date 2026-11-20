@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "test": "playwright test",
+    "test:unit": "node --test tests/unit/",
     "test:headed": "playwright test --headed",
     "test:report": "playwright show-report",
     "test:docs-live": "playwright test --config playwright.live.config.js",

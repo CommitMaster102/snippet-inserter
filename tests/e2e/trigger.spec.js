@@ -72,7 +72,7 @@ test('a click outside the panel closes it', async ({ page }) => {
 
 test('the options page switches the trigger to Shift', async ({ context, extensionId, page }) => {
   const options = await context.newPage();
-  await options.goto(`chrome-extension://${extensionId}/options.html`);
+  await options.goto(`chrome-extension://${extensionId}/options.html#settings`);
   await expect(options.locator('#hotkey')).toHaveValue('Control');
   await options.locator('#hotkey').selectOption('Shift');
   await expect(options.locator('#status')).toContainText('Saved');
