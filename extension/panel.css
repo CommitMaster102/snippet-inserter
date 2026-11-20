@@ -266,11 +266,14 @@ svg {
   min-width: 0;
 }
 
+/* The label keeps its own background, because in dark mode a highlighted row has the same color
+   as the label's border. */
 .item-abbreviation {
   flex-shrink: 0;
   padding: 0 6px;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-small);
+  background: var(--bg-default);
   color: var(--text-subtle);
   font-size: var(--font-small);
   line-height: 18px;
