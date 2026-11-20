@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hidden input frame test page</title>
+  </head>
+  <body>
+    <textarea id="plain" rows="4" cols="60">Hello world</textarea>
+    <script>
+      // Some editors take keyboard input through an iframe the user cannot see, as Google Docs
+      // does. On a site other than Google Docs, the extension must not open its panel inside such
+      // a frame, where nobody could see it.
+      const frame = document.createElement('iframe');
+      frame.id = 'hidden';
+      frame.style.cssText = 'position: absolute; top: -10000px; left: 0; width: 600px; height: 1px; border: 0;';
+      document.body.appendChild(frame);
+      const box = frame.contentDocument.createElement('div');
+      box.id = 'box';
+      box.setAttribute('contenteditable', 'true');
+      frame.contentDocument.body.appendChild(box);
+    </script>
+  </body>
+</html>

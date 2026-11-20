@@ -45,6 +45,24 @@ test('does not open in single-line or read-only fields', async ({ page }) => {
   await expect(page.locator(PANEL)).toHaveCount(0);
 });
 
+test('does not open in a field inside a frame the user cannot see', async ({ page, pagesUrl }) => {
+  await page.goto(`${pagesUrl}/hidden-frame.html`);
+  await waitForContentScript(page);
+
+  // Repeated, because the script in the frame loads at document idle like the one in the page.
+  const box = page.frameLocator('#hidden').locator('#box');
+  for (let attempt = 0; attempt < 6; attempt++) {
+    await box.focus();
+    await doubleTap(page);
+    await page.waitForTimeout(400);
+  }
+  await expect(page.locator(PANEL)).toHaveCount(0);
+  const panelsInFrame = await page.evaluate(
+    () => document.getElementById('hidden').contentDocument.querySelectorAll('iframe').length
+  );
+  expect(panelsInFrame).toBe(0);
+});
+
 test('a click outside the panel closes it', async ({ page }) => {
   await selectInTextarea(page, '#plain', 5);
   await openPanel(page);

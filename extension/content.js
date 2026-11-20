@@ -26,14 +26,38 @@
   const SPACE_CHARS = new RegExp(`[${String.fromCharCode(0x00a0, 0x0020, 0x2009, 0x202f)}]`);
   const MESSAGE_FLAG = '__snippetInserter';
   const BLOCK_DISPLAY = /^(block|list-item|table|table-cell|table-row|table-caption|flex|grid|flow-root)$/;
-  // Google Docs takes keyboard input and pastes through a hidden iframe with this class.
-  const DOCS_FRAME_CLASS = 'docs-texteventtarget-iframe';
+  // Google Docs internals this script relies on. Each one is a hint with a fallback, so a rename
+  // on Google's side degrades the Docs path instead of breaking it; see "Google Docs" below.
+  const DOCS = {
+    host: 'docs.google.com',
+    pathPrefix: '/document/',
+    inputFrameClass: 'docs-texteventtarget-iframe',
+    ownCaretSelector: '#kix-current-user-cursor-caret',
+    caretSelectors: ['.kix-cursor-caret', '[class*="cursor-caret"]'],
+    cursorSelector: '.kix-cursor',
+    cursorNameSelector: '.kix-cursor-name',
+    editorSelectors: ['.kix-appview-editor', '.kix-appview-editor-container'],
+  };
   const DOCS_OPEN_EVENT = 'snippet-inserter:docs-open';
+  // A frame narrower or shorter than this counts as hidden from the user.
+  const HIDDEN_FRAME_MAX_PX = 4;
+  // An element wider than this is not a text caret.
+  const CARET_MAX_WIDTH = 8;
+  // After a paste, Docs moves its caret within tens of milliseconds; an insert counts as
+  // unconfirmed when the caret has not moved after DOCS_CONFIRM_MS.
+  const DOCS_CONFIRM_MS = 1000;
+  const DOCS_CONFIRM_POLL_MS = 25;
+  // A click older than this is not used to place the panel.
+  const LAST_POINTER_MAX_AGE_MS = 60_000;
+  const NOTICE_MS = 6000;
+  const PASTE_KEYS = navigator.userAgent.includes('Mac OS') ? 'Cmd+V' : 'Ctrl+V';
 
   let settings = { ...DEFAULT_SETTINGS };
   let lastKeyDown = null;
   let lastKeyUp = null;
+  let lastPointer = null;
   let panel = null;
+  let notice = null;
   let positionQueued = false;
 
   function extensionAlive() {
@@ -107,19 +131,21 @@
         lastKeyUp.location === event.location
       ) {
         lastKeyUp = null;
-        // In the Docs input frame, the top frame opens the panel. The key release is not
-        // stopped here, so Docs does not take Ctrl as still held.
-        const docsFrame = docsInputFrame();
-        if (docsFrame) {
-          if (extensionAlive()) docsFrame.dispatchEvent(new CustomEvent(DOCS_OPEN_EVENT));
+        const target = editableFrom(deepActiveElement(document));
+        if (!target || panel || !extensionAlive()) return;
+        // A field inside a frame the user cannot see never gets the panel in that frame. In
+        // Google Docs the top frame opens it instead. The key release is not stopped here, so
+        // Docs does not take Ctrl as still held.
+        const hiddenFrame = hiddenFrameElement();
+        if (hiddenFrame) {
+          if (isDocsDocument(hiddenFrame.ownerDocument)) {
+            hiddenFrame.dispatchEvent(new CustomEvent(DOCS_OPEN_EVENT));
+          }
           return;
         }
-        const target = editableFrom(deepActiveElement(document));
-        if (target && !panel && extensionAlive()) {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          openPanel(target);
-        }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        openPanel(target);
         return;
       }
       lastKeyUp = { timestamp: event.timeStamp, location: event.location };
@@ -152,44 +178,63 @@
   }
 
   // Google Docs. Docs draws the document on a canvas, so the page holds no text to edit, and it
-  // takes keyboard input and pastes through a hidden, same-origin iframe (DOCS_FRAME_CLASS) whose
-  // document holds a contenteditable textbox. A copy of this script runs in that frame, because
-  // the manifest injects it into about:blank frames. When it sees the double tap, it dispatches
+  // takes keyboard input and pastes through a hidden, same-origin iframe whose document holds a
+  // contenteditable textbox. A copy of this script runs in that frame, because the manifest
+  // injects it into about:blank frames. When it sees the double tap, it dispatches
   // DOCS_OPEN_EVENT on its own <iframe> element, which lives in the top document, so the top
-  // frame's copy receives it. The top frame then shows the panel at the caret Docs draws
-  // (.kix-cursor-caret) and inserts the snippet by dispatching a paste at the hidden textbox.
+  // frame's copy receives it. The top frame shows the panel at the caret Docs draws and inserts
+  // the snippet by dispatching a paste at the hidden textbox.
+  //
+  // None of this is a documented interface, so each step relies on behavior first and treats
+  // the names in DOCS as hints. If the input frame is renamed, it is still found by holding the
+  // focus while being invisible. If the caret element is renamed, the panel opens at the last
+  // click or at the top of the editor. If the caret does not move after a paste, the insert
+  // counts as failed: the snippet is copied to the clipboard and a notice says so.
 
-  function isDocsInputFrame(frame) {
+  function isDocsDocument(doc) {
     try {
       return (
-        Boolean(frame) &&
-        frame.tagName === 'IFRAME' &&
-        frame.classList.contains(DOCS_FRAME_CLASS) &&
-        frame.ownerDocument.location.hostname === 'docs.google.com'
+        doc.location.hostname === DOCS.host && doc.location.pathname.startsWith(DOCS.pathPrefix)
       );
     } catch {
       return false;
     }
   }
 
-  // The <iframe> element of this window when this copy runs in the Docs input frame, else null.
-  function docsInputFrame() {
-    let frame = null;
+  // The <iframe> element of this window when the user cannot see the frame, else null. A frame
+  // counts as hidden when its element has the Docs input frame class, lies outside the parent's
+  // viewport, is smaller than HIDDEN_FRAME_MAX_PX on a side, or is hidden by CSS.
+  function hiddenFrameElement() {
     try {
-      frame = window.frameElement;
+      const frame = window.frameElement;
+      if (!frame || frame.tagName !== 'IFRAME') return null;
+      if (frame.classList.contains(DOCS.inputFrameClass)) return frame;
+      const view = frame.ownerDocument.defaultView;
+      const rect = frame.getBoundingClientRect();
+      const style = view.getComputedStyle(frame);
+      const offscreen =
+        rect.bottom <= 0 || rect.right <= 0 || rect.top >= view.innerHeight || rect.left >= view.innerWidth;
+      const tiny = rect.width < HIDDEN_FRAME_MAX_PX || rect.height < HIDDEN_FRAME_MAX_PX;
+      const invisible = style.visibility === 'hidden' || Number(style.opacity) === 0;
+      return offscreen || tiny || invisible ? frame : null;
     } catch {
       return null;
     }
-    return isDocsInputFrame(frame) ? frame : null;
   }
 
+  // The element with focus in the Docs input frame, or the frame's first editable element if the
+  // focus has already moved.
   function docsTextbox(frame) {
-    const doc = frame.contentDocument;
+    let doc = null;
+    try {
+      doc = frame.contentDocument;
+    } catch {
+      return null;
+    }
     if (!doc) return null;
-    return (
-      doc.querySelector('[contenteditable="true"][role="textbox"]') ||
-      doc.querySelector('[contenteditable="true"]')
-    );
+    const active = deepActiveElement(doc);
+    if (active && (active.isContentEditable || active.tagName === 'TEXTAREA')) return active;
+    return doc.querySelector('[contenteditable]:not([contenteditable="false"]), textarea');
   }
 
   // Docs answers a copy event by writing the selected text into the event's DataTransfer. The
@@ -207,25 +252,160 @@
     }
   }
 
-  function docsCaretRect() {
-    const caret = document.querySelector('.kix-cursor-caret');
-    const rect = caret && caret.getBoundingClientRect();
-    return rect && rect.height ? rect : null;
+  // The element's box, measured even while it or an ancestor has display: none. Docs hides its
+  // caret that way while text is selected and while the panel has the focus, but keeps moving it,
+  // so showing it for the length of one synchronous measurement gives its current position.
+  function rectEvenIfHidden(element) {
+    const rect = element.getBoundingClientRect();
+    if (rect.width || rect.height) return rect;
+    const hidden = [];
+    for (let node = element; node && node !== document.body; node = node.parentElement) {
+      if (getComputedStyle(node).display === 'none') {
+        hidden.push([node, node.style.getPropertyValue('display'), node.style.getPropertyPriority('display')]);
+      }
+    }
+    if (!hidden.length) return rect;
+    for (const [node] of hidden) node.style.setProperty('display', 'block', 'important');
+    const shown = element.getBoundingClientRect();
+    for (const [node, value, priority] of hidden) {
+      if (value) node.style.setProperty('display', value, priority);
+      else node.style.removeProperty('display');
+    }
+    return shown;
   }
 
-  // Used when Docs shows no caret: the top-left corner of the editor area.
-  function docsEditorCorner() {
-    const editor = document.querySelector('.kix-appview-editor') || document.documentElement;
+  // A caret is an element taller than zero and narrower than CARET_MAX_WIDTH.
+  function caretShape(element) {
+    const rect = rectEvenIfHidden(element);
+    return rect.height > 0 && rect.width < CARET_MAX_WIDTH ? rect : null;
+  }
+
+  // A collaborator's cursor carries the person's name; the local user's has an empty label.
+  function isCollaboratorCaret(caret) {
+    const cursor = caret.closest(DOCS.cursorSelector) || caret.parentElement;
+    const label = cursor && cursor.querySelector(DOCS.cursorNameSelector);
+    return Boolean(label && label.textContent.trim());
+  }
+
+  // The local user's caret, or null if none is found. Docs marks it with an id; without that, it
+  // is the first caret-shaped element that is not a collaborator's. A collaborator's caret is
+  // never used: the panel would open at another person's cursor.
+  function docsCaretRect() {
+    const own = document.querySelector(DOCS.ownCaretSelector);
+    const ownRect = own && caretShape(own);
+    if (ownRect) return ownRect;
+    const carets = new Set();
+    for (const selector of DOCS.caretSelectors) {
+      for (const element of document.querySelectorAll(selector)) carets.add(element);
+    }
+    for (const caret of carets) {
+      const rect = caretShape(caret);
+      if (rect && !isCollaboratorCaret(caret)) return rect;
+    }
+    return null;
+  }
+
+  // Where the panel goes when no caret is found: the last click in the page if it is recent,
+  // otherwise centred at the top of the visible part of the editor.
+  function docsFallbackRect() {
+    if (lastPointer && Date.now() - lastPointer.time < LAST_POINTER_MAX_AGE_MS) {
+      return { left: lastPointer.x, top: lastPointer.y, bottom: lastPointer.y };
+    }
+    const editor =
+      DOCS.editorSelectors.map((selector) => document.querySelector(selector)).find(Boolean) ||
+      document.documentElement;
     const box = editor.getBoundingClientRect();
+    const visibleLeft = Math.max(box.left, 0);
+    const visibleRight = Math.min(box.right, document.documentElement.clientWidth || window.innerWidth);
+    const left = visibleLeft + Math.max(0, (visibleRight - visibleLeft - PANEL_WIDTH) / 2);
     const top = Math.max(box.top, 0) + VIEWPORT_MARGIN;
-    return { left: box.left + VIEWPORT_MARGIN, top, bottom: top };
+    return { left, top, bottom: top };
+  }
+
+  // Resolves to true once the Docs caret has moved away from `before`.
+  async function docsCaretMoved(before) {
+    if (!before) return false;
+    const deadline = Date.now() + DOCS_CONFIRM_MS;
+    while (Date.now() < deadline) {
+      await wait(DOCS_CONFIRM_POLL_MS);
+      const now = docsCaretRect();
+      if (now && (Math.abs(now.left - before.left) >= 1 || Math.abs(now.top - before.top) >= 1)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // The last resort when Docs did not take the paste: the snippet goes to the clipboard, and a
+  // notice tells the user to paste it. The clipboard is written only in this case.
+  async function docsInsertFallback(content) {
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(content);
+      copied = true;
+    } catch {
+      // The page did not allow the clipboard write; the notice says where to copy it from.
+    }
+    showNotice(
+      copied
+        ? `Snippet copied. If it did not appear in the document, press ${PASTE_KEYS}.`
+        : 'The snippet could not be inserted. Open it with the pencil in the snippet panel and copy its text.'
+    );
+  }
+
+  // A short message at the top of the page. It sits in a shadow root, so the page's styles do
+  // not reach it, and it removes itself after NOTICE_MS.
+  function showNotice(message) {
+    if (notice) notice.remove();
+    const host = document.createElement('div');
+    setStyle(host, {
+      position: 'fixed',
+      top: '16px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      'z-index': '2147483647',
+      display: 'block',
+      margin: '0',
+      padding: '0',
+      border: '0',
+    });
+    const box = document.createElement('div');
+    box.setAttribute('role', 'status');
+    box.textContent = message;
+    setStyle(box, {
+      font: '14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
+      color: '#ffffff',
+      background: '#202124',
+      padding: '10px 14px',
+      'border-radius': '8px',
+      'box-shadow': '0 4px 16px rgba(0, 0, 0, 0.25)',
+      'max-width': '420px',
+    });
+    host.attachShadow({ mode: 'open' }).append(box);
+    document.documentElement.appendChild(host);
+    notice = host;
+    setTimeout(() => {
+      host.remove();
+      if (notice === host) notice = null;
+    }, NOTICE_MS);
+  }
+
+  if (window === window.top && isDocsDocument(document)) {
+    window.addEventListener(
+      'pointerdown',
+      (event) => {
+        lastPointer = { x: event.clientX, y: event.clientY, time: Date.now() };
+      },
+      true
+    );
   }
 
   document.addEventListener(
     DOCS_OPEN_EVENT,
     (event) => {
       const frame = event.target;
-      if (panel || !isDocsInputFrame(frame) || !extensionAlive()) return;
+      if (panel || !extensionAlive() || !isDocsDocument(document)) return;
+      if (!frame || frame.tagName !== 'IFRAME' || frame.ownerDocument !== document) return;
       const textbox = docsTextbox(frame);
       if (textbox) openPanel({ kind: 'docs', el: textbox, frame });
     },
@@ -246,10 +426,12 @@
 
   function captureContext(target) {
     if (target.kind === 'docs') {
+      const caret = docsCaretRect();
       return {
         ...target,
         selectedText: docsSelectedText(target.el),
-        caret: docsCaretRect() || docsEditorCorner(),
+        caret: caret || docsFallbackRect(),
+        caretFound: Boolean(caret),
       };
     }
 
@@ -417,7 +599,10 @@
     if (!restoreSelection(ctx)) return;
     if (ctx.kind === 'docs') {
       await wait(SELECTION_SETTLE_MS);
+      // Without any caret the insert cannot be confirmed, and counts as failed.
+      const before = docsCaretRect() || (ctx.caretFound ? ctx.caret : null);
       pasteIntoDocs(ctx, content);
+      if (!(await docsCaretMoved(before))) await docsInsertFallback(content);
       return;
     }
     const text = addSpaces(content, ctx);

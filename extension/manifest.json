@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Snippet Inserter",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Insert saved text snippets into any text field with a double tap of Ctrl. Snippets have no length limit.",
   "minimum_chrome_version": "110",
   "permissions": ["storage", "unlimitedStorage"],

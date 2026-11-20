@@ -22,21 +22,12 @@
       }
       .kix-cursor {
         position: absolute;
-        left: 220px;
         top: 150px;
       }
       .kix-cursor-caret {
         width: 2px;
         height: 18px;
         background: #000;
-      }
-      .docs-texteventtarget-iframe {
-        position: absolute;
-        top: -10000px;
-        left: 0;
-        width: 600px;
-        height: 1px;
-        border: 0;
       }
       #comment {
         display: block;
@@ -47,24 +38,69 @@
   <body>
     <div class="kix-appview-editor">
       <div id="doc"></div>
-      <div class="kix-cursor"><div class="kix-cursor-caret"></div></div>
+      <div class="kix-cursor" id="ownCursor">
+        <div class="kix-cursor-caret" id="kix-current-user-cursor-caret"></div>
+        <div class="kix-cursor-name"></div>
+      </div>
     </div>
     <textarea id="comment" rows="3" cols="60">Hello world</textarea>
     <script>
-      // A stand-in for the Google Docs editor, served at a docs.google.com address by the tests.
-      // Docs draws the document on a canvas and takes keyboard input and pastes through a hidden,
-      // same-origin iframe. This page keeps the document as a string, with the selection as two
-      // offsets into it, and shows the string in #doc.
+      // A stand-in for the Google Docs editor, served at a docs.google.com/document/ address by
+      // the tests. Docs draws the document on a canvas and takes keyboard input and pastes
+      // through a hidden, same-origin iframe. This page keeps the document as a string, with the
+      // selection as two offsets into it, shows the string in #doc, and moves its caret element
+      // with the selection.
+      //
+      // Query parameters imitate changes Google could make to Docs:
+      //   frameClass=renamed  the input frame has a different class name
+      //   caret=none          there is no caret element
+      //   caretId=none        the local caret has no id
+      //   collaborator=1      another person's cursor comes first in the page
+      //   paste=ignore        a paste changes nothing
+      //   copy=ignore         a copy event gets no answer
+      const params = new URLSearchParams(location.search);
+      const CARET_LEFT = 120;
+      const CHAR_WIDTH = 8;
       window.docState = { text: 'Hello world.', start: 5, end: 5, pastes: [] };
 
-      function render() {
-        document.getElementById('doc').textContent = window.docState.text;
+      const editor = document.querySelector('.kix-appview-editor');
+      const ownCursor = document.getElementById('ownCursor');
+      if (params.get('caret') === 'none') ownCursor.remove();
+      if (params.get('caretId') === 'none') ownCursor.querySelector('.kix-cursor-caret').removeAttribute('id');
+      if (params.get('collaborator') === '1') {
+        const other = document.createElement('div');
+        other.className = 'kix-cursor';
+        other.id = 'otherCursor';
+        other.style.left = '420px';
+        other.style.top = '250px';
+        other.innerHTML = '<div class="kix-cursor-caret"></div><div class="kix-cursor-name">Anonymous Dingo</div>';
+        editor.insertBefore(other, editor.firstChild);
       }
-      render();
+
+      // As in Docs, the local caret sits at the end of the selection and is hidden with
+      // display: none while text is selected or while the document does not have the focus.
+      let focused = false;
+      function render() {
+        const state = window.docState;
+        document.getElementById('doc').textContent = state.text;
+        ownCursor.style.left = `${CARET_LEFT + CHAR_WIDTH * state.end}px`;
+        ownCursor.style.display = focused && state.start === state.end ? '' : 'none';
+      }
+      window.renderDocument = render;
+
+      // Where the local caret is, even while it is hidden. Only the tests use this.
+      window.caretRect = () => {
+        const display = ownCursor.style.display;
+        ownCursor.style.display = '';
+        const rect = ownCursor.querySelector('.kix-cursor-caret').getBoundingClientRect().toJSON();
+        ownCursor.style.display = display;
+        return rect;
+      };
 
       const frame = document.createElement('iframe');
-      frame.className = 'docs-texteventtarget-iframe';
+      frame.className = params.get('frameClass') === 'renamed' ? 'input-frame-v2' : 'docs-texteventtarget-iframe';
       frame.tabIndex = -1;
+      frame.style.cssText = 'position: absolute; top: -10000px; left: 0; width: 600px; height: 1px; border: 0;';
       document.body.appendChild(frame);
       const textbox = frame.contentDocument.createElement('div');
       textbox.setAttribute('contenteditable', 'true');
@@ -73,8 +109,25 @@
       textbox.tabIndex = 0;
       frame.contentDocument.body.appendChild(textbox);
 
+      textbox.addEventListener('focus', () => {
+        focused = true;
+        render();
+      });
+      textbox.addEventListener('blur', () => {
+        focused = false;
+        render();
+      });
+      render();
+
+      // As in Docs, a click in the document moves the focus to the hidden textbox.
+      editor.addEventListener('mouseup', () => {
+        frame.focus();
+        textbox.focus();
+      });
+
       // As in Docs, a paste replaces the selection with the pasted plain text.
       textbox.addEventListener('paste', (event) => {
+        if (params.get('paste') === 'ignore') return;
         event.preventDefault();
         const state = window.docState;
         const pasted = event.clipboardData.getData('text/plain');
@@ -85,11 +138,13 @@
       });
 
       // As in Docs, a copy event gets the selected text in its DataTransfer.
-      textbox.addEventListener('copy', (event) => {
-        event.preventDefault();
-        const state = window.docState;
-        event.clipboardData.setData('text/plain', state.text.slice(state.start, state.end));
-      });
+      if (params.get('copy') !== 'ignore') {
+        textbox.addEventListener('copy', (event) => {
+          event.preventDefault();
+          const state = window.docState;
+          event.clipboardData.setData('text/plain', state.text.slice(state.start, state.end));
+        });
+      }
     </script>
   </body>
 </html>

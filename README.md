@@ -21,11 +21,13 @@ extension/            The extension itself; this is the folder to load.
   icons/
 tests/
   e2e/                Playwright end-to-end tests and their fixtures.
+  live/               The check against the real Google Docs editor.
   pages/              Test pages served to the browser during the tests.
 scripts/
   make-icons.py       Redraws extension/icons.
 docs/screenshots/     Screenshots used in this README.
-playwright.config.js
+playwright.config.js        Configuration for npm test.
+playwright.live.config.js   Configuration for npm run test:docs-live.
 package.json
 ```
 
@@ -64,16 +66,23 @@ The trigger key can be changed to Shift or Alt, or turned off, from the extensio
 
 Docs draws the document on a canvas and takes typing through a hidden frame, so the extension
 opens the panel at the cursor Docs draws and inserts the snippet into that frame as a paste.
-Picking a snippet over a selection replaces it, "Create snippet from selection" works, and one
-Ctrl+Z removes an insert. Three things differ from other editors:
+Picking a snippet over a selection replaces it, "Create snippet from selection" works, one Ctrl+Z
+removes an insert, and with other people in the document the panel opens at your own cursor.
+Three things differ from other editors:
 
 - No space is added before or after the snippet, because Docs does not expose the text next to
   the cursor.
 - Docs drops spaces at the very start and end of a pasted snippet.
 - Each line break in the snippet starts a new paragraph.
 
-This relies on how Docs handles input today, which is not a documented interface, so a change on
-Google's side can stop it from working in Docs. Other sites are not affected.
+Docs has no documented interface for this, so the extension relies first on how the browser
+delivers focus and pastes, and treats the Docs names it uses as hints with a fallback for each.
+If Google changes the editor, the panel still opens in the page: at the cursor when it can be
+found, otherwise at your last click or at the top of the document. After each insert the
+extension checks that the Docs cursor moved. If it cannot confirm the insert, it copies the
+snippet to the clipboard and shows a notice asking you to press Ctrl+V. The Docs names live in
+the `DOCS` constant at the top of `extension/content.js`. The Docs support covers documents
+only, not Slides or Sheets, and other sites are not affected.
 
 ## Limits
 
@@ -99,6 +108,13 @@ npm test              # headless run
 npm run test:headed   # watch the browser
 npm run test:report   # open the HTML report of the last run
 ```
+
+`tests/pages/docs.html` stands in for the Google Docs editor in `npm test`, and its query
+parameters imitate changes Google could make, such as a renamed input frame or a missing cursor.
+To check the real editor, set `DOCS_TEST_URL` to a Google Doc that anyone with the link can edit
+and run `npm run test:docs-live`. The check replaces the document's text, so use a scratch
+document. If it fails while `npm test` passes, Google has changed the editor, and the failure
+message says which part.
 
 `playwright.config.js` runs the tests fully in parallel on 4 worker processes (2 when the `CI`
 environment variable is set) and retries a failed test up to 2 times. Retries use Playwright's
