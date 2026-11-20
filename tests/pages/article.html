@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Snippet Inserter article page</title>
+    <style>
+      body {
+        font: 16px sans-serif;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Plain page text, outside any field, for "Save selection as snippet". -->
+    <p id="para">First line of the note<br />Second line of the note</p>
+    <input id="password" type="password" value="secret" />
+    <iframe
+      id="inner"
+      width="560"
+      height="200"
+      srcdoc="<!doctype html><p id='innerPara'>Inner first<br>Inner second</p>"
+    ></iframe>
+  </body>
+</html>

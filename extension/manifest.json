@@ -4,12 +4,18 @@
   "version": "1.1.1",
   "description": "Insert saved text snippets into any text field with a double tap of Ctrl. Snippets have no length limit.",
   "minimum_chrome_version": "110",
-  "permissions": ["storage", "unlimitedStorage"],
+  "permissions": ["storage", "unlimitedStorage", "contextMenus"],
   "background": {
     "service_worker": "background.js"
   },
+  "commands": {
+    "open-panel": {
+      "suggested_key": { "default": "Ctrl+Shift+Space" },
+      "description": "Open the snippet panel"
+    }
+  },
   "action": {
-    "default_title": "Snippet Inserter settings",
+    "default_title": "Snippet Inserter",
     "default_icon": {
       "16": "icons/icon-16.png",
       "48": "icons/icon-48.png",

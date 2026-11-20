@@ -99,6 +99,7 @@ const state = {
   // The deleted snippet that the Undo bar can restore, until the next change.
   undoEntry: null,
   selectedText: '',
+  mode: 'insert',
   focusIndex: 0,
   busy: false,
   initialized: false,
@@ -124,6 +125,10 @@ window.addEventListener('message', (event) => {
   if (state.initialized) return;
   state.initialized = true;
   state.selectedText = typeof message.selectedText === 'string' ? message.selectedText : '';
+  // 'create-only' comes from "Save selection as snippet": the panel shows only the create form
+  // and closes after saving.
+  state.mode = message.mode === 'create-only' ? 'create-only' : 'insert';
+  if (state.mode === 'create-only') state.view = 'create';
   start();
 });
 
@@ -364,7 +369,7 @@ function renderForm() {
   els.search.value = '';
   els.searchBar.hidden = true;
   els.caption.textContent = isEdit ? TEXT.captionEdit : TEXT.captionCreate;
-  els.back.hidden = false;
+  els.back.hidden = state.mode === 'create-only';
   els.body.replaceChildren();
   items = [];
   currentForm = null;
@@ -483,7 +488,8 @@ async function saveCreate() {
   );
   if (!result) return;
   state.snippets = result.snippets;
-  backToList({ isNewId: result.snippet.id });
+  if (state.mode === 'create-only') post({ type: 'saved' });
+  else backToList({ isNewId: result.snippet.id });
 }
 
 async function saveEdit(id) {
@@ -550,9 +556,10 @@ function insertSnippet(snippet) {
   post({ type: 'insert', content: snippet.content });
 }
 
-// Escape leaves a form for the list, and closes the panel from the list.
+// Escape leaves a form for the list, and closes the panel from the list. In create-only mode
+// there is no list, so it closes the panel.
 function goBack() {
-  if (state.view !== 'insert') backToList();
+  if (state.view !== 'insert' && state.mode !== 'create-only') backToList();
   else post({ type: 'close' });
 }
 

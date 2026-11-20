@@ -11,6 +11,8 @@
 
 const lib = window.SnippetInserter;
 const VIEWS = ['snippets', 'deleted', 'settings'];
+// background.js leaves selected text here before opening the page at #new.
+const PENDING_KEY = 'pendingSnippet';
 // A second click on "Delete forever" within this time deletes the snippet for good.
 const PURGE_CONFIRM_MS = 4000;
 const HANDLE_ICON =
@@ -49,6 +51,8 @@ const els = {
   deletedEmpty: $('deletedEmpty'),
   hotkey: $('hotkey'),
   status: $('status'),
+  shortcut: $('shortcut'),
+  shortcutButton: $('shortcutButton'),
   exportButton: $('export'),
   exportNote: $('exportNote'),
   importButton: $('import'),
@@ -91,8 +95,24 @@ function showView(name) {
   }
 }
 
-function route() {
-  showView(currentView());
+// #new opens the editor with a new snippet, holding any text that background.js left in session
+// storage, and then shows as #snippets.
+async function route() {
+  if (location.hash !== '#new') {
+    showView(currentView());
+    return;
+  }
+  history.replaceState(null, '', '#snippets');
+  showView('snippets');
+  let text = '';
+  try {
+    const stored = await chrome.storage.session.get(PENDING_KEY);
+    text = stored[PENDING_KEY] || '';
+    await chrome.storage.session.remove(PENDING_KEY);
+  } catch {
+    // Session storage is unavailable; start with an empty snippet.
+  }
+  startNew(text);
 }
 
 function renderCounts() {
@@ -525,6 +545,25 @@ els.hotkey.addEventListener('change', async () => {
   els.status.textContent = 'Saved. Open pages pick up the change right away.';
 });
 
+// The key comes from the browser, which leaves it unset when another extension already uses
+// Ctrl+Shift+Space. It is read again whenever the page gets the focus back, for example after
+// the user changed it in the shortcuts page.
+async function renderShortcut() {
+  let shortcut = '';
+  try {
+    const command = (await chrome.commands.getAll()).find((c) => c.name === 'open-panel');
+    shortcut = (command && command.shortcut) || '';
+  } catch {
+    // Leave it as not set.
+  }
+  els.shortcut.textContent = shortcut || 'Not set';
+}
+
+els.shortcutButton.addEventListener('click', () => {
+  chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+});
+window.addEventListener('focus', renderShortcut);
+
 // The file is built in the page and saved through a download link, which needs no permission.
 els.exportButton.addEventListener('click', async () => {
   const snippets = await lib.readSnippets();
@@ -620,6 +659,7 @@ async function start() {
   state.deleted = deleted;
   els.hotkey.value = settings.hotkey;
   renderAll();
+  renderShortcut();
   route();
 }
 

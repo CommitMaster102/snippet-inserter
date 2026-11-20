@@ -131,27 +131,52 @@
         lastKeyUp.location === event.location
       ) {
         lastKeyUp = null;
-        const target = editableFrom(deepActiveElement(document));
-        if (!target || panel || !extensionAlive()) return;
-        // A field inside a frame the user cannot see never gets the panel in that frame. In
-        // Google Docs the top frame opens it instead. The key release is not stopped here, so
-        // Docs does not take Ctrl as still held.
-        const hiddenFrame = hiddenFrameElement();
-        if (hiddenFrame) {
-          if (isDocsDocument(hiddenFrame.ownerDocument)) {
-            hiddenFrame.dispatchEvent(new CustomEvent(DOCS_OPEN_EVENT));
-          }
-          return;
+        if (requestPanel() === 'opened') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
         }
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        openPanel(target);
         return;
       }
       lastKeyUp = { timestamp: event.timeStamp, location: event.location };
     },
     true
   );
+
+  // The double tap, the keyboard shortcut, and the "Insert snippet..." menu item all end here.
+  // Returns 'opened' when the panel opened in this frame, 'docs' when the Docs input frame handed
+  // the request to the top frame, and null when there is no field to insert into.
+  function requestPanel() {
+    const target = editableFrom(deepActiveElement(document));
+    if (!target || panel || !extensionAlive()) return null;
+    // A field inside a frame the user cannot see never gets the panel in that frame. In Google
+    // Docs the top frame opens it instead. The double tap's key release is not stopped then, so
+    // Docs does not take Ctrl as still held.
+    const hiddenFrame = hiddenFrameElement();
+    if (hiddenFrame) {
+      if (!isDocsDocument(hiddenFrame.ownerDocument)) return null;
+      hiddenFrame.dispatchEvent(new CustomEvent(DOCS_OPEN_EVENT));
+      return 'docs';
+    }
+    openPanel(target);
+    return 'opened';
+  }
+
+  // Messages from background.js. Every frame answers, so the service worker can tell a page with
+  // a content script from one without. The shortcut reaches every frame of the tab, and only
+  // the frame that has the focus acts on it; a menu item reaches only the frame that was
+  // right-clicked.
+  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (message && message.type === 'open-panel' && document.hasFocus() && !panel) {
+      const active = deepActiveElement(document);
+      // Focus inside a child frame belongs to that frame's own copy of this script.
+      if (!(active && active.tagName === 'IFRAME') && !requestPanel() && message.source === 'menu') {
+        showNotice('Snippets cannot be inserted in this kind of field.');
+      }
+    } else if (message && message.type === 'save-selection' && !panel) {
+      openPanelForPageSelection();
+    }
+    sendResponse({ received: true });
+  });
 
   // Finding the text field. The panel opens for textareas, rich-text (contenteditable) editors,
   // and single-line inputs of the types in SINGLE_LINE_TYPES. An input's `type` property reads
@@ -589,7 +614,8 @@
   // Inserting the snippet.
 
   function restoreSelection(ctx) {
-    if (!ctx.el.isConnected) return false;
+    // A selection outside any supported field has nothing to return to.
+    if (ctx.kind === 'none' || !ctx.el.isConnected) return false;
     if (ctx.kind === 'docs') {
       // Docs keeps its own caret and selection, so focusing the textbox is enough.
       if (!ctx.frame.isConnected) return false;
@@ -789,6 +815,7 @@
 
   function caretRect(ctx) {
     if (ctx.kind === 'docs') return docsCaretRect() || ctx.caret;
+    if (ctx.kind === 'none') return ctx.range ? rangeRect(ctx.range, document.body) : ctx.anchor.getBoundingClientRect();
     return isValueField(ctx) ? textareaCaretRect(ctx.el, ctx.end) : rangeRect(ctx.range, ctx.el);
   }
 
@@ -829,8 +856,39 @@
     return new URL(chrome.runtime.getURL('')).origin;
   }
 
-  function openPanel(target) {
-    const ctx = captureContext(target);
+  // "Save selection as snippet" from the right-click menu. The panel opens at the selection in a
+  // create-only mode, with the selected text and its line breaks; the menu's own copy of the
+  // text has them collapsed. When the selection is in a supported field, the field gets its
+  // focus and selection back when the panel closes.
+  function openPanelForPageSelection() {
+    if (!extensionAlive()) return;
+    const active = deepActiveElement(document);
+    const target = editableFrom(active);
+    let ctx;
+    if (target) {
+      ctx = captureContext(target);
+    } else if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT')) {
+      // A read-only or unsupported field: its selection is in its value, not in the page.
+      let text = '';
+      try {
+        if (active.type !== 'password') text = active.value.slice(active.selectionStart, active.selectionEnd);
+      } catch {
+        // Some input types have no selection.
+      }
+      ctx = { kind: 'none', selectedText: text, anchor: active };
+    } else {
+      const selection = document.getSelection();
+      if (!selection || !selection.rangeCount) return;
+      ctx = { kind: 'none', selectedText: selection.toString(), range: selection.getRangeAt(0).cloneRange() };
+    }
+    if (!ctx.selectedText.trim()) return;
+    openPanel(null, { ctx, mode: 'create-only' });
+  }
+
+  // Opens the panel for `target`. `options.ctx` replaces the captured context, and
+  // `options.mode` is passed to the panel: 'insert' (the default) or 'create-only'.
+  function openPanel(target, options = {}) {
+    const ctx = options.ctx || captureContext(target);
     const frame = document.createElement('iframe');
     frame.src = chrome.runtime.getURL('panel.html');
     frame.setAttribute('title', 'Snippets');
@@ -862,7 +920,7 @@
       transform: 'none',
     });
     document.documentElement.appendChild(frame);
-    panel = { frame, ctx, height: 1 };
+    panel = { frame, ctx, height: 1, mode: options.mode || 'insert' };
     positionPanel();
 
     window.addEventListener('message', onPanelMessage);
@@ -900,7 +958,7 @@
     switch (message.type) {
       case 'ready':
         panel.frame.contentWindow.postMessage(
-          { [MESSAGE_FLAG]: true, type: 'init', selectedText: panel.ctx.selectedText },
+          { [MESSAGE_FLAG]: true, type: 'init', selectedText: panel.ctx.selectedText, mode: panel.mode },
           extensionOrigin()
         );
         panel.frame.focus();
@@ -919,6 +977,10 @@
       }
       case 'close':
         closePanel(true);
+        break;
+      case 'saved':
+        closePanel(true);
+        showNotice('Snippet saved.');
         break;
       default:
         break;
