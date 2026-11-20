@@ -153,8 +153,12 @@
     true
   );
 
-  // Finding the text field. The panel opens only for textareas and rich-text (contenteditable)
-  // editors, not for single-line inputs.
+  // Finding the text field. The panel opens for textareas, rich-text (contenteditable) editors,
+  // and single-line inputs of the types in SINGLE_LINE_TYPES. An input's `type` property reads
+  // "text" when the attribute is missing or unknown. Email and number inputs do not expose the
+  // caret position, and password fields are not a place for snippets.
+
+  const SINGLE_LINE_TYPES = new Set(['text', 'search', 'url', 'tel']);
 
   function deepActiveElement(doc) {
     let element = doc.activeElement;
@@ -168,6 +172,10 @@
     if (!element) return null;
     if (element.tagName === 'TEXTAREA') {
       return element.readOnly || element.disabled ? null : { kind: 'textarea', el: element };
+    }
+    if (element.tagName === 'INPUT') {
+      const usable = SINGLE_LINE_TYPES.has(element.type) && !element.readOnly && !element.disabled;
+      return usable ? { kind: 'input', el: element } : null;
     }
     if (element.isContentEditable) {
       let host = element;
@@ -442,7 +450,7 @@
       ''
     ).toLowerCase();
 
-    if (target.kind === 'textarea') {
+    if (isValueField(target)) {
       const el = target.el;
       const value = el.value;
       const start = el.selectionStart ?? value.length;
@@ -477,6 +485,18 @@
       after: charAfter(host, range),
       blank: !/\S/.test(host.textContent || ''),
     };
+  }
+
+  // Textareas and single-line inputs keep their text in `value` and share one insert path.
+  function isValueField(target) {
+    return target.kind === 'textarea' || target.kind === 'input';
+  }
+
+  // A single-line field cannot hold line breaks, so a multi-line snippet goes in as one line:
+  // line breaks at the start and end are dropped, and each run of line breaks inside, with the
+  // white space around it, becomes one space.
+  function joinLines(text) {
+    return text.replace(/^\s*[\r\n]+\s*|\s*[\r\n]+\s*$/g, '').replace(/\s*[\r\n]+\s*/g, ' ');
   }
 
   function blockAncestor(node, host) {
@@ -577,7 +597,7 @@
       ctx.el.focus({ preventScroll: true });
       return true;
     }
-    if (ctx.kind === 'textarea') {
+    if (isValueField(ctx)) {
       ctx.el.focus({ preventScroll: true });
       ctx.el.setSelectionRange(ctx.start, ctx.end);
       return true;
@@ -605,8 +625,9 @@
       if (!(await docsCaretMoved(before))) await docsInsertFallback(content);
       return;
     }
-    const text = addSpaces(content, ctx);
-    if (ctx.kind === 'textarea') {
+    const text = addSpaces(ctx.kind === 'input' ? joinLines(content) : content, ctx);
+    if (isValueField(ctx)) {
+      if (!fitsMaxLength(ctx, text)) return;
       insertIntoTextarea(ctx.el, ctx.start, ctx.end, text);
       return;
     }
@@ -614,9 +635,23 @@
     pasteIntoRichEditor(ctx, text);
   }
 
-  // A textarea gets the text through execCommand("insertText"), which keeps undo working and
-  // fires the input events that frameworks listen for. If the command is refused, the value is
-  // set directly and an input event is sent by hand.
+  // A field with a maxlength attribute would cut the snippet short, so nothing is inserted and a
+  // notice gives the numbers instead.
+  function fitsMaxLength(ctx, text) {
+    const max = ctx.el.maxLength;
+    if (max < 0) return true;
+    const room = max - (ctx.el.value.length - (ctx.end - ctx.start));
+    if (text.length <= room) return true;
+    const free = Math.max(room, 0);
+    showNotice(
+      `This field takes ${free} more ${free === 1 ? 'character' : 'characters'}, and the snippet has ${text.length}. Nothing was inserted.`
+    );
+    return false;
+  }
+
+  // A textarea or input gets the text through execCommand("insertText"), which keeps undo
+  // working and fires the input events that frameworks listen for. If the command is refused,
+  // the value is set directly and an input event is sent by hand.
   function insertIntoTextarea(el, start, end, text) {
     el.setSelectionRange(start, end);
     if (el.ownerDocument.execCommand('insertText', false, text)) return;
@@ -703,9 +738,11 @@
     'letterSpacing', 'wordSpacing', 'tabSize',
   ];
 
-  // A textarea does not expose caret coordinates, so a hidden copy of it with the same styles
-  // is laid out up to the caret and measured.
+  // A textarea or input does not expose caret coordinates, so a hidden copy of it with the same
+  // styles is laid out up to the caret and measured. A single-line input does not wrap, and the
+  // panel goes below the whole field, so only the horizontal position comes from the copy.
   function textareaCaretRect(el, position) {
+    const singleLine = el.tagName === 'INPUT';
     const doc = el.ownerDocument;
     const style = getComputedStyle(el);
     const mirror = doc.createElement('div');
@@ -715,8 +752,8 @@
       visibility: 'hidden',
       top: '0',
       left: '-9999px',
-      whiteSpace: 'pre-wrap',
-      overflowWrap: 'break-word',
+      whiteSpace: singleLine ? 'pre' : 'pre-wrap',
+      overflowWrap: singleLine ? 'normal' : 'break-word',
       overflow: 'hidden',
     });
     mirror.textContent = el.value.slice(0, position);
@@ -729,6 +766,9 @@
     mirror.remove();
 
     const box = el.getBoundingClientRect();
+    if (singleLine) {
+      return { left: Math.min(Math.max(box.left + left, box.left), box.right), top: box.top, bottom: box.bottom };
+    }
     const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.2;
     const caretTop = Math.min(Math.max(box.top + top, box.top), box.bottom - lineHeight);
     const caretLeft = Math.min(Math.max(box.left + left, box.left), box.right);
@@ -749,7 +789,7 @@
 
   function caretRect(ctx) {
     if (ctx.kind === 'docs') return docsCaretRect() || ctx.caret;
-    return ctx.kind === 'textarea' ? textareaCaretRect(ctx.el, ctx.end) : rangeRect(ctx.range, ctx.el);
+    return isValueField(ctx) ? textareaCaretRect(ctx.el, ctx.end) : rangeRect(ctx.range, ctx.el);
   }
 
   function positionPanel() {

@@ -31,18 +31,15 @@ test('ignores a single tap, Ctrl+C, and a slow double tap', async ({ page }) => 
   await expect(page.locator(PANEL)).toHaveCount(0);
 });
 
-test('does not open in single-line or read-only fields', async ({ page }) => {
+test('does not open in password, email, number, or read-only fields', async ({ page }) => {
   await waitForContentScript(page);
 
-  await page.locator('#single').focus();
-  await doubleTap(page);
-  await page.waitForTimeout(500);
-  await expect(page.locator(PANEL)).toHaveCount(0);
-
-  await page.locator('#readonly').focus();
-  await doubleTap(page);
-  await page.waitForTimeout(500);
-  await expect(page.locator(PANEL)).toHaveCount(0);
+  for (const field of ['#password', '#email', '#number', '#readonly']) {
+    await page.locator(field).focus();
+    await doubleTap(page);
+    await page.waitForTimeout(400);
+    await expect(page.locator(PANEL)).toHaveCount(0);
+  }
 });
 
 test('does not open in a field inside a frame the user cannot see', async ({ page, pagesUrl }) => {
