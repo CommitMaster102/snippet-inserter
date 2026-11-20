@@ -9,6 +9,7 @@ const { expect } = require('@playwright/test');
 const PANEL = 'iframe[title="Snippets"]';
 const STORAGE_KEY = 'snippet_manager.snippets';
 const DELETED_KEY = 'snippet_manager.deleted';
+const ABBREVIATIONS_KEY = 'snippet_manager.abbreviations';
 
 /**
  * Store snippets directly, in the same record shape the panel writes.
@@ -22,9 +23,11 @@ async function seedSnippets(serviceWorker, snippets) {
     id: `seed${String(index).padStart(8, '0')}`,
     ...snippet,
   }));
+  // The extension writes an { abbreviation: id } index beside the list; see lib/snippets.js.
+  const index = Object.fromEntries(records.filter((r) => r.abbreviation).map((r) => [r.abbreviation, r.id]));
   await serviceWorker.evaluate(
-    ([key, value]) => chrome.storage.local.set({ [key]: value }),
-    [STORAGE_KEY, records]
+    ([key, value, indexKey, indexValue]) => chrome.storage.local.set({ [key]: value, [indexKey]: indexValue }),
+    [STORAGE_KEY, records, ABBREVIATIONS_KEY, index]
   );
   return records;
 }
@@ -87,7 +90,25 @@ async function openPanel(page, key = 'Control') {
     await expect(frame).toBeAttached({ timeout: 1000 });
   }).toPass({ timeout: 10_000 });
   await expect(frame).toHaveCSS('opacity', '1');
+  await waitForStablePanel(page);
   return frame.contentFrame();
+}
+
+/**
+ * Wait until the panel's frame keeps the same position and size for 100 ms.
+ *
+ * The panel runs in its own process, and right after its frame is resized the browser can still
+ * send a click to the page underneath, which closes the panel. A person cannot click that fast;
+ * a test can.
+ */
+async function waitForStablePanel(page) {
+  let previous = null;
+  await expect(async () => {
+    const box = await page.locator(PANEL).boundingBox();
+    const same = previous && box && ['x', 'y', 'width', 'height'].every((k) => box[k] === previous[k]);
+    previous = box;
+    expect(same).toBe(true);
+  }).toPass({ intervals: [100], timeout: 5000 });
 }
 
 /**

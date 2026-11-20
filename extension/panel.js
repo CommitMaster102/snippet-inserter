@@ -17,6 +17,9 @@ const SEARCH_DEBOUNCE_MS = 100;
 const HOTKEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const IS_MAC = navigator.userAgent.includes('Mac OS');
 const MESSAGE_FLAG = '__snippetInserter';
+// Focus moves without scrolling. The panel's frame is resized to fit after each render, and a
+// scroll made while it was still smaller would shift the content when it grows.
+const NO_SCROLL = { preventScroll: true };
 // Non-ASCII symbols are built from code points so the source stays plain ASCII.
 const ELLIPSIS = String.fromCharCode(0x2026);
 const RETURN_KEY = String.fromCharCode(0x21b5);
@@ -46,6 +49,7 @@ const TEXT = {
   notFound: 'Could not find the snippet.',
   placeholderContent: `Enter some text ${ELLIPSIS}`,
   placeholderTitle: `Enter name (optional) ${ELLIPSIS}`,
+  placeholderAbbreviation: `Abbreviation (optional), such as ;addr ${ELLIPSIS}`,
   validationEmpty: 'This field must not be empty.',
   validationTooLong: (max) => `The input must not be longer than ${max} characters.`,
   labelEdited: 'edited',
@@ -133,17 +137,26 @@ window.addEventListener('message', (event) => {
   state.initialized = true;
   state.selectedText = typeof message.selectedText === 'string' ? message.selectedText : '';
   // 'create-only' comes from "Save selection as snippet": the panel shows only the create form
-  // and closes after saving.
-  state.mode = message.mode === 'create-only' ? 'create-only' : 'insert';
+  // and closes after saving. 'fill-only' comes from a typed abbreviation whose snippet has
+  // fill-in fields: the panel shows only that snippet's fill-in form.
+  state.mode = ['create-only', 'fill-only'].includes(message.mode) ? message.mode : 'insert';
   if (state.mode === 'create-only') state.view = 'create';
+  if (state.mode === 'fill-only') {
+    state.view = 'fill';
+    state.fillId = typeof message.snippetId === 'string' ? message.snippetId : null;
+  }
   start();
 });
 
 // The panel tells content.js its height after every render and whenever the layout changes, so
 // the iframe can be sized to fit. The direct calls matter because Chromium may delay
 // ResizeObserver callbacks in a frame that is not yet visible.
+// The first size goes out after the first render, so content.js does not show a panel that
+// holds only its header.
 let lastReportedHeight = 0;
+let firstRenderDone = false;
 function reportSize() {
+  if (!firstRenderDone) return;
   const height = Math.ceil(els.app.getBoundingClientRect().height);
   if (height === lastReportedHeight) return;
   lastReportedHeight = height;
@@ -199,7 +212,18 @@ function setFocus(index) {
   const count = items.length;
   state.focusIndex = ((index % count) + count) % count;
   items.forEach((item, i) => item.node.toggleAttribute('data-focused', i === state.focusIndex));
-  items[state.focusIndex].node.scrollIntoView({ block: 'nearest' });
+  scrollIntoList(items[state.focusIndex].node);
+}
+
+// Scrolls the snippet list so `node` is visible. scrollIntoView() is not used, because it can
+// also scroll the page the panel sits on, which moves the panel and the user's text.
+function scrollIntoList(node) {
+  const list = node.closest('.list');
+  if (!list) return;
+  const listBox = list.getBoundingClientRect();
+  const box = node.getBoundingClientRect();
+  if (box.top < listBox.top) list.scrollTop -= listBox.top - box.top;
+  else if (box.bottom > listBox.bottom) list.scrollTop += box.bottom - listBox.bottom;
 }
 
 // Searching filters as soon as the query has a character, after a short pause; see
@@ -239,6 +263,7 @@ function render() {
   if (state.view === 'insert') renderInsert();
   else if (state.view === 'fill') renderFill();
   else renderForm();
+  firstRenderDone = true;
   reportSize();
 }
 
@@ -260,7 +285,7 @@ function renderInsert() {
     // The panel body is registered as the only item, so Enter opens the create form.
     registerItem(els.body, openCreate);
     setPrimary(TEXT.emptyApply, openCreate, RETURN_KEY);
-    els.app.focus();
+    els.app.focus(NO_SCROLL);
     return;
   }
 
@@ -274,7 +299,7 @@ function renderInsert() {
   });
   els.body.append(list);
   setFocus(Math.min(state.focusIndex, items.length - 1));
-  els.search.focus();
+  els.search.focus(NO_SCROLL);
 }
 
 function emptyView() {
@@ -417,6 +442,21 @@ function renderForm() {
   const titleMessage = el('div', 'feedback');
   titleMessage.hidden = true;
 
+  // Typing the abbreviation in a text field replaces it with the snippet.
+  const abbreviationField = el('div', 'field');
+  const abbreviation = el('input', 'input input-abbreviation');
+  abbreviation.type = 'text';
+  abbreviation.placeholder = TEXT.placeholderAbbreviation;
+  abbreviation.spellcheck = false;
+  abbreviation.autocomplete = 'off';
+  abbreviation.value = isEdit ? snippet.abbreviation || '' : '';
+  abbreviationField.append(abbreviation);
+  const abbreviationMessage = el('div', 'feedback');
+  abbreviationMessage.hidden = true;
+  abbreviation.addEventListener('input', () => {
+    abbreviationMessage.hidden = true;
+  });
+
   content.addEventListener('input', () => {
     contentMessage.hidden = true;
     updateCount();
@@ -426,7 +466,16 @@ function renderForm() {
     titleMessage.hidden = true;
   });
 
-  form.append(contentField, contentMessage, placeholderList, count, titleField, titleMessage);
+  form.append(
+    contentField,
+    contentMessage,
+    placeholderList,
+    count,
+    titleField,
+    titleMessage,
+    abbreviationField,
+    abbreviationMessage
+  );
   els.body.append(form);
 
   if (isEdit) {
@@ -439,14 +488,17 @@ function renderForm() {
   currentForm = {
     content,
     title,
+    abbreviation,
     contentMessage,
     titleMessage,
+    abbreviationMessage,
+    ownId: isEdit ? snippet.id : null,
     submit: () => (isEdit ? saveEdit(snippet.id) : saveCreate()),
   };
   setPrimary(TEXT.formApply, currentForm.submit, IS_MAC ? COMMAND_KEY + RETURN_KEY : `Ctrl ${RETURN_KEY}`);
 
   autosize(content);
-  content.focus();
+  content.focus(NO_SCROLL);
   content.setSelectionRange(content.value.length, content.value.length);
 }
 
@@ -511,7 +563,7 @@ function renderFill() {
     submit: () => post({ type: 'insert', content: snippet.content, values: values() }),
   };
   setPrimary(TEXT.insertApply, currentForm.submit, IS_MAC ? COMMAND_KEY + RETURN_KEY : `Ctrl ${RETURN_KEY}`);
-  if (inputs.length) inputs[0].focus();
+  if (inputs.length) inputs[0].focus(NO_SCROLL);
 }
 
 function openFill(id) {
@@ -527,8 +579,8 @@ function autosize(textarea) {
   reportSize();
 }
 
-// Form rules: the content must not be blank, and the title must not exceed 128 characters. The
-// content has no length limit.
+// Form rules: the content must not be blank, the title must not exceed 128 characters, and the
+// abbreviation must pass lib.abbreviationProblem(). The content has no length limit.
 function validate(form) {
   let valid = true;
   if (form.content.value.trim() === '') {
@@ -539,6 +591,12 @@ function validate(form) {
   if (form.title.value.length > lib.TITLE_MAX_LENGTH) {
     form.titleMessage.textContent = TEXT.validationTooLong(lib.TITLE_MAX_LENGTH);
     form.titleMessage.hidden = false;
+    valid = false;
+  }
+  const problem = lib.abbreviationProblem(form.abbreviation.value.trim(), state.snippets, form.ownId);
+  if (problem) {
+    form.abbreviationMessage.textContent = problem;
+    form.abbreviationMessage.hidden = false;
     valid = false;
   }
   reportSize();
@@ -564,7 +622,12 @@ async function saveCreate() {
   const form = currentForm;
   if (!form || state.busy || !validate(form)) return;
   const result = await change(
-    () => lib.createSnippet({ content: form.content.value, title: form.title.value }),
+    () =>
+      lib.createSnippet({
+        content: form.content.value,
+        title: form.title.value,
+        abbreviation: form.abbreviation.value.trim(),
+      }),
     TEXT.createError
   );
   if (!result) return;
@@ -576,13 +639,12 @@ async function saveCreate() {
 async function saveEdit(id) {
   const form = currentForm;
   if (!form || state.busy || !validate(form)) return;
-  const existing = state.snippets.find((s) => s.id === id);
   const result = await change(
     () =>
       lib.updateSnippet(id, {
         content: form.content.value,
         title: form.title.value,
-        abbreviation: existing && existing.abbreviation,
+        abbreviation: form.abbreviation.value.trim(),
       }),
     TEXT.editError
   );
@@ -704,7 +766,7 @@ document.addEventListener(
       if (event.key === 'Enter' && currentForm && !event.shiftKey && event.target.tagName !== 'BUTTON') {
         event.preventDefault();
         const index = currentForm.inputs.indexOf(event.target);
-        if (!modifier && index !== -1 && index < currentForm.inputs.length - 1) currentForm.inputs[index + 1].focus();
+        if (!modifier && index !== -1 && index < currentForm.inputs.length - 1) currentForm.inputs[index + 1].focus(NO_SCROLL);
         else currentForm.submit();
       }
       return;
@@ -713,7 +775,8 @@ document.addEventListener(
     if (
       event.key === 'Enter' &&
       currentForm &&
-      (modifier || (event.target === currentForm.title && !event.shiftKey))
+      (modifier ||
+        ((event.target === currentForm.title || event.target === currentForm.abbreviation) && !event.shiftKey))
     ) {
       event.preventDefault();
       currentForm.submit();

@@ -39,9 +39,12 @@ async function insertFirst(page) {
 test('fills in the date and time in the field language', async ({ page, serviceWorker }) => {
   await seedSnippets(serviceWorker, [{ content: '{date} / {date:iso} / {time:iso}' }]);
   await selectInTextarea(page, '#plain', 11);
-  const dates = await expectedDates(page, 'en');
+  const before = await expectedDates(page, 'en');
   await insertFirst(page);
-  await expect(page.locator('#plain')).toHaveValue(`Hello world ${dates.long} / ${dates.iso} / ${dates.time}`);
+  const after = await expectedDates(page, 'en');
+  // The minute can change during the insert, so either moment's values are right.
+  const expected = [before, after].map((d) => `Hello world ${d.long} / ${d.iso} / ${d.time}`);
+  await expect.poll(() => page.locator('#plain').inputValue()).toMatch(new RegExp(`^(${expected.map((e) => e.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('|')})$`));
 });
 
 test('{cursor} puts the caret inside the inserted text of a textarea', async ({ page, serviceWorker }) => {

@@ -411,6 +411,17 @@ select:focus {
   gap: 12px;
 }
 
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.checkbox + .muted {
+  margin: 4px 0 0 26px;
+}
+
 .shortcut {
   padding: 3px 10px;
   font-size: 14px;

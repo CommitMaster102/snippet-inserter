@@ -16,6 +16,10 @@
   const STORAGE_KEY = 'snippet_manager.snippets';
   const DELETED_KEY = 'snippet_manager.deleted';
   const SETTINGS_KEY = 'settings';
+  // A small copy of each snippet's abbreviation and id, written with every change to the list.
+  // The content script in every frame reads only this, never the snippet text, until an
+  // abbreviation is typed.
+  const ABBREVIATIONS_KEY = 'snippet_manager.abbreviations';
   const DELETED_MAX = 20;
   const TITLE_MAX_LENGTH = 128;
   // Each snippet gets a 12-character random id. ID_ALPHABET is the 64-character URL-safe
@@ -57,8 +61,20 @@
     return (await readState()).deleted;
   }
 
+  // { abbreviation: id } for every snippet that has an abbreviation.
+  function abbreviationIndex(list) {
+    const index = {};
+    for (const snippet of list) if (snippet.abbreviation) index[snippet.abbreviation] = snippet.id;
+    return index;
+  }
+
+  // The values to store for a new list: the list and its abbreviation index, in one write.
+  function listValues(list) {
+    return { [STORAGE_KEY]: list, [ABBREVIATIONS_KEY]: abbreviationIndex(list) };
+  }
+
   async function writeSnippets(list) {
-    await chrome.storage.local.set({ [STORAGE_KEY]: list });
+    await chrome.storage.local.set(listValues(list));
   }
 
   async function readSettings() {
@@ -132,7 +148,7 @@
     const [snippet] = snippets.splice(index, 1);
     const entry = { ...snippet, deletedAt: new Date().toISOString(), index };
     const nextDeleted = [entry, ...deleted.filter((d) => d.id !== id)].slice(0, DELETED_MAX);
-    await chrome.storage.local.set({ [STORAGE_KEY]: snippets, [DELETED_KEY]: nextDeleted });
+    await chrome.storage.local.set({ ...listValues(snippets), [DELETED_KEY]: nextDeleted });
     return { entry, snippets, deleted: nextDeleted };
   }
 
@@ -153,7 +169,7 @@
     const index = Math.min(Number.isInteger(entry.index) ? entry.index : snippets.length, snippets.length);
     snippets.splice(index, 0, restored);
     const nextDeleted = deleted.filter((d) => d !== entry);
-    await chrome.storage.local.set({ [STORAGE_KEY]: snippets, [DELETED_KEY]: nextDeleted });
+    await chrome.storage.local.set({ ...listValues(snippets), [DELETED_KEY]: nextDeleted });
     return { snippet: restored, snippets, deleted: nextDeleted };
   }
 
@@ -369,6 +385,8 @@
     STORAGE_KEY,
     DELETED_KEY,
     SETTINGS_KEY,
+    ABBREVIATIONS_KEY,
+    abbreviationIndex,
     DELETED_MAX,
     TITLE_MAX_LENGTH,
     DEFAULT_SETTINGS,

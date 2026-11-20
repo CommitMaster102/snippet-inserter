@@ -40,6 +40,9 @@ const els = {
   noticeSecondary: $('noticeSecondary'),
   title: $('title'),
   titleError: $('titleError'),
+  abbreviation: $('abbreviation'),
+  abbreviationError: $('abbreviationError'),
+  abbreviations: $('abbreviations'),
   content: $('content'),
   contentError: $('contentError'),
   placeholderList: $('placeholderList'),
@@ -249,11 +252,21 @@ els.search.addEventListener('input', () => renderList());
 // The editor.
 
 function fields() {
-  return { title: els.title.value, content: els.content.value };
+  return { title: els.title.value, content: els.content.value, abbreviation: els.abbreviation.value.trim() };
+}
+
+// The fields of `snippet` in the shape fields() returns.
+function snippetFields(snippet) {
+  return { title: snippet.title || '', content: snippet.content, abbreviation: snippet.abbreviation || '' };
 }
 
 function sameFields(a, b) {
-  return Boolean(a && b) && a.title === (b.title || '') && a.content === b.content;
+  return (
+    Boolean(a && b) &&
+    a.title === (b.title || '') &&
+    a.content === b.content &&
+    (a.abbreviation || '') === (b.abbreviation || '')
+  );
 }
 
 function isDirty() {
@@ -278,10 +291,12 @@ function loadEditor(snippet, initialContent = '') {
   els.editorHeading.textContent = snippet ? 'Edit snippet' : 'New snippet';
   els.title.value = snippet ? snippet.title || '' : '';
   els.content.value = snippet ? snippet.content : initialContent;
-  state.snapshot = snippet ? { title: els.title.value, content: snippet.content } : { title: '', content: '' };
+  els.abbreviation.value = snippet ? snippet.abbreviation || '' : '';
+  state.snapshot = snippet ? snippetFields(snippet) : { title: '', content: '', abbreviation: '' };
   els.duplicate.hidden = !snippet;
   els.delete.hidden = !snippet;
   els.titleError.hidden = true;
+  els.abbreviationError.hidden = true;
   els.contentError.hidden = true;
   els.editorStatus.textContent = '';
   hideNotice();
@@ -395,6 +410,13 @@ function validate() {
     els.titleError.textContent = `The input must not be longer than ${lib.TITLE_MAX_LENGTH} characters.`;
     valid = false;
   }
+  const ownId = state.creating ? null : state.selectedId;
+  const problem = lib.abbreviationProblem(els.abbreviation.value.trim(), state.snippets, ownId);
+  els.abbreviationError.hidden = !problem;
+  if (problem) {
+    els.abbreviationError.textContent = problem;
+    valid = false;
+  }
   return valid;
 }
 
@@ -404,9 +426,7 @@ async function save() {
   const values = fields();
   const existing = state.snippets.find((s) => s.id === state.selectedId);
   const result = await run(() =>
-    state.creating || !existing
-      ? lib.createSnippet(values)
-      : lib.updateSnippet(existing.id, { ...values, abbreviation: existing.abbreviation })
+    state.creating || !existing ? lib.createSnippet(values) : lib.updateSnippet(existing.id, values)
   );
   if (!result) return false;
   state.snippets = result.snippets;
@@ -433,6 +453,10 @@ els.content.addEventListener('input', () => {
 });
 els.title.addEventListener('input', () => {
   els.titleError.hidden = true;
+  els.editorStatus.textContent = '';
+});
+els.abbreviation.addEventListener('input', () => {
+  els.abbreviationError.hidden = true;
   els.editorStatus.textContent = '';
 });
 
@@ -553,6 +577,8 @@ els.hotkey.addEventListener('change', async () => {
   els.status.textContent = 'Saved. Open pages pick up the change right away.';
 });
 
+els.abbreviations.addEventListener('change', () => lib.writeSettings({ abbreviations: els.abbreviations.checked }));
+
 // The key comes from the browser, which leaves it unset when another extension already uses
 // Ctrl+Shift+Space. It is read again whenever the page gets the focus back, for example after
 // the user changed it in the shortcuts page.
@@ -631,7 +657,7 @@ async function onStorageChanged() {
   }
   // The page's own save also lands here; then the stored text equals the fields.
   if (sameFields(fields(), stored) || sameFields(state.snapshot, stored)) {
-    state.snapshot = { title: stored.title || '', content: stored.content };
+    state.snapshot = snippetFields(stored);
     return;
   }
   if (!isDirty()) {
@@ -644,7 +670,7 @@ async function onStorageChanged() {
     {
       label: 'Keep mine',
       run: () => {
-        state.snapshot = { title: stored.title || '', content: stored.content };
+        state.snapshot = snippetFields(stored);
       },
     }
   );
@@ -656,6 +682,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (changes[lib.SETTINGS_KEY]) {
     const settings = { ...lib.DEFAULT_SETTINGS, ...(changes[lib.SETTINGS_KEY].newValue || {}) };
     els.hotkey.value = settings.hotkey;
+    els.abbreviations.checked = settings.abbreviations !== false;
   }
 });
 
@@ -666,6 +693,7 @@ async function start() {
   state.snippets = snippets;
   state.deleted = deleted;
   els.hotkey.value = settings.hotkey;
+  els.abbreviations.checked = settings.abbreviations !== false;
   renderAll();
   renderShortcut();
   route();

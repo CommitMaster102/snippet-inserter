@@ -61,9 +61,9 @@ test('Ctrl+1 in the edit form does not delete the snippet', async ({ page, servi
   expect(await readSnippets(serviceWorker)).toHaveLength(1);
   expect(await readDeleted(serviceWorker)).toHaveLength(0);
 
-  // Delete is still reachable from the keyboard: Tab from the name field to Duplicate, then to
-  // Delete, and Enter.
-  await panel.locator('input.input-title').focus();
+  // Delete is still reachable from the keyboard: Tab from the abbreviation field to Duplicate,
+  // then to Delete, and Enter.
+  await panel.locator('input.input-abbreviation').focus();
   await page.keyboard.press('Tab');
   await expect(panel.locator('.item-action', { hasText: 'Duplicate snippet' })).toBeFocused();
   await page.keyboard.press('Tab');

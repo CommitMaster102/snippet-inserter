@@ -44,6 +44,11 @@
               <input id="title" class="input" type="text" placeholder="Optional" autocomplete="off" />
             </label>
             <p id="titleError" class="field-error" hidden></p>
+            <label class="field">
+              <span class="field-label">Abbreviation</span>
+              <input id="abbreviation" class="input" type="text" placeholder="Optional, such as ;addr" autocomplete="off" spellcheck="false" />
+            </label>
+            <p id="abbreviationError" class="field-error" hidden></p>
             <label class="field field-grow">
               <span class="field-label">Text</span>
               <textarea id="content" class="input content" spellcheck="true"></textarea>
@@ -88,6 +93,16 @@
             <button id="shortcutButton" class="secondary" type="button">Change in browser settings</button>
           </div>
           <p class="muted">Opens the snippet panel in the field you are typing in, like the double tap.</p>
+        </div>
+        <div class="setting">
+          <label class="checkbox">
+            <input id="abbreviations" type="checkbox" />
+            Expand abbreviations as I type
+          </label>
+          <p class="muted">
+            Typing a snippet's abbreviation in a text field replaces it with the snippet, and
+            <kbd>Ctrl</kbd>+<kbd>Z</kbd> brings the typed text back. This does not work in Google Docs.
+          </p>
         </div>
         <p class="muted">
           Click in a text box, a rich-text editor, or a Google Docs document and tap the key twice

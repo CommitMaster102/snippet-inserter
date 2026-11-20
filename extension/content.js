@@ -9,7 +9,11 @@
 (() => {
   'use strict';
 
-  const DEFAULT_SETTINGS = { hotkey: 'Control' };
+  const DEFAULT_SETTINGS = { hotkey: 'Control', abbreviations: true };
+  // The stored list of snippets, and the small { abbreviation: id } index written beside it; see
+  // lib/snippets.js. This script reads the list only when an abbreviation has been typed.
+  const STORAGE_KEY = 'snippet_manager.snippets';
+  const ABBREVIATIONS_KEY = 'snippet_manager.abbreviations';
   // A key press counts as a tap when it is released within 250 ms, and two taps count as a
   // double tap when the second release comes within 400 ms of the first.
   const TAP_MAX_MS = 250;
@@ -55,6 +59,12 @@
   const placeholders = globalThis.SnippetInserter.placeholders;
 
   let settings = { ...DEFAULT_SETTINGS };
+  // The stored { abbreviation: id } index, and the same abbreviations grouped by their last
+  // character, so a typed character is compared only with the abbreviations it could complete.
+  let abbreviationIndex = {};
+  let abbreviationsByLastChar = new Map();
+  let longestAbbreviation = 0;
+  let listeningForAbbreviations = false;
   let lastKeyDown = null;
   let lastKeyUp = null;
   let lastPointer = null;
@@ -70,16 +80,19 @@
     }
   }
 
-  chrome.storage.local.get('settings').then(
+  // One storage read per frame at load: the settings and the abbreviation index.
+  chrome.storage.local.get(['settings', ABBREVIATIONS_KEY]).then(
     (stored) => {
       settings = { ...DEFAULT_SETTINGS, ...(stored.settings || {}) };
+      setAbbreviations(stored[ABBREVIATIONS_KEY]);
     },
     () => {}
   );
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && changes.settings) {
-      settings = { ...DEFAULT_SETTINGS, ...(changes.settings.newValue || {}) };
-    }
+    if (area !== 'local') return;
+    if (changes.settings) settings = { ...DEFAULT_SETTINGS, ...(changes.settings.newValue || {}) };
+    if (changes[ABBREVIATIONS_KEY]) setAbbreviations(changes[ABBREVIATIONS_KEY].newValue);
+    else if (changes.settings) setAbbreviations(abbreviationIndex);
   });
 
   // Double-tap detection. Any other key resets the sequence, both taps must use the same
@@ -179,6 +192,123 @@
     }
     sendResponse({ received: true });
   });
+
+  // Abbreviations. Typing a snippet's abbreviation, such as ";addr", replaces it with the
+  // snippet. The input listener exists only while the setting is on and at least one snippet has
+  // an abbreviation, so a profile without abbreviations runs no code per keystroke. For each
+  // typed character the listener looks at no more than the last few characters before the caret,
+  // so its cost does not grow with the size of the field. Google Docs is not covered, because
+  // the text of a Docs document is not in the page.
+
+  function setAbbreviations(index) {
+    abbreviationIndex = index && typeof index === 'object' ? index : {};
+    abbreviationsByLastChar = new Map();
+    longestAbbreviation = 0;
+    for (const abbreviation of Object.keys(abbreviationIndex)) {
+      const last = abbreviation[abbreviation.length - 1];
+      if (!abbreviationsByLastChar.has(last)) abbreviationsByLastChar.set(last, []);
+      abbreviationsByLastChar.get(last).push(abbreviation);
+      longestAbbreviation = Math.max(longestAbbreviation, abbreviation.length);
+    }
+    const listen = settings.abbreviations !== false && longestAbbreviation > 0;
+    if (listen && !listeningForAbbreviations) window.addEventListener('input', onTypedInput, true);
+    if (!listen && listeningForAbbreviations) window.removeEventListener('input', onTypedInput, true);
+    listeningForAbbreviations = listen;
+  }
+
+  // What may come right before an abbreviation: the start of the field, white space,
+  // punctuation, or a symbol. So ";addr" expands after a space but not inside "x;addr".
+  const ABBREVIATION_BOUNDARY = /[\s\p{P}\p{S}]/u;
+
+  // The abbreviation that `before`, the text in front of the caret, ends with, or null. The
+  // longest one wins when two match.
+  function typedAbbreviation(before) {
+    const candidates = abbreviationsByLastChar.get(before[before.length - 1]);
+    if (!candidates) return null;
+    let found = null;
+    for (const abbreviation of candidates) {
+      if (!before.endsWith(abbreviation)) continue;
+      const previous = before[before.length - abbreviation.length - 1];
+      if (previous !== undefined && !ABBREVIATION_BOUNDARY.test(previous)) continue;
+      if (!found || abbreviation.length > found.length) found = abbreviation;
+    }
+    return found;
+  }
+
+  // The text in front of the caret, cut to what an abbreviation and its boundary need, or null
+  // when there is a selection instead of a caret.
+  function textBeforeCaret(target) {
+    const reach = longestAbbreviation + 1;
+    if (isValueField(target)) {
+      const { selectionStart: caret, selectionEnd } = target.el;
+      if (caret === null || caret !== selectionEnd) return null;
+      return target.el.value.slice(Math.max(0, caret - reach), caret);
+    }
+    const selection = selectionFor(target.el);
+    if (!selection || !selection.isCollapsed || !selection.focusNode) return null;
+    if (selection.focusNode.nodeType !== Node.TEXT_NODE) return null;
+    const offset = selection.focusOffset;
+    return selection.focusNode.data.slice(Math.max(0, offset - reach), offset);
+  }
+
+  function onTypedInput(event) {
+    if (event.isComposing || event.inputType !== 'insertText' || panel) return;
+    const target = editableFrom(deepActiveElement(document));
+    if (!target) return;
+    const before = textBeforeCaret(target);
+    const abbreviation = before && typedAbbreviation(before);
+    if (!abbreviation || hiddenFrameElement()) return;
+    // The editor finishes handling the keystroke first.
+    setTimeout(() => expandAbbreviation(target, abbreviation), 0);
+  }
+
+  // Selects `text` just before the caret, after checking that it is still there.
+  function selectTypedText(target, text) {
+    const el = target.el;
+    const active = deepActiveElement(el.ownerDocument);
+    if (active !== el && !el.contains(active)) return false;
+    if (isValueField(target)) {
+      const caret = el.selectionStart;
+      if (caret === null || caret !== el.selectionEnd || caret < text.length) return false;
+      if (el.value.slice(caret - text.length, caret) !== text) return false;
+      el.setSelectionRange(caret - text.length, caret);
+      return true;
+    }
+    const selection = selectionFor(el);
+    if (!selection || !selection.isCollapsed || !selection.focusNode) return false;
+    const node = selection.focusNode;
+    const offset = selection.focusOffset;
+    if (node.nodeType !== Node.TEXT_NODE || offset < text.length) return false;
+    if (node.data.slice(offset - text.length, offset) !== text) return false;
+    const range = el.ownerDocument.createRange();
+    range.setStart(node, offset - text.length);
+    range.setEnd(node, offset);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    return true;
+  }
+
+  // Replaces the typed abbreviation with its snippet. This is the only time this script reads
+  // the snippet list. A snippet with fill-in fields opens the panel's fill-in form instead; the
+  // abbreviation stays selected, so the insert replaces it.
+  async function expandAbbreviation(target, abbreviation) {
+    let snippet = null;
+    try {
+      const stored = await chrome.storage.local.get(STORAGE_KEY);
+      const list = Array.isArray(stored[STORAGE_KEY]) ? stored[STORAGE_KEY] : [];
+      snippet = list.find((s) => s.id === abbreviationIndex[abbreviation] && s.abbreviation === abbreviation);
+    } catch {
+      return;
+    }
+    if (!snippet || panel || !extensionAlive() || !selectTypedText(target, abbreviation)) return;
+    // The user typed the abbreviation where the text belongs, so no spaces are added.
+    const ctx = { ...captureContext(target), noSpacing: true };
+    if (placeholders.inputLabels(snippet.content).length) {
+      openPanel(null, { ctx, mode: 'fill-only', snippetId: snippet.id });
+    } else {
+      insertSnippet(ctx, snippet.content);
+    }
+  }
 
   // Finding the text field. The panel opens for textareas, rich-text (contenteditable) editors,
   // and single-line inputs of the types in SINGLE_LINE_TYPES. An input's `type` property reads
@@ -605,7 +735,7 @@
   // character after it is not a space, a line break, or punctuation (. and , always, plus ; : ! ?
   // except in French text). Returns which of the two spaces to add.
   function spacing(ctx) {
-    if (ctx.blank) return { left: false, right: false };
+    if (ctx.blank || ctx.noSpacing) return { left: false, right: false };
     const before = ctx.before;
     const after = ctx.after;
     const punctuation = new RegExp(`[.,${ctx.locale.startsWith('fr') ? '' : ';:!?'}]`);
@@ -924,7 +1054,8 @@
   }
 
   // Opens the panel for `target`. `options.ctx` replaces the captured context, and
-  // `options.mode` is passed to the panel: 'insert' (the default) or 'create-only'.
+  // `options.mode` is passed to the panel: 'insert' (the default), 'create-only', or 'fill-only'
+  // with `options.snippetId`.
   function openPanel(target, options = {}) {
     const ctx = options.ctx || captureContext(target);
     const frame = document.createElement('iframe');
@@ -958,7 +1089,7 @@
       transform: 'none',
     });
     document.documentElement.appendChild(frame);
-    panel = { frame, ctx, height: 1, mode: options.mode || 'insert' };
+    panel = { frame, ctx, height: 1, mode: options.mode || 'insert', snippetId: options.snippetId || null };
     positionPanel();
 
     window.addEventListener('message', onPanelMessage);
@@ -970,7 +1101,7 @@
 
   function closePanel(returnToField) {
     if (!panel) return;
-    const { frame, ctx } = panel;
+    const { frame, ctx, mode } = panel;
     panel = null;
     window.removeEventListener('message', onPanelMessage);
     window.removeEventListener('mousedown', onOutsidePointer, true);
@@ -978,7 +1109,18 @@
     window.removeEventListener('resize', queuePosition);
     window.removeEventListener('pagehide', onPageHide);
     frame.remove();
-    if (returnToField) restoreSelection(ctx);
+    // A fill-in form opened by an abbreviation leaves the typed abbreviation in place, with the
+    // caret after it.
+    if (returnToField && restoreSelection(ctx) && mode === 'fill-only') collapseToEnd(ctx);
+  }
+
+  function collapseToEnd(ctx) {
+    if (isValueField(ctx)) {
+      ctx.el.setSelectionRange(ctx.end, ctx.end);
+      return;
+    }
+    const selection = selectionFor(ctx.el);
+    if (selection && selection.rangeCount) selection.collapseToEnd();
   }
 
   function onOutsidePointer(event) {
@@ -1007,7 +1149,13 @@
     switch (message.type) {
       case 'ready':
         panel.frame.contentWindow.postMessage(
-          { [MESSAGE_FLAG]: true, type: 'init', selectedText: panel.ctx.selectedText, mode: panel.mode },
+          {
+            [MESSAGE_FLAG]: true,
+            type: 'init',
+            selectedText: panel.ctx.selectedText,
+            mode: panel.mode,
+            snippetId: panel.snippetId,
+          },
           extensionOrigin()
         );
         panel.frame.focus();
