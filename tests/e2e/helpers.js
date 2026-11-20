@@ -8,6 +8,7 @@ const { expect } = require('@playwright/test');
 
 const PANEL = 'iframe[title="Snippets"]';
 const STORAGE_KEY = 'snippet_manager.snippets';
+const DELETED_KEY = 'snippet_manager.deleted';
 
 /**
  * Store snippets directly, in the same record shape the panel writes.
@@ -30,6 +31,10 @@ async function seedSnippets(serviceWorker, snippets) {
 
 async function readSnippets(serviceWorker) {
   return serviceWorker.evaluate(async (key) => (await chrome.storage.local.get(key))[key] || [], STORAGE_KEY);
+}
+
+async function readDeleted(serviceWorker) {
+  return serviceWorker.evaluate(async (key) => (await chrome.storage.local.get(key))[key] || [], DELETED_KEY);
 }
 
 /** Focus a textarea and select the range from `start` to `end` (a caret when they are equal). */
@@ -121,6 +126,7 @@ module.exports = {
   PANEL,
   seedSnippets,
   readSnippets,
+  readDeleted,
   selectInTextarea,
   caretAtEndOf,
   doubleTap,

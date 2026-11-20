@@ -70,7 +70,7 @@ test('offers to create a snippet from the selected text', async ({ page, service
   await expect(panel.locator('textarea.input-content')).toHaveValue('Hello');
 });
 
-test('filters by word prefix once the query has three characters', async ({ page, serviceWorker }) => {
+test('filters by word prefix from the first character', async ({ page, serviceWorker }) => {
   await seedSnippets(serviceWorker, [
     { title: 'Home address', content: '1 Main Street' },
     { content: 'Kind regards,\nAna' },
@@ -82,8 +82,10 @@ test('filters by word prefix once the query has three characters', async ({ page
   const search = panel.locator('#search');
   await expect(captions).toHaveCount(3);
 
-  await search.fill('ad');
-  await page.waitForTimeout(700);
+  await search.fill('k');
+  await expect(captions).toHaveText(['Kind regards,']);
+
+  await search.fill('');
   await expect(captions).toHaveCount(3);
 
   await search.fill('add');
@@ -113,7 +115,7 @@ test('edits a snippet, labels it edited, then deletes it', async ({ page, servic
   await item.hover();
   await item.locator('.edit-button').click();
   await expect(panel.locator('.item-danger')).toHaveText('Delete snippet');
-  await page.keyboard.press('Control+1');
+  await panel.locator('.item-danger').click();
   await expect(panel.locator('.empty-heading')).toBeVisible();
   expect(await readSnippets(serviceWorker)).toHaveLength(0);
 });
