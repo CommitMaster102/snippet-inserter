@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Snippets</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="header">
+        <button id="back" class="icon-button" type="button" title="Back (Esc)" hidden></button>
+        <span id="caption" class="caption"></span>
+        <button id="close" class="icon-button" type="button" title="Close (Esc)"></button>
+      </header>
+      <div id="searchBar" class="search" hidden>
+        <span id="searchIcon" class="search-icon"></span>
+        <input id="search" class="search-input" type="text" autocomplete="off" spellcheck="false" />
+      </div>
+      <div id="error" class="error" role="alert" hidden></div>
+      <main id="body" class="body"></main>
+      <footer id="footer" class="footer" hidden>
+        <button id="primary" class="primary" type="button">
+          <span id="primaryLabel"></span>
+          <kbd id="primaryKey" class="primary-key"></kbd>
+        </button>
+      </footer>
+    </div>
+    <script src="panel.js"></script>
+  </body>
+</html>

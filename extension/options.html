@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Snippet Inserter settings</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --text: #2f3237;
+        --subtle: #5e636e;
+        --border: #dee3ed;
+        --bg: #ffffff;
+        --brand: #239aff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --text: #f1f3f9;
+          --subtle: #c2c9d6;
+          --border: #2f3237;
+          --bg: #111213;
+          --brand: #5eb5ff;
+        }
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      }
+      main {
+        max-width: 560px;
+        margin: 40px auto;
+        padding: 0 16px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 16px;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      select {
+        font: inherit;
+        padding: 6px 8px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg);
+        color: var(--text);
+      }
+      p {
+        color: var(--subtle);
+      }
+      kbd {
+        font: inherit;
+        padding: 0 4px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+      }
+      #status {
+        color: var(--brand);
+        min-height: 21px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Snippet Inserter</h1>
+      <label for="hotkey">Open the snippet panel with</label>
+      <select id="hotkey">
+        <option value="Control">Double tap Ctrl</option>
+        <option value="Shift">Double tap Shift</option>
+        <option value="Alt">Double tap Alt</option>
+        <option value="off">Off</option>
+      </select>
+      <p id="status" role="status"></p>
+      <p>
+        Click in a text box or rich-text editor and tap the key twice quickly. In the panel, pick a
+        snippet with the mouse, the arrow keys and <kbd>Enter</kbd>, or <kbd>Ctrl</kbd>+<kbd>2</kbd>
+        to <kbd>Ctrl</kbd>+<kbd>9</kbd>. <kbd>Ctrl</kbd>+<kbd>1</kbd> creates a snippet, and if text
+        is selected when the panel opens, the new snippet starts with that text. Snippets have no
+        length limit.
+      </p>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

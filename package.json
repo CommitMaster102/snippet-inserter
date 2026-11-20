@@ -1,0 +1,17 @@
+{
+  "name": "snippet-inserter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser extension that inserts saved text snippets into text fields with a double tap of Ctrl.",
+  "license": "MIT",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "browsers": "playwright install chromium --no-shell",
+    "icons": "python scripts/make-icons.py"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
+  }
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Snippet Inserter test page</title>
+    <style>
+      body {
+        font: 16px sans-serif;
+        padding: 20px;
+      }
+      textarea,
+      input,
+      [contenteditable] {
+        display: block;
+        margin-bottom: 10px;
+        border: 1px solid #999;
+      }
+      [contenteditable] {
+        min-height: 40px;
+        width: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="plain" rows="6" cols="60">Hello world</textarea>
+    <textarea id="readonly" rows="2" cols="60" readonly>Read only</textarea>
+    <input id="single" type="text" value="Single line" />
+    <div id="rich" contenteditable="true"><p>Dear team,</p><p>Thanks</p></div>
+    <div id="pasteEditor" contenteditable="true">Editor:</div>
+    <script>
+      // The paste editor stands in for editors such as Gmail or ProseMirror, which cancel the
+      // paste event and insert the clipboard data themselves.
+      window.pasteSeen = null;
+      document.getElementById('pasteEditor').addEventListener('paste', (event) => {
+        event.preventDefault();
+        window.pasteSeen = {
+          plain: event.clipboardData.getData('text/plain'),
+          html: event.clipboardData.getData('text/html'),
+        };
+        document.execCommand('insertText', false, window.pasteSeen.plain);
+      });
+    </script>
+  </body>
+</html>
