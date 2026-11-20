@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Google Docs test page</title>
+    <style>
+      body {
+        margin: 0;
+        font: 15px/1.5 Arial, sans-serif;
+      }
+      .kix-appview-editor {
+        position: relative;
+        height: 420px;
+        padding: 40px;
+        overflow: auto;
+      }
+      #doc {
+        min-height: 200px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        white-space: pre-wrap;
+      }
+      .kix-cursor {
+        position: absolute;
+        left: 220px;
+        top: 150px;
+      }
+      .kix-cursor-caret {
+        width: 2px;
+        height: 18px;
+        background: #000;
+      }
+      .docs-texteventtarget-iframe {
+        position: absolute;
+        top: -10000px;
+        left: 0;
+        width: 600px;
+        height: 1px;
+        border: 0;
+      }
+      #comment {
+        display: block;
+        margin: 20px 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="kix-appview-editor">
+      <div id="doc"></div>
+      <div class="kix-cursor"><div class="kix-cursor-caret"></div></div>
+    </div>
+    <textarea id="comment" rows="3" cols="60">Hello world</textarea>
+    <script>
+      // A stand-in for the Google Docs editor, served at a docs.google.com address by the tests.
+      // Docs draws the document on a canvas and takes keyboard input and pastes through a hidden,
+      // same-origin iframe. This page keeps the document as a string, with the selection as two
+      // offsets into it, and shows the string in #doc.
+      window.docState = { text: 'Hello world.', start: 5, end: 5, pastes: [] };
+
+      function render() {
+        document.getElementById('doc').textContent = window.docState.text;
+      }
+      render();
+
+      const frame = document.createElement('iframe');
+      frame.className = 'docs-texteventtarget-iframe';
+      frame.tabIndex = -1;
+      document.body.appendChild(frame);
+      const textbox = frame.contentDocument.createElement('div');
+      textbox.setAttribute('contenteditable', 'true');
+      textbox.setAttribute('role', 'textbox');
+      textbox.setAttribute('aria-label', 'Document content');
+      textbox.tabIndex = 0;
+      frame.contentDocument.body.appendChild(textbox);
+
+      // As in Docs, a paste replaces the selection with the pasted plain text.
+      textbox.addEventListener('paste', (event) => {
+        event.preventDefault();
+        const state = window.docState;
+        const pasted = event.clipboardData.getData('text/plain');
+        state.pastes.push(pasted);
+        state.text = state.text.slice(0, state.start) + pasted + state.text.slice(state.end);
+        state.start = state.end = state.start + pasted.length;
+        render();
+      });
+
+      // As in Docs, a copy event gets the selected text in its DataTransfer.
+      textbox.addEventListener('copy', (event) => {
+        event.preventDefault();
+        const state = window.docState;
+        event.clipboardData.setData('text/plain', state.text.slice(state.start, state.end));
+      });
+    </script>
+  </body>
+</html>

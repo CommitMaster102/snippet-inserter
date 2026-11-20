@@ -1,8 +1,8 @@
 # Snippet Inserter
 
 A browser extension for Chrome and other Chromium-based browsers that inserts saved text snippets
-where you type. Double-tap Ctrl in a text box or a rich-text editor, pick a snippet, and it is
-inserted at the cursor. Snippets have no length limit.
+where you type. Double-tap Ctrl in a text box, a rich-text editor, or a Google Docs document,
+pick a snippet, and it is inserted at the cursor. Snippets have no length limit.
 
 The panel is modeled on the snippet manager in QuillBot's browser extension, without its
 1,024-character limit. This project is not affiliated with QuillBot.
@@ -21,7 +21,7 @@ extension/            The extension itself; this is the folder to load.
   icons/
 tests/
   e2e/                Playwright end-to-end tests and their fixtures.
-  pages/              Test page served to the browser during the tests.
+  pages/              Test pages served to the browser during the tests.
 scripts/
   make-icons.py       Redraws extension/icons.
 docs/screenshots/     Screenshots used in this README.
@@ -41,7 +41,7 @@ loaded this way while developer mode is off.
 
 ## Use
 
-Click in a textarea or rich-text editor and tap Ctrl twice quickly.
+Click in a textarea, a rich-text editor, or a Google Docs document and tap Ctrl twice quickly.
 
 - With snippets saved, the panel lists them. Pick one with the mouse, with the arrow keys and
   Enter, or with Ctrl+2 to Ctrl+9 (Ctrl+1 is "Create new snippet").
@@ -55,17 +55,31 @@ Click in a textarea or rich-text editor and tap Ctrl twice quickly.
 
 The snippet gets a leading space when the character before the caret is not a space or line
 break, and a trailing space when the character after it is not a space, line break, or
-punctuation.
+punctuation. Google Docs is the exception; see below.
 
 The trigger key can be changed to Shift or Alt, or turned off, from the extension's options page
 (click its toolbar icon).
 
+## Google Docs
+
+Docs draws the document on a canvas and takes typing through a hidden frame, so the extension
+opens the panel at the cursor Docs draws and inserts the snippet into that frame as a paste.
+Picking a snippet over a selection replaces it, "Create snippet from selection" works, and one
+Ctrl+Z removes an insert. Three things differ from other editors:
+
+- No space is added before or after the snippet, because Docs does not expose the text next to
+  the cursor.
+- Docs drops spaces at the very start and end of a pasted snippet.
+- Each line break in the snippet starts a new paragraph.
+
+This relies on how Docs handles input today, which is not a documented interface, so a change on
+Google's side can stop it from working in Docs. Other sites are not affected.
+
 ## Limits
 
 - Snippet content has no length limit. A snippet name can be up to 128 characters.
-- Single-line inputs (`<input type="text">`) are not supported, only textareas and rich-text
-  editors.
-- Google Docs is not supported.
+- Single-line inputs (`<input type="text">`) are not supported, only textareas, rich-text
+  editors, and Google Docs.
 
 ## Storage
 
