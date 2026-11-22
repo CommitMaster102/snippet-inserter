@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest a new feature or a change to an existing one.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: What are you trying to do?
+      description: Describe the task and what the extension does not do for it.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What should the extension do?
+    validations:
+      required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What do you do now instead?

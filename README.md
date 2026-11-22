@@ -39,6 +39,12 @@ playwright.live.config.js   Configuration for npm run test:docs-live.
 package.json
 ```
 
+## Install
+
+Install Snippet Inserter from the
+[Chrome Web Store](https://chromewebstore.google.com/detail/snippet-inserter/fbpkffddkibmmkodahmpbggoelbaieaj).
+Brave and other Chromium-based browsers can install it from the same page.
+
 ## Install from source
 
 1. Clone this repository.
@@ -229,6 +235,14 @@ To test another copy of the extension, such as an unzipped release package, poin
 Keys that close the panel are dispatched inside the panel document by the `pressInPanel` helper
 instead of being pressed with `page.keyboard`. The panel iframe is removed on keydown, and
 Playwright waits for the matching keyup to reach a frame that no longer exists.
+
+## Contributing
+
+Report bugs and suggest features in
+[issues](https://github.com/CommitMaster102/snippet-inserter/issues).
+[CONTRIBUTING.md](CONTRIBUTING.md) says how to build and test a change, and everyone taking part
+follows the [code of conduct](CODE_OF_CONDUCT.md). Report a security problem privately, as
+[SECURITY.md](SECURITY.md) describes.
 
 ## License
 

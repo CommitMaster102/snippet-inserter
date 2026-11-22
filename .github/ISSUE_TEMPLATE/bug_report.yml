@@ -1,0 +1,75 @@
+name: Bug report
+description: Something does not work as the README describes.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues are public, so do not paste a real snippet here. Use a made-up snippet that shows the same problem.
+  - type: input
+    id: version
+    attributes:
+      label: Extension version
+      description: In the browser's extensions page, click Details on Snippet Inserter and copy the Version line.
+      placeholder: "1.2.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Installed from
+      options:
+        - Chrome Web Store
+        - This repository (Load unpacked)
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 158, Brave 1.100, Edge 158
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where it happens
+      multiple: true
+      options:
+        - Text box
+        - Single-line text field
+        - Rich-text editor, such as webmail
+        - Google Docs
+        - Snippet manager page
+        - Right-click menu
+        - Somewhere else
+    validations:
+      required: true
+  - type: input
+    id: site
+    attributes:
+      label: Site or editor
+      description: The page address without anything private in it, or the editor's name.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Click in ...
+        3. Tap Ctrl twice ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+      description: Add any error from the browser console. You can drag screenshots into this box.
+    validations:
+      required: true
