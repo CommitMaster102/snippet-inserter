@@ -27,7 +27,7 @@ body:
     id: browser
     attributes:
       label: Browser and version
-      placeholder: Chrome 158, Brave 1.100, Edge 158
+      placeholder: Chrome 158
     validations:
       required: true
   - type: dropdown
