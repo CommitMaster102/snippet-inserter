@@ -15,7 +15,6 @@ The panel is modeled on the snippet manager in QuillBot's browser extension, wit
 
 Install Snippet Inserter from the
 [Chrome Web Store](https://chromewebstore.google.com/detail/snippet-inserter/fbpkffddkibmmkodahmpbggoelbaieaj).
-Brave can install it from the same page.
 
 ## Install from source
 
