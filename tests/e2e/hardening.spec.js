@@ -370,3 +370,15 @@ test('the edit form, Duplicate, and Delete can be reached with the keyboard alon
   await expect(panel.getByText('Snippet deleted.')).toBeVisible();
   expect(await readSnippets(serviceWorker)).toHaveLength(2);
 });
+
+test('on an ordinary page the panel stays out of the top layer, so page popover styles do not reach it', async ({ page, pagesUrl, serviceWorker }) => {
+  await page.goto(`${pagesUrl}/editors.html`);
+  await page.addStyleTag({ content: '::backdrop { background: rgba(0, 0, 0, 0.6); } [popover] { outline: 9px solid red; }' });
+  await seedSnippets(serviceWorker, [{ title: 'Tea time', content: 'Tea time' }]);
+  await selectInTextarea(page, '#plain', 5);
+  await openPanel(page);
+
+  const frame = page.locator('iframe[title="Snippets"]');
+  await expect(frame).not.toHaveAttribute('popover');
+  expect(await frame.evaluate((el) => el.matches(':popover-open'))).toBe(false);
+});

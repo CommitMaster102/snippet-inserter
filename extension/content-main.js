@@ -771,6 +771,9 @@ export function create(shared) {
   // styles are neutralized so the element keeps its own size and position.
   function attachOverlay(element, host) {
     host.appendChild(element);
+    // On an ordinary page the overlay stays out of the top layer, so the page's own rules for
+    // popovers and ::backdrop never apply to it.
+    if (host === document.documentElement) return;
     if (typeof HTMLElement.prototype.showPopover !== 'function') return;
     try {
       element.popover = 'manual';
@@ -780,6 +783,9 @@ export function create(shared) {
         overflow: 'visible',
         background: element.style.background || 'transparent',
         color: 'inherit',
+        translate: 'none',
+        scale: 'none',
+        rotate: 'none',
       });
       element.showPopover();
     } catch {
