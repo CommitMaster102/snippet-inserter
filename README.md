@@ -67,16 +67,17 @@ punctuation. In Google Docs no space is added. In a single-line field, a multi-l
 in as one line: each line break, with the spaces around it, becomes one space. In a rich editor,
 tabs and the spaces that start a line stay as typed, so indented code keeps its indentation.
 
-Click the extension's toolbar icon to open the snippet manager. It shows every snippet with a
-large editor and drag-and-drop ordering, and keeps the last 20 deleted snippets under Recently
-deleted. Under the search box, a button for each folder shows how many snippets it holds. Drag a
-row onto a button to move that snippet into the folder, or onto No folder to take it out; it keeps
-its place in the list. With a folder selected, Rename folder renames it on every snippet, and
-joins it to another folder if you type that folder's name. Remove folder, which asks for a second
-click, takes the snippets out of the folder and keeps them. In its Settings and backup section you can change the trigger key to Shift or Alt or
-turn it off, choose when abbreviations expand or turn them off, list the sites where the double
-tap and abbreviations are off, and export or import snippets. The same section shows the
-keyboard shortcut, with a button that opens the browser's shortcuts page to change it.
+Click the extension's toolbar icon to open the snippet manager. It shows every snippet with a large
+editor and drag-and-drop ordering, and keeps the last 20 deleted snippets under Recently deleted.
+Under the search box, a button for each folder shows how many snippets it holds. Drag a row onto a
+button to move that snippet into the folder, or onto No folder to take it out; it keeps its place in
+the list. With a folder selected, Rename folder renames it on every snippet, and joins it to another
+folder if you type that folder's name. Remove folder, which asks for a second click, takes the
+snippets out of the folder and keeps them. In its Settings and backup section you can change the
+trigger key to Shift or Alt or turn it off, choose when abbreviations expand or turn them off, list
+the sites where the double tap and abbreviations are off, and export or import snippets. The same
+section shows the keyboard shortcut, with a button that opens the browser's shortcuts page to change
+it.
 
 ![Snippet manager](docs/screenshots/manager.png)
 
@@ -84,18 +85,18 @@ keyboard shortcut, with a button that opens the browser's shortcuts page to chan
 
 To stop the double tap and abbreviations on a site, click the round button with a slash next to
 Close at the top of the snippet panel. It is hidden in the forms, and on a page whose address the
-browser does not tell the panel, such as a local file. The panel closes and a notice names the
-site. You can also add a site under "Sites where the double tap and abbreviations are off" in the
-manager's Settings, by typing a host name or pasting an address:
-`https://mail.example.com/inbox` is saved as `mail.example.com`. A site includes its subdomains,
-so `example.com` also covers `mail.example.com`, and adding `example.com` removes
-`mail.example.com` from the list. A page inside a frame counts as off when the page it is in is
-on the list, so listing `docs.google.com` covers Google Docs. On a listed site the keyboard
-shortcut and the "Insert snippet..." menu item still open the panel, and the extension's script
-still loads there; it only stops reacting to the double tap and to abbreviations. On such a site
-the panel's button is a power symbol in the brand color, and clicking it turns the site back on,
-as does "Turn on" in the list. When the page is a subdomain, the button names the list entry that
-covers it. The list is part of the settings, which a backup does not include.
+browser does not tell the panel, such as a local file. The panel closes and a notice names the site.
+You can also add a site under "Sites where the double tap and abbreviations are off" in the
+manager's Settings, by typing a host name or pasting an address: `https://mail.example.com/inbox` is
+saved as `mail.example.com`. A site includes its subdomains, so `example.com` also covers
+`mail.example.com`, and adding `example.com` removes `mail.example.com` from the list. A page inside
+a frame counts as off when the top page is on the list, so listing `docs.google.com` covers Google
+Docs. On a listed site the keyboard shortcut and the "Insert snippet..." menu item still open the
+panel, and the extension's script still loads there; it only stops reacting to the double tap and to
+abbreviations. On such a site the panel's button is a power symbol in the brand color, and clicking
+it turns the site back on, as does "Turn on" in the list. When the page is a subdomain, the button
+names the list entry that covers it. The list is part of the settings, which a backup does not
+include.
 
 ## Placeholders
 
@@ -218,15 +219,16 @@ documents get this support, not Slides or Sheets.
 
 Snippets are kept in `chrome.storage.local` under `snippet_manager.snippets`, as an array of
 `{ createdAt, content, title, id }` records, plus `abbreviation` and `folder` when a snippet has
-them. A folder name has up to 64 characters. There is no list of folders: the folders are the
-names that snippets carry, so a folder exists while a snippet is in it. The array order is the
-order of the list, and moving a snippet to another folder does not change its place. Deleted snippets go to `snippet_manager.deleted`, newest
-first, at most 20, each with `deletedAt` and its old position. `snippet_manager.abbreviations`
-holds a small `{ abbreviation: id }` copy written with every change to the list, so pages read
-only that. The settings are in `settings`. `abbreviationTiming` is stored only once someone picks
-"After I press Space, Tab, or Enter", and `offSites`, the host names of the turned-off sites, only
-once someone adds one. Settings are not part of an export. The extension has the `unlimitedStorage` permission, so the browser's 10 MB
-local-storage quota does not apply. Nothing is synced to other devices.
+them. A folder name has up to 64 characters. There is no list of folders: the folders are the names
+that snippets carry, so a folder exists while a snippet is in it. The array order is the order of
+the list, and moving a snippet to another folder does not change its place. Deleted snippets go to
+`snippet_manager.deleted`, newest first, at most 20, each with `deletedAt` and its old position.
+`snippet_manager.abbreviations` holds a small `{ abbreviation: id }` copy written with every change
+to the list, so pages read only that. The settings are in `settings`. `abbreviationTiming` is stored
+only once someone picks "After I press Space, Tab, or Enter", and `offSites`, the host names of the
+turned-off sites, only once someone adds one. Settings are not part of an export. The extension has
+the `unlimitedStorage` permission, so the browser's 10 MB local-storage quota does not apply.
+Nothing is synced to other devices.
 
 Export in the manager saves every snippet to `snippets-YYYY-MM-DD.json`:
 
@@ -252,7 +254,8 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
 
 - **Each frame of a page**: the browser itself spends about 170 KB on any extension's content
   script. This extension's own code adds about 25 to 40 KB of memory and 0.2 to 0.6 ms of
-  script time when the frame loads.
+  script time when the frame loads. These two figures were measured on version 1.2.0 and are
+  measured again at each release.
 - **What loads where**: every frame gets `content.js`, about 21 KB, which only watches for the
   double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 41 KB,
   loads only in a frame where the panel opens or an abbreviation matches.
