@@ -47,6 +47,37 @@ test('fills in the date and time in the field language', async ({ page, serviceW
   await expect.poll(() => page.locator('#plain').inputValue()).toMatch(new RegExp(`^(${expected.map((e) => e.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('|')})$`));
 });
 
+/** The values for the offset placeholders, computed in the page with its own calendar arithmetic. */
+function expectedOffsets(page) {
+  return page.evaluate(() => {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const day = (n) => new Date(now.getFullYear(), now.getMonth(), now.getDate() + n, 12);
+    const month = new Date(now.getFullYear(), now.getMonth() + 1, 1, 12);
+    const last = new Date(now.getFullYear(), now.getMonth() + 2, 0, 12).getDate();
+    const later = new Date(now.getTime() + 30 * 60000);
+    return [
+      iso(day(1)),
+      iso(day(-7)),
+      iso(new Date(month.getFullYear(), month.getMonth(), Math.min(now.getDate(), last), 12)),
+      `${pad(later.getHours())}:${pad(later.getMinutes())}`,
+    ].join(' ');
+  });
+}
+
+test('fills in dates and times counted from now', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: '{date+1d:iso} {date-1w:iso} {date+1m:iso} {time+30min:iso}' }]);
+  await selectInTextarea(page, '#plain', 11);
+  const before = await expectedOffsets(page);
+  await insertFirst(page);
+  const after = await expectedOffsets(page);
+  // The minute can change during the insert, so either moment's values are right.
+  await expect
+    .poll(async () => [before, after].map((v) => `Hello world ${v}`).includes(await page.locator('#plain').inputValue()))
+    .toBe(true);
+});
+
 test('{cursor} puts the caret inside the inserted text of a textarea', async ({ page, serviceWorker }) => {
   await seedSnippets(serviceWorker, [{ content: 'Dear {cursor},\nThanks' }]);
   await selectInTextarea(page, '#plain', 11);
@@ -121,10 +152,10 @@ test('the form lists the placeholders in the text', async ({ page }) => {
 });
 
 test('other braces are inserted as written', async ({ page, serviceWorker }) => {
-  await seedSnippets(serviceWorker, [{ content: '{price} {"a": 1}' }]);
+  await seedSnippets(serviceWorker, [{ content: '{price} {"a": 1} {date+3x}' }]);
   await selectInTextarea(page, '#plain', 11);
   await insertFirst(page);
-  await expect(page.locator('#plain')).toHaveValue('Hello world {price} {"a": 1}');
+  await expect(page.locator('#plain')).toHaveValue('Hello world {price} {"a": 1} {date+3x}');
 });
 
 test('Google Docs gets the date, and {cursor} is dropped', async ({ context, page, serviceWorker }) => {

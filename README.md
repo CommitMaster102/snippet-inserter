@@ -77,13 +77,28 @@ examples are for English (United States) on 20 November 2026 at 9:14.
 | `{date:iso}` | 2026-11-20 |
 | `{time}` | 9:14 AM |
 | `{time:iso}` | 09:14 |
+| `{date+3d}` | November 23, 2026 |
+| `{date-1w:iso}` | 2026-11-13 |
+| `{date+1m:short}` | 12/20/26 |
+| `{time+30min}` | 9:44 AM |
+| `{time-2h:iso}` | 07:14 |
 | `{cursor}` | Nothing; the cursor ends here after the insert |
 | `{input:Customer name}` | What you type in the fill-in form |
+
+To count from now, write a plus or minus sign, a whole number from 0 to 999, and a unit after
+`date` or `time`, before any `:short` or `:iso`. Dates take `d` for days, `w` for weeks, `m` for
+months, and `y` for years; times take `min` for minutes and `h` for hours. A month or a year later
+keeps the day of the month, or takes the last day of a shorter month: January 31 plus 1 month is
+February 28, or February 29 in a leap year. Days and weeks count calendar days, so a
+daylight-saving change never moves a date. Minutes and hours count time on the clock, so on the
+night the clocks go forward an hour, `{time+1h}` at 1:30 gives 3:30. A time counted past midnight
+shows only the time.
 
 Dates and times use the language set on the text field or on the page. A snippet with
 `{input:...}` placeholders opens a fill-in form first, with one field per label and a preview. In
 the form, Enter moves to the next field and Ctrl+Enter inserts the snippet. Only these exact
-forms are recognized, so other text in braces, such as JSON, is inserted as written. The edit form
+forms are recognized, with lowercase units and no spaces, so `{date+3D}`, `{date + 3d}`, and other
+text in braces, such as JSON, is inserted as written. The edit form
 lists the placeholders it finds in the text.
 
 ## Abbreviations
