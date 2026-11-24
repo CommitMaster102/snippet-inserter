@@ -65,6 +65,8 @@ const els = {
   contentError: $('contentError'),
   placeholderList: $('placeholderList'),
   unrecognizedList: $('unrecognizedList'),
+  referenceList: $('referenceList'),
+  referenceProblems: $('referenceProblems'),
   count: $('count'),
   duplicate: $('duplicate'),
   delete: $('delete'),
@@ -596,9 +598,51 @@ function renderUnrecognized(found) {
   }
 }
 
+// The snippets the text includes, and a line for each reference that is inserted as written. The
+// text and abbreviation as typed stand in for the stored snippet, so a snippet that includes
+// itself shows before it is saved.
+function renderReferences() {
+  const own = {
+    id: state.creating ? '' : state.selectedId || '',
+    title: els.title.value,
+    content: els.content.value,
+    abbreviation: els.abbreviation.value.trim(),
+  };
+  const all = [...state.snippets.filter((s) => s.id !== own.id), own];
+  const found = lib.placeholders.references(own.content);
+  els.referenceList.hidden = !found.length;
+  els.referenceList.replaceChildren();
+  if (found.length) els.referenceList.append(el('span', 'muted', 'Includes'));
+  for (const abbreviation of found) {
+    const target = all.find((s) => s.abbreviation === abbreviation);
+    const pill = el('span', 'placeholder-pill reference-pill', target ? `${lib.displayTitle(target)} (${abbreviation})` : abbreviation);
+    pill.dir = 'auto';
+    if (!target) {
+      pill.classList.add('reference-missing');
+      pill.title = 'Not found';
+    }
+    els.referenceList.append(pill);
+  }
+  const problems = lib.placeholders.resolveReferences(own, all).problems;
+  els.referenceProblems.hidden = !problems.length;
+  els.referenceProblems.replaceChildren();
+  for (const { kind, abbreviation, token } of problems) {
+    const text =
+      kind === 'missing'
+        ? `No snippet has the abbreviation ${abbreviation}, so ${token} is inserted as written.`
+        : kind === 'loop'
+          ? `${token} would put a snippet inside itself, so it is inserted as written.`
+          : 'One insert includes at most 100 snippets, so the other references are inserted as written.';
+    const line = el('p', 'field-error', text);
+    line.dir = 'auto';
+    els.referenceProblems.append(line);
+  }
+}
+
 // The character count, and the placeholders the text contains, which are replaced on insert.
 function updateCount() {
   els.count.textContent = lib.characterCount(els.content.value);
+  renderReferences();
   renderUnrecognized(lib.placeholders.unrecognized(els.content.value));
   const found = lib.placeholders.listPlaceholders(els.content.value);
   els.placeholderList.hidden = !found.length;
@@ -830,10 +874,12 @@ els.content.addEventListener('input', () => {
 els.title.addEventListener('input', () => {
   els.titleError.hidden = true;
   els.editorStatus.textContent = '';
+  renderReferences();
 });
 els.abbreviation.addEventListener('input', () => {
   els.abbreviationError.hidden = true;
   els.editorStatus.textContent = '';
+  renderReferences();
 });
 els.folder.addEventListener('input', () => {
   els.folderError.hidden = true;

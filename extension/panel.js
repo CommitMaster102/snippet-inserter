@@ -65,6 +65,12 @@ const TEXT = {
   undo: 'Undo',
   placeholders: 'Placeholders',
   placeholdersUnrecognized: 'Not recognized, inserted as written',
+  includes: 'Includes',
+  referenceNotFound: 'Not found',
+  referenceMissing: (abbreviation, token) =>
+    `No snippet has the abbreviation ${abbreviation}, so ${token} is inserted as written.`,
+  referenceLoop: (token) => `${token} would put a snippet inside itself, so it is inserted as written.`,
+  referenceLimit: 'One insert includes at most 100 snippets, so the other references are inserted as written.',
   fillCount: (n) => `Fill in ${n} ${n === 1 ? 'field' : 'fields'}`,
   preview: 'Preview',
   insertApply: 'Insert',
@@ -586,12 +592,16 @@ function renderForm() {
   const count = el('div', 'count');
   const placeholderList = el('div', 'placeholder-list');
   const unrecognizedList = el('div', 'placeholder-list unrecognized-list');
+  const referenceList = el('div', 'placeholder-list reference-list');
+  const referenceProblems = el('div', 'reference-problems');
+  // The title and abbreviation fields are made below; they are read when this runs.
   const updateCount = () => {
     count.textContent = lib.characterCount(content.value);
     renderPlaceholderList(placeholderList, content.value);
     renderUnrecognized(unrecognizedList, content.value);
+    const own = { id: isEdit ? snippet.id : '', title: title.value, content: content.value, abbreviation: abbreviation.value.trim() };
+    renderReferences(referenceList, referenceProblems, own, state.snippets.filter((s) => s.id !== own.id));
   };
-  updateCount();
 
   const titleField = el('div', 'field');
   const title = el('input', 'input input-title');
@@ -617,6 +627,7 @@ function renderForm() {
   abbreviationMessage.hidden = true;
   abbreviation.addEventListener('input', () => {
     abbreviationMessage.hidden = true;
+    updateCount();
   });
 
   // The folder, with the existing folder names offered as suggestions. A new snippet made under
@@ -646,13 +657,18 @@ function renderForm() {
   });
   title.addEventListener('input', () => {
     titleMessage.hidden = true;
+    updateCount();
   });
+
+  updateCount();
 
   form.append(
     contentField,
     contentMessage,
     placeholderList,
     unrecognizedList,
+    referenceList,
+    referenceProblems,
     count,
     titleField,
     titleMessage,
@@ -726,6 +742,39 @@ function renderUnrecognized(container, text) {
     pill.dir = 'ltr';
     container.append(pill);
   }
+}
+
+// The snippets the text includes, shown under it, and a line for each reference that is inserted
+// as written. `own` is the form as typed, so a snippet that includes itself shows before it is saved.
+function renderReferences(container, problemsBox, own, others) {
+  const all = [...others, own];
+  const found = placeholders.references(own.content);
+  container.hidden = !found.length;
+  container.replaceChildren();
+  if (found.length) container.append(el('span', 'placeholder-label', TEXT.includes));
+  for (const abbreviation of found) {
+    const target = all.find((s) => s.abbreviation === abbreviation);
+    const pill = el('span', 'placeholder-pill reference-pill', target ? `${lib.displayTitle(target)} (${abbreviation})` : abbreviation);
+    pill.dir = 'auto';
+    if (!target) {
+      pill.classList.add('reference-missing');
+      pill.title = TEXT.referenceNotFound;
+    }
+    container.append(pill);
+  }
+  problemsBox.replaceChildren();
+  for (const problem of placeholders.resolveReferences(own, all).problems) {
+    const text =
+      problem.kind === 'missing'
+        ? TEXT.referenceMissing(problem.abbreviation, problem.token)
+        : problem.kind === 'loop'
+          ? TEXT.referenceLoop(problem.token)
+          : TEXT.referenceLimit;
+    const line = el('div', 'feedback', text);
+    line.dir = 'auto';
+    problemsBox.append(line);
+  }
+  reportSize();
 }
 
 // The fill-in form for a snippet with {input:Label} placeholders: one field per label, a preview

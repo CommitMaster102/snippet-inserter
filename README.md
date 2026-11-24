@@ -132,6 +132,11 @@ ones in included snippets are ignored; otherwise the first one counts. A referen
 abbreviation no snippet has, or one that would put a snippet inside itself, is inserted as written.
 One insert includes at most 100 snippets.
 
+Both edit forms show an Includes row under the text, with the name and abbreviation of each
+included snippet. A reference with no target is red in that row, and a line below it says which
+reference is inserted as written and why, including a snippet that includes itself. These lines
+never stop you from saving.
+
 ## Abbreviations
 
 A snippet can have an abbreviation, such as `;addr`. Typing the abbreviation in a text field

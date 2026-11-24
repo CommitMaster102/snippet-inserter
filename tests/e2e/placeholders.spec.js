@@ -145,7 +145,7 @@ test('the form lists the placeholders in the text', async ({ page }) => {
   await selectInTextarea(page, '#plain', 5);
   const panel = await openPanel(page);
   await page.keyboard.press('Enter');
-  const list = panel.locator('.placeholder-list:not(.unrecognized-list)');
+  const list = panel.locator('.placeholder-list:not(.unrecognized-list):not(.reference-list)');
   await expect(list).toBeHidden();
   await panel.locator('textarea.input-content').fill('On {date}, {input:Name} said {price} {"a": 1}');
   await expect(list.locator('.placeholder-token')).toHaveText(['{date}', '{input:Name}']);

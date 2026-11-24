@@ -440,6 +440,18 @@ select:focus {
   color: var(--text-subtle);
 }
 
+.reference-pill {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reference-missing {
+  background: var(--bg-error-subtle);
+  color: var(--text-error);
+}
+
 .placeholder-pill-literal {
   background: var(--bg-neutral);
   color: var(--text-subtle);

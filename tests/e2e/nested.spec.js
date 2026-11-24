@@ -12,6 +12,7 @@ const {
   openPanel,
   pressInPanel,
   expectPanelClosed,
+  openManager,
 } = require('./helpers');
 
 const DOCS_URL = 'https://docs.google.com/document/d/test/edit';
@@ -151,4 +152,89 @@ test('in the Google Docs stand-in, the paste carries the combined text', async (
   await expect
     .poll(() => page.evaluate(() => window.docState.pastes))
     .toEqual(['Thanks for your order.\nBest,\nAna']);
+});
+
+// The Includes row and the problem lines in the two edit forms.
+
+const MISSING = 'No snippet has the abbreviation ;sgi, so {snippet:;sgi} is inserted as written.';
+
+async function openPanelForm(page, name) {
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  if (name) {
+    const item = panel.locator('.list .item', { has: panel.getByText(name, { exact: true }) });
+    await item.hover();
+    await item.locator('.edit-button').click();
+  } else {
+    await page.keyboard.press('Enter');
+  }
+  return panel;
+}
+
+test('the panel form names each included snippet, flags one with no target, and still saves', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [SIG]);
+  const panel = await openPanelForm(page);
+  const row = panel.locator('.reference-list');
+  await expect(row).toBeHidden();
+  await panel.locator('textarea.input-content').fill('Thanks.\n{snippet:;sig}\n{snippet:;sgi}');
+  await expect(row.locator('.placeholder-label')).toHaveText('Includes');
+  await expect(row.locator('.placeholder-pill')).toHaveText(['Signature (;sig)', ';sgi']);
+  await expect(row.locator('.reference-missing')).toHaveText([';sgi']);
+  await expect(panel.locator('.reference-problems .feedback')).toHaveText([MISSING]);
+
+  await panel.locator('textarea.input-content').fill('Plain');
+  await expect(row).toBeHidden();
+  await expect(panel.locator('.reference-problems .feedback')).toHaveCount(0);
+
+  await panel.locator('textarea.input-content').fill('Thanks.\n{snippet:;sgi}');
+  await pressInPanel(page, 'Enter', { ctrl: true });
+  await expect(panel.locator('.list .item-caption')).toHaveText(['Signature', 'Thanks.new']);
+});
+
+test('the panel form says so when a snippet would include itself, before the first save', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [SIG]);
+  const panel = await openPanelForm(page);
+  await panel.locator('textarea.input-content').fill('Hi {snippet:;me}');
+  await expect(panel.locator('.reference-problems .feedback')).toHaveText(['No snippet has the abbreviation ;me, so {snippet:;me} is inserted as written.']);
+  await panel.locator('input.input-abbreviation').fill(';me');
+  await expect(panel.locator('.reference-problems .feedback')).toHaveText(['{snippet:;me} would put a snippet inside itself, so it is inserted as written.']);
+  await expect(panel.locator('.reference-list .placeholder-pill')).toHaveText(['Hi {snippet:;me} (;me)']);
+});
+
+test('a loop between two snippets shows in the edit form of the first', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'A', content: 'A {snippet:;b}', abbreviation: ';a' },
+    { title: 'B', content: 'B {snippet:;a}', abbreviation: ';b' },
+  ]);
+  const panel = await openPanelForm(page, 'A');
+  await expect(panel.locator('.reference-problems .feedback')).toHaveText([
+    '{snippet:;a} would put a snippet inside itself, so it is inserted as written.',
+  ]);
+});
+
+test('the panel form says when the references go past 100 snippets', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Leaf', content: 'x', abbreviation: ';leaf' }]);
+  const panel = await openPanelForm(page);
+  await panel.locator('textarea.input-content').fill('{snippet:;leaf}'.repeat(101));
+  await expect(panel.locator('.reference-problems .feedback')).toHaveText([
+    'One insert includes at most 100 snippets, so the other references are inserted as written.',
+  ]);
+});
+
+test('the manager editor shows the same Includes row and problem lines', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [SIG]);
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#newSnippet').click();
+  await expect(manager.locator('#referenceList')).toBeHidden();
+  await manager.locator('#content').fill('Thanks.\n{snippet:;sig}\n{snippet:;sgi}');
+  await expect(manager.locator('#referenceList .muted')).toHaveText('Includes');
+  await expect(manager.locator('#referenceList .placeholder-pill')).toHaveText(['Signature (;sig)', ';sgi']);
+  await expect(manager.locator('#referenceProblems .field-error')).toHaveText([MISSING]);
+  await manager.locator('#abbreviation').fill(';sgi');
+  await expect(manager.locator('#referenceProblems .field-error')).toHaveText([
+    '{snippet:;sgi} would put a snippet inside itself, so it is inserted as written.',
+  ]);
+  await manager.locator('#content').fill('Plain');
+  await expect(manager.locator('#referenceList')).toBeHidden();
+  await expect(manager.locator('#referenceProblems')).toBeHidden();
 });
