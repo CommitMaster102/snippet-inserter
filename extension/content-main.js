@@ -678,17 +678,33 @@ export function create(shared) {
     const rect = caretRect(panel.ctx);
     const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const height = panel.height;
+    // The panel never grows past the visible area. Its body scrolls instead, see limitPanel.
+    const width = Math.max(1, Math.min(PANEL_WIDTH, viewportWidth - 2 * VIEWPORT_MARGIN));
+    const maxHeight = Math.max(1, viewportHeight - 2 * VIEWPORT_MARGIN);
+    const height = Math.min(panel.height, maxHeight);
     const left = Math.min(
       Math.max(rect.left, VIEWPORT_MARGIN),
-      Math.max(VIEWPORT_MARGIN, viewportWidth - PANEL_WIDTH - VIEWPORT_MARGIN)
+      Math.max(VIEWPORT_MARGIN, viewportWidth - width - VIEWPORT_MARGIN)
     );
     let top = rect.bottom + PANEL_GAP;
     if (top + height > viewportHeight - VIEWPORT_MARGIN && rect.top - PANEL_GAP - height >= VIEWPORT_MARGIN) {
       top = rect.top - PANEL_GAP - height;
     }
     top = Math.max(VIEWPORT_MARGIN, Math.min(top, viewportHeight - height - VIEWPORT_MARGIN));
-    setStyle(panel.frame, { left: `${Math.round(left)}px`, top: `${Math.round(top)}px` });
+    setStyle(panel.frame, {
+      left: `${Math.round(left)}px`,
+      top: `${Math.round(top)}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+    });
+    limitPanel(maxHeight);
+  }
+
+  // Tells the panel how tall it may be, so it can scroll its body and keep the header and footer.
+  function limitPanel(maxHeight) {
+    if (!panel.ready || panel.maxHeight === maxHeight) return;
+    panel.maxHeight = maxHeight;
+    panel.frame.contentWindow.postMessage({ [MESSAGE_FLAG]: true, type: 'limit', maxHeight }, extensionOrigin());
   }
 
   function queuePosition() {
@@ -851,6 +867,7 @@ export function create(shared) {
     if (!message || message[MESSAGE_FLAG] !== true) return;
     switch (message.type) {
       case 'ready':
+        panel.ready = true;
         panel.frame.contentWindow.postMessage(
           {
             [MESSAGE_FLAG]: true,
@@ -865,7 +882,7 @@ export function create(shared) {
         break;
       case 'resize':
         panel.height = Math.max(1, Math.ceil(Number(message.height) || 0));
-        setStyle(panel.frame, { height: `${panel.height}px`, opacity: '1' });
+        setStyle(panel.frame, { opacity: '1' });
         positionPanel();
         if (deepActiveElement(document) !== panel.frame) panel.frame.focus();
         break;

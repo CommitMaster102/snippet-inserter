@@ -132,7 +132,13 @@ function post(message) {
 window.addEventListener('message', (event) => {
   if (event.source !== parent) return;
   const message = event.data;
-  if (!message || message[MESSAGE_FLAG] !== true || message.type !== 'init') return;
+  if (!message || message[MESSAGE_FLAG] !== true) return;
+  // The page reports how tall the panel may be. The body scrolls when the content is taller.
+  if (message.type === 'limit') {
+    els.app.style.maxHeight = `${Math.max(1, Number(message.maxHeight) || 1)}px`;
+    return;
+  }
+  if (message.type !== 'init') return;
   if (state.initialized) return;
   state.initialized = true;
   state.selectedText = typeof message.selectedText === 'string' ? message.selectedText : '';
