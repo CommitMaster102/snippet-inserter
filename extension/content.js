@@ -335,14 +335,28 @@
   }
 
   function onCompositionEnd() {
-    if (!expandAfterKey) expandTypedAbbreviation(false);
+    if (!expandAfterKey) expandTypedAbbreviation(false, true);
+  }
+
+  // The white space or line break that the input method inserted right after the abbreviation, or
+  // an empty string when the caret is still directly after it. A Korean input method commits a
+  // syllable on Space or Enter and adds that character in the same keystroke, so by the time the
+  // timer runs the caret may be one character past the abbreviation. Returns null when the
+  // abbreviation is no longer in front of the caret, so it is not expanded.
+  function settledDelimiter(target, abbreviation) {
+    const before = textBeforeCaret(target, 1);
+    if (!before) return null;
+    if (before.endsWith(abbreviation)) return '';
+    const last = before.slice(-1);
+    return /\s/.test(last) && before.slice(0, -1).endsWith(abbreviation) ? last : null;
   }
 
   // Expands the abbreviation in front of the caret, if there is one. With `afterSpace`, the
   // character just typed must be white space and the abbreviation ends right before it. A rich
   // editor may have stored the space as a no-break space, so it is read from the field, and
-  // content-main.js replaces it together with the abbreviation.
-  function expandTypedAbbreviation(afterSpace) {
+  // content-main.js replaces it together with the abbreviation. With `committed`, the text came
+  // from an input method, and one space or line break after it is tolerated and kept.
+  function expandTypedAbbreviation(afterSpace, committed = false) {
     if (panelOpen()) return;
     const target = editableFrom(deepActiveElement(document));
     if (!target) return;
@@ -352,7 +366,11 @@
     if (!abbreviation || (afterSpace && !/\s/.test(delimiter))) return;
     if (hiddenFrameElement() || !extensionAlive()) return;
     // The editor finishes handling the keystroke first.
-    setTimeout(() => withMain((loaded) => loaded.expandAbbreviation(target, abbreviation, delimiter)), 0);
+    setTimeout(() => {
+      const found = committed ? settledDelimiter(target, abbreviation) : delimiter;
+      if (found === null) return;
+      withMain((loaded) => loaded.expandAbbreviation(target, abbreviation, found));
+    }, 0);
   }
 
   // Tab or Enter right after an abbreviation expands it, and the key is used up. The snippet is

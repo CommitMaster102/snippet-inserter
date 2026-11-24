@@ -76,8 +76,9 @@ export function create(shared) {
   // Replaces the typed abbreviation with its snippet. This is the only time the content script
   // reads the snippet list. A snippet with fill-in fields opens the panel's fill-in form instead; the
   // abbreviation stays selected, so the insert replaces it. `delimiter` is the space the user
-  // typed after the abbreviation, if abbreviations wait for a key. It is replaced too, and the
-  // insert puts back one plain space after the snippet.
+  // typed after the abbreviation, or the space or line break an input method added when it
+  // committed. It is replaced too, and the insert puts back one plain space, or the line break,
+  // after the snippet.
   async function expandAbbreviation(target, abbreviation, delimiter = '') {
     let snippet = null;
     let list = [];
@@ -90,8 +91,11 @@ export function create(shared) {
       return;
     }
     if (!snippet || panel || !extensionAlive() || !selectTypedText(target, abbreviation + delimiter)) return;
-    // The user typed the abbreviation where the text belongs, so no spaces are added.
-    const ctx = { ...captureContext(target), noSpacing: true, suffix: delimiter ? ' ' : '' };
+    // The user typed the abbreviation where the text belongs, so no spaces are added. A line
+    // break the user typed stays a line break after the snippet, and other white space comes
+    // back as a plain space.
+    const suffix = delimiter === '\n' ? '\n' : delimiter ? ' ' : '';
+    const ctx = { ...captureContext(target), noSpacing: true, suffix };
     const { content } = placeholders.resolveReferences(snippet, list);
     if (placeholders.inputLabels(content).length) {
       openPanel(null, { ctx, mode: 'fill-only', snippetId: snippet.id });

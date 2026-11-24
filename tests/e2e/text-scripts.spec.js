@@ -81,3 +81,34 @@ test('the notice for a field with a length limit counts a family emoji as one ch
   );
   await expect(page.locator('#limited')).toHaveValue('Hi');
 });
+
+// A Korean input method commits a syllable on Space or Enter and inserts that space or line
+// break in the same keystroke. This sends the commit and the inserted character back to back,
+// before the timer that content.js sets on the commit can run.
+async function commitAndInsert(page, abbreviation, inserted) {
+  await page.locator('#plain').evaluate(
+    (el, [typed, extra]) => {
+      el.value = `Hello world ${typed}`;
+      el.setSelectionRange(el.value.length, el.value.length);
+      el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: typed }));
+      document.execCommand('insertText', false, extra);
+    },
+    [abbreviation, inserted]
+  );
+}
+
+test('an abbreviation committed together with a space expands and keeps the space', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: '감사합니다.', abbreviation: '감사' }]);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.locator('#plain').focus();
+  await commitAndInsert(page, '감사', ' ');
+  await expect(page.locator('#plain')).toHaveValue('Hello world 감사합니다. ');
+});
+
+test('an abbreviation committed together with a line break expands and keeps the line break', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: '감사합니다.', abbreviation: '감사' }]);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.locator('#plain').focus();
+  await commitAndInsert(page, '감사', '\n');
+  await expect(page.locator('#plain')).toHaveValue('Hello world 감사합니다.\n');
+});
