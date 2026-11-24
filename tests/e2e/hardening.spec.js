@@ -57,7 +57,11 @@ test('the list scrolls inside a small frame and the panel keeps to its size', as
   );
   await seedSnippets(
     serviceWorker,
-    Array.from({ length: 8 }, (_, i) => ({ title: `Snippet ${i + 1}`, content: `Body ${i + 1}` }))
+    Array.from({ length: 8 }, (_, i) => ({
+      title: `Snippet ${i + 1}`,
+      content: `Body ${i + 1}`,
+      ...(i < 4 ? { folder: 'Work' } : {}),
+    }))
   );
   await page.goto('https://short-frame.test/');
   const frame = page.frameLocator('#editor');
@@ -79,6 +83,10 @@ test('the list scrolls inside a small frame and the panel keeps to its size', as
     expect(box.y + box.height).toBeLessThanOrEqual(editor.y + editor.height - 2 - 8 + 1);
     expect(box.x + box.width).toBeLessThanOrEqual(editor.x + editor.width - 2 - 8 + 1);
   }).toPass({ timeout: 5000 });
+
+  // The folder row keeps its full height instead of shrinking with the list.
+  const folderBar = await panelFrame.contentFrame().locator('#folderBar').boundingBox();
+  expect(folderBar.height).toBeGreaterThanOrEqual(24);
 
   // ArrowUp from the search box wraps to the last snippet, which must scroll into the frame.
   await panelFrame.contentFrame().locator('#search').focus();
