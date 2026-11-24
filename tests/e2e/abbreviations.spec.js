@@ -170,3 +170,26 @@ test('a double tap still works with abbreviations active', async ({ page, servic
   await doubleTap(page);
   await openPanel(page);
 });
+
+test('a clashing abbreviation set in the manager is refused by a panel that is still open', async ({ context, extensionId, page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Signature', content: 'Best' }]);
+  await selectInTextarea(page, '#plain', 11);
+  const panel = await openPanel(page);
+
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#snippetList .row', { hasText: 'Signature' }).click();
+  await manager.locator('#abbreviation').fill(';sig');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#editorStatus')).toHaveText('Saved.');
+  await page.bringToFront();
+
+  await panel.locator('.list .item', { hasText: 'Create new snippet' }).click();
+  await panel.locator('textarea.input-content').fill('More');
+  await panel.locator('input.input-abbreviation').fill(';sigs');
+  await panel.locator('#primary').click();
+  await expect(panel.locator('#error')).toHaveText("This starts with another snippet's abbreviation, ;sig.");
+
+  const stored = await readSnippets(serviceWorker);
+  expect(stored).toHaveLength(1);
+  expect(stored.filter((s) => s.abbreviation === ';sig')).toHaveLength(1);
+});
