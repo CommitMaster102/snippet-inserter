@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Modal dialog in a shadow root test page</title>
+  </head>
+  <body>
+    <p>Page behind the dialog.</p>
+    <x-modal id="m"><textarea id="t" rows="3" cols="40">Hello</textarea></x-modal>
+    <script>
+      // The field lives in the page and is slotted into a dialog inside the element's shadow
+      // root, so the dialog is not one of the field's ancestors in the page's own tree.
+      customElements.define(
+        'x-modal',
+        class extends HTMLElement {
+          connectedCallback() {
+            const root = this.attachShadow({ mode: 'open' });
+            root.innerHTML = '<dialog id="inner" style="width: 420px; padding: 16px"><slot></slot></dialog>';
+            root.getElementById('inner').showModal();
+          }
+        }
+      );
+    </script>
+  </body>
+</html>

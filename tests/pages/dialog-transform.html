@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Transformed modal dialog test page</title>
+    <style>
+      dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin: 0;
+        width: 420px;
+        padding: 16px;
+        transform: translate(-50%, -50%);
+      }
+    </style>
+  </head>
+  <body>
+    <p>Page behind the dialog.</p>
+    <dialog id="d">
+      <textarea id="t" rows="3" cols="40">Hello</textarea>
+    </dialog>
+    <script>
+      // A transform makes a dialog the containing block of its fixed-position descendants, so a
+      // frame inside it is placed relative to the dialog instead of the window.
+      document.getElementById('d').showModal();
+    </script>
+  </body>
+</html>

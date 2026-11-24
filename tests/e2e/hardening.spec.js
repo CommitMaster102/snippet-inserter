@@ -234,3 +234,66 @@ test('right-to-left names and text follow their own direction in the panel and t
   }
   expect(await manager.locator('#abbreviation').evaluate((e) => e.matches(':dir(ltr)'))).toBe(true);
 });
+
+async function expectPanelOnTop(page) {
+  const frame = page.locator('iframe[title="Snippets"]');
+  const box = await frame.boundingBox();
+  const topmost = await page.evaluate(
+    ([x, y]) => {
+      let node = document.elementFromPoint(x, y);
+      while (node && node.shadowRoot && node.shadowRoot.elementFromPoint(x, y)) node = node.shadowRoot.elementFromPoint(x, y);
+      return node?.tagName;
+    },
+    [box.x + box.width / 2, box.y + box.height / 2]
+  );
+  expect(topmost).toBe('IFRAME');
+}
+
+test('the panel stays in view and clickable when the modal dialog has a transform', async ({ page, pagesUrl, serviceWorker }) => {
+  await page.goto(`${pagesUrl}/dialog-transform.html`);
+  await seedSnippets(serviceWorker, [{ title: 'Tea time', content: 'Tea time' }]);
+  await selectInTextarea(page, '#t', 5);
+  const panel = await openPanel(page);
+  await expectPanelOnTop(page);
+
+  // The frame sits next to the field, not shifted by the dialog's own offset.
+  const field = await page.locator('#t').boundingBox();
+  const box = await page.locator('iframe[title="Snippets"]').boundingBox();
+  expect(Math.abs(box.x - field.x)).toBeLessThan(60);
+  expect(box.y).toBeGreaterThanOrEqual(field.y);
+  expect(box.y).toBeLessThan(field.y + field.height + 60);
+
+  await panel.locator('.list .item', { hasText: 'Tea time' }).click();
+  await expectPanelClosed(page);
+  await expect(page.locator('#t')).toHaveValue('Hello Tea time');
+});
+
+test('a notice shown while the field is in a modal dialog is on top', async ({ page, pagesUrl, serviceWorker }) => {
+  await page.goto(`${pagesUrl}/dialog.html`);
+  await seedSnippets(serviceWorker, [{ title: 'Long one', content: 'A snippet that is longer than the field allows' }]);
+  await page.locator('#t').evaluate((e) => (e.maxLength = 8));
+  await selectInTextarea(page, '#t', 5);
+  const panel = await openPanel(page);
+  await panel.locator('.list .item', { hasText: 'Long one' }).click();
+  await expectPanelClosed(page);
+
+  const result = await page.evaluate(() => {
+    const hosts = [...document.querySelectorAll('div')].filter((d) => d.shadowRoot && d.shadowRoot.textContent.includes('more'));
+    if (hosts.length !== 1) return { found: hosts.length };
+    const box = hosts[0].getBoundingClientRect();
+    const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+    return { found: 1, topmost: hit === hosts[0] };
+  });
+  expect(result).toEqual({ found: 1, topmost: true });
+});
+
+test('the panel opens above a modal dialog inside a shadow root', async ({ page, pagesUrl, serviceWorker }) => {
+  await page.goto(`${pagesUrl}/dialog-shadow.html`);
+  await seedSnippets(serviceWorker, [{ title: 'Tea time', content: 'Tea time' }]);
+  await selectInTextarea(page, '#t', 5);
+  const panel = await openPanel(page);
+  await expectPanelOnTop(page);
+  await panel.locator('.list .item', { hasText: 'Tea time' }).click();
+  await expectPanelClosed(page);
+  await expect(page.locator('#t')).toHaveValue('Hello Tea time');
+});

@@ -230,7 +230,7 @@ export function create(shared) {
 
   // A short message at the top of the page. It sits in a shadow root, so the page's styles do
   // not reach it, and it removes itself after NOTICE_MS.
-  function showNotice(message) {
+  function showNotice(message, ctx) {
     if (notice) notice.remove();
     const host = document.createElement('div');
     setStyle(host, {
@@ -257,7 +257,7 @@ export function create(shared) {
       'max-width': '420px',
     });
     host.attachShadow({ mode: 'open' }).append(box);
-    document.documentElement.appendChild(host);
+    attachOverlay(host, overlayHost(ctx));
     notice = host;
     setTimeout(() => {
       host.remove();
@@ -485,7 +485,7 @@ export function create(shared) {
   async function insertSnippet(ctx, content, values = {}) {
     if (!restoreSelection(ctx)) {
       // Only a field that was in the page when the panel opened can have gone away.
-      if (ctx.kind !== 'none') showNotice('The snippet was not inserted, because the field is gone.');
+      if (ctx.kind !== 'none') showNotice('The snippet was not inserted, because the field is gone.', ctx);
       return;
     }
     const expanded = placeholders.expand(content, { values, locale: ctx.locale, now: new Date() });
@@ -527,7 +527,8 @@ export function create(shared) {
     if (text.length <= room) return true;
     const free = Math.max(room, 0);
     showNotice(
-      `This field takes ${free} more ${free === 1 ? 'character' : 'characters'}, and the snippet has ${text.length}. Nothing was inserted.`
+      `This field takes ${free} more ${free === 1 ? 'character' : 'characters'}, and the snippet has ${text.length}. Nothing was inserted.`,
+      ctx
     );
     return false;
   }
@@ -725,22 +726,65 @@ export function create(shared) {
 
   // The panel iframe.
 
-  // Where the panel frame is attached. The browser draws the top layer (a modal dialog, a
-  // fullscreen element, an open popover) above everything else on the page, so a frame attached
-  // to the page root would be hidden behind it and could not be clicked. The frame goes inside
-  // the top-layer element that holds the field instead.
-  function panelHost(ctx) {
-    const field = ctx.el || ctx.anchor || (ctx.range && ctx.range.startContainer);
-    const start = field && field.nodeType === Node.TEXT_NODE ? field.parentElement : field;
+  // Where an overlay (the panel frame or a notice) is attached. The browser draws the top layer
+  // (a modal dialog, a fullscreen element, an open popover) above everything else on the page,
+  // and a modal dialog makes the rest of the page inert, so an overlay attached to the page root
+  // would be hidden behind it and could not be clicked. The overlay goes inside the nearest
+  // top-layer element that holds the field instead. The walk follows the flat tree, which is
+  // what the browser draws: a slotted node continues in its slot, and a shadow root continues
+  // in its host.
+  function topLayerHost(field) {
+    let node = field && field.nodeType === Node.TEXT_NODE ? field.parentNode : field;
     const fullscreen = document.fullscreenElement;
-    if (fullscreen && fullscreen !== document.documentElement && fullscreen.contains(start)) return fullscreen;
-    try {
-      const host = start && start.closest && start.closest('dialog:modal, [popover]:popover-open');
-      if (host) return host;
-    } catch {
-      // A browser without these selectors has no such top layer elements to attach to.
+    while (node) {
+      if (node.nodeType === Node.ELEMENT_NODE && node !== document.documentElement) {
+        if (node === fullscreen) return node;
+        // Each selector is checked on its own, because a browser that does not know one of them
+        // would reject the combined list: ":popover-open" arrived in Chrome 114.
+        if (matchesSafely(node, 'dialog:modal') || matchesSafely(node, '[popover]:popover-open')) return node;
+      }
+      node = node.assignedSlot || node.parentNode || node.host || null;
     }
     return document.documentElement;
+  }
+
+  function matchesSafely(element, selector) {
+    try {
+      return element.matches(selector);
+    } catch {
+      // A browser without this selector has no such top layer elements.
+      return false;
+    }
+  }
+
+  // The element a context's overlay should sit with: its field, or, when the field has left the
+  // page, the focused element.
+  function overlayHost(ctx) {
+    const field = ctx && (ctx.el || ctx.anchor || (ctx.range && ctx.range.startContainer));
+    const host = topLayerHost(field && field.isConnected ? field : null);
+    return host !== document.documentElement ? host : topLayerHost(deepActiveElement(document));
+  }
+
+  // Attaches `element` to `host` and, where the browser has popovers, puts it in the top layer
+  // itself. A top-layer element's containing block is the viewport, so a transform on a dialog
+  // that holds the field cannot shift the element's fixed position. The user-agent popover
+  // styles are neutralized so the element keeps its own size and position.
+  function attachOverlay(element, host) {
+    host.appendChild(element);
+    if (typeof HTMLElement.prototype.showPopover !== 'function') return;
+    try {
+      element.popover = 'manual';
+      setStyle(element, {
+        right: 'auto',
+        bottom: 'auto',
+        overflow: 'visible',
+        background: element.style.background || 'transparent',
+        color: 'inherit',
+      });
+      element.showPopover();
+    } catch {
+      // The element could not enter the top layer; it stays where it was attached.
+    }
   }
 
   function extensionOrigin() {
@@ -811,7 +855,7 @@ export function create(shared) {
       opacity: '0',
       transform: 'none',
     });
-    panelHost(ctx).appendChild(frame);
+    attachOverlay(frame, overlayHost(ctx));
     panel = { frame, ctx, height: 1, mode: options.mode || 'insert', snippetId: options.snippetId || null };
     positionPanel();
 
@@ -899,10 +943,12 @@ export function create(shared) {
       case 'close':
         closePanel(true);
         break;
-      case 'saved':
+      case 'saved': {
+        const savedCtx = panel && panel.ctx;
         closePanel(true);
-        showNotice('Snippet saved.');
+        showNotice('Snippet saved.', savedCtx);
         break;
+      }
       default:
         break;
     }
