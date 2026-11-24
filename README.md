@@ -97,6 +97,7 @@ examples are for English (United States) on 20 November 2026 at 9:14.
 | `{time-2h:iso}` | 07:14 |
 | `{cursor}` | Nothing; the cursor ends here after the insert |
 | `{input:Customer name}` | What you type in the fill-in form |
+| `{snippet:;sig}` | The text of the snippet whose abbreviation is ;sig, with its placeholders filled in |
 
 To count from now, write a plus or minus sign, a whole number from 0 to 999, and a unit after
 `date` or `time`, before any `:short` or `:iso`. Dates take `d` for days, `w` for weeks, `m` for
@@ -119,6 +120,17 @@ panel opened from. The snippet manager shows the same values in the browser's la
 looks like a date or time placeholder but is not one, such as `{date+3x}` or `{time+30m}`, is listed
 under "Not recognized, inserted as written", so a typo shows before it reaches anyone. The fill-in
 form's preview uses the field's language too.
+
+## Snippets inside snippets
+
+A snippet can include another snippet by its abbreviation: `{snippet:;sig}` puts in the text of the
+snippet whose abbreviation is `;sig`, and references inside that text are replaced the same way.
+The abbreviation must match exactly, including capital letters, and one with `{` or `}` in it
+cannot be used here. The fill-in form asks once for each label across all the included snippets,
+and every date and time comes from the same moment. If the snippet you insert has a `{cursor}`, the
+ones in included snippets are ignored; otherwise the first one counts. A reference to an
+abbreviation no snippet has, or one that would put a snippet inside itself, is inserted as written.
+One insert includes at most 100 snippets.
 
 ## Abbreviations
 
@@ -228,7 +240,8 @@ extension/            The extension itself; this is the folder to load.
   background.js       The right-click menu items and the keyboard shortcut.
   lib/
     snippets.js       Storage, import and export, abbreviation rules.
-    placeholders.js   {date}, {time}, {cursor}, and {input:Label}.
+    placeholders.js   {date}, {time}, {cursor}, {input:Label}, and
+                      {snippet:;abbreviation}.
   icons/
 tests/
   e2e/                Playwright end-to-end tests and their fixtures.

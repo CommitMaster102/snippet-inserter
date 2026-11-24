@@ -13,6 +13,8 @@
  *   {time-2h}      a time counted from now: a + or - sign, a number from 0 to 999, and min or h
  *   {cursor}       nothing; the caret ends here after the insert
  *   {input:Label}  a value the user types in the panel's fill-in form before the insert
+ *   {snippet:;sig} the text of the snippet whose abbreviation is ;sig, with its own references
+ *                  filled in first; see resolveReferences
  *
  * Adding months or years keeps the day of the month, or takes the last day of a shorter month.
  * Days and weeks count calendar days, so a daylight-saving change never moves a date, while
@@ -33,6 +35,12 @@
     'g'
   );
   const CURSOR = '{cursor}';
+  // A reference to another snippet by its abbreviation, which has 2 to 32 characters and no white
+  // space or braces. The abbreviation must match exactly, capitals included.
+  const REFERENCE = /\{snippet:([^\s{}]{2,32})\}/g;
+  // One insert includes at most this many snippets, so a snippet that includes itself many times
+  // over cannot grow without end.
+  const REFERENCE_MAX = 100;
   // The whole text of one placeholder, without the g flag, so test() keeps no state between calls.
   const EXACT = new RegExp(`^(?:${PLACEHOLDER.source})$`);
   // Text that opens like a date or time placeholder, in any case and with spaces allowed, and goes
@@ -57,6 +65,49 @@
   // Every distinct placeholder in the text, in order, for the list under the form's text box.
   function listPlaceholders(content) {
     return [...new Set(matches(content).map((match) => match[0]))];
+  }
+
+  // The abbreviations referenced in the text, each once, in order of first appearance.
+  function references(content) {
+    return [...new Set([...String(content).matchAll(REFERENCE)].map((match) => match[1]))];
+  }
+
+  // The text of `snippet` with every {snippet:...} reference replaced by the text of the snippet
+  // that has that abbreviation, as far down as the references go. This runs before placeholders
+  // are filled in, so one fill-in form and one date cover the whole result. A reference stays as
+  // written, and is listed in `problems`, when no snippet has the abbreviation ('missing'), when
+  // the snippet is already being included higher up ('loop'), or when 100 snippets are included
+  // already ('limit'). When the snippet has its own {cursor}, the cursors of included snippets
+  // are dropped; otherwise the first one in the result counts.
+  function resolveReferences(snippet, snippets) {
+    const content = String(snippet.content);
+    if (!content.includes('{snippet:')) return { content: snippet.content, problems: [] };
+    const byAbbreviation = new Map();
+    for (const other of snippets) if (other.abbreviation) byAbbreviation.set(other.abbreviation, other);
+    const problems = [];
+    const reported = new Set();
+    const report = (kind, abbreviation, token) => {
+      const key = kind === 'limit' ? kind : `${kind} ${token}`;
+      if (reported.has(key)) return;
+      reported.add(key);
+      problems.push({ kind, abbreviation, token });
+    };
+    const ownCursor = content.includes(CURSOR);
+    let included = 0;
+    const walk = (text, stack) =>
+      text.replace(REFERENCE, (token, abbreviation) => {
+        const target = byAbbreviation.get(abbreviation);
+        if (!target) report('missing', abbreviation, token);
+        else if (stack.includes(target.id)) report('loop', abbreviation, token);
+        else if (included >= REFERENCE_MAX) report('limit', abbreviation, token);
+        else {
+          included += 1;
+          const inner = walk(String(target.content), [...stack, target.id]);
+          return ownCursor ? inner.split(CURSOR).join('') : inner;
+        }
+        return token;
+      });
+    return { content: walk(content, [snippet.id]), problems };
   }
 
   // Text that looks like a date or time placeholder but is not one, so it is inserted as written.
@@ -153,7 +204,7 @@
     return expand(token, { locale, now }).text;
   }
 
-  const api = { inputLabels, listPlaceholders, expand, unrecognized, currentValue };
+  const api = { inputLabels, listPlaceholders, expand, unrecognized, currentValue, references, resolveReferences };
 
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.SnippetInserter = Object.assign(root.SnippetInserter || {}, { placeholders: api });

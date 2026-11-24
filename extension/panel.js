@@ -748,7 +748,8 @@ function renderFill() {
     return;
   }
   els.caption.textContent = lib.displayTitle(snippet);
-  const labels = placeholders.inputLabels(snippet.content);
+  const content = placeholders.resolveReferences(snippet, state.snippets).content;
+  const labels = placeholders.inputLabels(content);
   const form = el('div', 'form fill');
   form.append(el('div', 'fill-count', TEXT.fillCount(labels.length)));
 
@@ -767,7 +768,7 @@ function renderFill() {
   form.append(preview);
   const values = () => Object.fromEntries(inputs.map((input) => [input.dataset.label, input.value]));
   const updatePreview = () => {
-    preview.textContent = placeholders.expand(snippet.content, { values: values(), locale: state.locale }).text;
+    preview.textContent = placeholders.expand(content, { values: values(), locale: state.locale }).text;
     reportSize();
   };
   inputs.forEach((input) => input.addEventListener('input', updatePreview));
@@ -776,7 +777,7 @@ function renderFill() {
 
   currentForm = {
     inputs,
-    submit: () => post({ type: 'insert', content: snippet.content, values: values() }),
+    submit: () => post({ type: 'insert', content, values: values() }),
   };
   setPrimary(TEXT.insertApply, currentForm.submit, IS_MAC ? COMMAND_KEY + RETURN_KEY : `Ctrl ${RETURN_KEY}`);
   if (inputs.length) inputs[0].focus(NO_SCROLL);
@@ -922,8 +923,9 @@ async function moveFocused(step) {
 
 // A snippet with fill-in fields opens the fill-in form first; any other is inserted at once.
 function insertSnippet(snippet) {
-  if (placeholders.inputLabels(snippet.content).length) openFill(snippet.id);
-  else post({ type: 'insert', content: snippet.content, values: {} });
+  const { content } = placeholders.resolveReferences(snippet, state.snippets);
+  if (placeholders.inputLabels(content).length) openFill(snippet.id);
+  else post({ type: 'insert', content, values: {} });
 }
 
 // Escape leaves a form for the list, and closes the panel from the list. A panel opened for one

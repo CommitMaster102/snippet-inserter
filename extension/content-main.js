@@ -78,9 +78,10 @@ export function create(shared) {
   // abbreviation stays selected, so the insert replaces it.
   async function expandAbbreviation(target, abbreviation) {
     let snippet = null;
+    let list = [];
     try {
       const stored = await chrome.storage.local.get(STORAGE_KEY);
-      const list = Array.isArray(stored[STORAGE_KEY]) ? stored[STORAGE_KEY] : [];
+      list = Array.isArray(stored[STORAGE_KEY]) ? stored[STORAGE_KEY] : [];
       const id = shared.abbreviationIndex()[abbreviation];
       snippet = list.find((s) => s.id === id && s.abbreviation === abbreviation);
     } catch {
@@ -89,10 +90,11 @@ export function create(shared) {
     if (!snippet || panel || !extensionAlive() || !selectTypedText(target, abbreviation)) return;
     // The user typed the abbreviation where the text belongs, so no spaces are added.
     const ctx = { ...captureContext(target), noSpacing: true };
-    if (placeholders.inputLabels(snippet.content).length) {
+    const { content } = placeholders.resolveReferences(snippet, list);
+    if (placeholders.inputLabels(content).length) {
       openPanel(null, { ctx, mode: 'fill-only', snippetId: snippet.id });
     } else {
-      insertSnippet(ctx, snippet.content);
+      insertSnippet(ctx, content);
     }
   }
 

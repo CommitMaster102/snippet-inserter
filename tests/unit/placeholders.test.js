@@ -154,3 +154,86 @@ test('a weekday keeps the format style, and a date value reaches the pill', () =
   assert.equal(ex('{date+1fri}|{date+1fri:short}'), 'November 27, 2026|11/27/26');
   assert.equal(placeholders.currentValue('{date+1fri:iso}', { locale: 'en-us', now: NOW }), '2026-11-27');
 });
+
+// Snippets inside snippets: {snippet:;abbreviation}.
+
+const snip = (id, abbreviation, content) => ({ id, abbreviation, content, title: '' });
+
+test('a reference is replaced by the snippet with that abbreviation, and references inside it too', () => {
+  const list = [
+    snip('a', ';a', 'A {snippet:;b} end'),
+    snip('b', ';b', 'B {snippet:;c}'),
+    snip('c', ';c', 'C'),
+  ];
+  assert.deepEqual(placeholders.resolveReferences(list[0], list), { content: 'A B C end', problems: [] });
+});
+
+test('a reference with no target stays as written and is reported once', () => {
+  const list = [snip('a', ';a', 'x {snippet:;nope} y {snippet:;nope}')];
+  const result = placeholders.resolveReferences(list[0], list);
+  assert.equal(result.content, 'x {snippet:;nope} y {snippet:;nope}');
+  assert.deepEqual(result.problems, [{ kind: 'missing', abbreviation: ';nope', token: '{snippet:;nope}' }]);
+});
+
+test('a loop leaves the looping reference as written, and the same snippet twice is no loop', () => {
+  const self = [snip('a', ';a', 'A {snippet:;a}')];
+  const direct = placeholders.resolveReferences(self[0], self);
+  assert.equal(direct.content, 'A {snippet:;a}');
+  assert.deepEqual(direct.problems, [{ kind: 'loop', abbreviation: ';a', token: '{snippet:;a}' }]);
+
+  const pair = [snip('a', ';a', 'A {snippet:;b}'), snip('b', ';b', 'B {snippet:;a}')];
+  const round = placeholders.resolveReferences(pair[0], pair);
+  assert.equal(round.content, 'A B {snippet:;a}');
+  assert.equal(round.problems[0].kind, 'loop');
+
+  const twice = [snip('a', ';a', '{snippet:;b}{snippet:;b}'), snip('b', ';b', 'B')];
+  assert.deepEqual(placeholders.resolveReferences(twice[0], twice), { content: 'BB', problems: [] });
+});
+
+test('one insert includes at most 100 snippets, and a fan-out stops quickly', () => {
+  const list = [snip('l0', ';l0', 'x')];
+  for (let level = 1; level <= 5; level++) {
+    list.push(snip(`l${level}`, `;l${level}`, `${`{snippet:;l${level - 1}}`.repeat(10)}`));
+  }
+  const started = Date.now();
+  const result = placeholders.resolveReferences(list[5], list);
+  assert.ok(Date.now() - started < 50);
+  assert.equal(result.problems.length, 1);
+  assert.equal(result.problems[0].kind, 'limit');
+  assert.equal((result.content.match(/\{snippet:/g) || []).length > 0, true);
+  // 100 inclusions at most, so the text holds at most 100 leaves plus what was left as written.
+  assert.equal((result.content.match(/x/g) || []).length <= 100, true);
+});
+
+test('a label used in the outer and an included snippet is asked once', () => {
+  const list = [snip('a', ';a', 'Hi {input:Name} {snippet:;b}'), snip('b', ';b', 'Bye {input:Name} {input:Day}')];
+  const { content } = placeholders.resolveReferences(list[0], list);
+  assert.deepEqual(placeholders.inputLabels(content), ['Name', 'Day']);
+});
+
+test('the outer {cursor} wins, and otherwise the first one in the combined text counts', () => {
+  const inner = snip('b', ';b', 'in{cursor}ner');
+  const withOwn = snip('a', ';a', 'x{cursor} {snippet:;b}');
+  assert.equal(placeholders.resolveReferences(withOwn, [withOwn, inner]).content, 'x{cursor} inner');
+  const without = snip('a', ';a', 'x {snippet:;b}');
+  const { content } = placeholders.resolveReferences(without, [without, inner]);
+  assert.equal(placeholders.expand(content).cursor, 4);
+});
+
+test('text without a reference comes back as it is, and near misses are not references', () => {
+  const plain = snip('a', ';a', 'Just {date:iso} text');
+  assert.deepEqual(placeholders.resolveReferences(plain, [plain]), { content: 'Just {date:iso} text', problems: [] });
+  const text = '{snippet: ;a} {snippet:} {snippet:;a b} {snippet:x}';
+  const odd = snip('o', ';o', text);
+  assert.deepEqual(placeholders.resolveReferences(odd, [odd, plain]), { content: text, problems: [] });
+});
+
+test('a value typed into a fill-in field is never treated as a reference', () => {
+  const list = [snip('a', ';a', 'Hi {input:Name}'), snip('s', ';sig', 'SIG')];
+  const { content } = placeholders.resolveReferences(list[0], list);
+  assert.equal(placeholders.expand(content, { values: { Name: '{snippet:;sig}' } }).text, 'Hi {snippet:;sig}');
+});
+
+test('references lists each abbreviation once, in order', () => {
+  assert.deepEqual(placeholders.references('{snippet:;b} {snippet:;a} {snippet:;b} {snippet:x}'), [';b', ';a']);
+});
