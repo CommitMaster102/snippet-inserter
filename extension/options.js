@@ -403,8 +403,8 @@ function startNew(initialContent = '') {
   });
 }
 
-// Shows a failure in the message area at the top of the page, which is visible in every view.
-// Passing an empty message clears it.
+// Shows a failure in the message area at the top of the page, which is visible in every view and
+// stays at the top of the window while the page is scrolled. Passing an empty message clears it.
 function reportError(message) {
   els.pageError.textContent = message;
   els.pageError.hidden = !message;
@@ -419,8 +419,10 @@ async function run(work) {
   try {
     return await work();
   } catch (error) {
-    els.editorStatus.textContent = '';
-    reportError(`Could not save the change: ${error.message}`);
+    const message = `Could not save the change: ${error.message}`;
+    // An open editor also shows the failure next to Save, where the user was looking.
+    els.editorStatus.textContent = els.editor.hidden ? '' : message;
+    reportError(message);
     return null;
   } finally {
     state.busy = false;

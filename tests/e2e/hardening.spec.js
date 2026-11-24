@@ -153,19 +153,47 @@ test('the manager list has one Tab stop, valid roles, and announces a move', asy
 
 // Failures the user can see: the manager's message area, the panel's load error and the insert notice.
 
-test('a failed Restore shows an error at the top of the manager', async ({ context, extensionId, serviceWorker }) => {
-  await seedSnippets(serviceWorker, [{ title: 'Gone', content: 'x' }]);
-  const manager = await openManager(context, extensionId);
-  await manager.locator('#snippetList .row').first().click();
-  await manager.locator('#delete').click();
-  await manager.goto(`chrome-extension://${extensionId}/options.html#deleted`);
-  await expect(manager.locator('#deletedList .deleted-row')).toHaveCount(1);
+test('a failed Restore far down a scrolled list shows an error inside the window', async ({ context, extensionId, serviceWorker }) => {
+  const entries = Array.from({ length: 20 }, (_, i) => ({
+    id: `gone${String(i).padStart(8, '0')}`,
+    title: `Gone ${i}`,
+    content: 'x',
+    createdAt: new Date(Date.UTC(2026, 0, 1, 0, i)).toISOString(),
+    deletedAt: new Date(Date.UTC(2026, 1, 1, 0, 20 - i)).toISOString(),
+    index: 0,
+  }));
+  await serviceWorker.evaluate((list) => chrome.storage.local.set({ 'snippet_manager.deleted': list }), entries);
+  const manager = await openManager(context, extensionId, 'deleted');
+  await manager.setViewportSize({ width: 1100, height: 600 });
+  const rows = manager.locator('#deletedList .deleted-row');
+  await expect(rows).toHaveCount(20);
 
   await manager.evaluate(() => {
     chrome.storage.local.set = () => Promise.reject(new Error('disk full'));
   });
-  await manager.locator('#deletedList .deleted-row button', { hasText: 'Restore' }).click();
-  await expect(manager.locator('[role="alert"]:visible')).toContainText('disk full');
+  const last = rows.last().getByRole('button', { name: 'Restore' });
+  await last.scrollIntoViewIfNeeded();
+  expect(await manager.evaluate(() => window.scrollY)).toBeGreaterThan(300);
+  await last.click();
+
+  const alert = manager.locator('[role="alert"]:visible');
+  await expect(alert).toContainText('disk full');
+  const box = await alert.boundingBox();
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(600);
+});
+
+test('a failed save keeps its error next to Save while the editor is open', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Address', content: '14 Elm Street' }]);
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#snippetList .row').first().click();
+  await manager.evaluate(() => {
+    chrome.storage.local.set = () => Promise.reject(new Error('disk full'));
+  });
+  await manager.locator('#content').fill('15 Elm Street');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#editorStatus')).toContainText('disk full');
+  await expect(manager.locator('#pageError')).toContainText('disk full');
 });
 
 test('a setting that cannot be saved goes back and shows an error', async ({ context, extensionId }) => {
