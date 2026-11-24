@@ -421,6 +421,16 @@ svg {
   line-height: 18px;
 }
 
+.placeholder-value {
+  margin-inline-start: 6px;
+  color: var(--text-subtle);
+}
+
+.placeholder-pill-literal {
+  background: var(--bg-neutral);
+  color: var(--text-subtle);
+}
+
 /* Fill-in form for {input:Label} placeholders. */
 
 .fill {

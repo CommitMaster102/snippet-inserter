@@ -938,6 +938,7 @@ export function create(shared) {
             [MESSAGE_FLAG]: true,
             type: 'init',
             selectedText: panel.ctx.selectedText,
+            locale: panel.ctx.locale,
             mode: panel.mode,
             snippetId: panel.snippetId,
           },

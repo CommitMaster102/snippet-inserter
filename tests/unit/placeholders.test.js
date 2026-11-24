@@ -100,3 +100,30 @@ test('the placeholder list holds each offset form once', () => {
 test('every placeholder in one insert counts from the same moment', () => {
   assert.equal(ex('{date+0d:iso} {date+1d:iso}'), '2026-11-20 2026-11-21');
 });
+
+test('text that looks like a date or time placeholder but is not one is listed once, in order', () => {
+  const content = '{date+3x} {Date} { date } {date:long} {date+3x} {time+30m} {date–3d} {date−3d}';
+  assert.deepEqual(placeholders.unrecognized(content), [
+    '{date+3x}',
+    '{Date}',
+    '{ date }',
+    '{date:long}',
+    '{time+30m}',
+    '{date–3d}',
+    '{date−3d}',
+  ]);
+});
+
+test('text that is a placeholder, or only resembles one by name, is not listed as a near miss', () => {
+  const content = '{datetime} {times} {Time sensitive} {"date": 1} {{date:iso}} {date+1d} {cursor} {input:Name}';
+  assert.deepEqual(placeholders.unrecognized(content), []);
+});
+
+test('currentValue gives what a date or time placeholder gives now', () => {
+  const options = { locale: 'en-us', now: NOW };
+  assert.equal(placeholders.currentValue('{date+3d:iso}', options), '2026-11-23');
+  assert.equal(placeholders.currentValue('{date}', options), 'November 20, 2026');
+  assert.equal(placeholders.currentValue('{time+30min}', options), '9:44 AM');
+  assert.equal(placeholders.currentValue('{input:Name}', options), '');
+  assert.equal(placeholders.currentValue('{cursor}', options), '');
+});

@@ -31,6 +31,12 @@
     'g'
   );
   const CURSOR = '{cursor}';
+  // The whole text of one placeholder, without the g flag, so test() keeps no state between calls.
+  const EXACT = new RegExp(`^(?:${PLACEHOLDER.source})$`);
+  // Text that opens like a date or time placeholder, in any case and with spaces allowed, and goes
+  // on with a closing brace, a sign, a colon, or a digit. The minus sign and the en dash are
+  // written as escapes, because they are easy to type by mistake for a hyphen.
+  const NEAR_MISS = /\{\s*(?:date|time)\s*(?:\}|[+\-\u2212\u2013:\d][^{}\n]{0,24}\})/gi;
 
   function matches(content) {
     return [...String(content).matchAll(PLACEHOLDER)];
@@ -49,6 +55,13 @@
   // Every distinct placeholder in the text, in order, for the list under the form's text box.
   function listPlaceholders(content) {
     return [...new Set(matches(content).map((match) => match[0]))];
+  }
+
+  // Text that looks like a date or time placeholder but is not one, so it is inserted as written.
+  // Each distinct piece is listed once, in order.
+  function unrecognized(content) {
+    const found = String(content).match(NEAR_MISS) || [];
+    return [...new Set(found.filter((text) => !EXACT.test(text)))];
   }
 
   function pad(n) {
@@ -119,7 +132,14 @@
     return { text, cursor };
   }
 
-  const api = { inputLabels, listPlaceholders, expand };
+  // What a date or time placeholder gives now, for the list under the edit form's text box. It is
+  // empty for {cursor} and {input:Label}, which have no value of their own.
+  function currentValue(token, { locale, now = new Date() } = {}) {
+    if (!token.startsWith('{date') && !token.startsWith('{time')) return '';
+    return expand(token, { locale, now }).text;
+  }
+
+  const api = { inputLabels, listPlaceholders, expand, unrecognized, currentValue };
 
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.SnippetInserter = Object.assign(root.SnippetInserter || {}, { placeholders: api });

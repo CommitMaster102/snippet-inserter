@@ -335,6 +335,16 @@ select:focus {
   color: var(--brand-default);
 }
 
+.placeholder-value {
+  margin-inline-start: 6px;
+  color: var(--text-subtle);
+}
+
+.placeholder-pill-literal {
+  background: var(--bg-neutral);
+  color: var(--text-subtle);
+}
+
 .field-error {
   margin: -4px 0 0;
   color: var(--text-error);

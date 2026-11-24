@@ -145,10 +145,10 @@ test('the form lists the placeholders in the text', async ({ page }) => {
   await selectInTextarea(page, '#plain', 5);
   const panel = await openPanel(page);
   await page.keyboard.press('Enter');
-  const list = panel.locator('.placeholder-list');
+  const list = panel.locator('.placeholder-list:not(.unrecognized-list)');
   await expect(list).toBeHidden();
   await panel.locator('textarea.input-content').fill('On {date}, {input:Name} said {price} {"a": 1}');
-  await expect(list.locator('.placeholder-pill')).toHaveText(['{date}', '{input:Name}']);
+  await expect(list.locator('.placeholder-token')).toHaveText(['{date}', '{input:Name}']);
 });
 
 test('other braces are inserted as written', async ({ page, serviceWorker }) => {
@@ -179,4 +179,51 @@ test('Google Docs gets the date, and {cursor} is dropped', async ({ context, pag
   await pressInPanel(page, '2', { ctrl: true });
   await expect(page.locator(PANEL)).toHaveCount(0);
   await expect.poll(() => page.evaluate(() => window.docState.text)).toBe(`${before}Due ${iso}`);
+});
+
+test('the form shows what each date and time placeholder gives, and lists near misses', async ({ page }) => {
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  await page.keyboard.press('Enter');
+  const list = panel.locator('.placeholder-list').first();
+  const nearMisses = panel.locator('.unrecognized-list');
+  await expect(nearMisses).toBeHidden();
+  const expected = await expectedOffsets(page);
+  await panel.locator('textarea.input-content').fill('Due {date+1d:iso}, {input:Name}, not {date+3x} or {"date": 1}');
+  await expect(list.locator('.placeholder-token')).toHaveText(['{date+1d:iso}', '{input:Name}']);
+  await expect(list.locator('.placeholder-value')).toHaveText([expected.split(' ')[0]]);
+  await expect(nearMisses.locator('.placeholder-label')).toHaveText('Not recognized, inserted as written');
+  await expect(nearMisses.locator('.placeholder-pill')).toHaveText(['{date+3x}']);
+  await panel.locator('textarea.input-content').fill('');
+  await expect(list).toBeHidden();
+  await expect(nearMisses).toBeHidden();
+});
+
+test('the form lists near misses without any placeholder', async ({ page }) => {
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  await page.keyboard.press('Enter');
+  await panel.locator('textarea.input-content').fill('{Date} and {time+30m}');
+  await expect(panel.locator('.placeholder-list').first()).toBeHidden();
+  await expect(panel.locator('.unrecognized-list .placeholder-pill')).toHaveText(['{Date}', '{time+30m}']);
+});
+
+test('the form shows date values in the language of the field', async ({ page }) => {
+  await page.evaluate(() => document.querySelector('#plain').setAttribute('lang', 'fr'));
+  const dates = await expectedDates(page, 'fr');
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  await page.keyboard.press('Enter');
+  await panel.locator('textarea.input-content').fill('{date}');
+  await expect(panel.locator('.placeholder-value')).toHaveText(dates.long);
+});
+
+test('the fill-in preview uses the language of the field', async ({ page, serviceWorker }) => {
+  await page.evaluate(() => document.querySelector('#plain').setAttribute('lang', 'fr'));
+  const dates = await expectedDates(page, 'fr');
+  await seedSnippets(serviceWorker, [{ content: '{date} {input:Nom}' }]);
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  await panel.locator('.list .item', { hasText: 'Nom' }).click();
+  await expect(panel.locator('.fill-preview')).toContainText(dates.long);
 });

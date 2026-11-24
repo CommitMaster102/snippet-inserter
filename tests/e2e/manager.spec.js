@@ -153,3 +153,22 @@ test('asks to save or discard before switching away from unsaved edits', async (
   await expect(manager.locator('#title')).toHaveValue('Second');
   expect((await readSnippets(serviceWorker))[0].content).toBe('A changed');
 });
+
+test('the editor shows what date placeholders give and lists near misses', async ({ context, extensionId }) => {
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#newSnippet').click();
+  await manager.locator('#content').fill('{date+3d:iso} {date+3D} {cursor}');
+  const iso = await manager.evaluate(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  });
+  await expect(manager.locator('#placeholderList .placeholder-token')).toHaveText(['{date+3d:iso}', '{cursor}']);
+  await expect(manager.locator('#placeholderList .placeholder-value')).toHaveText([iso]);
+  await expect(manager.locator('#unrecognizedList .muted')).toHaveText('Not recognized, inserted as written');
+  await expect(manager.locator('#unrecognizedList .placeholder-pill')).toHaveText(['{date+3D}']);
+  await manager.locator('#content').fill('plain text');
+  await expect(manager.locator('#placeholderList')).toBeHidden();
+  await expect(manager.locator('#unrecognizedList')).toBeHidden();
+});

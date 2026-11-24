@@ -60,6 +60,7 @@ const TEXT = {
   undoDeleted: 'Snippet deleted.',
   undo: 'Undo',
   placeholders: 'Placeholders',
+  placeholdersUnrecognized: 'Not recognized, inserted as written',
   fillCount: (n) => `Fill in ${n} ${n === 1 ? 'field' : 'fields'}`,
   preview: 'Preview',
   insertApply: 'Insert',
@@ -114,6 +115,8 @@ const state = {
   // The deleted snippet that the Undo bar can restore, until the next change.
   undoEntry: null,
   selectedText: '',
+  // The language of the field the panel opened from, which the date and time values follow.
+  locale: undefined,
   mode: 'insert',
   focusIndex: 0,
   busy: false,
@@ -146,6 +149,7 @@ window.addEventListener('message', (event) => {
   if (state.initialized) return;
   state.initialized = true;
   state.selectedText = typeof message.selectedText === 'string' ? message.selectedText : '';
+  state.locale = typeof message.locale === 'string' && message.locale ? message.locale : undefined;
   // 'create-only' comes from "Save selection as snippet": the panel shows only the create form
   // and closes after saving. 'fill-only' comes from a typed abbreviation whose snippet has
   // fill-in fields: the panel shows only that snippet's fill-in form.
@@ -474,9 +478,11 @@ function renderForm() {
   contentMessage.hidden = true;
   const count = el('div', 'count');
   const placeholderList = el('div', 'placeholder-list');
+  const unrecognizedList = el('div', 'placeholder-list unrecognized-list');
   const updateCount = () => {
     count.textContent = lib.characterCount(content.value);
     renderPlaceholderList(placeholderList, content.value);
+    renderUnrecognized(unrecognizedList, content.value);
   };
   updateCount();
 
@@ -519,6 +525,7 @@ function renderForm() {
     contentField,
     contentMessage,
     placeholderList,
+    unrecognizedList,
     count,
     titleField,
     titleMessage,
@@ -559,7 +566,35 @@ function renderPlaceholderList(container, text) {
   container.replaceChildren();
   if (!found.length) return;
   container.append(el('span', 'placeholder-label', TEXT.placeholders));
-  for (const token of found) container.append(el('span', 'placeholder-pill', token));
+  const now = new Date();
+  for (const token of found) {
+    const pill = el('span', 'placeholder-pill');
+    const tokenSpan = el('span', 'placeholder-token', token);
+    tokenSpan.dir = 'ltr';
+    pill.append(tokenSpan);
+    const value = placeholders.currentValue(token, { locale: state.locale, now });
+    if (value) {
+      const valueSpan = el('span', 'placeholder-value', value);
+      valueSpan.dir = 'auto';
+      pill.append(valueSpan);
+    }
+    container.append(pill);
+  }
+}
+
+// Text that looks like a date or time placeholder but is not one, so a typo is seen before the
+// snippet is used.
+function renderUnrecognized(container, text) {
+  const found = placeholders.unrecognized(text);
+  container.hidden = !found.length;
+  container.replaceChildren();
+  if (!found.length) return;
+  container.append(el('span', 'placeholder-label', TEXT.placeholdersUnrecognized));
+  for (const token of found) {
+    const pill = el('span', 'placeholder-pill placeholder-pill-literal', token);
+    pill.dir = 'ltr';
+    container.append(pill);
+  }
 }
 
 // The fill-in form for a snippet with {input:Label} placeholders: one field per label, a preview
@@ -600,7 +635,7 @@ function renderFill() {
   form.append(preview);
   const values = () => Object.fromEntries(inputs.map((input) => [input.dataset.label, input.value]));
   const updatePreview = () => {
-    preview.textContent = placeholders.expand(snippet.content, { values: values() }).text;
+    preview.textContent = placeholders.expand(snippet.content, { values: values(), locale: state.locale }).text;
     reportSize();
   };
   inputs.forEach((input) => input.addEventListener('input', updatePreview));

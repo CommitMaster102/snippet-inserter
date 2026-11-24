@@ -98,8 +98,12 @@ Dates and times use the language set on the text field or on the page. A snippet
 `{input:...}` placeholders opens a fill-in form first, with one field per label and a preview. In
 the form, Enter moves to the next field and Ctrl+Enter inserts the snippet. Only these exact
 forms are recognized, with lowercase units and no spaces, so `{date+3D}`, `{date + 3d}`, and other
-text in braces, such as JSON, is inserted as written. The edit form
-lists the placeholders it finds in the text.
+text in braces, such as JSON, is inserted as written. The edit form lists the placeholders it finds
+in the text, with what each date and time placeholder gives now, in the language of the field the
+panel opened from. The snippet manager shows the same values in the browser's language. Text that
+looks like a date or time placeholder but is not one, such as `{date+3x}` or `{time+30m}`, is listed
+under "Not recognized, inserted as written", so a typo shows before it reaches anyone. The fill-in
+form's preview uses the field's language too.
 
 ## Abbreviations
 

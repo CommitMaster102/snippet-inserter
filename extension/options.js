@@ -47,6 +47,7 @@ const els = {
   content: $('content'),
   contentError: $('contentError'),
   placeholderList: $('placeholderList'),
+  unrecognizedList: $('unrecognizedList'),
   count: $('count'),
   duplicate: $('duplicate'),
   delete: $('delete'),
@@ -295,15 +296,44 @@ function isDirty() {
   return !els.editor.hidden && !sameFields(fields(), state.snapshot);
 }
 
+// Text that looks like a date or time placeholder but is not one, so a typo is seen before the
+// snippet is used.
+function renderUnrecognized(found) {
+  els.unrecognizedList.hidden = !found.length;
+  els.unrecognizedList.replaceChildren();
+  if (!found.length) return;
+  els.unrecognizedList.append(el('span', 'muted', 'Not recognized, inserted as written'));
+  for (const token of found) {
+    const pill = el('span', 'placeholder-pill placeholder-pill-literal', token);
+    pill.dir = 'ltr';
+    els.unrecognizedList.append(pill);
+  }
+}
+
 // The character count, and the placeholders the text contains, which are replaced on insert.
 function updateCount() {
   els.count.textContent = lib.characterCount(els.content.value);
+  renderUnrecognized(lib.placeholders.unrecognized(els.content.value));
   const found = lib.placeholders.listPlaceholders(els.content.value);
   els.placeholderList.hidden = !found.length;
   els.placeholderList.replaceChildren();
   if (!found.length) return;
   els.placeholderList.append(el('span', 'muted', 'Placeholders'));
-  for (const token of found) els.placeholderList.append(el('span', 'placeholder-pill', token));
+  const now = new Date();
+  for (const token of found) {
+    const pill = el('span', 'placeholder-pill');
+    const tokenSpan = el('span', 'placeholder-token', token);
+    tokenSpan.dir = 'ltr';
+    pill.append(tokenSpan);
+    // The manager has no target field, so values use the browser's language.
+    const value = lib.placeholders.currentValue(token, { now });
+    if (value) {
+      const valueSpan = el('span', 'placeholder-value', value);
+      valueSpan.dir = 'auto';
+      pill.append(valueSpan);
+    }
+    els.placeholderList.append(pill);
+  }
 }
 
 // Shows `snippet` in the editor, or an empty new snippet when it is null.
