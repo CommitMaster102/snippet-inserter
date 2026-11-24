@@ -483,7 +483,11 @@ export function create(shared) {
   // single-line field the lines are joined next, and the spacing rule runs last. `caret`, the
   // {cursor} position inside the text, is carried through each step.
   async function insertSnippet(ctx, content, values = {}) {
-    if (!restoreSelection(ctx)) return;
+    if (!restoreSelection(ctx)) {
+      // Only a field that was in the page when the panel opened can have gone away.
+      if (ctx.kind !== 'none') showNotice('The snippet was not inserted, because the field is gone.');
+      return;
+    }
     const expanded = placeholders.expand(content, { values, locale: ctx.locale, now: new Date() });
     if (ctx.kind === 'docs') {
       // The extension cannot move the Docs caret, so {cursor} has no effect in Docs.

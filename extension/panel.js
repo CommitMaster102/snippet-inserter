@@ -35,6 +35,8 @@ const TEXT = {
   emptyApply: 'Create',
   emptyHint: 'Click below to start creating your first snippet.',
   emptyHeading: 'You have no snippets yet',
+  loadError: 'Your snippets could not be loaded. Close the panel and open it again.',
+  loadErrorHeading: 'Snippets could not be loaded',
   emptyText:
     'Snippets are small, reusable pieces of text designed for repetitive use to save time (e.g. address, email).',
   formApply: 'Save snippet',
@@ -104,6 +106,8 @@ const state = {
   // The snippet whose fill-in fields the 'fill' view asks for.
   fillId: null,
   snippets: [],
+  // True when the first read of the stored snippets failed.
+  loadFailed: false,
   search: '',
   isNewId: undefined,
   isEditedId: undefined,
@@ -271,7 +275,7 @@ async function start() {
   try {
     state.snippets = await lib.readSnippets();
   } catch {
-    state.snippets = [];
+    state.loadFailed = true;
   }
   render();
 }
@@ -296,6 +300,20 @@ function renderInsert() {
   els.body.replaceChildren();
   items = [];
   renderUndoBar();
+
+  if (state.loadFailed) {
+    // An empty library would be wrong here, and Create would start over beside the real snippets.
+    els.searchBar.hidden = true;
+    const view = el('div', 'empty');
+    const content = el('div', 'empty-content');
+    content.append(el('div', 'empty-heading', TEXT.loadErrorHeading));
+    view.append(content);
+    els.body.append(view);
+    setPrimary(null);
+    showError(TEXT.loadError);
+    els.app.focus(NO_SCROLL);
+    return;
+  }
 
   if (!state.snippets.length) {
     els.searchBar.hidden = true;

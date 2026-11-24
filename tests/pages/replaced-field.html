@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Replaced field test page</title>
+  </head>
+  <body>
+    <textarea id="t" rows="3" cols="40">Hello</textarea>
+    <script>
+      // Imitates an inline editor that saves on blur and swaps in a fresh field, which happens
+      // when the snippet panel takes the focus.
+      const field = document.getElementById('t');
+      field.addEventListener('blur', () => {
+        setTimeout(() => {
+          const copy = field.cloneNode(true);
+          copy.value = field.value;
+          field.replaceWith(copy);
+        }, 0);
+      });
+    </script>
+  </body>
+</html>

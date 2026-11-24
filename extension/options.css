@@ -383,6 +383,10 @@ select:focus {
   color: var(--text-error);
 }
 
+.page-error {
+  padding: 8px 24px;
+}
+
 /* Recently deleted. */
 
 .deleted-row {

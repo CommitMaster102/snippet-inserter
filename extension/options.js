@@ -52,6 +52,7 @@ const els = {
   delete: $('delete'),
   save: $('save'),
   editorStatus: $('editorStatus'),
+  pageError: $('pageError'),
   deletedList: $('deletedList'),
   deletedEmpty: $('deletedEmpty'),
   hotkey: $('hotkey'),
@@ -394,15 +395,24 @@ function startNew(initialContent = '') {
   });
 }
 
+// Shows a failure in the message area at the top of the page, which is visible in every view.
+// Passing an empty message clears it.
+function reportError(message) {
+  els.pageError.textContent = message;
+  els.pageError.hidden = !message;
+}
+
 // Runs one storage change, one at a time. Returns its result, or null when it failed, after
-// showing the error in the editor.
+// showing the error at the top of the page.
 async function run(work) {
   if (state.busy) return null;
   state.busy = true;
+  reportError('');
   try {
     return await work();
   } catch (error) {
-    els.editorStatus.textContent = `Could not save the change: ${error.message}`;
+    els.editorStatus.textContent = '';
+    reportError(`Could not save the change: ${error.message}`);
     return null;
   } finally {
     state.busy = false;
@@ -585,12 +595,33 @@ function deletedRow(entry) {
 
 // Settings and backup.
 
+// A setting that could not be saved goes back to its stored value, so the page never shows one
+// that is not in effect.
+async function saveSetting(patch, revert) {
+  reportError('');
+  try {
+    await lib.writeSettings(patch);
+    return true;
+  } catch (error) {
+    revert(await lib.readSettings().catch(() => lib.DEFAULT_SETTINGS));
+    els.status.textContent = '';
+    reportError(`Could not save the setting: ${error.message}`);
+    return false;
+  }
+}
+
 els.hotkey.addEventListener('change', async () => {
-  await lib.writeSettings({ hotkey: els.hotkey.value });
-  els.status.textContent = 'Saved. Open pages pick up the change right away.';
+  const saved = await saveSetting({ hotkey: els.hotkey.value }, (settings) => {
+    els.hotkey.value = settings.hotkey;
+  });
+  if (saved) els.status.textContent = 'Saved. Open pages pick up the change right away.';
 });
 
-els.abbreviations.addEventListener('change', () => lib.writeSettings({ abbreviations: els.abbreviations.checked }));
+els.abbreviations.addEventListener('change', () =>
+  saveSetting({ abbreviations: els.abbreviations.checked }, (settings) => {
+    els.abbreviations.checked = settings.abbreviations !== false;
+  })
+);
 
 // The key comes from the browser, which leaves it unset when another extension already uses
 // Ctrl+Shift+Space. It is read again whenever the page gets the focus back, for example after
@@ -613,7 +644,14 @@ window.addEventListener('focus', renderShortcut);
 
 // The file is built in the page and saved through a download link, which needs no permission.
 els.exportButton.addEventListener('click', async () => {
-  const snippets = await lib.readSnippets();
+  let snippets;
+  try {
+    snippets = await lib.readSnippets();
+  } catch (error) {
+    reportError(`Could not export the snippets: ${error.message}`);
+    return;
+  }
+  reportError('');
   const name = lib.exportFileName();
   const url = URL.createObjectURL(new Blob([lib.buildExport(snippets)], { type: 'application/json' }));
   const link = el('a');
@@ -702,7 +740,14 @@ chrome.storage.onChanged.addListener((changes, area) => {
 // Start.
 
 async function start() {
-  const [{ snippets, deleted }, settings] = await Promise.all([lib.readState(), lib.readSettings()]);
+  let loaded;
+  try {
+    loaded = await Promise.all([lib.readState(), lib.readSettings()]);
+  } catch (error) {
+    reportError(`Could not load your snippets: ${error.message}`);
+    return;
+  }
+  const [{ snippets, deleted }, settings] = loaded;
   state.snippets = snippets;
   state.deleted = deleted;
   els.hotkey.value = settings.hotkey;

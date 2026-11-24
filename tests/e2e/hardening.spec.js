@@ -150,3 +150,58 @@ test('the manager list has one Tab stop, valid roles, and announces a move', asy
   await expect(manager.locator('#moveStatus')).toHaveText('Two moved to position 3 of 3.');
   await expect(rows.nth(2)).toContainText('Two');
 });
+
+// Failures the user can see: the manager's message area, the panel's load error and the insert notice.
+
+test('a failed Restore shows an error at the top of the manager', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Gone', content: 'x' }]);
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#snippetList .row').first().click();
+  await manager.locator('#delete').click();
+  await manager.goto(`chrome-extension://${extensionId}/options.html#deleted`);
+  await expect(manager.locator('#deletedList .deleted-row')).toHaveCount(1);
+
+  await manager.evaluate(() => {
+    chrome.storage.local.set = () => Promise.reject(new Error('disk full'));
+  });
+  await manager.locator('#deletedList .deleted-row button', { hasText: 'Restore' }).click();
+  await expect(manager.locator('[role="alert"]:visible')).toContainText('disk full');
+});
+
+test('a setting that cannot be saved goes back and shows an error', async ({ context, extensionId }) => {
+  const manager = await openManager(context, extensionId, 'settings');
+  await manager.evaluate(() => {
+    chrome.storage.local.set = () => Promise.reject(new Error('disk full'));
+  });
+  await manager.locator('#hotkey').selectOption('Alt');
+  await expect(manager.locator('[role="alert"]:visible')).toContainText('disk full');
+  await expect(manager.locator('#hotkey')).toHaveValue('Control');
+});
+
+test('a failed first read shows a load error in the panel, not the empty state', async ({ context, page, pagesUrl, serviceWorker }) => {
+  await context.addInitScript(() => {
+    if (location.protocol !== 'chrome-extension:' || !location.pathname.endsWith('panel.html')) return;
+    chrome.storage.local.get = () => Promise.reject(new Error('read failed'));
+  });
+  await page.goto(`${pagesUrl}/editors.html`);
+  await seedSnippets(serviceWorker, [{ title: 'Tea time', content: 'Tea time' }]);
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  await expect(panel.locator('[role="alert"]')).toContainText('could not be loaded');
+  await expect(panel.locator('.empty-heading')).not.toHaveText('You have no snippets yet');
+  await expect(panel.locator('#primary')).toBeHidden();
+});
+
+test('a field replaced while the panel is open gets a notice instead of a silent insert', async ({ page, pagesUrl, serviceWorker }) => {
+  await page.goto(`${pagesUrl}/replaced-field.html`);
+  await seedSnippets(serviceWorker, [{ title: 'Tea time', content: 'Tea time' }]);
+  await selectInTextarea(page, '#t', 5);
+  const panel = await openPanel(page);
+  await panel.locator('#search').press('Control+2');
+  await expectPanelClosed(page);
+  await expect(page.locator('html > div').first()).toBeAttached();
+  const text = await page.evaluate(() =>
+    [...document.documentElement.children].map((n) => n.shadowRoot?.textContent || '').join('')
+  );
+  expect(text).toContain('field is gone');
+});
