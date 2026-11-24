@@ -419,7 +419,7 @@ function reportError(message) {
 
 // Runs one storage change, one at a time. Returns its result, or null when it failed, after
 // showing the error at the top of the page.
-async function run(work) {
+async function run(work, { fromEditor = false } = {}) {
   if (state.busy) return null;
   state.busy = true;
   reportError('');
@@ -427,9 +427,14 @@ async function run(work) {
     return await work();
   } catch (error) {
     const message = `Could not save the change: ${error.message}`;
-    // An open editor also shows the failure next to Save, where the user was looking.
-    els.editorStatus.textContent = els.editor.hidden ? '' : message;
-    reportError(message);
+    // A failure of the editor's own Save, Duplicate, or Delete shows next to Save, where the
+    // user was looking. Every other failure shows in the message area at the top. Each failure
+    // goes to one place only, so a screen reader announces it once.
+    if (fromEditor && !els.editor.hidden) {
+      els.editorStatus.textContent = message;
+    } else {
+      reportError(message);
+    }
     return null;
   } finally {
     state.busy = false;
@@ -465,8 +470,9 @@ async function save() {
   if (els.editor.hidden || !validate()) return false;
   const values = fields();
   const existing = state.snippets.find((s) => s.id === state.selectedId);
-  const result = await run(() =>
-    state.creating || !existing ? lib.createSnippet(values) : lib.updateSnippet(existing.id, values)
+  const result = await run(
+    () => (state.creating || !existing ? lib.createSnippet(values) : lib.updateSnippet(existing.id, values)),
+    { fromEditor: true }
   );
   if (!result) return false;
   state.snippets = result.snippets;
@@ -502,7 +508,7 @@ els.abbreviation.addEventListener('input', () => {
 
 els.duplicate.addEventListener('click', () =>
   whenSaved(async () => {
-    const result = await run(() => lib.duplicateSnippet(state.selectedId));
+    const result = await run(() => lib.duplicateSnippet(state.selectedId), { fromEditor: true });
     if (!result) return;
     state.snippets = result.snippets;
     renderCounts();
@@ -513,7 +519,7 @@ els.duplicate.addEventListener('click', () =>
 els.delete.addEventListener('click', async () => {
   const id = state.selectedId;
   if (!id) return;
-  const result = await run(() => lib.deleteSnippet(id));
+  const result = await run(() => lib.deleteSnippet(id), { fromEditor: true });
   if (!result) return;
   state.snippets = result.snippets;
   state.deleted = result.deleted;

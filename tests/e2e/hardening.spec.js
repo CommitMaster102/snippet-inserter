@@ -202,7 +202,30 @@ test('a failed save keeps its error next to Save while the editor is open', asyn
   await manager.locator('#content').fill('15 Elm Street');
   await manager.locator('#save').click();
   await expect(manager.locator('#editorStatus')).toContainText('disk full');
-  await expect(manager.locator('#pageError')).toContainText('disk full');
+  // The error is shown once, so a screen reader does not announce it twice.
+  await expect(manager.locator('#pageError')).not.toContainText('disk full');
+});
+
+test('a failed Restore while a snippet is open shows only at the top, not next to Save', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Address', content: '14 Elm Street' }]);
+  await serviceWorker.evaluate(() =>
+    chrome.storage.local.set({
+      'snippet_manager.deleted': [
+        { id: 'gone00000000', title: 'Gone', content: 'x', createdAt: '2026-01-01T00:00:00.000Z', deletedAt: '2026-02-01T00:00:00.000Z', index: 0 },
+      ],
+    })
+  );
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#snippetList .row').first().click();
+  await manager.locator('a[data-view="deleted"]').click();
+  await manager.evaluate(() => {
+    chrome.storage.local.set = () => Promise.reject(new Error('disk full'));
+  });
+  await manager.locator('#deletedList').getByRole('button', { name: 'Restore' }).click();
+  await expect(manager.locator('[role="alert"]:visible')).toContainText('disk full');
+
+  await manager.locator('a[data-view="snippets"]').click();
+  await expect(manager.locator('#editorStatus')).not.toContainText('disk full');
 });
 
 test('a setting that cannot be saved goes back and shows an error', async ({ context, extensionId }) => {
