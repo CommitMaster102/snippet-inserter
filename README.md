@@ -128,7 +128,8 @@ documents get this support, not Slides or Sheets.
   alone, because a password field is not a place for a snippet. Email and number fields are left
   alone too, because they do not expose the cursor position.
 - When a field's `maxlength` would cut a snippet short, nothing is inserted and a notice says
-  how many characters fit.
+  how many characters fit. The notice counts an emoji as one character, as the snippet form does,
+  while the field itself counts the way the browser does.
 
 ## Storage
 

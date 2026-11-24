@@ -56,3 +56,15 @@ test('tabs and indentation stay in a rich editor', async ({ page, serviceWorker 
   expect(text).toMatch(/if x:\s*\n\treturn 1/);
   expect(text).toMatch(/\n[\u00a0 ]{4}four spaces/);
 });
+
+test('the notice for a field with a length limit counts an emoji as one character', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: '😀'.repeat(6) }]);
+  await selectInTextarea(page, '#limited', 2);
+  await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect(page.getByRole('status')).toHaveText(
+    'This field takes 5 more characters, and the snippet has 7. Nothing was inserted.'
+  );
+  await expect(page.locator('#limited')).toHaveValue('Hi');
+});

@@ -525,9 +525,19 @@ export function create(shared) {
     if (max < 0) return true;
     const room = max - (ctx.el.value.length - (ctx.end - ctx.start));
     if (text.length <= room) return true;
-    const free = Math.max(room, 0);
+    // The browser counts the limit in UTF-16 units, but the notice counts characters as the forms
+    // do, with an emoji as one. The number that fits is the whole characters of the snippet that
+    // fit in the room left.
+    let free = 0;
+    let used = 0;
+    for (const character of text) {
+      used += character.length;
+      if (used > room) break;
+      free++;
+    }
+    const total = [...text].length;
     showNotice(
-      `This field takes ${free} more ${free === 1 ? 'character' : 'characters'}, and the snippet has ${text.length}. Nothing was inserted.`,
+      `This field takes ${free} more ${free === 1 ? 'character' : 'characters'}, and the snippet has ${total}. Nothing was inserted.`,
       ctx
     );
     return false;
