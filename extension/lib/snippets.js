@@ -368,7 +368,7 @@
 
   // The name shown for a snippet: its title, or the first line of its text.
   function displayTitle({ title, content }) {
-    return title || content.split(/\n/)[0];
+    return title || content.split(/\r?\n/)[0];
   }
 
   // The muted second line under a snippet's name: the first non-empty line of the text when the

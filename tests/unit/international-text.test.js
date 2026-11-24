@@ -43,3 +43,7 @@ test('a placeholder label in Japanese is found, and the text around it is kept',
   assert.equal(emoji.text, `${PARTS.flag} `);
   assert.equal(emoji.cursor, PARTS.flag.length + 1);
 });
+
+test('a snippet with Windows line endings is listed without a stray carriage return', () => {
+  assert.equal(lib.displayTitle({ title: '', content: TEXT_CRLF }), PARTS.japanese);
+});
