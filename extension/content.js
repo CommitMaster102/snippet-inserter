@@ -252,8 +252,11 @@
       longestAbbreviation = Math.max(longestAbbreviation, abbreviation.length);
     }
     const listen = settings.abbreviations !== false && longestAbbreviation > 0;
-    if (listen && !listeningForAbbreviations) window.addEventListener('input', onTypedInput, true);
-    if (!listen && listeningForAbbreviations) window.removeEventListener('input', onTypedInput, true);
+    const change = listen ? 'addEventListener' : 'removeEventListener';
+    if (listen !== listeningForAbbreviations) {
+      window[change]('input', onTypedInput, true);
+      window[change]('compositionend', expandTypedAbbreviation, true);
+    }
     listeningForAbbreviations = listen;
   }
 
@@ -292,8 +295,15 @@
     return selection.focusNode.data.slice(Math.max(0, offset - reach), offset);
   }
 
+  // Text typed with an input method (Japanese, Chinese, Korean) arrives as composition. It is
+  // ignored while it is being composed and checked when the method commits it.
   function onTypedInput(event) {
-    if (event.isComposing || event.inputType !== 'insertText' || panelOpen()) return;
+    if (event.isComposing || event.inputType !== 'insertText') return;
+    expandTypedAbbreviation();
+  }
+
+  function expandTypedAbbreviation() {
+    if (panelOpen()) return;
     const target = editableFrom(deepActiveElement(document));
     if (!target) return;
     const before = textBeforeCaret(target);

@@ -90,7 +90,8 @@ lists the placeholders it finds in the text.
 A snippet can have an abbreviation, such as `;addr`. Typing the abbreviation in a text field
 replaces it with the snippet, and Ctrl+Z brings the typed text back. An abbreviation expands only
 at the start of the field or after a space, punctuation, or a symbol, so `;addr` inside `x;addr`
-stays as typed.
+stays as typed. With a Japanese, Chinese, or Korean input method, an abbreviation such as
+`あいさつ` expands when you commit the text, not while it is still being composed.
 An abbreviation has 2 to 32 characters and no spaces, and one abbreviation cannot start another,
 because the shorter one would always expand first.
 
