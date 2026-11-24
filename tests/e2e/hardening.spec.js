@@ -1,8 +1,8 @@
-// The panel in pages that put content in the browser's top layer, such as modal dialogs.
+// Gaps found in the audit: the panel in modal dialogs, short windows and frames, and the manager in narrow windows.
 'use strict';
 
 const { test, expect } = require('./fixtures');
-const { seedSnippets, selectInTextarea, openPanel, expectPanelClosed, doubleTap, longText } = require('./helpers');
+const { seedSnippets, selectInTextarea, openPanel, openManager, expectPanelClosed, doubleTap, longText } = require('./helpers');
 
 test('the panel opens above a modal dialog and inserts on a click', async ({ page, pagesUrl, serviceWorker }) => {
   await page.goto(`${pagesUrl}/dialog.html`);
@@ -85,4 +85,19 @@ test('the list scrolls inside a small frame and the panel keeps to its size', as
   await last.scrollIntoViewIfNeeded();
   const box = await last.boundingBox();
   expect(box.y + box.height).toBeLessThanOrEqual(editor.y + editor.height - 2);
+});
+
+test('the manager has no sideways scroll and keeps Save in view at 768 px wide', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Address', content: '14 Elm Street' }]);
+  const manager = await openManager(context, extensionId);
+  await manager.setViewportSize({ width: 768, height: 720 });
+  await manager.locator('#snippetList .row').first().click();
+  await expect(manager.locator('#save')).toBeVisible();
+
+  const scrollWidth = await manager.evaluate(() => document.documentElement.scrollWidth);
+  expect(scrollWidth).toBeLessThanOrEqual(768);
+  const save = await manager.locator('#save').boundingBox();
+  expect(save.x + save.width).toBeLessThanOrEqual(768);
+  const text = await manager.locator('#content').boundingBox();
+  expect(text.width).toBeGreaterThan(400);
 });
