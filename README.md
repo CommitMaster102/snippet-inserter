@@ -55,8 +55,9 @@ Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...
 - The pencil on a snippet, or F2 on the highlighted snippet, opens the edit form, with Duplicate
   and Delete below it. Tab reaches both, and Delete has no shortcut of its own. After a delete,
   the list shows "Snippet deleted." with Undo, and Ctrl+Z in the list does the same.
-- In a form, Ctrl+Enter saves, and Enter in the name, abbreviation, or folder field saves too.
-  Escape goes back to the list, and Escape in the list closes the panel.
+- In a form, Ctrl+Enter saves, and Enter in the name or abbreviation field saves too. Enter in the
+  folder field does not, because it may be picking a suggestion from that field's list. Escape
+  goes back to the list, and Escape in the list closes the panel.
 - To save text from any page as a snippet, select it, right-click, and choose "Save selection as
   snippet".
 

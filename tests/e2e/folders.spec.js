@@ -99,7 +99,7 @@ test('Tab reaches the selected folder button, the arrows select, and Enter goes 
   await expect(page.locator('#plain')).toHaveValue('Hello Beta world');
 });
 
-test('Ctrl+1 under a folder starts the form in that folder, and Enter in the Folder field saves', async ({ page, serviceWorker }) => {
+test('Ctrl+1 under a folder starts the form in that folder, and only Ctrl+Enter saves from the Folder field', async ({ page, serviceWorker }) => {
   await seedSnippets(serviceWorker, FOUR);
   await selectInTextarea(page, '#plain', 5);
   const panel = await openPanel(page);
@@ -109,7 +109,12 @@ test('Ctrl+1 under a folder starts the form in that folder, and Enter in the Fol
   const field = panel.locator('input.input-folder');
   await expect(field).toHaveValue('Work');
   await panel.locator('textarea.input-content').fill('Fresh work text');
+  // Enter may pick a suggestion from the Folder field's list, so it does not save the form.
   await field.press('Enter');
+  await page.waitForTimeout(300);
+  expect(await readSnippets(serviceWorker)).toHaveLength(FOUR.length);
+  await expect(field).toBeVisible();
+  await field.press('Control+Enter');
 
   await expect(captions(panel)).toHaveText(['Alpha', 'Gamma', 'Fresh work textnew']);
   const stored = await readSnippets(serviceWorker);
@@ -467,4 +472,19 @@ test('the manager folder row is one Tab stop, selects with the arrows, and reads
   await manager.keyboard.press('Home');
   await expect(mChips(manager).first()).toHaveAttribute('aria-selected', 'true');
   await expect(mNames(manager)).toHaveCount(2);
+});
+
+test('Enter in the manager Folder field does not save, and Ctrl+S does', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Alpha', content: 'Alpha' }]);
+  const manager = await openManager(context, extensionId);
+  await mRows(manager).first().click();
+  await manager.locator('#folder').fill('Work');
+  await manager.locator('#folder').press('Enter');
+  await manager.waitForTimeout(300);
+  await expect(manager.locator('#editorStatus')).not.toHaveText('Saved.');
+  expect(await folders(serviceWorker)).toEqual([undefined]);
+
+  await manager.locator('#folder').press('Control+s');
+  await expect(manager.locator('#editorStatus')).toHaveText('Saved.');
+  expect(await folders(serviceWorker)).toEqual(['Work']);
 });

@@ -1059,7 +1059,8 @@ function keepTabInside(event) {
 // snippet, Alt+arrows move the highlighted snippet,
 // Enter picks the highlighted entry, Ctrl+1 to Ctrl+9 (Cmd on a Mac) pick an entry in the list
 // by its position, Ctrl+Z after a delete restores the snippet, Ctrl+Enter saves a form, Enter in
-// the name field saves too, and Escape goes back or closes.
+// the name or abbreviation field saves too, and Escape goes back or closes. Enter in the Folder
+// field does not save, because it may be picking a suggestion from the field's list.
 document.addEventListener(
   'keydown',
   (event) => {
@@ -1123,9 +1124,7 @@ document.addEventListener(
       event.key === 'Enter' &&
       currentForm &&
       (modifier ||
-        ((event.target === currentForm.title ||
-          event.target === currentForm.abbreviation ||
-          event.target === currentForm.folder) &&
+        ((event.target === currentForm.title || event.target === currentForm.abbreviation) &&
           !event.shiftKey))
     ) {
       event.preventDefault();
