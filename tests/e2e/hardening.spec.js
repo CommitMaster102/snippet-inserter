@@ -80,11 +80,15 @@ test('the list scrolls inside a small frame and the panel keeps to its size', as
     expect(box.x + box.width).toBeLessThanOrEqual(editor.x + editor.width - 2 - 8 + 1);
   }).toPass({ timeout: 5000 });
 
-  // The last snippet can be scrolled into view inside the panel.
+  // ArrowUp from the search box wraps to the last snippet, which must scroll into the frame.
+  await panelFrame.contentFrame().locator('#search').focus();
+  await page.keyboard.press('ArrowUp');
   const last = panelFrame.contentFrame().locator('.list .item', { hasText: 'Snippet 8' });
-  await last.scrollIntoViewIfNeeded();
-  const box = await last.boundingBox();
-  expect(box.y + box.height).toBeLessThanOrEqual(editor.y + editor.height - 2);
+  await expect(async () => {
+    const box = await last.boundingBox();
+    expect(box.y).toBeGreaterThanOrEqual(editor.y);
+    expect(box.y + box.height).toBeLessThanOrEqual(editor.y + editor.height - 2);
+  }).toPass({ timeout: 5000 });
 });
 
 test('the manager has no sideways scroll and keeps Save in view at 768 px wide', async ({ context, extensionId, serviceWorker }) => {
