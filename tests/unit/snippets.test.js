@@ -179,3 +179,36 @@ test('saving refuses an abbreviation that clashes with the stored list and write
     delete globalThis.chrome;
   }
 });
+
+test('search finds text in the middle of scripts written without spaces', () => {
+  const list = [
+    { title: '', content: 'お世話になっております', id: 'a' },
+    { title: '', content: 'สวัสดีครับ', id: 'b' },
+    { title: '', content: 'Hello there', id: 'c' },
+  ];
+  assert.deepEqual(lib.filterSnippets(list, '世話').map((s) => s.id), ['a']);
+  assert.deepEqual(lib.filterSnippets(list, 'ครับ').map((s) => s.id), ['b']);
+  // Latin text still matches only at the start of a word.
+  assert.deepEqual(lib.filterSnippets(list, 'ello'), []);
+});
+
+test('search finds a word after an apostrophe or a hyphen, and accented words', () => {
+  const list = [
+    { title: "Message à l'école", content: 'x', id: 'a' },
+    { title: '', content: 'Rendez-vous demain', id: 'b' },
+    { title: '', content: 'Über uns', id: 'c' },
+  ];
+  assert.deepEqual(lib.filterSnippets(list, 'école').map((s) => s.id), ['a']);
+  assert.deepEqual(lib.filterSnippets(list, 'vous').map((s) => s.id), ['b']);
+  assert.deepEqual(lib.filterSnippets(list, 'über').map((s) => s.id), ['c']);
+  // A letter in the middle of a word is not a word start.
+  assert.deepEqual(lib.filterSnippets(list, 'cole'), []);
+});
+
+test('search compares text in one Unicode form', () => {
+  const stored = [{ title: 'café menu', content: 'x', id: 'a' }];
+  assert.deepEqual(lib.filterSnippets(stored, 'café').map((s) => s.id), ['a']);
+  const decomposed = [{ title: 'café menu', content: 'x', id: 'a' }];
+  assert.deepEqual(lib.filterSnippets(decomposed, 'café').map((s) => s.id), ['a']);
+  assert.deepEqual(lib.filterSnippets(decomposed, 'menu').map((s) => s.id), ['a']);
+});

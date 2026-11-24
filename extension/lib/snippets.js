@@ -370,8 +370,37 @@
     return (title ? lines[0] : lines[1]) || '';
   }
 
-  function escapeRegExp(text) {
-    return text.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
+  // Scripts that are written without spaces between words, so a word can start anywhere.
+  const UNSPACED_SCRIPT =
+    /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}]/u;
+  const WORD_CHARACTER = /^[\p{L}\p{N}\p{M}]/u;
+
+  // The character that ends right before `index`, as a whole code point.
+  function characterBefore(text, index) {
+    const low = text.charCodeAt(index - 1);
+    if (low >= 0xdc00 && low <= 0xdfff && index >= 2) {
+      const high = text.charCodeAt(index - 2);
+      if (high >= 0xd800 && high <= 0xdbff) return text.slice(index - 2, index);
+    }
+    return text[index - 1];
+  }
+
+  // True when `query` occurs in `text` at the start of a word. A word starts at the beginning of
+  // the text and after anything that is not a letter, digit, or accent mark, so after a space,
+  // an apostrophe, or a hyphen. A query that starts in a script without spaces, or with a symbol,
+  // matches anywhere.
+  function hasWordStart(text, query) {
+    const anywhere = UNSPACED_SCRIPT.test(query) || !WORD_CHARACTER.test(query);
+    for (let at = text.indexOf(query); at !== -1; at = text.indexOf(query, at + 1)) {
+      if (anywhere || at === 0 || !WORD_CHARACTER.test(characterBefore(text, at))) return true;
+    }
+    return false;
+  }
+
+  // Text compared in one Unicode form, so an accent typed as a separate mark matches the same
+  // letter stored as one character.
+  function searchForm(text) {
+    return text.normalize('NFC').toLowerCase();
   }
 
   // Keeps snippets whose title or text has a word starting with the query, or whose abbreviation
@@ -379,13 +408,12 @@
   function filterSnippets(list, query) {
     const trimmed = query.trim();
     if (!trimmed) return list;
-    const pattern = new RegExp(`(^|\\b|\\s)${escapeRegExp(trimmed)}`, 'i');
-    const lower = trimmed.toLowerCase();
+    const lower = searchForm(trimmed);
     return list.filter(
       ({ title, content, abbreviation }) =>
-        (!!title && pattern.test(title)) ||
-        pattern.test(content) ||
-        (!!abbreviation && abbreviation.toLowerCase().startsWith(lower))
+        (!!title && hasWordStart(searchForm(title), lower)) ||
+        hasWordStart(searchForm(content), lower) ||
+        (!!abbreviation && searchForm(abbreviation).startsWith(lower))
     );
   }
 
