@@ -776,7 +776,8 @@ function keepTabInside(event) {
   }
 }
 
-// Keyboard controls: arrows move through the list, Alt+arrows move the highlighted snippet,
+// Keyboard controls: arrows move through the list, F2 opens the edit form of the highlighted
+// snippet, Alt+arrows move the highlighted snippet,
 // Enter picks the highlighted entry, Ctrl+1 to Ctrl+9 (Cmd on a Mac) pick an entry in the list
 // by its position, Ctrl+Z after a delete restores the snippet, Ctrl+Enter saves a form, Enter in
 // the name field saves too, and Escape goes back or closes.
@@ -807,6 +808,9 @@ document.addEventListener(
       if (event.altKey && !modifier && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
         event.preventDefault();
         moveFocused(event.key === 'ArrowDown' ? 1 : -1);
+      } else if (event.key === 'F2' && !modifier && !event.altKey && !event.shiftKey && items[state.focusIndex]?.snippet) {
+        event.preventDefault();
+        openEdit(items[state.focusIndex].snippet.id);
       } else if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && items.length > 1) {
         event.preventDefault();
         setFocus(state.focusIndex + (event.key === 'ArrowDown' ? 1 : -1));

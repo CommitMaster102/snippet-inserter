@@ -2,7 +2,7 @@
 'use strict';
 
 const { test, expect } = require('./fixtures');
-const { seedSnippets, selectInTextarea, openPanel, openManager, expectPanelClosed, doubleTap, longText } = require('./helpers');
+const { seedSnippets, readSnippets, selectInTextarea, openPanel, openManager, expectPanelClosed, doubleTap, longText } = require('./helpers');
 
 test('the panel opens above a modal dialog and inserts on a click', async ({ page, pagesUrl, serviceWorker }) => {
   await page.goto(`${pagesUrl}/dialog.html`);
@@ -329,4 +329,40 @@ test('the panel opens above a modal dialog inside a shadow root', async ({ page,
   await panel.locator('.list .item', { hasText: 'Tea time' }).click();
   await expectPanelClosed(page);
   await expect(page.locator('#t')).toHaveValue('Hello Tea time');
+});
+
+test('the edit form, Duplicate, and Delete can be reached with the keyboard alone', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Alpha', content: 'First' },
+    { title: 'Beta', content: 'Second' },
+  ]);
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('F2');
+  await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  await expect(panel.locator('textarea.input-content')).toHaveValue('First');
+
+  // Tab reaches Duplicate, and Enter presses it.
+  const duplicate = panel.locator('.item-action', { hasText: 'Duplicate snippet' });
+  await expect(async () => {
+    await page.keyboard.press('Tab');
+    await expect(duplicate).toBeFocused({ timeout: 200 });
+  }).toPass({ timeout: 5000 });
+  await page.keyboard.press('Enter');
+  await expect(panel.locator('.list .item', { hasText: 'Alpha' })).toHaveCount(2);
+  expect(await readSnippets(serviceWorker)).toHaveLength(3);
+
+  // Back in the list, highlight a snippet, open its edit form, and delete it with Tab and Enter.
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('F2');
+  const remove = panel.locator('.item-action', { hasText: 'Delete snippet' });
+  await expect(async () => {
+    await page.keyboard.press('Tab');
+    await expect(remove).toBeFocused({ timeout: 200 });
+  }).toPass({ timeout: 5000 });
+  await page.keyboard.press('Enter');
+  await expect(panel.getByText('Snippet deleted.')).toBeVisible();
+  expect(await readSnippets(serviceWorker)).toHaveLength(2);
 });
