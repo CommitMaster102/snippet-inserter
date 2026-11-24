@@ -236,3 +236,204 @@ test('a name is measured in characters, as the form counts', () => {
   assert.equal(lib.titleLength('😀'.repeat(128)), 128);
   assert.equal(lib.titleLength('abc'), 3);
 });
+
+// Folders. A folder is an optional name on a snippet; the list of folders is worked out from the
+// snippets, so there is nothing else to store.
+
+const inFolders = [
+  { createdAt: '2026-01-01T00:00:00.000Z', title: 'A', content: 'a', id: 'aaaaaaaaaaaa', folder: 'Work' },
+  { createdAt: '2026-01-02T00:00:00.000Z', title: 'B', content: 'b', id: 'bbbbbbbbbbbb' },
+  { createdAt: '2026-01-03T00:00:00.000Z', title: 'C', content: 'c', id: 'cccccccccccc', folder: 'Personal' },
+  { createdAt: '2026-01-04T00:00:00.000Z', title: 'D', content: 'd', id: 'dddddddddddd', folder: 'Work' },
+  { createdAt: '2026-01-05T00:00:00.000Z', title: 'E', content: 'e', id: 'eeeeeeeeeeee', folder: 'Work' },
+];
+
+test('a record keeps a folder only when it has one, so 1.2.0 records keep their keys', () => {
+  const plain = { createdAt: 't', content: 'x', title: 'n', id: 'i' };
+  const written = (record) => JSON.parse(lib.buildExport([record])).snippets[0];
+  assert.deepEqual(Object.keys(written(plain)), ['createdAt', 'content', 'title', 'id']);
+  assert.equal(written({ ...plain, folder: 'Work' }).folder, 'Work');
+  assert.ok(!('folder' in written({ ...plain, folder: '' })));
+});
+
+test('cleanFolder trims, joins white space into one space, and cuts to 64 characters', () => {
+  assert.equal(lib.cleanFolder('  Work  '), 'Work');
+  assert.equal(lib.cleanFolder('a\tb\r\nc   d\u0001e'), 'a b c d e');
+  assert.equal(lib.cleanFolder('x'.repeat(70)), 'x'.repeat(64));
+  assert.equal(lib.cleanFolder('😀'.repeat(70)), '😀'.repeat(64));
+  assert.equal(lib.cleanFolder(42), '');
+  assert.equal(lib.cleanFolder(undefined), '');
+  assert.equal(lib.FOLDER_MAX_LENGTH, 64);
+  assert.equal(lib.folderLength('😀'.repeat(65)), 65);
+});
+
+test('folderNames lists each folder once, ignores capitals, and sorts numbers as numbers', () => {
+  const list = [
+    { folder: '10 Support' },
+    { folder: 'banana' },
+    { folder: '2 Sales' },
+    { folder: 'Apple' },
+    { folder: 'banana' },
+    {},
+    { folder: '' },
+  ];
+  assert.deepEqual(lib.folderNames(list), ['2 Sales', '10 Support', 'Apple', 'banana']);
+  assert.deepEqual(lib.folderNames([{}, { title: 'x' }]), []);
+});
+
+test('matchFolder uses the stored spelling of a folder that differs only in capitals', () => {
+  assert.equal(lib.matchFolder('work', inFolders), 'Work');
+  assert.equal(lib.matchFolder('  PERSONAL ', inFolders), 'Personal');
+  assert.equal(lib.matchFolder('Travel', inFolders), 'Travel');
+  assert.equal(lib.matchFolder('', inFolders), '');
+  assert.equal(lib.matchFolder(null, inFolders), '');
+  // An accent is a different letter, not a capital.
+  assert.equal(lib.matchFolder('Wörk', inFolders), 'Wörk');
+});
+
+test('inFolder returns everything, no folder, or one folder', () => {
+  assert.equal(lib.inFolder(inFolders, null), inFolders);
+  assert.deepEqual(lib.inFolder(inFolders, '').map((s) => s.id), ['bbbbbbbbbbbb']);
+  assert.deepEqual(lib.inFolder(inFolders, 'Work').map((s) => s.id), ['aaaaaaaaaaaa', 'dddddddddddd', 'eeeeeeeeeeee']);
+  assert.deepEqual(lib.inFolder(inFolders, 'Nope'), []);
+});
+
+test('moveTarget finds the neighbour among the snippets shown and returns its place in the list', () => {
+  const shown = lib.inFolder(inFolders, 'Work');
+  // A moves past D, skipping the snippets of other folders in between.
+  assert.equal(lib.moveTarget(inFolders, shown, 'aaaaaaaaaaaa', 1), 3);
+  assert.equal(lib.moveTarget(inFolders, shown, 'eeeeeeeeeeee', -1), 3);
+  assert.equal(lib.moveTarget(inFolders, shown, 'aaaaaaaaaaaa', -1), -1);
+  assert.equal(lib.moveTarget(inFolders, shown, 'eeeeeeeeeeee', 1), -1);
+  assert.equal(lib.moveTarget(inFolders, shown, 'missing', 1), -1);
+  // On the whole list the target is the current place plus the step, as in 1.2.0.
+  assert.equal(lib.moveTarget(inFolders, inFolders, 'cccccccccccc', 1), 3);
+  assert.equal(lib.moveTarget(inFolders, inFolders, 'cccccccccccc', -1), 1);
+});
+
+test('search finds a snippet by a word in its folder name', () => {
+  assert.deepEqual(lib.filterSnippets(inFolders, 'pers').map((s) => s.id), ['cccccccccccc']);
+  assert.deepEqual(lib.filterSnippets(inFolders, 'ork').map((s) => s.id), []);
+});
+
+test('an export with folders parses back into the same records, and stays version 1', () => {
+  const text = lib.buildExport(inFolders, new Date('2026-11-20T09:30:00Z'));
+  assert.equal(JSON.parse(text).version, 1);
+  assert.deepEqual(lib.parseImport(text, []).add, inFolders);
+});
+
+test('a 1.2.0 export imports with no folder on any record', () => {
+  const file = `{
+  "format": "snippet-inserter",
+  "version": 1,
+  "exportedAt": "2026-11-20T09:30:00.000Z",
+  "snippets": [
+    { "createdAt": "2026-01-01T00:00:00.000Z", "content": "14 Elm Street", "title": "Address", "id": "aaaaaaaaaaaa", "abbreviation": ";addr" },
+    { "createdAt": "2026-01-02T00:00:00.000Z", "content": "Kind regards", "title": "", "id": "bbbbbbbbbbbb" }
+  ]
+}`;
+  const result = lib.parseImport(file, []);
+  assert.equal(result.add.length, 2);
+  assert.ok(result.add.every((s) => !('folder' in s)));
+  assert.equal(lib.importReport(result), 'Imported 2 snippets.');
+});
+
+test('import joins a folder that differs in capitals, and drops a folder that is not text', () => {
+  const file = JSON.stringify([
+    { content: 'one', title: '1', folder: 'work', id: 'xxxxxxxxxxx1' },
+    { content: 'two', title: '2', folder: 7, id: 'xxxxxxxxxxx2' },
+    { content: 'three', title: '3', folder: ['Work'], id: 'xxxxxxxxxxx3' },
+    { content: 'four', title: '4', folder: 'TRAVEL', id: 'xxxxxxxxxxx4' },
+    { content: 'five', title: '5', folder: 'travel', id: 'xxxxxxxxxxx5' },
+    { content: 'six', title: '6', folder: '  ', id: 'xxxxxxxxxxx6' },
+  ]);
+  const result = lib.parseImport(file, inFolders);
+  assert.equal(result.add.length, 6);
+  assert.deepEqual(
+    result.add.map((s) => s.folder),
+    ['Work', undefined, undefined, 'TRAVEL', 'TRAVEL', undefined]
+  );
+});
+
+test('import skips a record that matches a stored snippet, whatever folder either is in', () => {
+  const file = JSON.stringify([{ title: 'A', content: 'a', folder: 'Elsewhere' }]);
+  const result = lib.parseImport(file, inFolders);
+  assert.equal(result.skipped, 1);
+  assert.equal(result.add.length, 0);
+});
+
+test('create, update, duplicate, delete, and restore keep a snippet in its folder', async () => {
+  fakeStorage();
+  try {
+    const { snippet: a } = await lib.createSnippet({ content: 'A', title: 'A', abbreviation: '', folder: 'Work' });
+    assert.equal(a.folder, 'Work');
+    const { snippet: b } = await lib.createSnippet({ content: 'B', title: 'B', abbreviation: '', folder: 'work' });
+    assert.equal(b.folder, 'Work');
+    const { snippet: plain } = await lib.createSnippet({ content: 'P', title: 'P', abbreviation: '' });
+    assert.deepEqual(Object.keys(plain), ['createdAt', 'content', 'title', 'id']);
+
+    // A change that does not mention the folder keeps it.
+    const kept = await lib.updateSnippet(a.id, { content: 'A2', title: 'A', abbreviation: '' });
+    assert.equal(kept.snippet.folder, 'Work');
+    const only = await lib.updateSnippet(a.id, { folder: 'Home' });
+    assert.equal(only.snippet.content, 'A2');
+    assert.equal(only.snippet.folder, 'Home');
+    const cleared = await lib.updateSnippet(a.id, { folder: '' });
+    assert.ok(!('folder' in cleared.snippet));
+
+    const copied = await lib.duplicateSnippet(b.id);
+    assert.equal(copied.snippet.folder, 'Work');
+
+    await lib.deleteSnippet(b.id);
+    const restored = await lib.restoreSnippet(b.id);
+    assert.equal(restored.snippet.folder, 'Work');
+    assert.equal(restored.snippets.indexOf(restored.snippet), 1);
+  } finally {
+    delete globalThis.chrome;
+  }
+});
+
+test('updateSnippet keeps a stored abbreviation when the change leaves it out', async () => {
+  fakeStorage();
+  try {
+    const { snippet } = await lib.createSnippet({ content: 'A', title: 'A', abbreviation: ';aa', folder: 'Work' });
+    const result = await lib.updateSnippet(snippet.id, { folder: 'Home' });
+    assert.equal(result.snippet.abbreviation, ';aa');
+    assert.equal((await lib.readSnippets())[0].abbreviation, ';aa');
+  } finally {
+    delete globalThis.chrome;
+  }
+});
+
+test('renameFolder changes a whole folder in one write, keeps the order, and merges by capitals', async () => {
+  const values = fakeStorage();
+  try {
+    const make = (title, folder, abbreviation = '') => lib.createSnippet({ content: title, title, abbreviation, folder });
+    await make('A', 'Work', ';aa');
+    await make('B', '');
+    await make('C', 'Personal');
+    await make('D', 'Work', ';dd');
+    const before = values.get(lib.ABBREVIATIONS_KEY);
+    let writes = 0;
+    const set = globalThis.chrome.storage.local.set;
+    globalThis.chrome.storage.local.set = async (items) => {
+      writes++;
+      return set(items);
+    };
+
+    let list = await lib.renameFolder('Work', 'Job');
+    assert.equal(writes, 1);
+    assert.deepEqual(list.map((s) => s.title), ['A', 'B', 'C', 'D']);
+    assert.deepEqual(list.map((s) => s.folder), ['Job', undefined, 'Personal', 'Job']);
+
+    list = await lib.renameFolder('Job', 'personal');
+    assert.deepEqual(list.map((s) => s.folder), ['Personal', undefined, 'Personal', 'Personal']);
+
+    list = await lib.removeFolder('Personal');
+    assert.deepEqual(list.map((s) => s.title), ['A', 'B', 'C', 'D']);
+    assert.ok(list.every((s) => !('folder' in s)));
+    assert.deepEqual(values.get(lib.ABBREVIATIONS_KEY), before);
+  } finally {
+    delete globalThis.chrome;
+  }
+});

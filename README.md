@@ -156,8 +156,10 @@ documents get this support, not Slides or Sheets.
 ## Storage
 
 Snippets are kept in `chrome.storage.local` under `snippet_manager.snippets`, as an array of
-`{ createdAt, content, title, id }` records, plus `abbreviation` when a snippet has one. The
-array order is the order of the list. Deleted snippets go to `snippet_manager.deleted`, newest
+`{ createdAt, content, title, id }` records, plus `abbreviation` and `folder` when a snippet has
+them. A folder name has up to 64 characters. There is no list of folders: the folders are the
+names that snippets carry, so a folder exists while a snippet is in it. The array order is the
+order of the list, and moving a snippet to another folder does not change its place. Deleted snippets go to `snippet_manager.deleted`, newest
 first, at most 20, each with `deletedAt` and its old position. `snippet_manager.abbreviations`
 holds a small `{ abbreviation: id }` copy written with every change to the list, so pages read
 only that. The extension has the `unlimitedStorage` permission, so the browser's 10 MB
@@ -176,7 +178,8 @@ Export in the manager saves every snippet to `snippets-YYYY-MM-DD.json`:
 
 Import accepts that file, or a bare array of records. It never changes or removes a stored
 snippet. It skips a record whose name and text match a stored snippet, gives a new id to a record
-whose id is in use, and drops an abbreviation that is already taken. A file with a higher
+whose id is in use, and drops an abbreviation that is already taken. A folder that differs from
+one already known only in capitals joins it, so "work" goes into "Work". A file with a higher
 `version` is refused with a message to update the extension.
 
 ## Resource use

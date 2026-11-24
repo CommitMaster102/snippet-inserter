@@ -2,8 +2,9 @@
  * Snippet storage, shared by the content script, the snippet panel, and the manager page.
  *
  * Snippets live in chrome.storage.local under STORAGE_KEY as an array of records shaped
- * { createdAt, content, title, id }, plus an optional `abbreviation`. The array order is the
- * order in which the panel and the manager list them. A deleted snippet moves to DELETED_KEY,
+ * { createdAt, content, title, id }, plus an optional `abbreviation` and an optional `folder`.
+ * The folders are not stored on their own: the list of folders is the set of names the snippets
+ * carry. The array order is the order in which the panel and the manager list them. A deleted snippet moves to DELETED_KEY,
  * newest first, so it can be restored; that list keeps at most DELETED_MAX entries.
  *
  * Every write first reads the stored list, so two pages that change snippets at about the same
@@ -22,6 +23,7 @@
   const ABBREVIATIONS_KEY = 'snippet_manager.abbreviations';
   const DELETED_MAX = 20;
   const TITLE_MAX_LENGTH = 128;
+  const FOLDER_MAX_LENGTH = 64;
   // Each snippet gets a 12-character random id. ID_ALPHABET is the 64-character URL-safe
   // alphabet of the nanoid library (MIT), so a byte masked to 6 bits picks one character.
   const ID_LENGTH = 12;
@@ -100,12 +102,67 @@
     return { ...DEFAULT_SETTINGS, ...next };
   }
 
-  // A record as stored. The abbreviation is left out when it is empty, so a snippet without one
-  // keeps the record shape that version 1.1.1 wrote.
-  function record({ createdAt, content, title, id, abbreviation }) {
+  // A record as stored. The abbreviation and the folder are left out when they are empty, so a
+  // snippet without them keeps the record shape that version 1.1.1 wrote.
+  function record({ createdAt, content, title, id, abbreviation, folder }) {
     const result = { createdAt, content, title: title || '', id };
     if (abbreviation) result.abbreviation = abbreviation;
+    if (folder) result.folder = folder;
     return result;
+  }
+
+  // Folders. A folder name has up to FOLDER_MAX_LENGTH characters, and capitals do not make a
+  // second folder: "work" joins "Work".
+
+  // A folder name with control characters and runs of white space turned into one space and the
+  // ends trimmed, not yet cut. Anything that is not text gives an empty name.
+  function tidyFolder(name) {
+    if (typeof name !== 'string') return '';
+    return name.replace(/[\p{Cc}\s]+/gu, ' ').trim();
+  }
+
+  // The number of characters in a folder name, counting an emoji as one.
+  function folderLength(name) {
+    return [...tidyFolder(name)].length;
+  }
+
+  // A folder name ready to store: tidied and cut at whole characters.
+  function cleanFolder(name) {
+    return [...tidyFolder(name)].slice(0, FOLDER_MAX_LENGTH).join('').trim();
+  }
+
+  // The spelling to store for `name`: that of a folder in `list` that differs only in capitals,
+  // or else the cleaned name.
+  function matchFolder(name, list) {
+    const clean = cleanFolder(name);
+    if (!clean) return '';
+    for (const { folder } of list) {
+      if (folder && folder.localeCompare(clean, undefined, { sensitivity: 'accent' }) === 0) return folder;
+    }
+    return clean;
+  }
+
+  // Each folder once, sorted by name without regard to capitals, with numbers in numeric order.
+  function folderNames(list) {
+    const names = new Set();
+    for (const { folder } of list) if (folder) names.add(folder);
+    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+    return [...names].sort(collator.compare);
+  }
+
+  // The snippets of one folder: all of them for null, the ones without a folder for ''.
+  function inFolder(list, folder) {
+    if (folder === null) return list;
+    return list.filter((snippet) => (snippet.folder || '') === folder);
+  }
+
+  // Where `id` goes to move one place up or down among `shown`, the snippets in view, as the
+  // position moveSnippet takes in the whole `list`. It is -1 when there is no neighbour. On the
+  // whole list it is the snippet's own position plus `step`.
+  function moveTarget(list, shown, id, step) {
+    const at = shown.findIndex((snippet) => snippet.id === id);
+    const neighbour = at === -1 ? undefined : shown[at + step];
+    return neighbour ? list.findIndex((snippet) => snippet.id === neighbour.id) : -1;
   }
 
   // Refuses an abbreviation that the stored list does not allow, with the message the forms show.
@@ -119,7 +176,7 @@
     }
   }
 
-  async function createSnippet({ content, title, abbreviation }) {
+  async function createSnippet({ content, title, abbreviation, folder }) {
     const list = await readSnippets();
     requireFreeAbbreviation(abbreviation, list);
     const created = record({
@@ -128,25 +185,33 @@
       title,
       id: freshId(new Set(list.map((s) => s.id))),
       abbreviation,
+      folder: matchFolder(folder, list),
     });
     const next = [...list, created];
     await writeSnippets(next);
     return { snippet: created, snippets: next };
   }
 
-  async function updateSnippet(id, { content, title, abbreviation }) {
+  // Changes the fields that `changes` names and keeps the others, so a change of the folder alone
+  // leaves the text and the abbreviation as stored.
+  async function updateSnippet(id, changes) {
     const list = await readSnippets();
     const index = list.findIndex((s) => s.id === id);
     if (index === -1) throw new Error('not found');
-    requireFreeAbbreviation(abbreviation, list, id);
-    const updated = record({ ...list[index], content, title, abbreviation });
+    const merged = { ...list[index] };
+    for (const [key, value] of Object.entries(changes)) if (value !== undefined) merged[key] = value;
+    requireFreeAbbreviation(merged.abbreviation, list, id);
+    if (changes.folder !== undefined) {
+      merged.folder = matchFolder(changes.folder, list.filter((s) => s.id !== id));
+    }
+    const updated = record(merged);
     list.splice(index, 1, updated);
     await writeSnippets(list);
     return { snippet: updated, snippets: list };
   }
 
-  // Places a copy right after the original. The copy has no abbreviation, because abbreviations
-  // must be unique.
+  // Places a copy right after the original, in the same folder. The copy has no abbreviation,
+  // because abbreviations must be unique.
   async function duplicateSnippet(id) {
     const list = await readSnippets();
     const index = list.findIndex((s) => s.id === id);
@@ -157,6 +222,7 @@
       content: original.content,
       title: original.title ? cutTitle(`Copy of ${original.title}`) : '',
       id: freshId(new Set(list.map((s) => s.id))),
+      folder: original.folder,
     });
     list.splice(index + 1, 0, copy);
     await writeSnippets(list);
@@ -212,6 +278,20 @@
     list.splice(Math.max(0, Math.min(toIndex, list.length)), 0, snippet);
     await writeSnippets(list);
     return list;
+  }
+
+  // Moves every snippet of the folder `from` into the folder `to`, in one write, and returns the
+  // new list. A `to` of '' takes them out of any folder. The snippets keep their places.
+  async function renameFolder(from, to) {
+    const list = await readSnippets();
+    const target = matchFolder(to, list.filter((s) => s.folder !== from));
+    const next = list.map((s) => (s.folder === from ? record({ ...s, folder: target }) : s));
+    await writeSnippets(next);
+    return next;
+  }
+
+  function removeFolder(name) {
+    return renameFolder(name, '');
   }
 
   // Abbreviations. An abbreviation has 2 to 32 characters and no white space, is used by one
@@ -275,7 +355,9 @@
   // - a record whose id is in use gets a new id;
   // - a record whose abbreviation clashes with one in use is added without it;
   // - a record without text is counted as invalid and skipped;
-  // - a title longer than TITLE_MAX_LENGTH is cut to that length.
+  // - a title longer than TITLE_MAX_LENGTH is cut to that length;
+  // - a folder that is not text is dropped, and one that differs from a known folder only in
+  //   capitals takes that folder's spelling.
   // A file that is not a backup throws an Error whose message can be shown to the user.
   function parseImport(text, existing) {
     let data;
@@ -331,7 +413,8 @@
         typeof raw.createdAt === 'string' && !Number.isNaN(Date.parse(raw.createdAt))
           ? raw.createdAt
           : new Date().toISOString();
-      const added = record({ createdAt, content: raw.content, title, id, abbreviation });
+      const folder = typeof raw.folder === 'string' ? matchFolder(raw.folder, known) : '';
+      const added = record({ createdAt, content: raw.content, title, id, abbreviation, folder });
       result.add.push(added);
       known.push(added);
     }
@@ -414,17 +497,18 @@
     return text.normalize('NFC').toLowerCase();
   }
 
-  // Keeps snippets whose title or text has a word starting with the query, or whose abbreviation
-  // starts with it. An empty query keeps every snippet.
+  // Keeps snippets whose title, text, or folder has a word starting with the query, or whose
+  // abbreviation starts with it. An empty query keeps every snippet.
   function filterSnippets(list, query) {
     const trimmed = query.trim();
     if (!trimmed) return list;
     const lower = searchForm(trimmed);
     return list.filter(
-      ({ title, content, abbreviation }) =>
+      ({ title, content, abbreviation, folder }) =>
         (!!title && hasWordStart(searchForm(title), lower)) ||
         hasWordStart(searchForm(content), lower) ||
-        (!!abbreviation && searchForm(abbreviation).startsWith(lower))
+        (!!abbreviation && searchForm(abbreviation).startsWith(lower)) ||
+        (!!folder && hasWordStart(searchForm(folder), lower))
     );
   }
 
@@ -441,8 +525,17 @@
     abbreviationIndex,
     DELETED_MAX,
     TITLE_MAX_LENGTH,
+    FOLDER_MAX_LENGTH,
     titleLength,
     cutTitle,
+    folderLength,
+    cleanFolder,
+    matchFolder,
+    folderNames,
+    inFolder,
+    moveTarget,
+    renameFolder,
+    removeFolder,
     DEFAULT_SETTINGS,
     makeId,
     readState,
