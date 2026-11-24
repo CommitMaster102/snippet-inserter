@@ -371,6 +371,28 @@ test('the edit form, Duplicate, and Delete can be reached with the keyboard alon
   expect(await readSnippets(serviceWorker)).toHaveLength(2);
 });
 
+test('in a narrow window the Undo bar after a delete is in view', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(
+    serviceWorker,
+    Array.from({ length: 15 }, (_, i) => ({ title: `Snippet ${i}`, content: `Text ${i}` }))
+  );
+  const manager = await openManager(context, extensionId);
+  await manager.setViewportSize({ width: 768, height: 720 });
+  await manager.locator('#snippetList .row', { hasText: 'Snippet 9' }).click();
+  await manager.locator('#delete').click();
+
+  const undo = manager.locator('#undoButton');
+  await expect(undo).toBeVisible();
+  const box = await undo.boundingBox();
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(720);
+  const topmost = await manager.evaluate(
+    ([x, y]) => document.elementFromPoint(x, y)?.id,
+    [box.x + box.width / 2, box.y + box.height / 2]
+  );
+  expect(topmost).toBe('undoButton');
+});
+
 test('on an ordinary page the panel stays out of the top layer, so page popover styles do not reach it', async ({ page, pagesUrl, serviceWorker }) => {
   await page.goto(`${pagesUrl}/editors.html`);
   await page.addStyleTag({ content: '::backdrop { background: rgba(0, 0, 0, 0.6); } [popover] { outline: 9px solid red; }' });

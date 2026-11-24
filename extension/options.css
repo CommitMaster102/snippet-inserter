@@ -451,12 +451,16 @@ select:focus {
     border-bottom: 1px solid var(--border-default);
   }
 
-  /* A long list scrolls inside its own pane, so the editor under it stays near the top. */
+  /* A long list scrolls inside itself, so the editor under it stays near the top. The search
+     box and the Undo bar stay outside the scrolling part, where they can always be seen. */
   .list-pane {
-    max-height: 40vh;
-    overflow-y: auto;
     border-right: 0;
     border-bottom: 1px solid var(--border-default);
+  }
+
+  .snippet-list {
+    max-height: 40vh;
+    overflow-y: auto;
   }
 }
 
