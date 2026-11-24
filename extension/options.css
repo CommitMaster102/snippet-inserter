@@ -448,3 +448,15 @@ select:focus {
     border-bottom: 1px solid var(--border-default);
   }
 }
+
+/* Text for screen readers only, such as the announcement after a snippet is moved. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -209,7 +209,13 @@ function setBusy(busy) {
   els.primary.disabled = busy;
 }
 
+// The items of the list are options of a listbox. Focus stays in the search box, which points at
+// the highlighted option through aria-activedescendant, so a screen reader announces it.
 function registerItem(node, activate, snippet) {
+  if (node !== els.body) {
+    node.id = `item-${items.length}`;
+    node.setAttribute('role', 'option');
+  }
   items.push({ node, activate, snippet });
 }
 
@@ -217,7 +223,13 @@ function setFocus(index) {
   if (!items.length) return;
   const count = items.length;
   state.focusIndex = ((index % count) + count) % count;
-  items.forEach((item, i) => item.node.toggleAttribute('data-focused', i === state.focusIndex));
+  items.forEach((item, i) => {
+    item.node.toggleAttribute('data-focused', i === state.focusIndex);
+    if (item.node.id) item.node.setAttribute('aria-selected', String(i === state.focusIndex));
+  });
+  const current = items[state.focusIndex].node;
+  if (current.id) els.search.setAttribute('aria-activedescendant', current.id);
+  else els.search.removeAttribute('aria-activedescendant');
   scrollIntoList(items[state.focusIndex].node);
 }
 
@@ -298,6 +310,8 @@ function renderInsert() {
   els.searchBar.hidden = false;
   setPrimary(null);
   const list = el('div', 'list');
+  list.setAttribute('role', 'listbox');
+  list.setAttribute('aria-label', 'Snippets');
   const createLabel = state.selectedText.length > 1 ? TEXT.createFromSelection : TEXT.createNew;
   list.append(actionItem({ iconName: 'create', label: createLabel, hotkey: 1, onActivate: openCreate }));
   lib.filterSnippets(state.snippets, state.search).forEach((snippet, index) => {
@@ -365,6 +379,7 @@ function snippetItem(snippet, index) {
 
   const editButton = el('button', 'edit-button');
   editButton.type = 'button';
+  editButton.tabIndex = -1;
   editButton.title = TEXT.edit;
   editButton.append(icon('edit'));
   editButton.addEventListener('click', (event) => {
@@ -721,6 +736,20 @@ els.primary.addEventListener('click', () => {
 });
 els.undoButton.addEventListener('click', undoDelete);
 
+// Tab and Shift+Tab wrap around the panel's own controls instead of leaving for the page, which
+// would leave the panel open without a way to reach Escape.
+function keepTabInside(event) {
+  const stops = [...els.app.querySelectorAll('button, input, textarea, select, [tabindex]')].filter(
+    (node) => node.tabIndex >= 0 && !node.disabled && node.getClientRects().length
+  );
+  if (!stops.length) return;
+  const edge = event.shiftKey ? stops[0] : stops[stops.length - 1];
+  if (document.activeElement === edge || !stops.includes(document.activeElement)) {
+    event.preventDefault();
+    (event.shiftKey ? stops[stops.length - 1] : stops[0]).focus(NO_SCROLL);
+  }
+}
+
 // Keyboard controls: arrows move through the list, Alt+arrows move the highlighted snippet,
 // Enter picks the highlighted entry, Ctrl+1 to Ctrl+9 (Cmd on a Mac) pick an entry in the list
 // by its position, Ctrl+Z after a delete restores the snippet, Ctrl+Enter saves a form, Enter in
@@ -745,6 +774,8 @@ document.addEventListener(
       if (target && !state.busy) target.click();
       return;
     }
+
+    if (event.key === 'Tab') keepTabInside(event);
 
     if (state.view === 'insert') {
       if (event.altKey && !modifier && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {

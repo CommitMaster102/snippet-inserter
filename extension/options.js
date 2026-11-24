@@ -29,6 +29,7 @@ const els = {
   search: $('search'),
   snippetList: $('snippetList'),
   listEmpty: $('listEmpty'),
+  moveStatus: $('moveStatus'),
   undoBar: $('undoBar'),
   undoButton: $('undoButton'),
   editorEmpty: $('editorEmpty'),
@@ -147,16 +148,26 @@ function renderList(focusId) {
   const shown = lib.filterSnippets(state.snippets, els.search.value);
   els.snippetList.replaceChildren(...shown.map(snippetRow));
   els.listEmpty.hidden = state.snippets.length > 0;
+  const byId = (id) => els.snippetList.querySelector(`[data-id="${CSS.escape(id)}"]`);
+  setTabStop((focusId && byId(focusId)) || (state.selectedId && byId(state.selectedId)) || els.snippetList.firstElementChild);
   if (focusId) {
-    const row = els.snippetList.querySelector(`[data-id="${CSS.escape(focusId)}"]`);
+    const row = byId(focusId);
     if (row) row.focus();
   }
+}
+
+// The list is a single Tab stop: only one row can be tabbed to, and the arrow keys move between
+// rows. The stop follows the row that has focus.
+function setTabStop(stop) {
+  for (const row of els.snippetList.children) row.tabIndex = row === stop ? 0 : -1;
 }
 
 function snippetRow(snippet) {
   const row = el('li', 'row');
   row.dataset.id = snippet.id;
-  row.tabIndex = 0;
+  row.setAttribute('role', 'option');
+  row.tabIndex = -1;
+  row.addEventListener('focus', () => setTabStop(row));
   row.draggable = !filtering();
   if (snippet.id === state.selectedId) row.setAttribute('aria-selected', 'true');
 
@@ -226,6 +237,8 @@ async function move(id, to) {
   if (!list) return;
   state.snippets = list;
   renderList(id);
+  const moved = list.find((s) => s.id === id);
+  els.moveStatus.textContent = `${lib.displayTitle(moved)} moved to position ${list.indexOf(moved) + 1} of ${list.length}.`;
 }
 
 function onRowKey(event, snippet) {

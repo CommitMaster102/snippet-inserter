@@ -20,7 +20,8 @@
       <section id="view-snippets" class="view view-snippets" hidden>
         <div class="list-pane">
           <input id="search" class="input" type="search" placeholder="Search snippets..." autocomplete="off" spellcheck="false" />
-          <ol id="snippetList" class="snippet-list" aria-label="Snippets"></ol>
+          <ol id="snippetList" class="snippet-list" role="listbox" aria-label="Snippets"></ol>
+          <p id="moveStatus" class="sr-only" role="status"></p>
           <p id="listEmpty" class="muted" hidden>No snippets yet. Click New snippet to create one.</p>
           <div id="undoBar" class="undo" role="status" hidden>
             <span>Snippet deleted.</span>

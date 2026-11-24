@@ -101,3 +101,52 @@ test('the manager has no sideways scroll and keeps Save in view at 768 px wide',
   const text = await manager.locator('#content').boundingBox();
   expect(text.width).toBeGreaterThan(400);
 });
+
+test('the panel list is a listbox the search box points into, and Tab stays in the panel', async ({ page, pagesUrl, serviceWorker }) => {
+  await page.goto(`${pagesUrl}/editors.html`);
+  await seedSnippets(serviceWorker, [
+    { title: 'Alpha', content: 'Alpha text' },
+    { title: 'Beta', content: 'Beta text' },
+  ]);
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  await expect(panel.locator('.list .item')).toHaveCount(3);
+
+  await expect(panel.locator('.list')).toHaveAttribute('role', 'listbox');
+  await panel.locator('#search').press('ArrowDown');
+  const focused = panel.locator('.list [data-focused]');
+  await expect(focused).toHaveAttribute('role', 'option');
+  const id = await focused.getAttribute('id');
+  expect(id).toBeTruthy();
+  await expect(panel.locator('#search')).toHaveAttribute('aria-activedescendant', id);
+
+  // The Edit buttons are out of the Tab order, and Tab from the search box wraps to the Close button.
+  await expect(panel.locator('.edit-button').first()).toHaveAttribute('tabindex', '-1');
+  await panel.locator('#search').press('Tab');
+  await expect(panel.locator('#close')).toBeFocused();
+  await panel.locator('#close').press('Shift+Tab');
+  await expect(panel.locator('#search')).toBeFocused();
+});
+
+test('the manager list has one Tab stop, valid roles, and announces a move', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'One', content: 'a' },
+    { title: 'Two', content: 'b' },
+    { title: 'Three', content: 'c' },
+  ]);
+  const manager = await openManager(context, extensionId);
+  const rows = manager.locator('#snippetList .row');
+  await expect(rows).toHaveCount(3);
+  await expect(manager.locator('#snippetList')).toHaveAttribute('role', 'listbox');
+  await expect(manager.locator('#snippetList .row[tabindex="0"]')).toHaveCount(1);
+  await expect(rows.first()).toHaveAttribute('role', 'option');
+
+  // The Tab stop follows the focused row.
+  await rows.nth(1).focus();
+  await expect(manager.locator('#snippetList .row[tabindex="0"]')).toHaveCount(1);
+  await expect(rows.nth(1)).toHaveAttribute('tabindex', '0');
+
+  await rows.nth(1).press('Alt+ArrowDown');
+  await expect(manager.locator('#moveStatus')).toHaveText('Two moved to position 3 of 3.');
+  await expect(rows.nth(2)).toContainText('Two');
+});
