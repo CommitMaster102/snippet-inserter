@@ -67,7 +67,11 @@ tabs and the spaces that start a line stay as typed, so indented code keeps its 
 
 Click the extension's toolbar icon to open the snippet manager. It shows every snippet with a
 large editor and drag-and-drop ordering, and keeps the last 20 deleted snippets under Recently
-deleted. In its Settings and backup section you can change the trigger key to Shift or Alt or
+deleted. Under the search box, a button for each folder shows how many snippets it holds. Drag a
+row onto a button to move that snippet into the folder, or onto No folder to take it out; it keeps
+its place in the list. With a folder selected, Rename folder renames it on every snippet, and
+joins it to another folder if you type that folder's name. Remove folder, which asks for a second
+click, takes the snippets out of the folder and keeps them. In its Settings and backup section you can change the trigger key to Shift or Alt or
 turn it off, turn abbreviations off, and export or import snippets. The same section shows the
 keyboard shortcut, with a button that opens the browser's shortcuts page to change it.
 

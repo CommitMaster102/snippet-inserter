@@ -12,7 +12,7 @@ async function exportFile(manager) {
 }
 
 test('exports every snippet to a dated JSON file', async ({ context, extensionId, serviceWorker }) => {
-  const seeded = await seedSnippets(serviceWorker, [{ title: 'Address', content: '14 Elm Street\nSpringfield' }, { content: 'Thanks' }]);
+  const seeded = await seedSnippets(serviceWorker, [{ title: 'Address', content: '14 Elm Street\nSpringfield', folder: 'Home' }, { content: 'Thanks' }]);
   const manager = await openManager(context, extensionId, 'settings');
   await expect(manager.locator('#exportNote')).toContainText('Saves all 2 snippets to snippets-');
 
@@ -22,6 +22,9 @@ test('exports every snippet to a dated JSON file', async ({ context, extensionId
   expect(data).toMatchObject({ format: 'snippet-inserter', version: 1 });
   expect(Date.parse(data.exportedAt)).not.toBeNaN();
   expect(data.snippets).toEqual(seeded);
+  // A folder is written on the snippets that have one, and the others keep their 1.2.0 shape.
+  expect(data.snippets[0].folder).toBe('Home');
+  expect('folder' in data.snippets[1]).toBe(false);
   await expect(manager.locator('#importResult')).toHaveText(`Exported 2 snippets to ${name}.`);
 });
 
@@ -31,7 +34,7 @@ test('a backup moves every snippet to another profile, and a second import skips
   expect(big.length).toBe(7693);
   await seedSnippets(serviceWorker, [
     { title: 'Big one', content: big },
-    { title: 'Short', content: 'Hi' },
+    { title: 'Short', content: 'Hi', folder: 'Work' },
     { content: 'Untitled\nsecond line' },
   ]);
   const source = await openManager(context, extensionId);
@@ -49,6 +52,7 @@ test('a backup moves every snippet to another profile, and a second import skips
     await target.locator('#importFile').setInputFiles({ name, mimeType: 'application/json', buffer: Buffer.from(text) });
     await expect(target.locator('#importResult')).toHaveText('Imported 3 snippets.');
     expect(await readSnippets(worker)).toEqual(before);
+    expect((await readSnippets(worker)).map((s) => s.folder)).toEqual([undefined, undefined, 'Work']);
 
     await target.locator('#importFile').setInputFiles({ name, mimeType: 'application/json', buffer: Buffer.from(text) });
     await expect(target.locator('#importResult')).toHaveText('Imported 0 snippets. Skipped 3 snippets that were already here.');

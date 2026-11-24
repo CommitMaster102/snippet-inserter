@@ -21,6 +21,22 @@
       <section id="view-snippets" class="view view-snippets" hidden>
         <div class="list-pane">
           <input id="search" class="input" type="search" placeholder="Search snippets..." autocomplete="off" spellcheck="false" />
+          <div id="folderBar" class="folders" role="tablist" aria-label="Folders" hidden></div>
+          <div id="folderActions" class="folder-actions" hidden>
+            <div id="folderButtons" class="folder-buttons">
+              <button id="renameFolder" class="secondary" type="button">Rename folder</button>
+              <button id="removeFolder" class="secondary" type="button">Remove folder</button>
+            </div>
+            <form id="renameForm" class="rename-form" novalidate hidden>
+              <div class="rename-row">
+                <input id="renameInput" class="input rename-input" dir="auto" type="text" aria-label="Folder name" autocomplete="off" />
+                <button id="renameApply" class="primary" type="submit">Rename</button>
+                <button id="renameCancel" class="secondary" type="button">Cancel</button>
+              </div>
+              <p id="renameHint" class="muted rename-hint" hidden></p>
+              <p id="renameError" class="field-error" hidden></p>
+            </form>
+          </div>
           <ol id="snippetList" class="snippet-list" role="listbox" aria-label="Snippets"></ol>
           <p id="moveStatus" class="sr-only" role="status"></p>
           <p id="listEmpty" class="muted" hidden>No snippets yet. Click New snippet to create one.</p>
@@ -51,6 +67,12 @@
               <input id="abbreviation" class="input" dir="ltr" type="text" placeholder="Optional, such as ;addr" autocomplete="off" spellcheck="false" />
             </label>
             <p id="abbreviationError" class="field-error" hidden></p>
+            <label class="field">
+              <span class="field-label">Folder</span>
+              <input id="folder" class="input" dir="auto" type="text" placeholder="Optional, such as Work" autocomplete="off" list="folderOptions" />
+            </label>
+            <p id="folderError" class="field-error" hidden></p>
+            <datalist id="folderOptions"></datalist>
             <label class="field field-grow">
               <span class="field-label">Text</span>
               <textarea id="content" class="input content" dir="auto" spellcheck="true"></textarea>

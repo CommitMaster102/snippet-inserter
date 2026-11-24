@@ -20,6 +20,10 @@ const HANDLE_ICON =
   '<circle cx="6" cy="4" r="1.2"/><circle cx="10" cy="4" r="1.2"/><circle cx="6" cy="8" r="1.2"/>' +
   '<circle cx="10" cy="8" r="1.2"/><circle cx="6" cy="12" r="1.2"/><circle cx="10" cy="12" r="1.2"/></svg>';
 
+const FOLDER_ICON =
+  '<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" ' +
+  'stroke-linejoin="round" aria-hidden="true"><path d="M2 4.5h4l1.5 1.5H14v6.5H2z"/></svg>';
+
 const $ = (id) => document.getElementById(id);
 const els = {
   newSnippet: $('newSnippet'),
@@ -27,6 +31,19 @@ const els = {
   snippetCount: $('snippetCount'),
   deletedCount: $('deletedCount'),
   search: $('search'),
+  folderBar: $('folderBar'),
+  folderActions: $('folderActions'),
+  folderButtons: $('folderButtons'),
+  renameFolder: $('renameFolder'),
+  removeFolder: $('removeFolder'),
+  renameForm: $('renameForm'),
+  renameInput: $('renameInput'),
+  renameCancel: $('renameCancel'),
+  renameHint: $('renameHint'),
+  renameError: $('renameError'),
+  folder: $('folder'),
+  folderError: $('folderError'),
+  folderOptions: $('folderOptions'),
   snippetList: $('snippetList'),
   listEmpty: $('listEmpty'),
   moveStatus: $('moveStatus'),
@@ -77,6 +94,11 @@ const state = {
   snapshot: null,
   // The deleted snippet that the Undo bar restores.
   undoId: null,
+  // The folder the list shows: null for all snippets, '' for the ones without a folder, or a
+  // folder name. The manager opens on all snippets.
+  folder: null,
+  // The snippet being dragged, which a folder button can accept.
+  draggingId: null,
   busy: false,
 };
 
@@ -139,9 +161,243 @@ function renderCounts() {
 
 function renderAll() {
   renderCounts();
+  renderFolders();
   renderList();
   renderDeleted();
 }
+
+// The folder buttons under the search box, each with the number of snippets in it. The row
+// appears once a snippet has a folder, and is a tab list with one Tab stop: the selected button.
+// If the chosen folder no longer exists, the list falls back to all snippets.
+
+// The folder each button selects, in the order of the buttons.
+let folderChoices = [];
+
+function renderFolders() {
+  const names = lib.folderNames(state.snippets);
+  const counts = new Map();
+  for (const { folder } of state.snippets) if (folder) counts.set(folder, (counts.get(folder) || 0) + 1);
+  const loose = state.snippets.length - [...counts.values()].reduce((sum, n) => sum + n, 0);
+  const gone = state.folder === '' ? !names.length || !loose : state.folder !== null && !counts.has(state.folder);
+  if (gone) {
+    state.folder = null;
+    closeRename();
+  }
+
+  const hadFocus = els.folderBar.contains(document.activeElement);
+  els.folderBar.hidden = !names.length;
+  els.folderBar.replaceChildren();
+  els.folderOptions.replaceChildren(...names.map((name) => new Option(name)));
+  folderChoices = [];
+  const actionsShown = Boolean(names.length) && typeof state.folder === 'string' && state.folder !== '';
+  els.folderActions.hidden = !actionsShown;
+  if (!actionsShown) closeRename();
+  if (!names.length) return;
+
+  const choices = [['All', null, state.snippets.length], ...names.map((name) => [name, name, counts.get(name)])];
+  if (loose) choices.push(['No folder', '', loose]);
+  let selected = null;
+  for (const [label, folder, count] of choices) {
+    const chip = el('button', 'folder-chip');
+    chip.type = 'button';
+    chip.dir = 'auto';
+    chip.title = label;
+    chip.setAttribute('role', 'tab');
+    chip.setAttribute('aria-controls', 'snippetList');
+    const isSelected = folder === state.folder;
+    chip.setAttribute('aria-selected', String(isSelected));
+    chip.tabIndex = isSelected ? 0 : -1;
+    // The button takes its direction from the name, so the name has no direction of its own.
+    chip.append(el('span', 'folder-name', label), ' ', el('span', 'folder-count', count.toLocaleString()));
+    chip.addEventListener('click', () => selectFolder(folder));
+    chip.addEventListener('keydown', onFolderKey);
+    chip.addEventListener('dragover', (event) => {
+      if (!canDropOn(folder)) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      chip.classList.add('drop-target');
+    });
+    chip.addEventListener('dragleave', () => chip.classList.remove('drop-target'));
+    chip.addEventListener('drop', (event) => {
+      event.preventDefault();
+      chip.classList.remove('drop-target');
+      const id = state.draggingId;
+      state.draggingId = null;
+      if (id && canDropOn(folder, id)) moveToFolder(id, folder);
+    });
+    if (isSelected) selected = chip;
+    folderChoices.push(folder);
+    els.folderBar.append(chip);
+  }
+  if (hadFocus && selected) selected.focus();
+}
+
+function selectFolder(folder) {
+  if (folder === state.folder) return;
+  state.folder = folder;
+  disarmRemove();
+  closeRename();
+  renderFolders();
+  renderList();
+}
+
+// Left and Right select the previous or next folder (the other way in a right-to-left row), Home
+// and End the first and last, and Enter, Space, and Down go to the search box.
+function onFolderKey(event) {
+  const last = folderChoices.length - 1;
+  const at = [...els.folderBar.children].indexOf(event.currentTarget);
+  const rtl = getComputedStyle(els.folderBar).direction === 'rtl';
+  const forward = rtl ? 'ArrowLeft' : 'ArrowRight';
+  const backward = rtl ? 'ArrowRight' : 'ArrowLeft';
+  let to;
+  if (event.key === forward) to = Math.min(at + 1, last);
+  else if (event.key === backward) to = Math.max(at - 1, 0);
+  else if (event.key === 'Home') to = 0;
+  else if (event.key === 'End') to = last;
+  else if (['Enter', ' ', 'ArrowDown'].includes(event.key)) {
+    event.preventDefault();
+    els.search.focus();
+    return;
+  } else return;
+  event.preventDefault();
+  selectFolder(folderChoices[to]);
+}
+
+// A folder button accepts the dragged snippet when it names a folder, or No folder, other than
+// the one the snippet is already in.
+function canDropOn(folder, id = state.draggingId) {
+  const dragged = state.snippets.find((s) => s.id === id);
+  return folder !== null && Boolean(dragged) && (dragged.folder || '') !== folder;
+}
+
+// Puts the editor's Folder field, and the copy of it that tells unsaved changes apart, on `folder`
+// before a change made from this page lands in storage, so the editor does not report the change
+// as one made in another tab. Returns a function that puts both back if the change fails.
+function followEditorFolder(folder) {
+  const before = { field: els.folder.value, saved: state.snapshot.folder };
+  els.folder.value = folder;
+  state.snapshot = { ...state.snapshot, folder };
+  return () => {
+    els.folder.value = before.field;
+    state.snapshot = { ...state.snapshot, folder: before.saved };
+  };
+}
+
+// True when the editor shows a stored snippet that `inside` accepts.
+function editorHolds(inside) {
+  const stored = state.snippets.find((s) => s.id === state.selectedId);
+  return !state.creating && !els.editor.hidden && Boolean(stored) && inside(stored);
+}
+
+async function moveToFolder(id, folder) {
+  const revert = editorHolds((s) => s.id === id) ? followEditorFolder(folder) : () => {};
+  const result = await run(() => lib.updateSnippet(id, { folder }));
+  if (!result) {
+    revert();
+    return;
+  }
+  state.snippets = result.snippets;
+  renderAll();
+}
+
+function openRename() {
+  els.folderButtons.hidden = true;
+  els.renameForm.hidden = false;
+  els.renameHint.hidden = true;
+  els.renameError.hidden = true;
+  els.renameInput.value = state.folder;
+  els.renameInput.focus();
+  els.renameInput.select();
+}
+
+function closeRename() {
+  els.renameForm.hidden = true;
+  els.folderButtons.hidden = false;
+}
+
+// The name a rename to `typed` would give, and whether it joins another folder.
+function renameTarget(typed) {
+  const others = state.snippets.filter((s) => s.folder !== state.folder);
+  const target = lib.matchFolder(typed, others);
+  return { target, joins: Boolean(target) && others.some((s) => s.folder === target) };
+}
+
+els.renameFolder.addEventListener('click', openRename);
+els.renameCancel.addEventListener('click', () => {
+  closeRename();
+  els.renameFolder.focus();
+});
+els.renameInput.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  event.preventDefault();
+  closeRename();
+  els.renameFolder.focus();
+});
+els.renameInput.addEventListener('input', () => {
+  els.renameError.hidden = true;
+  const { target, joins } = renameTarget(els.renameInput.value);
+  els.renameHint.hidden = !joins;
+  els.renameHint.textContent = `${target} already exists. Renaming moves these snippets into it.`;
+});
+els.renameForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const from = state.folder;
+  const typed = els.renameInput.value;
+  const problem = !lib.cleanFolder(typed)
+    ? 'Enter a folder name.'
+    : lib.folderLength(typed) > lib.FOLDER_MAX_LENGTH
+      ? `The input must not be longer than ${lib.FOLDER_MAX_LENGTH} characters.`
+      : '';
+  els.renameError.hidden = !problem;
+  els.renameError.textContent = problem;
+  if (!from || problem) return;
+  const { target } = renameTarget(typed);
+  if (target === from) {
+    closeRename();
+    return;
+  }
+  const revert = editorHolds((s) => s.folder === from) ? followEditorFolder(target) : () => {};
+  const list = await run(() => lib.renameFolder(from, typed));
+  if (!list) {
+    revert();
+    return;
+  }
+  state.snippets = list;
+  state.folder = target;
+  closeRename();
+  renderAll();
+});
+
+// Remove folder asks for a second click within PURGE_CONFIRM_MS, as Delete forever does.
+let removeArmed = { folder: null, until: 0 };
+
+function disarmRemove() {
+  removeArmed = { folder: null, until: 0 };
+  els.removeFolder.textContent = 'Remove folder';
+}
+
+els.removeFolder.addEventListener('click', async () => {
+  const from = state.folder;
+  if (!from) return;
+  if (removeArmed.folder !== from || Date.now() > removeArmed.until) {
+    removeArmed = { folder: from, until: Date.now() + PURGE_CONFIRM_MS };
+    els.removeFolder.textContent = 'Click again to remove the folder';
+    setTimeout(() => {
+      if (removeArmed.folder === from && Date.now() > removeArmed.until) disarmRemove();
+    }, PURGE_CONFIRM_MS + 50);
+    return;
+  }
+  disarmRemove();
+  const revert = editorHolds((s) => s.folder === from) ? followEditorFolder('') : () => {};
+  const list = await run(() => lib.removeFolder(from));
+  if (!list) {
+    revert();
+    return;
+  }
+  state.snippets = list;
+  state.folder = '';
+  renderAll();
+});
 
 // The snippet list. Rows can be dragged, or moved with Alt+Up and Alt+Down, while the search box
 // is empty; a filtered list hides the neighbours a move would pass.
@@ -155,7 +411,7 @@ function renderList(focusId) {
   const active = document.activeElement;
   const focusedRow = active && els.snippetList.contains(active) ? active.closest('.row') : null;
   focusId = focusId || (focusedRow && focusedRow.dataset.id);
-  const shown = lib.filterSnippets(state.snippets, els.search.value);
+  const shown = lib.filterSnippets(lib.inFolder(state.snippets, state.folder), els.search.value);
   els.snippetList.replaceChildren(...shown.map(snippetRow));
   els.listEmpty.hidden = state.snippets.length > 0;
   const byId = (id) => els.snippetList.querySelector(`[data-id="${CSS.escape(id)}"]`);
@@ -178,17 +434,32 @@ function snippetRow(snippet) {
   row.setAttribute('role', 'option');
   row.tabIndex = -1;
   row.addEventListener('focus', () => setTabStop(row));
-  row.draggable = !filtering();
+  // A row can always be dragged onto a folder button. Dropping on another row to reorder needs an
+  // empty search box, which the dragover handler checks.
+  row.draggable = true;
   if (snippet.id === state.selectedId) row.setAttribute('aria-selected', 'true');
 
   const handle = el('span', 'handle');
   handle.innerHTML = HANDLE_ICON;
-  handle.title = 'Drag to reorder';
+  handle.title = lib.folderNames(state.snippets).length
+    ? 'Drag to reorder, or onto a folder to move it'
+    : 'Drag to reorder';
 
   const main = el('div', 'row-main');
   main.append(autoDirEl('span', 'row-name', lib.displayTitle(snippet)));
   const preview = lib.previewLine(snippet);
-  if (preview) main.append(autoDirEl('span', 'row-preview', preview));
+  if (snippet.folder && state.folder === null) {
+    // Under All, the second line starts with the folder the snippet is in.
+    const detail = el('div', 'row-detail');
+    const tag = el('span', 'row-folder');
+    tag.innerHTML = FOLDER_ICON;
+    tag.append(autoDirEl('span', 'row-folder-name', snippet.folder));
+    detail.append(tag);
+    if (preview) detail.append(autoDirEl('span', 'row-preview', preview));
+    main.append(detail);
+  } else if (preview) {
+    main.append(autoDirEl('span', 'row-preview', preview));
+  }
 
   row.append(handle, main);
   if (snippet.abbreviation) row.append(el('span', 'pill', snippet.abbreviation));
@@ -199,9 +470,11 @@ function snippetRow(snippet) {
     event.dataTransfer.setData('text/plain', snippet.id);
     event.dataTransfer.effectAllowed = 'move';
     row.classList.add('dragging');
+    state.draggingId = snippet.id;
   });
   row.addEventListener('dragend', () => {
     row.classList.remove('dragging');
+    state.draggingId = null;
     clearDropMarks();
   });
   row.addEventListener('dragover', (event) => {
@@ -248,7 +521,8 @@ async function move(id, to) {
   state.snippets = list;
   renderList(id);
   const moved = list.find((s) => s.id === id);
-  els.moveStatus.textContent = `${lib.displayTitle(moved)} moved to position ${list.indexOf(moved) + 1} of ${list.length}.`;
+  const shown = lib.inFolder(list, state.folder);
+  els.moveStatus.textContent = `${lib.displayTitle(moved)} moved to position ${shown.indexOf(moved) + 1} of ${shown.length}.`;
 }
 
 function onRowKey(event, snippet) {
@@ -260,9 +534,10 @@ function onRowKey(event, snippet) {
   } else if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && event.altKey) {
     event.preventDefault();
     if (filtering()) return;
-    const from = state.snippets.findIndex((s) => s.id === snippet.id);
-    const to = from + (event.key === 'ArrowDown' ? 1 : -1);
-    if (to >= 0 && to < state.snippets.length) move(snippet.id, to);
+    // Under a folder, the row moves past the next row of that folder.
+    const shown = lib.inFolder(state.snippets, state.folder);
+    const to = lib.moveTarget(state.snippets, shown, snippet.id, event.key === 'ArrowDown' ? 1 : -1);
+    if (to !== -1) move(snippet.id, to);
   } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     event.preventDefault();
     const next = rows[index + (event.key === 'ArrowDown' ? 1 : -1)];
@@ -275,12 +550,22 @@ els.search.addEventListener('input', () => renderList());
 // The editor.
 
 function fields() {
-  return { title: els.title.value, content: els.content.value, abbreviation: els.abbreviation.value.trim() };
+  return {
+    title: els.title.value,
+    content: els.content.value,
+    abbreviation: els.abbreviation.value.trim(),
+    folder: lib.cleanFolder(els.folder.value),
+  };
 }
 
 // The fields of `snippet` in the shape fields() returns.
 function snippetFields(snippet) {
-  return { title: snippet.title || '', content: snippet.content, abbreviation: snippet.abbreviation || '' };
+  return {
+    title: snippet.title || '',
+    content: snippet.content,
+    abbreviation: snippet.abbreviation || '',
+    folder: snippet.folder || '',
+  };
 }
 
 function sameFields(a, b) {
@@ -288,7 +573,8 @@ function sameFields(a, b) {
     Boolean(a && b) &&
     a.title === (b.title || '') &&
     a.content === b.content &&
-    (a.abbreviation || '') === (b.abbreviation || '')
+    (a.abbreviation || '') === (b.abbreviation || '') &&
+    (a.folder || '') === (b.folder || '')
   );
 }
 
@@ -336,19 +622,25 @@ function updateCount() {
   }
 }
 
-// Shows `snippet` in the editor, or an empty new snippet when it is null.
-function loadEditor(snippet, initialContent = '') {
+// Shows `snippet` in the editor, or an empty new snippet when it is null. A new snippet starts
+// with `initialContent` and `initialFolder`, which count as saved, so leaving the editor before
+// typing raises no notice.
+function loadEditor(snippet, initialContent = '', initialFolder = '') {
   els.editorEmpty.hidden = true;
   els.editor.hidden = false;
   els.editorHeading.textContent = snippet ? 'Edit snippet' : 'New snippet';
   els.title.value = snippet ? snippet.title || '' : '';
   els.content.value = snippet ? snippet.content : initialContent;
   els.abbreviation.value = snippet ? snippet.abbreviation || '' : '';
-  state.snapshot = snippet ? snippetFields(snippet) : { title: '', content: '', abbreviation: '' };
+  els.folder.value = snippet ? snippet.folder || '' : initialFolder;
+  state.snapshot = snippet
+    ? snippetFields(snippet)
+    : { title: '', content: '', abbreviation: '', folder: initialFolder };
   els.duplicate.hidden = !snippet;
   els.delete.hidden = !snippet;
   els.titleError.hidden = true;
   els.abbreviationError.hidden = true;
+  els.folderError.hidden = true;
   els.contentError.hidden = true;
   els.editorStatus.textContent = '';
   hideNotice();
@@ -433,7 +725,7 @@ function startNew(initialContent = '') {
   whenSaved(() => {
     state.selectedId = null;
     state.creating = true;
-    loadEditor(null, initialContent);
+    loadEditor(null, initialContent, state.folder || '');
     renderList();
     showEditor();
     els.content.focus();
@@ -471,8 +763,8 @@ async function run(work, { fromEditor = false } = {}) {
   }
 }
 
-// Form rules, the same as in the panel: the text must not be blank, and the name must not be
-// longer than 128 characters.
+// Form rules, the same as in the panel: the text must not be blank, the name must not be longer
+// than 128 characters, and the folder must not be longer than 64.
 function validate() {
   let valid = true;
   els.contentError.hidden = els.content.value.trim() !== '';
@@ -483,6 +775,11 @@ function validate() {
   els.titleError.hidden = lib.titleLength(els.title.value) <= lib.TITLE_MAX_LENGTH;
   if (!els.titleError.hidden) {
     els.titleError.textContent = `The input must not be longer than ${lib.TITLE_MAX_LENGTH} characters.`;
+    valid = false;
+  }
+  els.folderError.hidden = lib.folderLength(els.folder.value) <= lib.FOLDER_MAX_LENGTH;
+  if (!els.folderError.hidden) {
+    els.folderError.textContent = `The input must not be longer than ${lib.FOLDER_MAX_LENGTH} characters.`;
     valid = false;
   }
   const ownId = state.creating ? null : state.selectedId;
@@ -508,12 +805,15 @@ async function save() {
   state.snippets = result.snippets;
   state.selectedId = result.snippet.id;
   state.creating = false;
-  state.snapshot = values;
+  // The folder is shown as stored, which may spell it with other capitals than the user typed.
+  els.folder.value = result.snippet.folder || '';
+  state.snapshot = { ...values, folder: result.snippet.folder || '' };
   els.editorHeading.textContent = 'Edit snippet';
   els.duplicate.hidden = false;
   els.delete.hidden = false;
   els.editorStatus.textContent = 'Saved.';
   renderCounts();
+  renderFolders();
   renderList();
   return true;
 }
@@ -533,6 +833,10 @@ els.title.addEventListener('input', () => {
 });
 els.abbreviation.addEventListener('input', () => {
   els.abbreviationError.hidden = true;
+  els.editorStatus.textContent = '';
+});
+els.folder.addEventListener('input', () => {
+  els.folderError.hidden = true;
   els.editorStatus.textContent = '';
 });
 
@@ -568,6 +872,9 @@ els.undoButton.addEventListener('click', async () => {
   els.undoBar.hidden = true;
   state.snippets = result.snippets;
   state.deleted = result.deleted;
+  // A folder chosen in the meantime would hide the restored snippet, so show its folder instead.
+  const folder = result.snippet.folder || '';
+  if (state.folder !== null && state.folder !== folder) state.folder = folder;
   renderAll();
   select(result.snippet.id);
 });

@@ -197,6 +197,79 @@ select:focus {
   border-right: 1px solid var(--border-default);
 }
 
+/* The folder buttons, which wrap onto more lines, and the actions for the selected folder. */
+
+.folders {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.folder-chip {
+  max-width: 200px;
+  padding: 2px 10px;
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-subtle);
+  font: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.folder-chip[aria-selected="true"] {
+  border-color: var(--brand-default);
+  background: var(--brand-subtle);
+  color: var(--brand-default);
+  font-weight: 600;
+}
+
+.folder-chip.drop-target {
+  border-style: dashed;
+  border-color: var(--brand-default);
+}
+
+.folder-chip:focus-visible {
+  outline: 2px solid var(--brand-default);
+  outline-offset: -2px;
+}
+
+.folder-count {
+  margin-inline-start: 2px;
+  opacity: 0.8;
+}
+
+.folder-buttons,
+.rename-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rename-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+
+.rename-input {
+  width: auto;
+  max-width: 240px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rename-hint,
+.rename-form .field-error {
+  margin: 0;
+  font-size: 12px;
+}
+
 .snippet-list,
 .deleted-list {
   margin: 0;
@@ -263,6 +336,33 @@ select:focus {
 .row-preview {
   color: var(--text-subtle);
   font-size: 12px;
+}
+
+.row-detail {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.row-detail .row-preview {
+  min-width: 0;
+}
+
+.row-folder {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  margin-inline-end: 6px;
+  max-width: 50%;
+  color: var(--text-default);
+}
+
+.row-folder-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .pill {

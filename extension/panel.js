@@ -322,7 +322,7 @@ function renderFolders() {
   const names = lib.folderNames(state.snippets);
   const hasLoose = state.snippets.some((s) => !s.folder);
   if (state.folder && !names.includes(state.folder)) state.folder = null;
-  if (state.folder === '' && !hasLoose) state.folder = null;
+  if (state.folder === '' && (!hasLoose || !names.length)) state.folder = null;
   const hadFocus = els.folderBar.contains(document.activeElement);
   els.folderBar.hidden = !names.length;
   els.folderBar.replaceChildren();
