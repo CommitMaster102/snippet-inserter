@@ -135,6 +135,21 @@
             it. This does not work in Google Docs.
           </p>
         </div>
+        <div class="setting">
+          <span id="offSitesLabel" class="setting-label">Sites where the double tap and abbreviations are off</span>
+          <form id="offSiteForm" class="setting-row">
+            <input id="offSiteInput" type="text" placeholder="example.com" aria-label="Site to turn off" autocomplete="off" spellcheck="false" />
+            <button class="secondary" type="submit">Add site</button>
+          </form>
+          <p id="offSiteError" class="field-error" hidden></p>
+          <ul id="offSiteList" class="site-list" aria-labelledby="offSitesLabel"></ul>
+          <p id="offSitesEmpty" class="muted">No sites yet. The double tap and abbreviations work on every site.</p>
+          <p class="muted">
+            A site includes its subdomains: example.com also covers mail.example.com. On these sites
+            the keyboard shortcut and the right-click menu still open the panel. The button next to
+            Close at the top of the panel turns the current site off or back on.
+          </p>
+        </div>
         <p class="muted">
           Click in a text box, a rich-text editor, or a Google Docs document and tap the key twice
           quickly. In the panel, pick a snippet with the mouse, the arrow keys and <kbd>Enter</kbd>,

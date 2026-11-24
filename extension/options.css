@@ -541,6 +541,31 @@ select:focus {
   gap: 12px;
 }
 
+#offSiteInput {
+  width: 260px;
+  max-width: 100%;
+}
+
+.site-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.site-name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .checkbox {
   display: flex;
   align-items: center;
@@ -561,6 +586,14 @@ select:focus {
 /* Narrow windows and high zoom: the section links form a row and the editor goes under the list. */
 
 @media (max-width: 899px) {
+  #offSiteForm {
+    flex-wrap: wrap;
+  }
+
+  #offSiteInput {
+    flex: 1 0 100%;
+  }
+
   .layout,
   .view-snippets {
     grid-template-columns: minmax(0, 1fr);

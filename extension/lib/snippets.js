@@ -127,6 +127,59 @@
     return writeSettings(changes);
   }
 
+  // Sites where the double tap and abbreviations are off. The list holds host names, and an
+  // entry covers its own host and every subdomain of it.
+
+  // The host name in what the user typed: a bare host, host:port, host/path, or an http or https
+  // address. Names with accents come back in their xn-- form, as location.hostname gives them.
+  // Returns '' when the input is not a site.
+  function siteHost(input) {
+    let text = String(input || '').trim().toLowerCase();
+    if (text.startsWith('*.')) text = text.slice(2);
+    const scheme = /^([a-z][a-z0-9+.-]*):\/\//.exec(text);
+    if (scheme && scheme[1] !== 'http' && scheme[1] !== 'https') return '';
+    try {
+      const host = new URL(scheme ? text : `http://${text}`).hostname.replace(/\.$/, '');
+      // Chromium turns a space in a host into %20 instead of failing, so that counts as invalid.
+      return /[\p{L}\p{N}]/u.test(host) && !host.includes('%') ? host : '';
+    } catch {
+      return '';
+    }
+  }
+
+  // The list entry that covers `host`, or null.
+  function offSiteEntry(host, entries) {
+    for (const entry of entries || []) {
+      if (host === entry || host.endsWith(`.${entry}`)) return entry;
+    }
+    return null;
+  }
+
+  // An error about what the user typed, as opposed to a failed write. `invalid` lets the manager
+  // show it next to the field.
+  function siteProblem(message) {
+    return Object.assign(new Error(message), { invalid: true });
+  }
+
+  // Adds a site to the list, which stays sorted and free of entries inside other entries.
+  async function addOffSite(input) {
+    const host = siteHost(input);
+    if (!host) throw siteProblem('Enter a site such as example.com.');
+    const entries = (await readSettings()).offSites;
+    const covering = offSiteEntry(host, entries);
+    if (covering === host) throw siteProblem(`${host} is already on the list.`);
+    if (covering) throw siteProblem(`${host} is already off, because ${covering} is on the list.`);
+    const offSites = [...entries.filter((entry) => !entry.endsWith(`.${host}`)), host].sort();
+    await writeSettings({ offSites });
+    return { host, offSites };
+  }
+
+  async function removeOffSite(entry) {
+    const offSites = (await readSettings()).offSites.filter((other) => other !== entry);
+    await writeSettings({ offSites });
+    return offSites;
+  }
+
   // A record as stored. The abbreviation and the folder are left out when they are empty, so a
   // snippet without them keeps the record shape that version 1.1.1 wrote.
   function record({ createdAt, content, title, id, abbreviation, folder }) {
@@ -599,6 +652,10 @@
     writeSettings,
     abbreviationMode,
     writeAbbreviationMode,
+    siteHost,
+    offSiteEntry,
+    addOffSite,
+    removeOffSite,
     createSnippet,
     updateSnippet,
     duplicateSnippet,

@@ -533,3 +533,57 @@ test('writeAbbreviationMode stores abbreviationTiming only when the user picks t
     delete globalThis.chrome;
   }
 });
+
+test('siteHost reduces what the user types to a host name', () => {
+  assert.equal(lib.siteHost('Example.COM'), 'example.com');
+  assert.equal(lib.siteHost('https://mail.example.com/inbox'), 'mail.example.com');
+  assert.equal(lib.siteHost('*.example.com'), 'example.com');
+  assert.equal(lib.siteHost('localhost:3000'), 'localhost');
+  assert.equal(lib.siteHost('example.com.'), 'example.com');
+  assert.equal(lib.siteHost('bücher.de'), 'xn--bcher-kva.de');
+  for (const bad of ['not a site', '..', 'http://', 'chrome://extensions', '', '   ', 'a%20b.com']) {
+    assert.equal(lib.siteHost(bad), '', JSON.stringify(bad));
+  }
+});
+
+test('offSiteEntry matches a host and its subdomains only', () => {
+  const entries = ['example.com', 'other.org'];
+  assert.equal(lib.offSiteEntry('example.com', entries), 'example.com');
+  assert.equal(lib.offSiteEntry('a.b.example.com', entries), 'example.com');
+  assert.equal(lib.offSiteEntry('notexample.com', entries), null);
+  assert.equal(lib.offSiteEntry('example.com.evil.net', entries), null);
+  assert.equal(lib.offSiteEntry('example.com', []), null);
+});
+
+test('addOffSite stores sorted host names and refuses what is invalid, listed, or covered', async () => {
+  const values = fakeStorage();
+  try {
+    assert.deepEqual(await lib.addOffSite('https://Zeta.example.net/x'), { host: 'zeta.example.net', offSites: ['zeta.example.net'] });
+    await lib.addOffSite('mail.example.com');
+    assert.deepEqual(values.get(lib.SETTINGS_KEY).offSites, ['mail.example.com', 'zeta.example.net']);
+    await assert.rejects(lib.addOffSite('not a site'), { message: 'Enter a site such as example.com.' });
+    await assert.rejects(lib.addOffSite('zeta.example.net'), { message: 'zeta.example.net is already on the list.' });
+    await assert.rejects(lib.addOffSite('a.zeta.example.net'), {
+      message: 'a.zeta.example.net is already off, because zeta.example.net is on the list.',
+    });
+    // Adding the parent drops the subdomain it now covers.
+    const added = await lib.addOffSite('example.com');
+    assert.deepEqual(added.offSites, ['example.com', 'zeta.example.net']);
+    assert.deepEqual(values.get(lib.SETTINGS_KEY), { offSites: ['example.com', 'zeta.example.net'] });
+  } finally {
+    delete globalThis.chrome;
+  }
+});
+
+test('removeOffSite removes only the named entry and leaves an empty list behind', async () => {
+  const values = fakeStorage();
+  try {
+    await lib.addOffSite('one.test');
+    await lib.addOffSite('two.test');
+    assert.deepEqual(await lib.removeOffSite('one.test'), ['two.test']);
+    assert.deepEqual(await lib.removeOffSite('two.test'), []);
+    assert.deepEqual(values.get(lib.SETTINGS_KEY), { offSites: [] });
+  } finally {
+    delete globalThis.chrome;
+  }
+});

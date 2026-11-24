@@ -61,6 +61,11 @@ const els = {
   abbreviation: $('abbreviation'),
   abbreviationError: $('abbreviationError'),
   abbreviations: $('abbreviations'),
+  offSiteForm: $('offSiteForm'),
+  offSiteInput: $('offSiteInput'),
+  offSiteError: $('offSiteError'),
+  offSiteList: $('offSiteList'),
+  offSitesEmpty: $('offSitesEmpty'),
   content: $('content'),
   contentError: $('contentError'),
   placeholderList: $('placeholderList'),
@@ -1053,6 +1058,59 @@ els.abbreviations.addEventListener('change', async () => {
   }
 });
 
+// Sites where the double tap and abbreviations are off.
+
+function renderOffSites(entries) {
+  els.offSitesEmpty.hidden = entries.length > 0;
+  els.offSiteList.replaceChildren(...entries.map(offSiteRow));
+}
+
+function offSiteRow(entry) {
+  const row = el('li', 'site-row');
+  const name = el('span', 'site-name', entry);
+  name.dir = 'ltr';
+  const turnOn = el('button', 'secondary', 'Turn on');
+  turnOn.type = 'button';
+  turnOn.setAttribute('aria-label', `Turn on ${entry} again`);
+  turnOn.addEventListener('click', async () => {
+    // The row after this one moves up when the list is drawn again, so its place decides where
+    // the focus goes.
+    const next = row.nextElementSibling || row.previousElementSibling;
+    const nextEntry = next && next.querySelector('.site-name').textContent;
+    const entries = await run(() => lib.removeOffSite(entry));
+    if (!entries) return;
+    renderOffSites(entries);
+    const button = nextEntry && [...els.offSiteList.querySelectorAll('.site-row')]
+      .find((other) => other.querySelector('.site-name').textContent === nextEntry);
+    (button ? button.querySelector('button') : els.offSiteInput).focus();
+  });
+  row.append(name, turnOn);
+  return row;
+}
+
+els.offSiteForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  reportError('');
+  try {
+    const { offSites } = await lib.addOffSite(els.offSiteInput.value);
+    els.offSiteError.hidden = true;
+    els.offSiteInput.value = '';
+    renderOffSites(offSites);
+  } catch (error) {
+    if (error.invalid) {
+      els.offSiteError.textContent = error.message;
+      els.offSiteError.hidden = false;
+    } else {
+      reportError(`Could not save the change: ${error.message}`);
+    }
+  }
+  els.offSiteInput.focus();
+});
+
+els.offSiteInput.addEventListener('input', () => {
+  els.offSiteError.hidden = true;
+});
+
 // The key comes from the browser, which leaves it unset when another extension already uses
 // Ctrl+Shift+Space. It is read again whenever the page gets the focus back, for example after
 // the user changed it in the shortcuts page.
@@ -1164,6 +1222,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
     const settings = { ...lib.DEFAULT_SETTINGS, ...(changes[lib.SETTINGS_KEY].newValue || {}) };
     els.hotkey.value = settings.hotkey;
     els.abbreviations.value = lib.abbreviationMode(settings);
+    renderOffSites(settings.offSites);
   }
 });
 
@@ -1182,6 +1241,7 @@ async function start() {
   state.deleted = deleted;
   els.hotkey.value = settings.hotkey;
   els.abbreviations.value = lib.abbreviationMode(settings);
+  renderOffSites(settings.offSites);
   renderAll();
   renderShortcut();
   route();

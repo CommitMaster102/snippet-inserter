@@ -10,7 +10,7 @@
 (() => {
   'use strict';
 
-  const DEFAULT_SETTINGS = { hotkey: 'Control', abbreviations: true, abbreviationTiming: 'immediate' };
+  const DEFAULT_SETTINGS = { hotkey: 'Control', abbreviations: true, abbreviationTiming: 'immediate', offSites: [] };
   // The small { abbreviation: id } index that lib/snippets.js writes beside the snippet list.
   // This script reads only the index; content-main.js reads the list when an abbreviation matches.
   const ABBREVIATIONS_KEY = 'snippet_manager.abbreviations';
@@ -44,6 +44,9 @@
   let listeningForAbbreviations = false;
   // Whether abbreviations wait for Space, Tab, or Enter instead of expanding as they are typed.
   let expandAfterKey = false;
+  // Whether this frame's site is on the user's list of sites where the double tap and abbreviations
+  // are off. It is worked out once per settings change.
+  let siteOff = false;
   let lastKeyDown = null;
   let lastKeyUp = null;
   let lastPointer = null;
@@ -122,14 +125,14 @@
     window.removeEventListener('focusin', requestSettings, true);
     chrome.storage.local.get(['settings', ABBREVIATIONS_KEY]).then(
       (stored) => {
-        settings = { ...DEFAULT_SETTINGS, ...(stored.settings || {}) };
+        applySettings(stored.settings);
         setAbbreviations(stored[ABBREVIATIONS_KEY]);
       },
       () => {}
     );
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area !== 'local') return;
-      if (changes.settings) settings = { ...DEFAULT_SETTINGS, ...(changes.settings.newValue || {}) };
+      if (changes.settings) applySettings(changes.settings.newValue);
       if (changes[ABBREVIATIONS_KEY]) setAbbreviations(changes[ABBREVIATIONS_KEY].newValue);
       else if (changes.settings) setAbbreviations(abbreviationIndex);
     });
@@ -137,10 +140,32 @@
 
   window.addEventListener('focusin', requestSettings, true);
 
+  function applySettings(stored) {
+    settings = { ...DEFAULT_SETTINGS, ...(stored || {}) };
+    siteOff = onOffSite(settings.offSites);
+  }
+
+  // Whether the frame's own host, or the host of the top page, is covered by an entry of the list.
+  // An entry covers its own host and every subdomain; lib/snippets.js has the same rule. The
+  // browser lists the ancestors' origins with the top page last. The list is empty at the top
+  // page, and an origin it hides reads "null", which has no host.
+  function onOffSite(entries) {
+    if (!Array.isArray(entries) || !entries.length) return false;
+    const hosts = [location.hostname];
+    const origins = location.ancestorOrigins;
+    try {
+      if (origins && origins.length) hosts.push(new URL(origins[origins.length - 1]).hostname);
+    } catch {
+      // An origin that is not an address has no host.
+    }
+    return hosts.some((host) => host && entries.some((entry) => host === entry || host.endsWith(`.${entry}`)));
+  }
+
   // Double-tap detection. Any other key resets the sequence, both taps must use the same
   // physical key (left or right), and the second release opens the panel.
 
   function isShortcutKey(event) {
+    if (siteOff) return false;
     switch (settings.hotkey) {
       case 'Shift':
         return event.key === 'Shift' && !event.metaKey && !event.altKey && !event.ctrlKey;
@@ -254,7 +279,7 @@
       abbreviationsByLastChar.get(last).push(abbreviation);
       longestAbbreviation = Math.max(longestAbbreviation, abbreviation.length);
     }
-    const listen = settings.abbreviations !== false && longestAbbreviation > 0;
+    const listen = settings.abbreviations !== false && longestAbbreviation > 0 && !siteOff;
     const change = listen ? 'addEventListener' : 'removeEventListener';
     if (listen !== listeningForAbbreviations) {
       window[change]('input', onTypedInput, true);
