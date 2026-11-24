@@ -5,6 +5,7 @@ const { test, expect } = require('./fixtures');
 const {
   PANEL,
   seedSnippets,
+  seedSettings,
   readSnippets,
   selectInTextarea,
   caretAtEndOf,
@@ -93,8 +94,8 @@ test('Escape in that form keeps the typed abbreviation and the caret after it', 
 test('the setting turns expansion off', async ({ context, extensionId, page, serviceWorker }) => {
   await seedSnippets(serviceWorker, SNIPPETS);
   const manager = await openManager(context, extensionId, 'settings');
-  await expect(manager.locator('#abbreviations')).toBeChecked();
-  await manager.locator('#abbreviations').uncheck();
+  await expect(manager.locator('#abbreviations')).toHaveValue('immediate');
+  await manager.locator('#abbreviations').selectOption('off');
   await manager.close();
 
   await page.bringToFront();
@@ -192,4 +193,147 @@ test('a clashing abbreviation set in the manager is refused by a panel that is s
   const stored = await readSnippets(serviceWorker);
   expect(stored).toHaveLength(1);
   expect(stored.filter((s) => s.abbreviation === ';sig')).toHaveLength(1);
+});
+
+// Abbreviations that wait for Space, Tab, or Enter.
+
+const DELIMITER = { abbreviations: true, abbreviationTiming: 'delimiter' };
+
+test('with the delimiter timing, Space expands, keeps a space, and one Ctrl+Z undoes both', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await seedSettings(serviceWorker, DELIMITER);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.keyboard.type(' ;addr');
+  await page.waitForTimeout(300);
+  await expect(page.locator('#plain')).toHaveValue('Hello world ;addr');
+  await page.keyboard.type(' ');
+  await expect(page.locator('#plain')).toHaveValue('Hello world 14 Elm Street\nSpringfield ');
+  await page.keyboard.press('Control+z');
+  await expect(page.locator('#plain')).toHaveValue('Hello world ;addr ');
+});
+
+test('with the delimiter timing, other characters do not expand', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await seedSettings(serviceWorker, DELIMITER);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.keyboard.type(' ;addr.');
+  await page.waitForTimeout(300);
+  await expect(page.locator('#plain')).toHaveValue('Hello world ;addr.');
+});
+
+test('with the delimiter timing, Tab expands without a tab character and keeps the focus', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await seedSettings(serviceWorker, DELIMITER);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.keyboard.type(' ;addr');
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#plain')).toHaveValue('Hello world 14 Elm Street\nSpringfield');
+  await expect(page.locator('#plain')).toBeFocused();
+  await page.keyboard.press('Control+z');
+  await expect(page.locator('#plain')).toHaveValue('Hello world ;addr');
+});
+
+test('with the delimiter timing, Tab with no abbreviation behaves as usual', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await seedSettings(serviceWorker, DELIMITER);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#plain')).not.toBeFocused();
+});
+
+test('with the delimiter timing, Enter expands in a textarea without a line break', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await seedSettings(serviceWorker, DELIMITER);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.keyboard.type(' ;addr');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#plain')).toHaveValue('Hello world 14 Elm Street\nSpringfield');
+});
+
+test('with the delimiter timing, Enter expands in a single-line field without submitting the form', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await seedSettings(serviceWorker, DELIMITER);
+  await ready(page, () => selectInTextarea(page, '#formField', 5));
+  await page.keyboard.type(' ;addr');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#formField')).toHaveValue('Note: 14 Elm Street Springfield');
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => window.submits)).toBe(0);
+  // Enter with nothing to expand still submits.
+  await page.keyboard.press('Enter');
+  await expect.poll(() => page.evaluate(() => window.submits)).toBe(1);
+});
+
+test('with the delimiter timing, Space expands in rich-text editors', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: 'Tea time', abbreviation: ';tt' }]);
+  await seedSettings(serviceWorker, DELIMITER);
+  const text = (selector) => page.locator(selector).evaluate((el) => el.textContent.replace(/ /g, ' '));
+  await ready(page, () => caretAtEndOf(page, '#rich', 'p:last-child'));
+  await page.keyboard.type(' ;tt ');
+  await expect.poll(() => text('#rich p:last-child')).toBe('Thanks Tea time ');
+
+  await caretAtEndOf(page, '#pasteEditor');
+  await page.keyboard.type(' ;tt ');
+  await expect.poll(() => text('#pasteEditor')).toBe('Editor: Tea time ');
+});
+
+test('with the delimiter timing, a snippet with a fill-in field ends with the space', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await seedSettings(serviceWorker, DELIMITER);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.keyboard.type('\n;sig ');
+  await expect(page.frameLocator(PANEL).locator('.fill-input')).toBeFocused();
+  await page.keyboard.type('Ana');
+  await pressInPanel(page, 'Enter');
+  await expectPanelClosed(page);
+  await expect(page.locator('#plain')).toHaveValue('Hello world\nBest,\nAna ');
+
+  // Escape leaves the abbreviation and its space, with the caret after them.
+  await selectInTextarea(page, '#plain', 0, 100);
+  await page.keyboard.type(';sig ');
+  await expect(page.frameLocator(PANEL).locator('.fill-input')).toBeFocused();
+  await pressInPanel(page, 'Escape');
+  await expectPanelClosed(page);
+  await page.keyboard.type('!');
+  await expect(page.locator('#plain')).toHaveValue(';sig !');
+});
+
+test('with the delimiter timing, the caret goes to {cursor}, not after the added space', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: 'Dear {cursor},', abbreviation: ';dear' }]);
+  await seedSettings(serviceWorker, DELIMITER);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.keyboard.type(' ;dear ');
+  await expect(page.locator('#plain')).toHaveValue('Hello world Dear , ');
+  await page.keyboard.type('Ana');
+  await expect(page.locator('#plain')).toHaveValue('Hello world Dear Ana, ');
+});
+
+test('the manager select stores off and delimiter, open pages follow, and Off never stores a timing', async ({ context, extensionId, page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  const stored = () => serviceWorker.evaluate(async () => (await chrome.storage.local.get('settings')).settings);
+  const manager = await openManager(context, extensionId, 'settings');
+  const select = manager.locator('#abbreviations');
+  await expect(select).toHaveValue('immediate');
+  await expect(select.locator('option')).toHaveText(['As soon as I type them', 'After I press Space, Tab, or Enter', 'Off']);
+
+  await select.selectOption('off');
+  await expect.poll(stored).toEqual({ abbreviations: false });
+  await select.selectOption('immediate');
+  await expect.poll(stored).toEqual({ abbreviations: true });
+
+  await select.selectOption('delimiter');
+  await expect.poll(stored).toEqual({ abbreviations: true, abbreviationTiming: 'delimiter' });
+  await page.bringToFront();
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.keyboard.type(' ;addr');
+  await page.waitForTimeout(300);
+  await expect(page.locator('#plain')).toHaveValue('Hello world ;addr');
+
+  // A change made while the page is open applies without a reload.
+  await manager.bringToFront();
+  await select.selectOption('immediate');
+  await page.bringToFront();
+  await selectInTextarea(page, '#plain', 0, 100);
+  await page.keyboard.type('x ;addr');
+  await expect(page.locator('#plain')).toHaveValue('x 14 Elm Street\nSpringfield');
 });

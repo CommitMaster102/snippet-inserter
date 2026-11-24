@@ -1042,11 +1042,16 @@ els.hotkey.addEventListener('change', async () => {
   if (saved) els.status.textContent = 'Saved. Open pages pick up the change right away.';
 });
 
-els.abbreviations.addEventListener('change', () =>
-  saveSetting({ abbreviations: els.abbreviations.checked }, (settings) => {
-    els.abbreviations.checked = settings.abbreviations !== false;
-  })
-);
+els.abbreviations.addEventListener('change', async () => {
+  reportError('');
+  try {
+    await lib.writeAbbreviationMode(els.abbreviations.value);
+  } catch (error) {
+    els.abbreviations.value = lib.abbreviationMode(await lib.readSettings().catch(() => lib.DEFAULT_SETTINGS));
+    els.status.textContent = '';
+    reportError(`Could not save the setting: ${error.message}`);
+  }
+});
 
 // The key comes from the browser, which leaves it unset when another extension already uses
 // Ctrl+Shift+Space. It is read again whenever the page gets the focus back, for example after
@@ -1158,7 +1163,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (changes[lib.SETTINGS_KEY]) {
     const settings = { ...lib.DEFAULT_SETTINGS, ...(changes[lib.SETTINGS_KEY].newValue || {}) };
     els.hotkey.value = settings.hotkey;
-    els.abbreviations.checked = settings.abbreviations !== false;
+    els.abbreviations.value = lib.abbreviationMode(settings);
   }
 });
 
@@ -1176,7 +1181,7 @@ async function start() {
   state.snippets = snippets;
   state.deleted = deleted;
   els.hotkey.value = settings.hotkey;
-  els.abbreviations.checked = settings.abbreviations !== false;
+  els.abbreviations.value = lib.abbreviationMode(settings);
   renderAll();
   renderShortcut();
   route();

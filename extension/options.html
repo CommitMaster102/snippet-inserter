@@ -122,13 +122,17 @@
           <p class="muted">Opens the snippet panel in the field you are typing in, like the double tap.</p>
         </div>
         <div class="setting">
-          <label class="checkbox">
-            <input id="abbreviations" type="checkbox" />
-            Expand abbreviations as I type
-          </label>
+          <label class="setting-label" for="abbreviations">Expand abbreviations</label>
+          <select id="abbreviations">
+            <option value="immediate">As soon as I type them</option>
+            <option value="delimiter">After I press Space, Tab, or Enter</option>
+            <option value="off">Off</option>
+          </select>
           <p class="muted">
             Typing a snippet's abbreviation in a text field replaces it with the snippet, and
-            <kbd>Ctrl</kbd>+<kbd>Z</kbd> brings the typed text back. This does not work in Google Docs.
+            <kbd>Ctrl</kbd>+<kbd>Z</kbd> brings the typed text back. When abbreviations wait for
+            Space, Tab, or Enter, a space stays after the snippet, while Tab and Enter only expand
+            it. This does not work in Google Docs.
           </p>
         </div>
         <p class="muted">

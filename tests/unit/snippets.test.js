@@ -506,3 +506,30 @@ test('an export holding a reference parses back unchanged', () => {
   assert.equal(JSON.parse(text).version, 1);
   assert.deepEqual(lib.parseImport(text, []).add, list);
 });
+
+test('abbreviationMode reads a 1.2.0 settings object as immediate or off', () => {
+  assert.equal(lib.abbreviationMode({ hotkey: 'Control', abbreviations: true }), 'immediate');
+  assert.equal(lib.abbreviationMode({ hotkey: 'Control', abbreviations: false }), 'off');
+  assert.equal(lib.abbreviationMode({ abbreviations: true, abbreviationTiming: 'delimiter' }), 'delimiter');
+  assert.equal(lib.abbreviationMode({ abbreviations: false, abbreviationTiming: 'delimiter' }), 'off');
+});
+
+test('writeAbbreviationMode stores abbreviationTiming only when the user picks the delimiter mode', async () => {
+  const values = fakeStorage();
+  try {
+    await lib.writeAbbreviationMode('off');
+    assert.deepEqual(values.get(lib.SETTINGS_KEY), { abbreviations: false });
+    await lib.writeAbbreviationMode('immediate');
+    assert.deepEqual(values.get(lib.SETTINGS_KEY), { abbreviations: true });
+    await lib.writeAbbreviationMode('delimiter');
+    assert.deepEqual(values.get(lib.SETTINGS_KEY), { abbreviations: true, abbreviationTiming: 'delimiter' });
+    // Off keeps the stored timing, so going back to the delimiter mode is one pick.
+    await lib.writeAbbreviationMode('off');
+    assert.deepEqual(values.get(lib.SETTINGS_KEY), { abbreviations: false, abbreviationTiming: 'delimiter' });
+    assert.equal(lib.abbreviationMode(await lib.readSettings()), 'off');
+    await lib.writeAbbreviationMode('immediate');
+    assert.deepEqual(values.get(lib.SETTINGS_KEY), { abbreviations: true, abbreviationTiming: 'immediate' });
+  } finally {
+    delete globalThis.chrome;
+  }
+});

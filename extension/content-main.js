@@ -75,8 +75,10 @@ export function create(shared) {
 
   // Replaces the typed abbreviation with its snippet. This is the only time the content script
   // reads the snippet list. A snippet with fill-in fields opens the panel's fill-in form instead; the
-  // abbreviation stays selected, so the insert replaces it.
-  async function expandAbbreviation(target, abbreviation) {
+  // abbreviation stays selected, so the insert replaces it. `delimiter` is the space the user
+  // typed after the abbreviation, if abbreviations wait for a key. It is replaced too, and the
+  // insert puts back one plain space after the snippet.
+  async function expandAbbreviation(target, abbreviation, delimiter = '') {
     let snippet = null;
     let list = [];
     try {
@@ -87,9 +89,9 @@ export function create(shared) {
     } catch {
       return;
     }
-    if (!snippet || panel || !extensionAlive() || !selectTypedText(target, abbreviation)) return;
+    if (!snippet || panel || !extensionAlive() || !selectTypedText(target, abbreviation + delimiter)) return;
     // The user typed the abbreviation where the text belongs, so no spaces are added.
-    const ctx = { ...captureContext(target), noSpacing: true };
+    const ctx = { ...captureContext(target), noSpacing: true, suffix: delimiter ? ' ' : '' };
     const { content } = placeholders.resolveReferences(snippet, list);
     if (placeholders.inputLabels(content).length) {
       openPanel(null, { ctx, mode: 'fill-only', snippetId: snippet.id });
@@ -503,7 +505,7 @@ export function create(shared) {
     }
     const body = ctx.kind === 'input' ? joinLinesKeepingCursor(expanded.text, expanded.cursor) : expanded;
     const { left, right } = spacing(ctx);
-    const text = (left ? ' ' : '') + body.text + (right ? ' ' : '');
+    const text = (left ? ' ' : '') + body.text + (right ? ' ' : '') + (ctx.suffix || '');
     const caret = body.cursor === null ? null : body.cursor + (left ? 1 : 0);
     if (isValueField(ctx)) {
       if (!fitsMaxLength(ctx, text)) return;

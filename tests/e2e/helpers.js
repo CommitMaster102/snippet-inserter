@@ -32,6 +32,11 @@ async function seedSnippets(serviceWorker, snippets) {
   return records;
 }
 
+/** Store the settings object directly, as the manager does, for example { hotkey: 'Shift' }. */
+async function seedSettings(serviceWorker, settings) {
+  await serviceWorker.evaluate((value) => chrome.storage.local.set({ settings: value }), settings);
+}
+
 async function readSnippets(serviceWorker) {
   return serviceWorker.evaluate(async (key) => (await chrome.storage.local.get(key))[key] || [], STORAGE_KEY);
 }
@@ -154,6 +159,7 @@ function longText(lines = 60) {
 module.exports = {
   PANEL,
   seedSnippets,
+  seedSettings,
   readSnippets,
   readDeleted,
   selectInTextarea,

@@ -10,7 +10,7 @@
 (() => {
   'use strict';
 
-  const DEFAULT_SETTINGS = { hotkey: 'Control', abbreviations: true };
+  const DEFAULT_SETTINGS = { hotkey: 'Control', abbreviations: true, abbreviationTiming: 'immediate' };
   // The small { abbreviation: id } index that lib/snippets.js writes beside the snippet list.
   // This script reads only the index; content-main.js reads the list when an abbreviation matches.
   const ABBREVIATIONS_KEY = 'snippet_manager.abbreviations';
@@ -42,6 +42,8 @@
   let abbreviationsByLastChar = new Map();
   let longestAbbreviation = 0;
   let listeningForAbbreviations = false;
+  // Whether abbreviations wait for Space, Tab, or Enter instead of expanding as they are typed.
+  let expandAfterKey = false;
   let lastKeyDown = null;
   let lastKeyUp = null;
   let lastPointer = null;
@@ -163,6 +165,7 @@
         repeat: event.repeat,
       };
       if (!isShortcutKey(event) || event.repeat) lastKeyUp = null;
+      if (expandAfterKey && (event.key === 'Tab' || event.key === 'Enter')) expandBeforeKey(event);
     },
     true
   );
@@ -255,9 +258,10 @@
     const change = listen ? 'addEventListener' : 'removeEventListener';
     if (listen !== listeningForAbbreviations) {
       window[change]('input', onTypedInput, true);
-      window[change]('compositionend', expandTypedAbbreviation, true);
+      window[change]('compositionend', onCompositionEnd, true);
     }
     listeningForAbbreviations = listen;
+    expandAfterKey = listen && settings.abbreviationTiming === 'delimiter';
   }
 
   // What may come right before an abbreviation: the start of the field, white space,
@@ -279,10 +283,10 @@
     return found;
   }
 
-  // The text in front of the caret, cut to what an abbreviation and its boundary need, or null
-  // when there is a selection instead of a caret.
-  function textBeforeCaret(target) {
-    const reach = longestAbbreviation + 1;
+  // The text in front of the caret, cut to what an abbreviation and its boundary need plus
+  // `extra` characters, or null when there is a selection instead of a caret.
+  function textBeforeCaret(target, extra) {
+    const reach = longestAbbreviation + 1 + extra;
     if (isValueField(target)) {
       const { selectionStart: caret, selectionEnd } = target.el;
       if (caret === null || caret !== selectionEnd) return null;
@@ -296,21 +300,50 @@
   }
 
   // Text typed with an input method (Japanese, Chinese, Korean) arrives as composition. It is
-  // ignored while it is being composed and checked when the method commits it.
+  // ignored while it is being composed and checked when the method commits it. While
+  // abbreviations wait for a key, a commit does not expand, and the next Space, Tab, or Enter does.
   function onTypedInput(event) {
     if (event.isComposing || event.inputType !== 'insertText') return;
-    expandTypedAbbreviation();
+    // While abbreviations wait for a key, only a typed space can complete one.
+    if (expandAfterKey && event.data !== ' ') return;
+    expandTypedAbbreviation(expandAfterKey);
   }
 
-  function expandTypedAbbreviation() {
+  function onCompositionEnd() {
+    if (!expandAfterKey) expandTypedAbbreviation(false);
+  }
+
+  // Expands the abbreviation in front of the caret, if there is one. With `afterSpace`, the
+  // character just typed must be white space and the abbreviation ends right before it. A rich
+  // editor may have stored the space as a no-break space, so it is read from the field, and
+  // content-main.js replaces it together with the abbreviation.
+  function expandTypedAbbreviation(afterSpace) {
     if (panelOpen()) return;
     const target = editableFrom(deepActiveElement(document));
     if (!target) return;
-    const before = textBeforeCaret(target);
+    const before = textBeforeCaret(target, afterSpace ? 1 : 0);
+    const delimiter = afterSpace && before ? before.slice(-1) : '';
+    const abbreviation = before && typedAbbreviation(afterSpace ? before.slice(0, -1) : before);
+    if (!abbreviation || (afterSpace && !/\s/.test(delimiter))) return;
+    if (hiddenFrameElement() || !extensionAlive()) return;
+    // The editor finishes handling the keystroke first.
+    setTimeout(() => withMain((loaded) => loaded.expandAbbreviation(target, abbreviation, delimiter)), 0);
+  }
+
+  // Tab or Enter right after an abbreviation expands it, and the key is used up. The snippet is
+  // read from storage after the key arrives, and a script cannot replay a real Tab or Enter, so
+  // letting the key through could move the focus, submit a form, or send a chat message before
+  // the snippet arrived.
+  function expandBeforeKey(event) {
+    if (event.isComposing || event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) return;
+    if (panelOpen()) return;
+    const target = editableFrom(deepActiveElement(document));
+    const before = target && textBeforeCaret(target, 0);
     const abbreviation = before && typedAbbreviation(before);
     if (!abbreviation || hiddenFrameElement() || !extensionAlive()) return;
-    // The editor finishes handling the keystroke first.
-    setTimeout(() => withMain((loaded) => loaded.expandAbbreviation(target, abbreviation)), 0);
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    withMain((loaded) => loaded.expandAbbreviation(target, abbreviation, ''));
   }
 
   // Finding the text field. The panel opens for textareas, rich-text (contenteditable) editors,

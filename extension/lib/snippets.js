@@ -28,7 +28,12 @@
   // alphabet of the nanoid library (MIT), so a byte masked to 6 bits picks one character.
   const ID_LENGTH = 12;
   const ID_ALPHABET = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
-  const DEFAULT_SETTINGS = { hotkey: 'Control', abbreviations: true };
+  const DEFAULT_SETTINGS = {
+    hotkey: 'Control',
+    abbreviations: true,
+    abbreviationTiming: 'immediate',
+    offSites: [],
+  };
 
   // The number of characters in a name, counting an emoji as one, as the forms show it.
   function titleLength(title) {
@@ -100,6 +105,26 @@
     const next = { ...(stored[SETTINGS_KEY] || {}), ...changes };
     await chrome.storage.local.set({ [SETTINGS_KEY]: next });
     return { ...DEFAULT_SETTINGS, ...next };
+  }
+
+  // The "Expand abbreviations" choice in a settings object: 'immediate', 'delimiter' (after
+  // Space, Tab, or Enter), or 'off'. Version 1.2.0 stored only `abbreviations`, which reads as
+  // 'immediate' or 'off'.
+  function abbreviationMode(settings) {
+    if (settings.abbreviations === false) return 'off';
+    return settings.abbreviationTiming === 'delimiter' ? 'delimiter' : 'immediate';
+  }
+
+  // Stores an "Expand abbreviations" choice. The timing is written only when the user picks a
+  // timing that differs from the stored one, so a profile that never picks the delimiter mode
+  // keeps the settings shape of version 1.2.0.
+  async function writeAbbreviationMode(mode) {
+    const stored = (await chrome.storage.local.get(SETTINGS_KEY))[SETTINGS_KEY] || {};
+    const changes = { abbreviations: mode !== 'off' };
+    if (mode !== 'off' && abbreviationMode({ ...stored, abbreviations: true }) !== mode) {
+      changes.abbreviationTiming = mode;
+    }
+    return writeSettings(changes);
   }
 
   // A record as stored. The abbreviation and the folder are left out when they are empty, so a
@@ -572,6 +597,8 @@
     readDeleted,
     readSettings,
     writeSettings,
+    abbreviationMode,
+    writeAbbreviationMode,
     createSnippet,
     updateSnippet,
     duplicateSnippet,

@@ -72,7 +72,7 @@ row onto a button to move that snippet into the folder, or onto No folder to tak
 its place in the list. With a folder selected, Rename folder renames it on every snippet, and
 joins it to another folder if you type that folder's name. Remove folder, which asks for a second
 click, takes the snippets out of the folder and keeps them. In its Settings and backup section you can change the trigger key to Shift or Alt or
-turn it off, turn abbreviations off, and export or import snippets. The same section shows the
+turn it off, choose when abbreviations expand or turn them off, and export or import snippets. The same section shows the
 keyboard shortcut, with a button that opens the browser's shortcuts page to change it.
 
 ![Snippet manager](docs/screenshots/manager.png)
@@ -144,6 +144,13 @@ replaces it with the snippet, and Ctrl+Z brings the typed text back. An abbrevia
 at the start of the field or after a space, punctuation, or a symbol, so `;addr` inside `x;addr`
 stays as typed. With a Japanese, Chinese, or Korean input method, an abbreviation such as
 `あいさつ` expands when you commit the text, not while it is still being composed.
+In the manager's Settings, "Expand abbreviations" has 3 choices. "As soon as I type them" is the
+default. "After I press Space, Tab, or Enter" waits for one of those keys: Space expands the
+abbreviation and leaves a space after the snippet, while Tab and Enter only expand it and do
+nothing else, so Enter never also sends a message or submits a form. One Ctrl+Z after a Space
+brings back the abbreviation and its space, and a snippet with fill-in fields adds the space after
+you fill them in. "Off" turns abbreviations off. A comma or a period after an abbreviation does not
+expand it in the waiting mode, and neither does an input method committing text.
 An abbreviation has 2 to 32 characters and no spaces, and one abbreviation cannot start another,
 because the shorter one would always expand first. Changing a snippet's abbreviation also changes
 it in the `{snippet:...}` references of your other snippets, in the same save, and the snippet
@@ -195,7 +202,8 @@ names that snippets carry, so a folder exists while a snippet is in it. The arra
 order of the list, and moving a snippet to another folder does not change its place. Deleted snippets go to `snippet_manager.deleted`, newest
 first, at most 20, each with `deletedAt` and its old position. `snippet_manager.abbreviations`
 holds a small `{ abbreviation: id }` copy written with every change to the list, so pages read
-only that. The extension has the `unlimitedStorage` permission, so the browser's 10 MB
+only that. The settings are in `settings`; `abbreviationTiming` is stored only once someone picks
+"After I press Space, Tab, or Enter", and settings are not part of an export. The extension has the `unlimitedStorage` permission, so the browser's 10 MB
 local-storage quota does not apply. Nothing is synced to other devices.
 
 Export in the manager saves every snippet to `snippets-YYYY-MM-DD.json`:
@@ -223,7 +231,7 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
 - **Each frame of a page**: the browser itself spends about 170 KB on any extension's content
   script. This extension's own code adds about 25 to 40 KB of memory and 0.2 to 0.6 ms of
   script time when the frame loads.
-- **What loads where**: every frame gets `content.js`, about 18 KB, which only watches for the
+- **What loads where**: every frame gets `content.js`, about 20 KB, which only watches for the
   double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 40 KB,
   loads only in a frame where the panel opens or an abbreviation matches.
 - **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
@@ -231,7 +239,9 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
   only when the panel opens or an abbreviation matches.
 - **Each typed character**: about 7 microseconds of script, or about 14 microseconds with 50
   abbreviations stored. The abbreviation check reads at most 33 characters before the cursor,
-  so the size of the field does not change it.
+  so the size of the field does not change it. When abbreviations wait for Space, Tab, or Enter,
+  a typed character other than a space returns after two comparisons without reading the field,
+  and a space reads at most 34 characters. These two cases were not timed.
 - **The panel** exists only while it is open, and the service worker runs only for the toolbar
   icon, the menu items, and the shortcut.
 
