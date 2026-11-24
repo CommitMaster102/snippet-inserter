@@ -219,6 +219,8 @@ function registerItem(node, activate, snippet) {
   if (node !== els.body) {
     node.id = `item-${items.length}`;
     node.setAttribute('role', 'option');
+    // A screen reader tells the user that F2 opens the edit form of this snippet.
+    if (snippet) node.setAttribute('aria-keyshortcuts', 'F2');
   }
   items.push({ node, activate, snippet });
 }
