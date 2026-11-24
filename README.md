@@ -159,8 +159,8 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
 - **Each frame of a page**: the browser itself spends about 170 KB on any extension's content
   script. This extension's own code adds about 25 to 40 KB of memory and 0.2 to 0.6 ms of
   script time when the frame loads.
-- **What loads where**: every frame gets `content.js`, about 17 KB, which only watches for the
-  double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 36 KB,
+- **What loads where**: every frame gets `content.js`, about 18 KB, which only watches for the
+  double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 41 KB,
   loads only in a frame where the panel opens or an abbreviation matches.
 - **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
   press, so frames nobody types in, such as ads, never read storage. The snippet text is read
