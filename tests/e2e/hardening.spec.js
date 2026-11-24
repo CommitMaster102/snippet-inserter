@@ -88,16 +88,21 @@ test('the list scrolls inside a small frame and the panel keeps to its size', as
 });
 
 test('the manager has no sideways scroll and keeps Save in view at 768 px wide', async ({ context, extensionId, serviceWorker }) => {
-  await seedSnippets(serviceWorker, [{ title: 'Address', content: '14 Elm Street' }]);
+  await seedSnippets(
+    serviceWorker,
+    Array.from({ length: 15 }, (_, i) => ({ title: `Snippet ${i}`, content: `Text ${i}` }))
+  );
   const manager = await openManager(context, extensionId);
   await manager.setViewportSize({ width: 768, height: 720 });
-  await manager.locator('#snippetList .row').first().click();
+  await manager.locator('#snippetList .row').last().click();
   await expect(manager.locator('#save')).toBeVisible();
 
   const scrollWidth = await manager.evaluate(() => document.documentElement.scrollWidth);
   expect(scrollWidth).toBeLessThanOrEqual(768);
   const save = await manager.locator('#save').boundingBox();
   expect(save.x + save.width).toBeLessThanOrEqual(768);
+  expect(save.y).toBeGreaterThanOrEqual(0);
+  expect(save.y + save.height).toBeLessThanOrEqual(720);
   const text = await manager.locator('#content').boundingBox();
   expect(text.width).toBeGreaterThan(400);
 });

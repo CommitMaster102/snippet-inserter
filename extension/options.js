@@ -384,6 +384,11 @@ function requestSelect(id) {
   whenSaved(() => select(id));
 }
 
+// Brings the editor into the window, which matters when it sits under the list in a narrow window.
+function showEditor() {
+  els.editor.scrollIntoView({ block: 'nearest' });
+}
+
 function select(id) {
   const snippet = state.snippets.find((s) => s.id === id);
   if (!snippet) return;
@@ -391,6 +396,7 @@ function select(id) {
   state.creating = false;
   loadEditor(snippet);
   renderList();
+  showEditor();
 }
 
 function startNew(initialContent = '') {
@@ -399,6 +405,7 @@ function startNew(initialContent = '') {
     state.creating = true;
     loadEditor(null, initialContent);
     renderList();
+    showEditor();
     els.content.focus();
   });
 }
