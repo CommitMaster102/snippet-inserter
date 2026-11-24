@@ -333,3 +333,10 @@ test('the panel button is hidden in every form and in the single-form modes', as
   await expect(page.frameLocator(PANEL).locator('.fill-input')).toBeFocused();
   await expect(page.frameLocator(PANEL).locator('#site')).toBeHidden();
 });
+
+test('the Add site field is styled like the other fields of the manager', async ({ context, extensionId }) => {
+  const manager = await openManager(context, extensionId, 'settings');
+  const field = manager.locator('#offSiteInput');
+  await expect(field).toHaveClass(/\binput\b/);
+  expect((await field.boundingBox()).width).toBeCloseTo(260, 0);
+});
