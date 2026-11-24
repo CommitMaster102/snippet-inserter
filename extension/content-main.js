@@ -705,6 +705,24 @@ export function create(shared) {
 
   // The panel iframe.
 
+  // Where the panel frame is attached. The browser draws the top layer (a modal dialog, a
+  // fullscreen element, an open popover) above everything else on the page, so a frame attached
+  // to the page root would be hidden behind it and could not be clicked. The frame goes inside
+  // the top-layer element that holds the field instead.
+  function panelHost(ctx) {
+    const field = ctx.el || ctx.anchor || (ctx.range && ctx.range.startContainer);
+    const start = field && field.nodeType === Node.TEXT_NODE ? field.parentElement : field;
+    const fullscreen = document.fullscreenElement;
+    if (fullscreen && fullscreen !== document.documentElement && fullscreen.contains(start)) return fullscreen;
+    try {
+      const host = start && start.closest && start.closest('dialog:modal, [popover]:popover-open');
+      if (host) return host;
+    } catch {
+      // A browser without these selectors has no such top layer elements to attach to.
+    }
+    return document.documentElement;
+  }
+
   function extensionOrigin() {
     return new URL(chrome.runtime.getURL('')).origin;
   }
@@ -773,7 +791,7 @@ export function create(shared) {
       opacity: '0',
       transform: 'none',
     });
-    document.documentElement.appendChild(frame);
+    panelHost(ctx).appendChild(frame);
     panel = { frame, ctx, height: 1, mode: options.mode || 'insert', snippetId: options.snippetId || null };
     positionPanel();
 

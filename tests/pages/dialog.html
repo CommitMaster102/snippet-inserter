@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Modal dialog test page</title>
+    <style>
+      dialog { width: 420px; padding: 16px; }
+    </style>
+  </head>
+  <body>
+    <p>Page behind the dialog.</p>
+    <dialog id="d">
+      <textarea id="t" rows="3" cols="40">Hello</textarea>
+    </dialog>
+    <script>
+      // A modal dialog sits in the top layer and makes the rest of the page inert, so anything
+      // the extension appends to the page root is drawn underneath it.
+      document.getElementById('d').showModal();
+    </script>
+  </body>
+</html>
