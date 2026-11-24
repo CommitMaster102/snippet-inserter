@@ -842,7 +842,8 @@ function validate() {
 }
 
 // The status line after a save: it also says when other snippets' references were rewritten for a
-// new abbreviation, or are left as written because the abbreviation was cleared.
+// new abbreviation, or are left as written because the abbreviation was cleared or can no longer
+// be referenced.
 function savedSentence(existing, result, cleared) {
   const count = (n) => `${n} snippet${n === 1 ? '' : 's'}`;
   const n = result.referencesRenamed || 0;
@@ -860,9 +861,10 @@ async function save() {
   if (els.editor.hidden || !validate()) return false;
   const values = fields();
   const existing = state.snippets.find((s) => s.id === state.selectedId);
-  // Counted before the save, while the old abbreviation is still in the references.
+  // Counted before the save, while the old abbreviation is still in the references. A rename to an
+  // abbreviation that no reference can name leaves them as written, as clearing it does.
   const cleared =
-    existing && existing.abbreviation && !values.abbreviation
+    existing && existing.abbreviation && !(values.abbreviation && lib.isReferenceable(values.abbreviation))
       ? lib.countUsers(state.snippets, existing.abbreviation, existing.id)
       : 0;
   const result = await run(

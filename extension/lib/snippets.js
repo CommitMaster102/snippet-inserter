@@ -293,13 +293,20 @@
     const was = list[index].abbreviation;
     list.splice(index, 1, updated);
     // Changing one abbreviation to another keeps the {snippet:...} references to it working, in
-    // the same write as the change itself. Clearing an abbreviation leaves them as they are.
+    // the same write as the change itself. Clearing an abbreviation, or renaming it to one that a
+    // reference cannot name, leaves them as they are.
     const referencesRenamed =
-      was && updated.abbreviation && was !== updated.abbreviation
+      was && updated.abbreviation && was !== updated.abbreviation && isReferenceable(updated.abbreviation)
         ? renameReferences(list, was, updated.abbreviation, id)
         : 0;
     await writeSnippets(list);
     return { snippet: updated, snippets: list, referencesRenamed };
+  }
+
+  // True when a {snippet:...} reference can name the abbreviation. A reference holds 2 to 32
+  // characters that are not white space or braces, the same rule as in placeholders.js.
+  function isReferenceable(abbreviation) {
+    return /^[^\s{}]{2,32}$/.test(abbreviation);
   }
 
   // Replaces {snippet:from} with {snippet:to} in the text of every snippet except `exceptId`, in
@@ -636,6 +643,7 @@
     ABBREVIATIONS_KEY,
     abbreviationIndex,
     renameReferences,
+    isReferenceable,
     countUsers,
     DELETED_MAX,
     TITLE_MAX_LENGTH,

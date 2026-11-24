@@ -306,3 +306,18 @@ test('a rename in the panel rewrites the references too, with the list as before
   await expect(panel.locator('.list .item-caption').first()).toBeVisible();
   expect((await readSnippets(serviceWorker))[0].content).toBe('Hi {snippet:;sign}');
 });
+
+test('renaming an abbreviation to one with a brace leaves the references and says so', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Reply', content: 'Hi {snippet:;sig}' },
+    { title: 'Signature', content: 'Ana', abbreviation: ';sig' },
+  ]);
+  const manager = await openManager(context, extensionId);
+  await openInManager(manager, 'Signature');
+  await manager.locator('#abbreviation').fill(';s{g');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#editorStatus')).toHaveText(
+    'Saved. No snippet has ;sig now, so 1 snippet inserts {snippet:;sig} as written.'
+  );
+  expect((await readSnippets(serviceWorker))[0].content).toBe('Hi {snippet:;sig}');
+});

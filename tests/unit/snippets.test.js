@@ -499,6 +499,22 @@ test('updateSnippet rewrites references in the same write when an abbreviation c
   }
 });
 
+test('renaming an abbreviation to one with a brace leaves the references as they were', async () => {
+  const values = fakeStorage();
+  try {
+    const { snippet: target } = await lib.createSnippet({ content: 'Sig', title: '', abbreviation: ';sig' });
+    await lib.createSnippet({ content: 'Hello\n{snippet:;sig}', title: '' });
+    const result = await lib.updateSnippet(target.id, { content: 'Sig', title: '', abbreviation: ';s{g' });
+    assert.equal(result.referencesRenamed, 0);
+    assert.equal(values.get(lib.STORAGE_KEY)[1].content, 'Hello\n{snippet:;sig}');
+    assert.equal(lib.isReferenceable(';s{g'), false);
+    assert.equal(lib.isReferenceable(';sig'), true);
+    assert.equal(lib.isReferenceable(';s}'), false);
+  } finally {
+    delete globalThis.chrome;
+  }
+});
+
 test('a snippet that gets its first abbreviation rewrites nothing, and a failed rename writes nothing', async () => {
   const values = fakeStorage();
   try {
