@@ -41,9 +41,8 @@ Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...
 - If text is selected when the panel opens, the first entry reads "Create snippet from
   selection" and the form starts with that text. Picking a snippet replaces the selection.
 - The pencil on a snippet, or F2 on the highlighted snippet, opens the edit form, with Duplicate
-  and Delete below it. Tab reaches both, and Delete has no
-  shortcut of its own. After a delete, the list shows "Snippet deleted." with Undo, and Ctrl+Z in
-  the list does the same.
+  and Delete below it. Tab reaches both, and Delete has no shortcut of its own. After a delete,
+  the list shows "Snippet deleted." with Undo, and Ctrl+Z in the list does the same.
 - In a form, Ctrl+Enter saves, and Enter in the name or abbreviation field saves too. Escape goes
   back to the list, and Escape in the list closes the panel.
 - To save text from any page as a snippet, select it, right-click, and choose "Save selection as
@@ -160,7 +159,7 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
   script. This extension's own code adds about 25 to 40 KB of memory and 0.2 to 0.6 ms of
   script time when the frame loads.
 - **What loads where**: every frame gets `content.js`, about 18 KB, which only watches for the
-  double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 41 KB,
+  double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 40 KB,
   loads only in a frame where the panel opens or an abbreviation matches.
 - **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
   press, so frames nobody types in, such as ads, never read storage. The snippet text is read
