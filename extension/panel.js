@@ -381,6 +381,7 @@ function snippetItem(snippet, index) {
   if (hotkey <= HOTKEYS.length) node.dataset.hotkey = String(hotkey);
 
   const caption = el('div', 'item-caption');
+  caption.dir = 'auto';
   caption.append(document.createTextNode(lib.displayTitle(snippet)));
   const label =
     snippet.id === state.isEditedId ? TEXT.labelEdited : snippet.id === state.isNewId ? TEXT.labelNew : '';
@@ -393,7 +394,11 @@ function snippetItem(snippet, index) {
   const main = el('div', 'item-main');
   main.append(heading);
   const preview = lib.previewLine(snippet);
-  if (preview) main.append(el('div', 'item-preview', preview));
+  if (preview) {
+    const previewNode = el('div', 'item-preview', preview);
+    previewNode.dir = 'auto';
+    main.append(previewNode);
+  }
 
   const editButton = el('button', 'edit-button');
   editButton.type = 'button';
@@ -461,6 +466,7 @@ function renderForm() {
   content.placeholder = TEXT.placeholderContent;
   content.value = isEdit ? snippet.content : state.selectedText;
   content.rows = 6;
+  content.dir = 'auto';
   contentField.append(content);
   const contentMessage = el('div', 'feedback');
   contentMessage.hidden = true;
@@ -475,6 +481,7 @@ function renderForm() {
   const titleField = el('div', 'field');
   const title = el('input', 'input input-title');
   title.type = 'text';
+  title.dir = 'auto';
   title.placeholder = TEXT.placeholderTitle;
   title.value = isEdit ? snippet.title || '' : '';
   titleField.append(title);
@@ -485,6 +492,7 @@ function renderForm() {
   const abbreviationField = el('div', 'field');
   const abbreviation = el('input', 'input input-abbreviation');
   abbreviation.type = 'text';
+  abbreviation.dir = 'ltr';
   abbreviation.placeholder = TEXT.placeholderAbbreviation;
   abbreviation.spellcheck = false;
   abbreviation.autocomplete = 'off';

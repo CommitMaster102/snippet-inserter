@@ -86,6 +86,14 @@ function el(tag, className, text) {
   return node;
 }
 
+// Like el(), for text the user wrote: the browser picks the direction from its first strong
+// character, so Hebrew and Arabic names read and truncate from the right.
+function autoDirEl(tag, className, text) {
+  const node = el(tag, className, text);
+  node.dir = 'auto';
+  return node;
+}
+
 // Views.
 
 function currentView() {
@@ -177,9 +185,9 @@ function snippetRow(snippet) {
   handle.title = 'Drag to reorder';
 
   const main = el('div', 'row-main');
-  main.append(el('span', 'row-name', lib.displayTitle(snippet)));
+  main.append(autoDirEl('span', 'row-name', lib.displayTitle(snippet)));
   const preview = lib.previewLine(snippet);
-  if (preview) main.append(el('span', 'row-preview', preview));
+  if (preview) main.append(autoDirEl('span', 'row-preview', preview));
 
   row.append(handle, main);
   if (snippet.abbreviation) row.append(el('span', 'pill', snippet.abbreviation));
@@ -547,9 +555,9 @@ function deletedRow(entry) {
   const row = el('li', 'deleted-row');
   row.dataset.id = entry.id;
   const main = el('div', 'row-main');
-  main.append(el('span', 'row-name', lib.displayTitle(entry)));
+  main.append(autoDirEl('span', 'row-name', lib.displayTitle(entry)));
   const preview = lib.previewLine(entry);
-  if (preview) main.append(el('span', 'row-preview', preview));
+  if (preview) main.append(autoDirEl('span', 'row-preview', preview));
   const when = new Date(entry.deletedAt);
   main.append(el('span', 'row-preview', `Deleted ${when.toLocaleString()}`));
 

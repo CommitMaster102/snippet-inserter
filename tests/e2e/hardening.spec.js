@@ -205,3 +205,32 @@ test('a field replaced while the panel is open gets a notice instead of a silent
   );
   expect(text).toContain('field is gone');
 });
+
+const hebrew = 'שלום עולם '.repeat(8) + 'סוף';
+
+test('right-to-left names and text follow their own direction in the panel and the manager', async ({ context, page, pagesUrl, extensionId, serviceWorker }) => {
+  await page.goto(`${pagesUrl}/editors.html`);
+  await seedSnippets(serviceWorker, [{ title: hebrew, content: 'مرحبا بالعالم ' + hebrew, abbreviation: ';sh' }]);
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  const item = panel.locator('.list .item', { hasText: 'שלום' });
+  for (const selector of ['.item-caption', '.item-preview']) {
+    expect(await item.locator(selector).evaluate((e) => e.matches(':dir(rtl)')), `panel ${selector}`).toBe(true);
+  }
+  await item.hover();
+  await item.locator('.edit-button').click();
+  for (const selector of ['.input-title', '.input-content']) {
+    expect(await panel.locator(selector).evaluate((e) => e.matches(':dir(rtl)')), `panel ${selector}`).toBe(true);
+  }
+  expect(await panel.locator('.input-abbreviation').evaluate((e) => e.matches(':dir(ltr)'))).toBe(true);
+
+  const manager = await openManager(context, extensionId);
+  for (const selector of ['.row-name', '.row-preview']) {
+    expect(await manager.locator(selector).first().evaluate((e) => e.matches(':dir(rtl)')), `manager ${selector}`).toBe(true);
+  }
+  await manager.locator('.row-name').first().click();
+  for (const selector of ['#title', '#content']) {
+    expect(await manager.locator(selector).evaluate((e) => e.matches(':dir(rtl)')), `manager ${selector}`).toBe(true);
+  }
+  expect(await manager.locator('#abbreviation').evaluate((e) => e.matches(':dir(ltr)'))).toBe(true);
+});
