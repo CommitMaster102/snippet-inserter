@@ -153,6 +153,46 @@ svg {
   font: inherit;
 }
 
+/* The folder buttons under the search box. A long row scrolls sideways instead of wrapping. */
+
+.folders {
+  display: flex;
+  gap: 4px;
+  margin: 0 8px 4px;
+  padding-bottom: 2px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.folder-chip {
+  flex-shrink: 0;
+  max-width: 140px;
+  padding: 2px 10px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-large);
+  background: transparent;
+  color: var(--text-subtle);
+  font: inherit;
+  font-size: var(--font-small);
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.folder-chip[aria-selected='true'] {
+  border-color: var(--brand-default);
+  background: var(--brand-subtle);
+  color: var(--text-selected);
+  font-weight: 600;
+}
+
+.folder-chip:focus-visible {
+  outline: 2px solid var(--brand-default);
+  outline-offset: -2px;
+}
+
 .search-input::placeholder,
 .input::placeholder {
   color: var(--text-disabled);

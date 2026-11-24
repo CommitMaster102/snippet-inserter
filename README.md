@@ -33,21 +33,29 @@ Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...
 
 - With snippets saved, the panel lists them. Pick one with the mouse, with the arrow keys and
   Enter, or with Ctrl+2 to Ctrl+9 (Ctrl+1 is "Create new snippet").
-- Type in the search box to filter. The list keeps the snippets whose name or text has a word
-  that starts with what you type, or whose abbreviation starts with it. A word starts after a
+- Type in the search box to filter. The list keeps the snippets whose name, text, or folder has a
+  word that starts with what you type, or whose abbreviation starts with it. A word starts after a
   space, an apostrophe, or a hyphen, so "école" is found in "l'école". In Japanese, Chinese,
   Korean, and Thai, which have no spaces, what you type is found anywhere in the text. An accent
   typed as a separate mark matches the same letter stored as one character.
 - Alt+Up and Alt+Down move the highlighted snippet up or down the list while the search box is
   empty. Ctrl+2 to Ctrl+9 insert the first 8 snippets shown, so this order decides which
-  snippets get them.
+  snippets get them. Under a folder, the snippet moves past the next snippet of the same folder,
+  which also moves it past the snippets of other folders between them.
+- A snippet can have one folder, typed in the Folder field of the form; the field suggests the
+  folders you already use. Once a snippet has a folder, a row of buttons appears under the search
+  box: All, each folder, and No folder. Click one, or press Tab from the search box and use the
+  Left and Right arrows, to list only that folder's snippets. Enter, Space, or Down goes back to
+  the search box. Ctrl+2 to Ctrl+9 number the snippets shown, and a new snippet made under a
+  folder starts in it. The panel always opens on All. A folder exists while a snippet is in it, so
+  you make one by typing its name in a snippet, and it disappears with its last snippet.
 - If text is selected when the panel opens, the first entry reads "Create snippet from
   selection" and the form starts with that text. Picking a snippet replaces the selection.
 - The pencil on a snippet, or F2 on the highlighted snippet, opens the edit form, with Duplicate
   and Delete below it. Tab reaches both, and Delete has no shortcut of its own. After a delete,
   the list shows "Snippet deleted." with Undo, and Ctrl+Z in the list does the same.
-- In a form, Ctrl+Enter saves, and Enter in the name or abbreviation field saves too. Escape goes
-  back to the list, and Escape in the list closes the panel.
+- In a form, Ctrl+Enter saves, and Enter in the name, abbreviation, or folder field saves too.
+  Escape goes back to the list, and Escape in the list closes the panel.
 - To save text from any page as a snippet, select it, right-click, and choose "Save selection as
   snippet".
 

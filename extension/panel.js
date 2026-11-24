@@ -52,6 +52,10 @@ const TEXT = {
   placeholderContent: `Enter some text ${ELLIPSIS}`,
   placeholderTitle: `Enter name (optional) ${ELLIPSIS}`,
   placeholderAbbreviation: `Abbreviation (optional), such as ;addr ${ELLIPSIS}`,
+  placeholderFolder: `Folder (optional), such as Work ${ELLIPSIS}`,
+  folderAll: 'All',
+  folderNone: 'No folder',
+  foldersLabel: 'Folders',
   validationEmpty: 'This field must not be empty.',
   validationTooLong: (max) => `The input must not be longer than ${max} characters.`,
   labelEdited: 'edited',
@@ -89,6 +93,7 @@ const els = {
   close: document.getElementById('close'),
   searchBar: document.getElementById('searchBar'),
   searchIcon: document.getElementById('searchIcon'),
+  folderBar: document.getElementById('folderBar'),
   search: document.getElementById('search'),
   error: document.getElementById('error'),
   body: document.getElementById('body'),
@@ -110,6 +115,9 @@ const state = {
   // True when the first read of the stored snippets failed.
   loadFailed: false,
   search: '',
+  // The folder the list shows: null for all snippets, '' for the ones without a folder, or a
+  // folder name. The panel always opens on all snippets.
+  folder: null,
   isNewId: undefined,
   isEditedId: undefined,
   // The deleted snippet that the Undo bar can restore, until the next change.
@@ -126,6 +134,8 @@ const state = {
 // Items reachable with the arrow keys and Enter, in display order. A snippet item also carries
 // the snippet, so Alt+Up and Alt+Down know which one to move.
 let items = [];
+// The folder each button in the folder row selects, in the order of the buttons.
+let folderChoices = [];
 let primaryAction = null;
 let currentForm = null;
 let searchTimer = null;
@@ -278,6 +288,7 @@ async function start() {
   els.close.title = TEXT.close;
   els.undoText.textContent = TEXT.undoDeleted;
   els.undoButton.textContent = TEXT.undo;
+  els.folderBar.setAttribute('aria-label', TEXT.foldersLabel);
   try {
     state.snippets = await lib.readSnippets();
   } catch {
@@ -299,10 +310,102 @@ function renderUndoBar() {
   els.undoBar.hidden = !(state.view === 'insert' && state.undoEntry);
 }
 
+// The snippets the list shows: the chosen folder, narrowed by the search text.
+function shownSnippets() {
+  return lib.filterSnippets(lib.inFolder(state.snippets, state.folder), state.search);
+}
+
+// The row of folder buttons under the search box. It appears once a snippet has a folder, and
+// is a tab list with one Tab stop: the selected button. If the chosen folder no longer exists,
+// the list falls back to all snippets.
+function renderFolders() {
+  const names = lib.folderNames(state.snippets);
+  const hasLoose = state.snippets.some((s) => !s.folder);
+  if (state.folder && !names.includes(state.folder)) state.folder = null;
+  if (state.folder === '' && !hasLoose) state.folder = null;
+  const hadFocus = els.folderBar.contains(document.activeElement);
+  els.folderBar.hidden = !names.length;
+  els.folderBar.replaceChildren();
+  folderChoices = [];
+  if (!names.length) return;
+
+  const choices = [[TEXT.folderAll, null], ...names.map((name) => [name, name])];
+  if (hasLoose) choices.push([TEXT.folderNone, '']);
+  let selected = null;
+  for (const [label, folder] of choices) {
+    const chip = el('button', 'folder-chip', label);
+    chip.type = 'button';
+    chip.dir = 'auto';
+    chip.title = label;
+    chip.setAttribute('role', 'tab');
+    chip.setAttribute('aria-controls', 'snippetList');
+    const isSelected = folder === state.folder;
+    chip.setAttribute('aria-selected', String(isSelected));
+    chip.tabIndex = isSelected ? 0 : -1;
+    chip.addEventListener('click', () => {
+      selectFolder(folder);
+      els.search.focus(NO_SCROLL);
+    });
+    if (isSelected) selected = chip;
+    folderChoices.push(folder);
+    els.folderBar.append(chip);
+  }
+  if (hadFocus && selected) selected.focus(NO_SCROLL);
+  // Scrolls the row, not the page, so the selected button is in view.
+  if (selected) {
+    const bar = els.folderBar.getBoundingClientRect();
+    const box = selected.getBoundingClientRect();
+    if (box.left < bar.left) els.folderBar.scrollLeft -= bar.left - box.left;
+    else if (box.right > bar.right) els.folderBar.scrollLeft += box.right - bar.right;
+  }
+}
+
+function selectFolder(folder) {
+  state.folder = folder;
+  state.focusIndex = 0;
+  renderInsert();
+  reportSize();
+}
+
+// Keys on a folder button: Left and Right select the previous or next folder (the other way in a
+// right-to-left row), Home and End the first and last, and Enter, Space, and Down go back to the
+// search box. Returns true when the key was used.
+function onFolderKey(event) {
+  const last = folderChoices.length - 1;
+  const at = [...els.folderBar.children].indexOf(event.target.closest('.folder-chip'));
+  const rtl = getComputedStyle(els.folderBar).direction === 'rtl';
+  const forward = rtl ? 'ArrowLeft' : 'ArrowRight';
+  const backward = rtl ? 'ArrowRight' : 'ArrowLeft';
+  let to = -1;
+  if (event.key === forward) to = Math.min(at + 1, last);
+  else if (event.key === backward) to = Math.max(at - 1, 0);
+  else if (event.key === 'Home') to = 0;
+  else if (event.key === 'End') to = last;
+  else if (['Enter', ' ', 'ArrowDown'].includes(event.key)) {
+    event.preventDefault();
+    els.search.focus(NO_SCROLL);
+    return true;
+  } else if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    return true;
+  } else return false;
+  event.preventDefault();
+  if (to !== at) selectFolder(folderChoices[to]);
+  return true;
+}
+
+// After a save or an Undo, the folder of `snippet` when the chosen folder would hide it, so the
+// snippet and its label stay in view.
+function showFolderOf(snippet) {
+  const folder = snippet.folder || '';
+  return state.folder !== null && state.folder !== folder ? { folder } : {};
+}
+
 function renderInsert() {
   currentForm = null;
   els.caption.textContent = TEXT.captionInsert;
   els.back.hidden = true;
+  els.folderBar.hidden = true;
   els.body.replaceChildren();
   items = [];
   renderUndoBar();
@@ -334,16 +437,19 @@ function renderInsert() {
   els.searchBar.hidden = false;
   setPrimary(null);
   const list = el('div', 'list');
+  list.id = 'snippetList';
   list.setAttribute('role', 'listbox');
   list.setAttribute('aria-label', 'Snippets');
   const createLabel = state.selectedText.length > 1 ? TEXT.createFromSelection : TEXT.createNew;
   list.append(actionItem({ iconName: 'create', label: createLabel, hotkey: 1, onActivate: openCreate }));
-  lib.filterSnippets(state.snippets, state.search).forEach((snippet, index) => {
+  renderFolders();
+  shownSnippets().forEach((snippet, index) => {
     list.append(snippetItem(snippet, index + 1));
   });
   els.body.append(list);
   setFocus(Math.min(state.focusIndex, items.length - 1));
-  els.search.focus(NO_SCROLL);
+  // Focus stays on a folder button while the arrow keys step through the folders.
+  if (!els.folderBar.contains(document.activeElement)) els.search.focus(NO_SCROLL);
 }
 
 function emptyView() {
@@ -451,6 +557,7 @@ function renderForm() {
   state.search = '';
   els.search.value = '';
   els.searchBar.hidden = true;
+  els.folderBar.hidden = true;
   els.caption.textContent = isEdit ? TEXT.captionEdit : TEXT.captionCreate;
   els.back.hidden = state.mode === 'create-only';
   els.body.replaceChildren();
@@ -512,6 +619,26 @@ function renderForm() {
     abbreviationMessage.hidden = true;
   });
 
+  // The folder, with the existing folder names offered as suggestions. A new snippet made under
+  // a folder button starts in that folder.
+  const folderField = el('div', 'field');
+  const folder = el('input', 'input input-folder');
+  folder.type = 'text';
+  folder.dir = 'auto';
+  folder.placeholder = TEXT.placeholderFolder;
+  folder.autocomplete = 'off';
+  folder.setAttribute('list', 'folderOptions');
+  folder.value = isEdit ? snippet.folder || '' : state.folder || '';
+  const folderOptions = el('datalist');
+  folderOptions.id = 'folderOptions';
+  for (const name of lib.folderNames(state.snippets)) folderOptions.append(new Option(name));
+  folderField.append(folder, folderOptions);
+  const folderMessage = el('div', 'feedback');
+  folderMessage.hidden = true;
+  folder.addEventListener('input', () => {
+    folderMessage.hidden = true;
+  });
+
   content.addEventListener('input', () => {
     contentMessage.hidden = true;
     updateCount();
@@ -530,7 +657,9 @@ function renderForm() {
     titleField,
     titleMessage,
     abbreviationField,
-    abbreviationMessage
+    abbreviationMessage,
+    folderField,
+    folderMessage
   );
   els.body.append(form);
 
@@ -545,9 +674,11 @@ function renderForm() {
     content,
     title,
     abbreviation,
+    folder,
     contentMessage,
     titleMessage,
     abbreviationMessage,
+    folderMessage,
     ownId: isEdit ? snippet.id : null,
     submit: () => (isEdit ? saveEdit(snippet.id) : saveCreate()),
   };
@@ -603,6 +734,7 @@ function renderUnrecognized(container, text) {
 function renderFill() {
   clearTimeout(searchTimer);
   els.searchBar.hidden = true;
+  els.folderBar.hidden = true;
   els.back.hidden = state.mode === 'fill-only';
   els.body.replaceChildren();
   items = [];
@@ -663,8 +795,9 @@ function autosize(textarea) {
   reportSize();
 }
 
-// Form rules: the content must not be blank, the title must not exceed 128 characters, and the
-// abbreviation must pass lib.abbreviationProblem(). The content has no length limit.
+// Form rules: the content must not be blank, the title must not exceed 128 characters, the
+// abbreviation must pass lib.abbreviationProblem(), and the folder must not exceed 64 characters.
+// The content has no length limit.
 function validate(form) {
   let valid = true;
   if (form.content.value.trim() === '') {
@@ -681,6 +814,11 @@ function validate(form) {
   if (problem) {
     form.abbreviationMessage.textContent = problem;
     form.abbreviationMessage.hidden = false;
+    valid = false;
+  }
+  if (lib.folderLength(form.folder.value) > lib.FOLDER_MAX_LENGTH) {
+    form.folderMessage.textContent = TEXT.validationTooLong(lib.FOLDER_MAX_LENGTH);
+    form.folderMessage.hidden = false;
     valid = false;
   }
   reportSize();
@@ -711,13 +849,14 @@ async function saveCreate() {
         content: form.content.value,
         title: form.title.value,
         abbreviation: form.abbreviation.value.trim(),
+        folder: form.folder.value,
       }),
     TEXT.createError
   );
   if (!result) return;
   state.snippets = result.snippets;
   if (state.mode === 'create-only') post({ type: 'saved' });
-  else backToList({ isNewId: result.snippet.id });
+  else backToList({ isNewId: result.snippet.id, ...showFolderOf(result.snippet) });
 }
 
 async function saveEdit(id) {
@@ -729,19 +868,20 @@ async function saveEdit(id) {
         content: form.content.value,
         title: form.title.value,
         abbreviation: form.abbreviation.value.trim(),
+        folder: form.folder.value,
       }),
     TEXT.editError
   );
   if (!result) return;
   state.snippets = result.snippets;
-  backToList({ isEditedId: id });
+  backToList({ isEditedId: id, ...showFolderOf(result.snippet) });
 }
 
 async function duplicate(id) {
   const result = await change(() => lib.duplicateSnippet(id), TEXT.duplicateError);
   if (!result) return;
   state.snippets = result.snippets;
-  backToList({ isNewId: result.snippet.id, isEditedId: undefined });
+  backToList({ isNewId: result.snippet.id, isEditedId: undefined, ...showFolderOf(result.snippet) });
 }
 
 // A deleted snippet goes to the recently deleted list, and the list view offers to undo it.
@@ -758,23 +898,24 @@ async function undoDelete() {
   const result = await change(() => lib.restoreSnippet(entry.id), TEXT.restoreError);
   if (!result) return;
   state.snippets = result.snippets;
-  backToList({ undoEntry: null, isNewId: undefined, isEditedId: undefined });
+  backToList({ undoEntry: null, isNewId: undefined, isEditedId: undefined, ...showFolderOf(result.snippet) });
 }
 
 // Alt+Up and Alt+Down move the highlighted snippet one place. This works only while the search
-// box is empty, because a filtered list does not show the neighbours a move would pass.
+// box is empty, because a filtered list does not show the neighbours a move would pass. Under a
+// folder, the snippet moves past the next snippet of that folder.
 async function moveFocused(step) {
   const item = items[state.focusIndex];
   if (!item || !item.snippet || els.search.value.trim()) return;
-  const from = state.snippets.findIndex((s) => s.id === item.snippet.id);
-  const to = from + step;
-  if (from === -1 || to < 0 || to >= state.snippets.length) return;
-  const list = await change(() => lib.moveSnippet(item.snippet.id, to), TEXT.moveError);
+  const id = item.snippet.id;
+  const to = lib.moveTarget(state.snippets, shownSnippets(), id, step);
+  if (to === -1) return;
+  const list = await change(() => lib.moveSnippet(id, to), TEXT.moveError);
   if (!list) return;
   state.snippets = list;
   state.undoEntry = null;
-  // Item 0 is the create entry, so the snippet at list position `to` is item `to + 1`.
-  state.focusIndex = to + 1;
+  // Item 0 is the create entry, so the snippet at position p of the list shown is item p + 1.
+  state.focusIndex = shownSnippets().findIndex((s) => s.id === id) + 1;
   renderInsert();
   reportSize();
 }
@@ -842,6 +983,7 @@ document.addEventListener(
     if (event.key === 'Tab') keepTabInside(event);
 
     if (state.view === 'insert') {
+      if (event.target instanceof Element && event.target.closest('.folder-chip') && onFolderKey(event)) return;
       if (event.altKey && !modifier && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
         event.preventDefault();
         moveFocused(event.key === 'ArrowDown' ? 1 : -1);
@@ -880,7 +1022,10 @@ document.addEventListener(
       event.key === 'Enter' &&
       currentForm &&
       (modifier ||
-        ((event.target === currentForm.title || event.target === currentForm.abbreviation) && !event.shiftKey))
+        ((event.target === currentForm.title ||
+          event.target === currentForm.abbreviation ||
+          event.target === currentForm.folder) &&
+          !event.shiftKey))
     ) {
       event.preventDefault();
       currentForm.submit();
