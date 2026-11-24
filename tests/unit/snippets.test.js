@@ -303,6 +303,13 @@ test('matchFolder uses the stored spelling of a folder that differs only in capi
   assert.equal(lib.matchFolder('Wörk', inFolders), 'Wörk');
 });
 
+test('matchFolder keeps hiragana and katakana, and full-width and normal letters, apart', () => {
+  const list = [{ folder: 'しごと' }, { folder: 'Work' }];
+  assert.equal(lib.matchFolder('シゴト', list), 'シゴト');
+  assert.equal(lib.matchFolder('Ｗｏｒｋ', list), 'Ｗｏｒｋ');
+  assert.equal(lib.matchFolder('しごと', list), 'しごと');
+});
+
 test('inFolder returns everything, no folder, or one folder', () => {
   assert.equal(lib.inFolder(inFolders, null), inFolders);
   assert.deepEqual(lib.inFolder(inFolders, '').map((s) => s.id), ['bbbbbbbbbbbb']);

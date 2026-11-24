@@ -222,7 +222,7 @@
     const clean = cleanFolder(name);
     if (!clean) return '';
     for (const { folder } of list) {
-      if (folder && folder.localeCompare(clean, undefined, { sensitivity: 'accent' }) === 0) return folder;
+      if (folder && searchForm(folder) === searchForm(clean)) return folder;
     }
     return clean;
   }
