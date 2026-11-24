@@ -649,8 +649,8 @@ async function change(work, errorText) {
   setBusy(true);
   try {
     return await work();
-  } catch {
-    showError(errorText);
+  } catch (error) {
+    showError(error.name === 'AbbreviationError' ? error.message : errorText);
     return null;
   } finally {
     setBusy(false);

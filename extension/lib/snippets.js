@@ -97,8 +97,20 @@
     return result;
   }
 
+  // Refuses an abbreviation that the stored list does not allow, with the message the forms show.
+  // The forms check against the list they loaded, which another page may have changed since.
+  function requireFreeAbbreviation(abbreviation, list, ownId) {
+    const problem = abbreviationProblem(abbreviation, list, ownId);
+    if (problem) {
+      const error = new Error(problem);
+      error.name = 'AbbreviationError';
+      throw error;
+    }
+  }
+
   async function createSnippet({ content, title, abbreviation }) {
     const list = await readSnippets();
+    requireFreeAbbreviation(abbreviation, list);
     const created = record({
       createdAt: new Date().toISOString(),
       content,
@@ -115,6 +127,7 @@
     const list = await readSnippets();
     const index = list.findIndex((s) => s.id === id);
     if (index === -1) throw new Error('not found');
+    requireFreeAbbreviation(abbreviation, list, id);
     const updated = record({ ...list[index], content, title, abbreviation });
     list.splice(index, 1, updated);
     await writeSnippets(list);

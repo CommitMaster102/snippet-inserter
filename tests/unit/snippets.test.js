@@ -158,3 +158,24 @@ test('every change to the list rewrites the abbreviation index with it', async (
     delete globalThis.chrome;
   }
 });
+
+test('saving refuses an abbreviation that clashes with the stored list and writes nothing', async () => {
+  const values = fakeStorage();
+  try {
+    const { snippet: a } = await lib.createSnippet({ content: 'A', title: '', abbreviation: ';sig' });
+    const { snippet: b } = await lib.createSnippet({ content: 'B', title: '', abbreviation: '' });
+    await assert.rejects(
+      lib.createSnippet({ content: 'C', title: '', abbreviation: ';sigs' }),
+      { message: lib.abbreviationProblem(';sigs', [a]) }
+    );
+    await assert.rejects(
+      lib.updateSnippet(b.id, { content: 'B', title: '', abbreviation: ';sig' }),
+      { message: 'Another snippet already uses ;sig.' }
+    );
+    assert.equal(values.get(lib.STORAGE_KEY).length, 2);
+    assert.deepEqual(values.get(lib.ABBREVIATIONS_KEY), { ';sig': a.id });
+    await lib.updateSnippet(a.id, { content: 'A2', title: '', abbreviation: ';sig' });
+  } finally {
+    delete globalThis.chrome;
+  }
+});
