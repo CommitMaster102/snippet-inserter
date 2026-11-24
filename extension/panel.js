@@ -637,7 +637,7 @@ function validate(form) {
     form.contentMessage.hidden = false;
     valid = false;
   }
-  if (form.title.value.length > lib.TITLE_MAX_LENGTH) {
+  if (lib.titleLength(form.title.value) > lib.TITLE_MAX_LENGTH) {
     form.titleMessage.textContent = TEXT.validationTooLong(lib.TITLE_MAX_LENGTH);
     form.titleMessage.hidden = false;
     valid = false;

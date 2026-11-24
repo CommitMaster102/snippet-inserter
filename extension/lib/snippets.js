@@ -28,6 +28,17 @@
   const ID_ALPHABET = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
   const DEFAULT_SETTINGS = { hotkey: 'Control', abbreviations: true };
 
+  // The number of characters in a name, counting an emoji as one, as the forms show it.
+  function titleLength(title) {
+    return [...title].length;
+  }
+
+  // A name cut to TITLE_MAX_LENGTH characters. It is cut between whole characters, so an emoji
+  // is never split into a broken half.
+  function cutTitle(title) {
+    return [...title].slice(0, TITLE_MAX_LENGTH).join('');
+  }
+
   function makeId() {
     let id = '';
     let n = ID_LENGTH;
@@ -144,7 +155,7 @@
     const copy = record({
       createdAt: new Date().toISOString(),
       content: original.content,
-      title: original.title ? `Copy of ${original.title}`.slice(0, TITLE_MAX_LENGTH) : '',
+      title: original.title ? cutTitle(`Copy of ${original.title}`) : '',
       id: freshId(new Set(list.map((s) => s.id))),
     });
     list.splice(index + 1, 0, copy);
@@ -296,7 +307,7 @@
         result.invalid++;
         continue;
       }
-      const title = typeof raw.title === 'string' ? raw.title.slice(0, TITLE_MAX_LENGTH) : '';
+      const title = typeof raw.title === 'string' ? cutTitle(raw.title) : '';
       const key = sameText({ title, content: raw.content });
       if (seen.has(key)) {
         result.skipped++;
@@ -430,6 +441,8 @@
     abbreviationIndex,
     DELETED_MAX,
     TITLE_MAX_LENGTH,
+    titleLength,
+    cutTitle,
     DEFAULT_SETTINGS,
     makeId,
     readState,

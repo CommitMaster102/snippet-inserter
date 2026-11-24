@@ -212,3 +212,27 @@ test('search compares text in one Unicode form', () => {
   assert.deepEqual(lib.filterSnippets(decomposed, 'café').map((s) => s.id), ['a']);
   assert.deepEqual(lib.filterSnippets(decomposed, 'menu').map((s) => s.id), ['a']);
 });
+
+test('a name is cut at whole characters, never inside an emoji', async () => {
+  const cut = lib.parseImport(JSON.stringify([{ title: `x${'😀'.repeat(200)}`, content: 'A', id: 'aaaaaaaaaaaa' }]), []);
+  const title = cut.add[0].title;
+  assert.ok(title.isWellFormed());
+  assert.equal([...title].length, lib.TITLE_MAX_LENGTH);
+  assert.equal(title, `x${'😀'.repeat(lib.TITLE_MAX_LENGTH - 1)}`);
+
+  fakeStorage();
+  try {
+    const { snippet } = await lib.createSnippet({ content: 'A', title: `${'x'.repeat(119)}😀😀`, abbreviation: '' });
+    const { snippets } = await lib.duplicateSnippet(snippet.id);
+    const copy = snippets[1].title;
+    assert.ok(copy.isWellFormed());
+    assert.equal(copy, `Copy of ${'x'.repeat(119)}😀`);
+  } finally {
+    delete globalThis.chrome;
+  }
+});
+
+test('a name is measured in characters, as the form counts', () => {
+  assert.equal(lib.titleLength('😀'.repeat(128)), 128);
+  assert.equal(lib.titleLength('abc'), 3);
+});

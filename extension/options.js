@@ -450,7 +450,7 @@ function validate() {
     els.contentError.textContent = 'This field must not be empty.';
     valid = false;
   }
-  els.titleError.hidden = els.title.value.length <= lib.TITLE_MAX_LENGTH;
+  els.titleError.hidden = lib.titleLength(els.title.value) <= lib.TITLE_MAX_LENGTH;
   if (!els.titleError.hidden) {
     els.titleError.textContent = `The input must not be longer than ${lib.TITLE_MAX_LENGTH} characters.`;
     valid = false;
