@@ -192,6 +192,18 @@ test('search finds text in the middle of scripts written without spaces', () => 
   assert.deepEqual(lib.filterSnippets(list, 'ello'), []);
 });
 
+test('search matches Korean at word starts, because Korean puts spaces between words', () => {
+  const list = [
+    { title: '', content: '우리학교에서 만나요', id: 'a' },
+    { title: '', content: '학교 앞', id: 'b' },
+  ];
+  // A word start is found, including the start of a later word.
+  assert.deepEqual(lib.filterSnippets(list, '학교').map((s) => s.id), ['b']);
+  assert.deepEqual(lib.filterSnippets(list, '만나').map((s) => s.id), ['a']);
+  // Text in the middle of a Korean word is not found.
+  assert.deepEqual(lib.filterSnippets(list, '에서'), []);
+});
+
 test('search finds a word after an apostrophe or a hyphen, and accented words', () => {
   const list = [
     { title: "Message à l'école", content: 'x', id: 'a' },

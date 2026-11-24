@@ -35,9 +35,10 @@ Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...
   Enter, or with Ctrl+2 to Ctrl+9 (Ctrl+1 is "Create new snippet").
 - Type in the search box to filter. The list keeps the snippets whose name, text, or folder has a
   word that starts with what you type, or whose abbreviation starts with it. A word starts after a
-  space, an apostrophe, or a hyphen, so "école" is found in "l'école". In Japanese, Chinese,
-  Korean, and Thai, which have no spaces, what you type is found anywhere in the text. An accent
-  typed as a separate mark matches the same letter stored as one character.
+  space, an apostrophe, or a hyphen, so "école" is found in "l'école". In Japanese, Chinese, and
+  Thai, which are written without spaces between words, what you type is found anywhere in the
+  text. Korean has spaces between words, so it is found at the start of a word, as English is. An
+  accent typed as a separate mark matches the same letter stored as one character.
 - Alt+Up and Alt+Down move the highlighted snippet up or down the list while the search box is
   empty. Ctrl+2 to Ctrl+9 insert the first 8 snippets shown, so this order decides which
   snippets get them. Under a folder, the snippet moves past the next snippet of the same folder,
