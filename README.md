@@ -246,6 +246,11 @@ Report bugs and suggest features in
 follows the [code of conduct](CODE_OF_CONDUCT.md). Report a security problem privately, as
 [SECURITY.md](SECURITY.md) describes.
 
+## Support the project
+
+Snippet Inserter is free, and every feature works without paying. If you want to support its
+development, you can donate on [Ko-fi](https://ko-fi.com/commitmaster102).
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
