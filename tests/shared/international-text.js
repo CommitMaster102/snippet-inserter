@@ -36,9 +36,9 @@ const ABBREVIATION = 'あいさつ';
 const LABEL = 'お名前';
 const FILL_IN_TEXT = `ご連絡ありがとうございます、{input:${LABEL}}様。`;
 
-/** The number of characters the extension shows for `text`, an emoji counting as one. */
+/** The number of characters the extension shows for `text`, a flag or a family emoji counting as one. */
 function characterCount(text) {
-  return [...text].length;
+  return Array.from(new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(text)).length;
 }
 
 module.exports = {

@@ -35,15 +35,22 @@
     offSites: [],
   };
 
+  // Splits text into the characters a person sees. An emoji built from several code points, such
+  // as a flag, a skin-tone emoji, or a family, is one piece.
+  const GRAPHEME_SEGMENTER = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+  function graphemes(text) {
+    return Array.from(GRAPHEME_SEGMENTER.segment(text), (part) => part.segment);
+  }
+
   // The number of characters in a name, counting an emoji as one, as the forms show it.
   function titleLength(title) {
-    return [...title].length;
+    return graphemes(title).length;
   }
 
   // A name cut to TITLE_MAX_LENGTH characters. It is cut between whole characters, so an emoji
   // is never split into a broken half.
   function cutTitle(title) {
-    return [...title].slice(0, TITLE_MAX_LENGTH).join('');
+    return graphemes(title).slice(0, TITLE_MAX_LENGTH).join('');
   }
 
   function makeId() {
@@ -201,12 +208,12 @@
 
   // The number of characters in a folder name, counting an emoji as one.
   function folderLength(name) {
-    return [...tidyFolder(name)].length;
+    return graphemes(tidyFolder(name)).length;
   }
 
   // A folder name ready to store: tidied and cut at whole characters.
   function cleanFolder(name) {
-    return [...tidyFolder(name)].slice(0, FOLDER_MAX_LENGTH).join('').trim();
+    return graphemes(tidyFolder(name)).slice(0, FOLDER_MAX_LENGTH).join('').trim();
   }
 
   // The spelling to store for `name`: that of a folder in `list` that differs only in capitals,
@@ -618,7 +625,7 @@
   }
 
   function characterCount(text, locale) {
-    const count = [...text].length;
+    const count = graphemes(text).length;
     return `${count.toLocaleString(locale)} ${count === 1 ? 'character' : 'characters'}`;
   }
 

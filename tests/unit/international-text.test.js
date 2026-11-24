@@ -30,7 +30,7 @@ test('search finds the shared text in every script', () => {
 test('the list shows the first line of the shared text, and the count treats an emoji as one', () => {
   assert.equal(lib.displayTitle({ title: '', content: TEXT }), PARTS.japanese);
   assert.equal(lib.previewLine({ title: '', content: TEXT }), PARTS.chinese);
-  assert.equal(lib.characterCount(PARTS.family), '5 characters');
+  assert.equal(lib.characterCount(PARTS.family), '1 character');
   assert.equal(lib.characterCount(TEXT, 'en'), `${characterCount(TEXT)} characters`);
 });
 

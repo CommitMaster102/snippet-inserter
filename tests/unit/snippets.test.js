@@ -599,3 +599,32 @@ test('removeOffSite removes only the named entry and leaves an empty list behind
     delete globalThis.chrome;
   }
 });
+
+// A flag, a skin-tone emoji, and a family emoji are each built from several code points, but a
+// person sees one character.
+const MULTI_CODE_POINT_EMOJI = ['🇯🇵', '👍🏽', '👨‍👩‍👧'];
+
+test('a name counts a flag, a skin-tone emoji, and a family emoji as one character each', () => {
+  for (const emoji of MULTI_CODE_POINT_EMOJI) assert.equal(lib.titleLength(emoji), 1, emoji);
+  assert.equal(lib.titleLength(`a${MULTI_CODE_POINT_EMOJI.join('')}`), 4);
+});
+
+test('a name is never cut inside a flag, a skin-tone emoji, or a family emoji', () => {
+  for (const emoji of MULTI_CODE_POINT_EMOJI) {
+    const cut = lib.cutTitle(`${'x'.repeat(lib.TITLE_MAX_LENGTH - 1)}${emoji}${emoji}`);
+    assert.equal(cut, `${'x'.repeat(lib.TITLE_MAX_LENGTH - 1)}${emoji}`, emoji);
+    assert.equal(lib.titleLength(cut), lib.TITLE_MAX_LENGTH);
+  }
+});
+
+test('a folder name counts and cuts a flag, a skin-tone emoji, and a family emoji as one character each', () => {
+  for (const emoji of MULTI_CODE_POINT_EMOJI) {
+    assert.equal(lib.folderLength(emoji), 1, emoji);
+    assert.equal(lib.cleanFolder(emoji.repeat(lib.FOLDER_MAX_LENGTH + 1)), emoji.repeat(lib.FOLDER_MAX_LENGTH), emoji);
+  }
+});
+
+test('the character count treats a flag, a skin-tone emoji, and a family emoji as one character each', () => {
+  for (const emoji of MULTI_CODE_POINT_EMOJI) assert.equal(lib.characterCount(emoji, 'en'), '1 character', emoji);
+  assert.equal(lib.characterCount(MULTI_CODE_POINT_EMOJI.join(''), 'en'), '3 characters');
+});

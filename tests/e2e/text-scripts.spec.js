@@ -68,3 +68,16 @@ test('the notice for a field with a length limit counts an emoji as one characte
   );
   await expect(page.locator('#limited')).toHaveValue('Hi');
 });
+
+test('the notice for a field with a length limit counts a family emoji as one character', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: '👨‍👩‍👧'.repeat(3) }]);
+  await selectInTextarea(page, '#limited', 2);
+  await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect(page.getByRole('status')).toHaveText(
+    // The count includes the space that is added after "Hi".
+    'This field takes 2 more characters, and the snippet has 4. Nothing was inserted.'
+  );
+  await expect(page.locator('#limited')).toHaveValue('Hi');
+});

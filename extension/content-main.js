@@ -530,16 +530,20 @@ export function create(shared) {
     const room = max - (ctx.el.value.length - (ctx.end - ctx.start));
     if (text.length <= room) return true;
     // The browser counts the limit in UTF-16 units, but the notice counts characters as the forms
-    // do, with an emoji as one. The number that fits is the whole characters of the snippet that
-    // fit in the room left.
+    // do, with an emoji as one, even a flag or a family. The number that fits is the whole
+    // characters of the snippet that fit in the room left.
+    const characters = Array.from(
+      new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(text),
+      (part) => part.segment
+    );
     let free = 0;
     let used = 0;
-    for (const character of text) {
+    for (const character of characters) {
       used += character.length;
       if (used > room) break;
       free++;
     }
-    const total = [...text].length;
+    const total = characters.length;
     showNotice(
       `This field takes ${free} more ${free === 1 ? 'character' : 'characters'}, and the snippet has ${total}. Nothing was inserted.`,
       ctx

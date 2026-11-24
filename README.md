@@ -204,7 +204,8 @@ documents get this support, not Slides or Sheets.
 ## Limits
 
 - Snippet content has no length limit. A snippet name can be up to 128 characters, and an emoji
-  counts as one. A longer name is cut between whole characters.
+  counts as one, even a flag, a skin-tone emoji, or a family. A longer name is cut between whole
+  characters.
 - Single-line fields work when their type is text, search, url, or tel. Password fields are left
   alone, because a password field is not a place for a snippet. Email and number fields are left
   alone too, because they do not expose the cursor position.
