@@ -227,3 +227,26 @@ test('the fill-in preview uses the language of the field', async ({ page, servic
   await panel.locator('.list .item', { hasText: 'Nom' }).click();
   await expect(panel.locator('.fill-preview')).toContainText(dates.long);
 });
+
+test('a weekday placeholder shows its date in the form and is inserted', async ({ page, serviceWorker }) => {
+  const expected = await page.evaluate(() => {
+    const now = new Date();
+    const gap = (5 - now.getDay() + 7) % 7 || 7;
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + gap, 12);
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${next.getFullYear()}-${pad(next.getMonth() + 1)}-${pad(next.getDate())}`;
+  });
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  await page.keyboard.press('Enter');
+  await panel.locator('textarea.input-content').fill('By {date+1fri:iso}');
+  await expect(panel.locator('.placeholder-value')).toHaveText(expected);
+  await pressInPanel(page, 'Escape');
+  await pressInPanel(page, 'Escape');
+  await expectPanelClosed(page);
+
+  await seedSnippets(serviceWorker, [{ content: 'By {date+1fri:iso}' }]);
+  await selectInTextarea(page, '#plain', 11);
+  await insertFirst(page);
+  await expect(page.locator('#plain')).toHaveValue(`Hello world By ${expected}`);
+});

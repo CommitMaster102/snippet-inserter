@@ -8,6 +8,8 @@
  *   {time:iso}     09:14
  *   {date+3d}      a date counted from today: a + or - sign, a number from 0 to 999, and d
  *                  (days), w (weeks), m (months), or y (years), before any :short or :iso
+ *   {date+1fri}    the first Friday after today; mon to sun work the same way, -1fri is the last
+ *                  Friday before today, and +0fri is today when today is a Friday
  *   {time-2h}      a time counted from now: a + or - sign, a number from 0 to 999, and min or h
  *   {cursor}       nothing; the caret ends here after the insert
  *   {input:Label}  a value the user types in the panel's fill-in form before the insert
@@ -25,7 +27,7 @@
 
   // The groups are named, so adding an alternative never renumbers the others.
   const PLACEHOLDER = new RegExp(
-    '\\{date(?:(?<dateShift>[+-]\\d{1,3})(?<dateUnit>[dwmy]))?(?::(?<dateStyle>short|iso))?\\}' +
+    '\\{date(?:(?<dateShift>[+-]\\d{1,3})(?<dateUnit>[dwmy]|mon|tue|wed|thu|fri|sat|sun))?(?::(?<dateStyle>short|iso))?\\}' +
       '|\\{time(?:(?<timeShift>[+-]\\d{1,3})(?<timeUnit>min|h))?(?::(?<timeStyle>iso))?\\}' +
       '|\\{cursor\\}|\\{input:(?<label>[^{}\\n]{1,40})\\}',
     'g'
@@ -77,6 +79,8 @@
     }
   }
 
+  const WEEKDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
   // The date n days, weeks, months, or years from now, taken at noon so that a clock change near
   // midnight cannot move it to another day. Adding months keeps the day of the month, or takes
   // the last day of a shorter month.
@@ -85,6 +89,16 @@
     const y = now.getFullYear();
     const m = now.getMonth();
     const d = now.getDate();
+    const weekday = WEEKDAYS.indexOf(unit);
+    if (weekday >= 0) {
+      // The Nth such day strictly after (or before) today, except that 0 means today when today is
+      // that day, and otherwise the nearest one in that direction.
+      const back = shift.startsWith('-');
+      const count = Math.abs(n);
+      const gap = (back ? now.getDay() - weekday + 7 : weekday - now.getDay() + 7) % 7;
+      const days = count === 0 ? gap : (gap || 7) + 7 * (count - 1);
+      return new Date(y, m, d + (back ? -days : days), 12);
+    }
     if (unit === 'd' || unit === 'w') return new Date(y, m, d + n * (unit === 'w' ? 7 : 1), 12);
     const months = m + n * (unit === 'y' ? 12 : 1);
     const last = new Date(y, months + 1, 0, 12).getDate();

@@ -172,3 +172,18 @@ test('the editor shows what date placeholders give and lists near misses', async
   await expect(manager.locator('#placeholderList')).toBeHidden();
   await expect(manager.locator('#unrecognizedList')).toBeHidden();
 });
+
+test('the manager editor shows the date a weekday placeholder gives', async ({ context, extensionId }) => {
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#newSnippet').click();
+  await manager.locator('#content').fill('{date-1mon:iso} {date+1xyz}');
+  const expected = await manager.evaluate(() => {
+    const now = new Date();
+    const gap = (now.getDay() - 1 + 7) % 7 || 7;
+    const back = new Date(now.getFullYear(), now.getMonth(), now.getDate() - gap, 12);
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${back.getFullYear()}-${pad(back.getMonth() + 1)}-${pad(back.getDate())}`;
+  });
+  await expect(manager.locator('#placeholderList .placeholder-value')).toHaveText([expected]);
+  await expect(manager.locator('#unrecognizedList .placeholder-pill')).toHaveText(['{date+1xyz}']);
+});

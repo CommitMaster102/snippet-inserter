@@ -127,3 +127,30 @@ test('currentValue gives what a date or time placeholder gives now', () => {
   assert.equal(placeholders.currentValue('{input:Name}', options), '');
   assert.equal(placeholders.currentValue('{cursor}', options), '');
 });
+
+test('a weekday counts the Nth such day after or before today', () => {
+  // NOW is Friday 20 November 2026.
+  const days = (offset) => ex(`{date${offset}:iso}`);
+  assert.equal(days('+1fri'), '2026-11-27');
+  assert.equal(days('+0fri'), '2026-11-20');
+  assert.equal(days('-1fri'), '2026-11-13');
+  assert.equal(days('+1mon'), '2026-11-23');
+  assert.equal(days('-1mon'), '2026-11-16');
+  assert.equal(days('+2sat'), '2026-11-28');
+  assert.equal(days('+0mon'), '2026-11-23');
+  assert.equal(days('-0mon'), '2026-11-16');
+  assert.equal(days('+3sun'), '2026-12-06');
+});
+
+test('every weekday unit is recognized, and a weekday cannot go in a time', () => {
+  for (const day of ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']) {
+    assert.deepEqual(placeholders.listPlaceholders(`{date+1${day}}`), [`{date+1${day}}`]);
+  }
+  const literal = '{date+1fr} {date+1Fri} {date+1friday} {time+1fri} {date+1fri+1d}';
+  assert.equal(ex(literal), literal);
+});
+
+test('a weekday keeps the format style, and a date value reaches the pill', () => {
+  assert.equal(ex('{date+1fri}|{date+1fri:short}'), 'November 27, 2026|11/27/26');
+  assert.equal(placeholders.currentValue('{date+1fri:iso}', { locale: 'en-us', now: NOW }), '2026-11-27');
+});
