@@ -129,11 +129,16 @@ test('the panel list is a listbox the search box points into, and Tab stays in t
   expect(id).toBeTruthy();
   await expect(panel.locator('#search')).toHaveAttribute('aria-activedescendant', id);
 
-  // The Edit buttons are out of the Tab order, and Tab from the search box wraps to the Close button.
+  // The Edit buttons are out of the Tab order, and Tab from the search box wraps to the first
+  // button in the header, the site button, which comes before Close.
   await expect(panel.locator('.edit-button').first()).toHaveAttribute('tabindex', '-1');
   await panel.locator('#search').press('Tab');
+  await expect(panel.locator('#site')).toBeFocused();
+  await panel.locator('#site').press('Tab');
   await expect(panel.locator('#close')).toBeFocused();
   await panel.locator('#close').press('Shift+Tab');
+  await expect(panel.locator('#site')).toBeFocused();
+  await panel.locator('#site').press('Shift+Tab');
   await expect(panel.locator('#search')).toBeFocused();
 });
 

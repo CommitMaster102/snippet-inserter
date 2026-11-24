@@ -77,6 +77,9 @@ const TEXT = {
   edit: 'Edit',
   back: 'Back (Esc)',
   close: 'Close (Esc)',
+  siteOff: (host) => `Turn off the double tap and abbreviations for ${host}`,
+  siteOn: (entry) => `Turn the double tap and abbreviations back on for ${entry}`,
+  siteError: 'Failed to change the setting for this site.',
 };
 
 const ICONS = {
@@ -90,12 +93,15 @@ const ICONS = {
   search: '<circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/>',
   back: '<path d="M10 3.5L5.5 8l4.5 4.5"/>',
   close: '<path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/>',
+  siteOff: '<circle cx="8" cy="8" r="5.5"/><path d="M4.1 11.9l7.8-7.8"/>',
+  siteOn: '<path d="M8 2.5v5"/><path d="M5 4.5a5 5 0 1 0 6 0"/>',
 };
 
 const els = {
   app: document.getElementById('app'),
   back: document.getElementById('back'),
   caption: document.getElementById('caption'),
+  site: document.getElementById('site'),
   close: document.getElementById('close'),
   searchBar: document.getElementById('searchBar'),
   searchIcon: document.getElementById('searchIcon'),
@@ -135,6 +141,8 @@ const state = {
   focusIndex: 0,
   busy: false,
   initialized: false,
+  // The page's host, and the entry of the list of turned-off sites that covers it, or null.
+  site: { host: '', entry: null },
 };
 
 // Items reachable with the arrow keys and Enter, in display order. A snippet item also carries
@@ -285,6 +293,18 @@ els.search.addEventListener('input', () => {
 
 // Views.
 
+// The host name of the page the panel is in: the top page, which is the last origin the browser
+// lists for this frame's ancestors. The browser fills that list, so the page cannot forge it. It
+// is empty when the browser hides the origin, and then the site button stays hidden.
+function pageHost() {
+  try {
+    const origins = location.ancestorOrigins;
+    return new URL(origins[origins.length - 1]).hostname;
+  } catch {
+    return '';
+  }
+}
+
 async function start() {
   els.search.placeholder = TEXT.searchPlaceholder;
   els.searchIcon.replaceWith(icon('search'));
@@ -300,7 +320,33 @@ async function start() {
   } catch {
     state.loadFailed = true;
   }
+  try {
+    const host = pageHost();
+    state.site = { host, entry: lib.offSiteEntry(host, (await lib.readSettings()).offSites) };
+  } catch {
+    // Without the list, the site button stays hidden.
+  }
   render();
+}
+
+// The button next to Close: it turns the double tap and abbreviations off on this site, or back
+// on when the site is already off.
+function renderSiteButton() {
+  const { host, entry } = state.site;
+  els.site.hidden = !host;
+  if (!host) return;
+  const text = entry ? TEXT.siteOn(entry) : TEXT.siteOff(host);
+  els.site.replaceChildren(icon(entry ? 'siteOn' : 'siteOff'));
+  els.site.title = text;
+  els.site.setAttribute('aria-label', text);
+  els.site.classList.toggle('icon-button-active', Boolean(entry));
+}
+
+async function toggleSite() {
+  const { host, entry } = state.site;
+  if (!host) return;
+  const result = await change(() => (entry ? lib.removeOffSite(entry) : lib.addOffSite(host)), TEXT.siteError);
+  if (result) post({ type: 'site', off: !entry, host: entry || host });
 }
 
 function render() {
@@ -409,6 +455,7 @@ function showFolderOf(snippet) {
 
 function renderInsert() {
   currentForm = null;
+  renderSiteButton();
   els.caption.textContent = TEXT.captionInsert;
   els.back.hidden = true;
   els.folderBar.hidden = true;
@@ -559,6 +606,7 @@ function backToList(changes = {}) {
 
 function renderForm() {
   const isEdit = state.view === 'edit';
+  els.site.hidden = true;
   clearTimeout(searchTimer);
   state.search = '';
   els.search.value = '';
@@ -781,6 +829,7 @@ function renderReferences(container, problemsBox, own, others) {
 // of the text as it will be inserted, and Insert. Enter moves to the next field and inserts from
 // the last one; Ctrl+Enter inserts from any field.
 function renderFill() {
+  els.site.hidden = true;
   clearTimeout(searchTimer);
   els.searchBar.hidden = true;
   els.folderBar.hidden = true;
@@ -986,6 +1035,7 @@ function goBack() {
 
 els.back.addEventListener('click', goBack);
 els.close.addEventListener('click', () => post({ type: 'close' }));
+els.site.addEventListener('click', toggleSite);
 els.primary.addEventListener('click', () => {
   if (primaryAction && !state.busy) primaryAction();
 });

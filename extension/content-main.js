@@ -965,6 +965,20 @@ export function create(shared) {
       case 'close':
         closePanel(true);
         break;
+      case 'site': {
+        // The panel has already stored the change. The notice names the host it was for.
+        const siteCtx = panel && panel.ctx;
+        closePanel(true);
+        if (typeof message.host === 'string' && message.host) {
+          showNotice(
+            message.off
+              ? `The double tap and abbreviations are off on ${message.host}. To turn them back on, open the panel with the keyboard shortcut or the right-click menu.`
+              : `The double tap and abbreviations are on again on ${message.host}.`,
+            siteCtx
+          );
+        }
+        break;
+      }
       case 'saved': {
         const savedCtx = panel && panel.ctx;
         closePanel(true);

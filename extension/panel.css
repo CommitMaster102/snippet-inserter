@@ -127,6 +127,13 @@ svg {
   background: var(--bg-neutral);
 }
 
+/* The site button while the site is off: it shows the way back on. */
+.icon-button-active,
+.icon-button-active:hover {
+  color: var(--brand-default);
+  background: var(--brand-subtle);
+}
+
 .search {
   display: flex;
   align-items: center;

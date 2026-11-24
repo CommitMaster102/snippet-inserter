@@ -199,3 +199,137 @@ test('a site added elsewhere shows in an open manager without a reload', async (
   await seedSettings(serviceWorker, { offSites: ['elsewhere.test'] });
   await expect(manager.locator('#offSiteList .site-name')).toHaveText(['elsewhere.test']);
 });
+
+// The button next to Close in the panel.
+
+const OFF_TITLE = (host) => `Turn off the double tap and abbreviations for ${host}`;
+const ON_TITLE = (entry) => `Turn the double tap and abbreviations back on for ${entry}`;
+const stored = (serviceWorker) => serviceWorker.evaluate(async () => (await chrome.storage.local.get('settings')).settings);
+
+test('the panel button turns the site off, closes the panel, and names the host in a notice', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await selectInTextarea(page, '#plain', 11);
+  const panel = await openPanel(page);
+  const button = panel.locator('#site');
+  await expect(button).toBeVisible();
+  await expect(button).toHaveAttribute('title', OFF_TITLE('127.0.0.1'));
+  await expect(button).toHaveAttribute('aria-label', OFF_TITLE('127.0.0.1'));
+  await button.click();
+  await expectPanelClosed(page);
+  await expect(page.getByRole('status')).toHaveText(
+    'The double tap and abbreviations are off on 127.0.0.1. To turn them back on, open the panel with the keyboard shortcut or the right-click menu.'
+  );
+  expect(await stored(serviceWorker)).toEqual({ offSites: ['127.0.0.1'] });
+  await expect(page.locator('#plain')).toBeFocused();
+
+  await page.keyboard.type(' ;addr');
+  await page.waitForTimeout(500);
+  await expect(page.locator('#plain')).toHaveValue('Hello world ;addr');
+  await doubleTap(page);
+  await page.waitForTimeout(500);
+  await expectPanelClosed(page);
+});
+
+test('on a listed site the same button turns the site back on', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await seedSettings(serviceWorker, { offSites: ['127.0.0.1'] });
+  await selectInTextarea(page, '#plain', 11);
+  await settle(page);
+  await openWith(page, () => callHandler(serviceWorker, 'onCommand', ['open-panel']));
+  const panel = await openPanel(page);
+  const button = panel.locator('#site');
+  await expect(button).toHaveAttribute('title', ON_TITLE('127.0.0.1'));
+  await expect(button).toHaveClass(/icon-button-active/);
+  await button.click();
+  await expectPanelClosed(page);
+  await expect(page.getByRole('status')).toHaveText('The double tap and abbreviations are on again on 127.0.0.1.');
+  expect(await stored(serviceWorker)).toEqual({ offSites: [] });
+
+  await selectInTextarea(page, '#plain', 11);
+  await openPanel(page);
+});
+
+test('on a subdomain the button names the list entry that covers it', async ({ context, page, serviceWorker }) => {
+  const body = '<!doctype html><html lang="en"><body><textarea id="plain" rows="4" cols="60">Hello world</textarea></body></html>';
+  await context.route('https://**/', (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body }));
+  await seedSettings(serviceWorker, { offSites: ['site.test'] });
+  await page.goto('https://mail.site.test/');
+  await selectInTextarea(page, '#plain', 11);
+  await settle(page);
+  await openWith(page, () => callHandler(serviceWorker, 'onCommand', ['open-panel']));
+  const panel = await openPanel(page);
+  await expect(panel.locator('#site')).toHaveAttribute('title', ON_TITLE('site.test'));
+
+  // On a subdomain that is not covered, the button names the page's own host.
+  await pressInPanel(page, 'Escape');
+  await page.goto('https://other.test/');
+  await selectInTextarea(page, '#plain', 11);
+  const other = await openPanel(page);
+  await expect(other.locator('#site')).toHaveAttribute('title', OFF_TITLE('other.test'));
+});
+
+test('turning a site off from a panel in a visible frame stops the frame, named by the top page', async ({ context, page, serviceWorker }) => {
+  const inner = '<!doctype html><html lang="en"><body><textarea id="inner" rows="4" cols="40">Inside</textarea></body></html>';
+  await context.route('https://frames.test/**', (route) =>
+    route.fulfill({
+      contentType: 'text/html; charset=utf-8',
+      body: `<!doctype html><html lang="en"><body><iframe id="editor" style="width: 600px; height: 300px" srcdoc="${inner.replace(/"/g, '&quot;')}"></iframe></body></html>`,
+    })
+  );
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await page.goto('https://frames.test/');
+  const frame = page.frameLocator('#editor');
+  const field = frame.locator('#inner');
+  const caretAtEnd = () =>
+    field.evaluate((element) => {
+      element.focus();
+      element.setSelectionRange(element.value.length, element.value.length);
+    });
+  await caretAtEnd();
+  const panel = frame.locator(PANEL);
+  await expect(async () => {
+    if ((await panel.count()) === 0) await doubleTap(page);
+    await expect(panel).toBeAttached({ timeout: 1000 });
+  }).toPass({ timeout: 10_000 });
+  await expect(panel).toHaveCSS('opacity', '1');
+  const button = frame.frameLocator(PANEL).locator('#site');
+  await expect(button).toHaveAttribute('title', OFF_TITLE('frames.test'));
+  await button.click();
+  await expect(panel).toHaveCount(0);
+  expect(await stored(serviceWorker)).toEqual({ offSites: ['frames.test'] });
+
+  await caretAtEnd();
+  await page.keyboard.type(' ;addr');
+  await page.waitForTimeout(500);
+  await expect(field).toHaveValue('Inside ;addr');
+  await doubleTap(page);
+  await page.waitForTimeout(500);
+  await expect(panel).toHaveCount(0);
+});
+
+test('the panel button is hidden in every form and in the single-form modes', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    ...SNIPPETS,
+    { title: 'Signature', content: 'Best,\n{input:Name}', abbreviation: ';sig' },
+  ]);
+  await selectInTextarea(page, '#plain', 11);
+  const panel = await openPanel(page);
+  await expect(panel.locator('#site')).toBeVisible();
+  await page.keyboard.press('Control+1');
+  await expect(panel.locator('.caption')).toHaveText('Create a new snippet');
+  await expect(panel.locator('#site')).toBeHidden();
+  await pressInPanel(page, 'Escape');
+  await expect(panel.locator('#site')).toBeVisible();
+  await panel.locator('.item', { hasText: 'Address' }).locator('.edit-button').click();
+  await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  await expect(panel.locator('#site')).toBeHidden();
+  await pressInPanel(page, 'Escape');
+  await pressInPanel(page, 'Escape');
+  await expectPanelClosed(page);
+
+  // A fill-only panel from an abbreviation.
+  await selectInTextarea(page, '#plain', 11);
+  await page.keyboard.type(' ;sig');
+  await expect(page.frameLocator(PANEL).locator('.fill-input')).toBeFocused();
+  await expect(page.frameLocator(PANEL).locator('#site')).toBeHidden();
+});

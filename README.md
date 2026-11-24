@@ -80,15 +80,20 @@ keyboard shortcut, with a button that opens the browser's shortcuts page to chan
 
 ## Turning sites off
 
-To stop the double tap and abbreviations on a site, add it under "Sites where the double tap and
-abbreviations are off" in the manager's Settings. You can type a host name or paste an address:
+To stop the double tap and abbreviations on a site, click the round button with a slash next to
+Close at the top of the snippet panel. It is hidden in the forms, and on a page whose address the
+browser does not tell the panel, such as a local file. The panel closes and a notice names the
+site. You can also add a site under "Sites where the double tap and abbreviations are off" in the
+manager's Settings, by typing a host name or pasting an address:
 `https://mail.example.com/inbox` is saved as `mail.example.com`. A site includes its subdomains,
 so `example.com` also covers `mail.example.com`, and adding `example.com` removes
 `mail.example.com` from the list. A page inside a frame counts as off when the page it is in is
 on the list, so listing `docs.google.com` covers Google Docs. On a listed site the keyboard
 shortcut and the "Insert snippet..." menu item still open the panel, and the extension's script
-still loads there; it only stops reacting to the double tap and to abbreviations. "Turn on" takes a
-site off the list. The list is part of the settings, which a backup does not include.
+still loads there; it only stops reacting to the double tap and to abbreviations. On such a site
+the panel's button is a power symbol in the brand color, and clicking it turns the site back on,
+as does "Turn on" in the list. When the page is a subdomain, the button names the list entry that
+covers it. The list is part of the settings, which a backup does not include.
 
 ## Placeholders
 
@@ -246,7 +251,7 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
   script. This extension's own code adds about 25 to 40 KB of memory and 0.2 to 0.6 ms of
   script time when the frame loads.
 - **What loads where**: every frame gets `content.js`, about 21 KB, which only watches for the
-  double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 40 KB,
+  double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 41 KB,
   loads only in a frame where the panel opens or an abbreviation matches.
 - **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
   press, so frames nobody types in, such as ads, never read storage. The snippet text is read
