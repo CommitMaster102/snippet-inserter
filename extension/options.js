@@ -836,11 +836,30 @@ function validate() {
   return valid;
 }
 
+// The status line after a save: it also says when other snippets' references were rewritten for a
+// new abbreviation, or are left as written because the abbreviation was cleared.
+function savedSentence(existing, result, cleared) {
+  const count = (n) => `${n} snippet${n === 1 ? '' : 's'}`;
+  const n = result.referencesRenamed || 0;
+  if (n > 0) {
+    return `Saved. ${count(n)} that used ${existing.abbreviation} now use${n === 1 ? 's' : ''} ${result.snippet.abbreviation}.`;
+  }
+  if (cleared > 0) {
+    return `Saved. No snippet has ${existing.abbreviation} now, so ${count(cleared)} insert${cleared === 1 ? 's' : ''} {snippet:${existing.abbreviation}} as written.`;
+  }
+  return 'Saved.';
+}
+
 // Saves the editor. Returns true when the snippet was saved.
 async function save() {
   if (els.editor.hidden || !validate()) return false;
   const values = fields();
   const existing = state.snippets.find((s) => s.id === state.selectedId);
+  // Counted before the save, while the old abbreviation is still in the references.
+  const cleared =
+    existing && existing.abbreviation && !values.abbreviation
+      ? lib.countUsers(state.snippets, existing.abbreviation, existing.id)
+      : 0;
   const result = await run(
     () => (state.creating || !existing ? lib.createSnippet(values) : lib.updateSnippet(existing.id, values)),
     { fromEditor: true }
@@ -855,7 +874,7 @@ async function save() {
   els.editorHeading.textContent = 'Edit snippet';
   els.duplicate.hidden = false;
   els.delete.hidden = false;
-  els.editorStatus.textContent = 'Saved.';
+  els.editorStatus.textContent = savedSentence(existing, result, cleared);
   renderCounts();
   renderFolders();
   renderList();

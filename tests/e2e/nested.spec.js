@@ -7,6 +7,7 @@ const { test, expect } = require('./fixtures');
 const {
   PANEL,
   seedSnippets,
+  readSnippets,
   selectInTextarea,
   caretAtEndOf,
   openPanel,
@@ -237,4 +238,71 @@ test('the manager editor shows the same Includes row and problem lines', async (
   await manager.locator('#content').fill('Plain');
   await expect(manager.locator('#referenceList')).toBeHidden();
   await expect(manager.locator('#referenceProblems')).toBeHidden();
+});
+
+// Renaming or clearing an abbreviation that other snippets include.
+
+async function openInManager(manager, title) {
+  await manager.locator('#snippetList .row', { hasText: title }).click();
+  await expect(manager.locator('#editorHeading')).toHaveText('Edit snippet');
+}
+
+test('the manager rewrites references when an abbreviation changes, and says so', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Reply', content: 'Hi\n{snippet:;sig}' },
+    { title: 'Mail', content: '{snippet:;sig} {snippet:;sig}' },
+    { title: 'Signature', content: 'Ana', abbreviation: ';sig' },
+  ]);
+  const manager = await openManager(context, extensionId);
+  await openInManager(manager, 'Signature');
+  await manager.locator('#abbreviation').fill(';sign');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#editorStatus')).toHaveText('Saved. 2 snippets that used ;sig now use ;sign.');
+  const stored = await readSnippets(serviceWorker);
+  expect(stored.map((s) => s.content)).toEqual(['Hi\n{snippet:;sign}', '{snippet:;sign} {snippet:;sign}', 'Ana']);
+});
+
+test('the manager says 1 snippet in the singular', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Reply', content: 'Hi {snippet:;sig}' },
+    { title: 'Signature', content: 'Ana', abbreviation: ';sig' },
+  ]);
+  const manager = await openManager(context, extensionId);
+  await openInManager(manager, 'Signature');
+  await manager.locator('#abbreviation').fill(';sign');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#editorStatus')).toHaveText('Saved. 1 snippet that used ;sig now uses ;sign.');
+});
+
+test('clearing an abbreviation leaves the references as they are and says so', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Reply', content: 'Hi {snippet:;sig}' },
+    { title: 'Signature', content: 'Ana', abbreviation: ';sig' },
+  ]);
+  const manager = await openManager(context, extensionId);
+  await openInManager(manager, 'Signature');
+  await manager.locator('#abbreviation').fill('');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#editorStatus')).toHaveText(
+    'Saved. No snippet has ;sig now, so 1 snippet inserts {snippet:;sig} as written.'
+  );
+  expect((await readSnippets(serviceWorker))[0].content).toBe('Hi {snippet:;sig}');
+});
+
+test('an abbreviation nobody includes saves with the plain sentence', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Signature', content: 'Ana', abbreviation: ';sig' }]);
+  const manager = await openManager(context, extensionId);
+  await openInManager(manager, 'Signature');
+  await manager.locator('#abbreviation').fill(';sign');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#editorStatus')).toHaveText('Saved.');
+});
+
+test('a rename in the panel rewrites the references too, with the list as before', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Reply', content: 'Hi {snippet:;sig}' }, SIG]);
+  const panel = await openPanelForm(page, 'Signature');
+  await panel.locator('input.input-abbreviation').fill(';sign');
+  await pressInPanel(page, 'Enter', { ctrl: true });
+  await expect(panel.locator('.list .item-caption').first()).toBeVisible();
+  expect((await readSnippets(serviceWorker))[0].content).toBe('Hi {snippet:;sign}');
 });

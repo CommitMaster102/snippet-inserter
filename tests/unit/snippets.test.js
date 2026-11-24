@@ -437,3 +437,72 @@ test('renameFolder changes a whole folder in one write, keeps the order, and mer
     delete globalThis.chrome;
   }
 });
+
+// Renaming an abbreviation rewrites {snippet:...} references in other snippets.
+
+test('renameReferences changes only exact tokens in other snippets, and keeps every other field', () => {
+  const list = [
+    { id: 'a', content: 'see {snippet:;sig} and {snippet:;older} {snippet:;sig}', title: 'T', folder: 'Work', abbreviation: ';aa', createdAt: 'x' },
+    { id: 'b', content: 'own {snippet:;sig}', abbreviation: ';sig' },
+    { id: 'c', content: 'none' },
+  ];
+  const changed = lib.renameReferences(list, ';sig', ';sign', 'b');
+  assert.equal(changed, 1);
+  assert.deepEqual(list[0], { id: 'a', content: 'see {snippet:;sign} and {snippet:;older} {snippet:;sign}', title: 'T', folder: 'Work', abbreviation: ';aa', createdAt: 'x' });
+  assert.equal(list[1].content, 'own {snippet:;sig}');
+  assert.equal(list[2].content, 'none');
+  assert.equal(lib.countUsers(list, ';older'), 1);
+  assert.equal(lib.countUsers(list, ';sig'), 1);
+});
+
+test('updateSnippet rewrites references in the same write when an abbreviation changes', async () => {
+  const values = fakeStorage();
+  try {
+    const { snippet: target } = await lib.createSnippet({ content: 'Sig', title: '', abbreviation: ';a1' });
+    const { snippet: user } = await lib.createSnippet({ content: 'Hi {snippet:;a1}', title: '' });
+    const writes = [];
+    const set = chrome.storage.local.set;
+    chrome.storage.local.set = async (items) => {
+      writes.push(items);
+      return set(items);
+    };
+    const result = await lib.updateSnippet(target.id, { content: 'Sig', title: '', abbreviation: ';a2' });
+    assert.equal(result.referencesRenamed, 1);
+    assert.equal(writes.length, 1);
+    assert.equal(values.get(lib.STORAGE_KEY)[1].content, 'Hi {snippet:;a2}');
+    assert.equal(result.snippets.find((s) => s.id === user.id).content, 'Hi {snippet:;a2}');
+
+    const cleared = await lib.updateSnippet(target.id, { content: 'Sig', title: '', abbreviation: '' });
+    assert.equal(cleared.referencesRenamed, 0);
+    assert.equal(values.get(lib.STORAGE_KEY)[1].content, 'Hi {snippet:;a2}');
+  } finally {
+    delete globalThis.chrome;
+  }
+});
+
+test('a snippet that gets its first abbreviation rewrites nothing, and a failed rename writes nothing', async () => {
+  const values = fakeStorage();
+  try {
+    const { snippet: target } = await lib.createSnippet({ content: 'Sig', title: '' });
+    await lib.createSnippet({ content: 'Hi {snippet:;a1}', title: '' });
+    const first = await lib.updateSnippet(target.id, { content: 'Sig', title: '', abbreviation: ';a1' });
+    assert.equal(first.referencesRenamed, 0);
+    const { snippet: other } = await lib.createSnippet({ content: 'Other', title: '', abbreviation: ';zz' });
+    const before = JSON.stringify(values.get(lib.STORAGE_KEY));
+    await assert.rejects(lib.updateSnippet(target.id, { content: 'Sig', title: '', abbreviation: ';zz' }));
+    assert.equal(JSON.stringify(values.get(lib.STORAGE_KEY)), before);
+    assert.ok(other);
+  } finally {
+    delete globalThis.chrome;
+  }
+});
+
+test('an export holding a reference parses back unchanged', () => {
+  const list = [
+    { createdAt: '2026-01-01T00:00:00.000Z', title: '', content: 'Hi {snippet:;sig}', id: 'aaaaaaaaaaaa' },
+    { createdAt: '2026-01-02T00:00:00.000Z', title: 'Sig', content: 'Ana', id: 'bbbbbbbbbbbb', abbreviation: ';sig' },
+  ];
+  const text = lib.buildExport(list, new Date('2026-11-20T09:30:00Z'));
+  assert.equal(JSON.parse(text).version, 1);
+  assert.deepEqual(lib.parseImport(text, []).add, list);
+});

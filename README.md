@@ -145,7 +145,11 @@ at the start of the field or after a space, punctuation, or a symbol, so `;addr`
 stays as typed. With a Japanese, Chinese, or Korean input method, an abbreviation such as
 `あいさつ` expands when you commit the text, not while it is still being composed.
 An abbreviation has 2 to 32 characters and no spaces, and one abbreviation cannot start another,
-because the shorter one would always expand first.
+because the shorter one would always expand first. Changing a snippet's abbreviation also changes
+it in the `{snippet:...}` references of your other snippets, in the same save, and the snippet
+manager says how many it changed. Clearing an abbreviation leaves the references as they are, and
+they are then inserted as written. Deleting an included snippet gives no warning; Undo or
+Recently deleted brings it back and the references work again.
 
 ## Google Docs
 

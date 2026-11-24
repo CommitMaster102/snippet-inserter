@@ -205,9 +205,36 @@
       merged.folder = matchFolder(changes.folder, list.filter((s) => s.id !== id));
     }
     const updated = record(merged);
+    const was = list[index].abbreviation;
     list.splice(index, 1, updated);
+    // Changing one abbreviation to another keeps the {snippet:...} references to it working, in
+    // the same write as the change itself. Clearing an abbreviation leaves them as they are.
+    const referencesRenamed =
+      was && updated.abbreviation && was !== updated.abbreviation
+        ? renameReferences(list, was, updated.abbreviation, id)
+        : 0;
     await writeSnippets(list);
-    return { snippet: updated, snippets: list };
+    return { snippet: updated, snippets: list, referencesRenamed };
+  }
+
+  // Replaces {snippet:from} with {snippet:to} in the text of every snippet except `exceptId`, in
+  // place, and returns how many snippets changed. Other fields of a changed record stay as they are.
+  function renameReferences(list, from, to, exceptId) {
+    const oldToken = `{snippet:${from}}`;
+    const newToken = `{snippet:${to}}`;
+    let changed = 0;
+    list.forEach((snippet, i) => {
+      if (snippet.id === exceptId || !String(snippet.content).includes(oldToken)) return;
+      list[i] = { ...snippet, content: String(snippet.content).split(oldToken).join(newToken) };
+      changed += 1;
+    });
+    return changed;
+  }
+
+  // How many snippets other than `exceptId` include the abbreviation.
+  function countUsers(list, abbreviation, exceptId) {
+    const token = `{snippet:${abbreviation}}`;
+    return list.filter((s) => s.id !== exceptId && String(s.content).includes(token)).length;
   }
 
   // Places a copy right after the original, in the same folder. The copy has no abbreviation,
@@ -523,6 +550,8 @@
     SETTINGS_KEY,
     ABBREVIATIONS_KEY,
     abbreviationIndex,
+    renameReferences,
+    countUsers,
     DELETED_MAX,
     TITLE_MAX_LENGTH,
     FOLDER_MAX_LENGTH,
