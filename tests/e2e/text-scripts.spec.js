@@ -44,3 +44,15 @@ test('an abbreviation is not expanded while the input method is still composing 
   await expect(page.locator('#plain')).toHaveValue('Hello world お世話になっております。');
   await cdp.detach();
 });
+
+test('tabs and indentation stay in a rich editor', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: 'if x:\n\treturn 1\n    four spaces' }]);
+  await caretAtEndOf(page, '#rich', 'p:last-child');
+  await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect.poll(() => page.locator('#rich').evaluate((el) => el.innerText)).toContain('four spaces');
+  const text = await page.locator('#rich').evaluate((el) => el.innerText);
+  expect(text).toMatch(/if x:\s*\n\treturn 1/);
+  expect(text).toMatch(/\n[\u00a0 ]{4}four spaces/);
+});

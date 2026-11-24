@@ -54,7 +54,8 @@ Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...
 A space is added before the snippet when the character before the cursor is not a space or line
 break. A space is added after it when the next character is not a space, line break, or
 punctuation. In Google Docs no space is added. In a single-line field, a multi-line snippet goes
-in as one line: each line break, with the spaces around it, becomes one space.
+in as one line: each line break, with the spaces around it, becomes one space. In a rich editor,
+tabs and the spaces that start a line stay as typed, so indented code keeps its indentation.
 
 Click the extension's toolbar icon to open the snippet manager. It shows every snippet with a
 large editor and drag-and-drop ordering, and keeps the last 20 deleted snippets under Recently

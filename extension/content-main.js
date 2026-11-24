@@ -601,13 +601,14 @@ export function create(shared) {
 
   // The HTML version of the snippet is the escaped text with each line break turned into <br>,
   // so multi-line snippets keep their lines in rich editors. Spaces that HTML would collapse
-  // become non-breaking spaces.
+  // become non-breaking spaces, and each tab goes in a span that keeps it as a tab.
   function textToHtml(text) {
     return text
       .replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
       .replace(/\r\n?/g, '\n')
       .replace(/ {2}/g, ' &nbsp;')
       .replace(/^ | $/gm, '&nbsp;')
+      .replace(/\t/g, '<span style="white-space:pre">\t</span>')
       .replace(/\n/g, '<br>');
   }
 
