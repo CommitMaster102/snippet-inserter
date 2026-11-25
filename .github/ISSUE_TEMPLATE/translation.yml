@@ -1,0 +1,46 @@
+name: Translation problem
+description: A word or sentence in the interface is wrong, unclear, or does not fit.
+labels: ["translation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every translation was drafted by a language model, so wrong wording is expected. Issues are public, so do not paste a real snippet here.
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      description: The language you see the interface in, as the name that Settings and backup shows, such as Deutsch.
+      placeholder: Deutsch
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where the text appears
+      description: The screen, and the button or line, such as "Settings and backup, the line under Backup", or "the right-click menu". A screenshot helps. You can drag it into the last box.
+    validations:
+      required: true
+  - type: textarea
+    id: says
+    attributes:
+      label: What it says now
+      description: Copy the text as it appears.
+    validations:
+      required: true
+  - type: textarea
+    id: should
+    attributes:
+      label: What it should say
+      description: Write the text you would expect. If the problem is that it does not fit, say how, such as "cut off at the end of the button".
+    validations:
+      required: true
+  - type: dropdown
+    id: speaker
+    attributes:
+      label: Do you speak this language natively?
+      options:
+        - "Yes"
+        - "No"
+    validations:
+      required: true
