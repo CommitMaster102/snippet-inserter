@@ -41,8 +41,11 @@ async function listenOnAllowedPort(server) {
 // A persistent context is required for extensions. An empty profile path makes Playwright use a
 // new temporary profile, and the "chromium" channel runs the full browser, whose headless mode
 // supports extensions.
-// A test of a pseudo-language passes the folder of its copy of the extension and a language flag.
-function launchContext(extensionPath = EXTENSION_PATH, extraArgs = []) {
+// The browser runs in English unless a test passes other flags, because Chrome shows the
+// extension in the browser's language, and a browser that follows the system language would show
+// another translation on a PC set to that language. A test of a pseudo-language passes the folder
+// of its copy of the extension and its own language flag.
+function launchContext(extensionPath = EXTENSION_PATH, extraArgs = ['--lang=en-US']) {
   return chromium.launchPersistentContext('', {
     channel: 'chromium',
     viewport: { width: 1000, height: 720 },

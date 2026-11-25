@@ -54,7 +54,7 @@ test('a pseudo-language is built as a copy of the extension, with only the Engli
     assert.equal(fs.readFileSync(path.join(directory, 'panel.js'), 'utf8'), fs.readFileSync(path.join(original, 'panel.js'), 'utf8'));
     const written = JSON.parse(fs.readFileSync(path.join(directory, '_locales', 'en', 'messages.json'), 'utf8'));
     assert.equal(written.textDirection.message, 'rtl');
-    assert.deepEqual(fs.readdirSync(path.join(directory, '_locales')), ['en']);
+    assert.deepEqual(fs.readdirSync(path.join(directory, '_locales')), fs.readdirSync(path.join(original, '_locales')));
     assert.equal(JSON.parse(fs.readFileSync(path.join(original, '_locales', 'en', 'messages.json'), 'utf8')).textDirection.message, 'ltr');
   } finally {
     pseudo.remove(directory);
