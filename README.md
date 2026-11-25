@@ -205,6 +205,11 @@ field joins the lines as it does for any snippet. Placeholder and fill-in values
 when they look like HTML. A snippet included with `{snippet:...}` keeps its formatting inside a
 formatted snippet, and goes into a plain snippet as plain text.
 
+Whether the colors of a code block arrive depends on the editor that receives the paste. Gmail,
+Outlook, and Google Docs keep pasted text colors, so a colored block shows its colors there (Docs
+gets a formatted snippet as plain text for now, as the next paragraph says). Slack and many other
+editors drop colors and show plain code; the code and its line breaks still arrive. A text box gets the exact text of the block with no colors.
+
 Google Docs gets the plain text of a formatted snippet. Formatting reaches Docs only through a paste
 whose handling Google does not document, so it waits until the formatted step of
 `npm run test:docs-live` passes against a real document.
@@ -325,7 +330,7 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
 - **What loads where**: every frame gets `content.js`, about 21 KB, which only watches for the
   double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 52 KB,
   loads only in a frame where the panel opens or an abbreviation matches. `lib/richtext.js`, about
-  34 KB, loads only in a frame where a formatted snippet goes into a rich-text editor.
+  39 KB, loads only in a frame where a formatted snippet goes into a rich-text editor.
 - **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
   press, so frames nobody types in, such as ads, never read storage. The snippet text is read
   only when the panel opens or an abbreviation matches.
