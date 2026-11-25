@@ -36,9 +36,9 @@ Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...
 - Type in the search box to filter. The list keeps the snippets whose name, text, or folder has a
   word that starts with what you type, or whose abbreviation starts with it. A word starts after a
   space, an apostrophe, or a hyphen, so "école" is found in "l'école". In Japanese, Chinese, and
-  Thai, which are written without spaces between words, what you type is found anywhere in the
-  text. Korean has spaces between words, so it is found at the start of a word, as English is. An
-  accent typed as a separate mark matches the same letter stored as one character.
+  Thai, which are written without spaces between words, what you type is found anywhere in the text.
+  Korean has spaces between words, so in Korean what you type is found at the start of a word, as in
+  English. An accent typed as a separate mark matches the same letter stored as one character.
 - Alt+Up and Alt+Down move the highlighted snippet up or down the list while the search box is
   empty. Ctrl+2 to Ctrl+9 insert the first 8 snippets shown, so this order decides which
   snippets get them. Under a folder, the snippet moves past the next snippet of the same folder,
@@ -161,23 +161,25 @@ never stop you from saving.
 ## Abbreviations
 
 A snippet can have an abbreviation, such as `;addr`. Typing the abbreviation in a text field
-replaces it with the snippet, and Ctrl+Z brings the typed text back. An abbreviation expands only
-at the start of the field or after a space, punctuation, or a symbol, so `;addr` inside `x;addr`
-stays as typed. With a Japanese, Chinese, or Korean input method, an abbreviation such as
-`あいさつ` expands when you commit the text, not while it is still being composed.
+replaces it with the snippet, and Ctrl+Z brings the typed text back. An abbreviation expands only at
+the start of the field or after a space, punctuation, or a symbol, so `;addr` inside `x;addr` stays
+as typed. With a Japanese, Chinese, or Korean input method, an abbreviation such as `あいさつ` expands
+when you commit the text, not while it is still being composed.
+
 In the manager's Settings, "Expand abbreviations" has 3 choices. "As soon as I type them" is the
 default. "After I press Space, Tab, or Enter" waits for one of those keys: Space expands the
-abbreviation and leaves a space after the snippet, while Tab and Enter only expand it and do
-nothing else, so Enter never also sends a message or submits a form. One Ctrl+Z after a Space
-brings back the abbreviation and its space, and a snippet with fill-in fields adds the space after
-you fill them in. "Off" turns abbreviations off. A comma or a period after an abbreviation does not
-expand it in the waiting mode, and neither does an input method committing text.
+abbreviation and leaves a space after the snippet, while Tab and Enter only expand it and do nothing
+else, so Enter never also sends a message or submits a form. One Ctrl+Z after a Space brings back
+the abbreviation and its space, and a snippet with fill-in fields adds the space after you fill them
+in. "Off" turns abbreviations off. A comma or a period after an abbreviation does not expand it in
+the waiting mode, and neither does an input method committing text.
+
 An abbreviation has 2 to 32 characters and no spaces, and one abbreviation cannot start another,
-because the shorter one would always expand first. Changing a snippet's abbreviation also changes
-it in the `{snippet:...}` references of your other snippets, in the same save, and the snippet
-manager says how many it changed. Clearing an abbreviation leaves the references as they are, and
-they are then inserted as written. Deleting an included snippet gives no warning; Undo or
-Recently deleted brings it back and the references work again.
+because the shorter one would always expand first. Changing a snippet's abbreviation also changes it
+in the `{snippet:...}` references of your other snippets, in the same save, and the snippet manager
+says how many it changed. Clearing an abbreviation leaves the references as they are, and they are
+then inserted as written. Deleting an included snippet gives no warning; Undo or Recently deleted
+brings it back and the references work again.
 
 ## Google Docs
 
@@ -206,8 +208,8 @@ documents get this support, not Slides or Sheets.
 ## Limits
 
 - Snippet content has no length limit. A snippet name can be up to 128 characters, and an emoji
-  counts as one, even a flag, a skin-tone emoji, or a family. A longer name is cut between whole
-  characters.
+  counts as one, even a flag, a skin-tone emoji, or a family emoji. A longer name is cut between
+  whole characters.
 - Single-line fields work when their type is text, search, url, or tel. Password fields are left
   alone, because a password field is not a place for a snippet. Email and number fields are left
   alone too, because they do not expose the cursor position.
