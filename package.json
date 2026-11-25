@@ -12,7 +12,8 @@
     "test:report": "playwright show-report",
     "test:docs-live": "playwright test --config playwright.live.config.js",
     "browsers": "playwright install chromium --no-shell",
-    "icons": "python scripts/make-icons.py"
+    "icons": "python scripts/make-icons.py",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "devDependencies": {
     "@playwright/test": "1.65.1"
