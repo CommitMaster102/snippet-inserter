@@ -47,3 +47,17 @@ test('a placeholder label in Japanese is found, and the text around it is kept',
 test('a snippet with Windows line endings is listed without a stray carriage return', () => {
   assert.equal(lib.displayTitle({ title: '', content: TEXT_CRLF }), PARTS.japanese);
 });
+
+test('counting characters gives the same number on the fast path and the segmenter path', () => {
+  const mix = ['a', '👍', '👍🏽', '🇯🇵🇺🇸', '👨‍👩‍👧', 'é', '\r\n', '한글', '한', 'क्षि', '؀a', '❤️'];
+  const samples = [...Object.values(PARTS), TEXT, TEXT_CRLF, mix.join(''), mix.join(' '), ''];
+  for (const text of samples) assert.equal(lib.countCharacters(text), characterCount(text), JSON.stringify(text));
+});
+
+test('counting the characters of 1 MB of plain text takes under 15 ms', () => {
+  const text = 'The quick brown fox jumps over the lazy dog. '.repeat(Math.ceil(1048576 / 45)).slice(0, 1048576);
+  lib.countCharacters(text);
+  const start = performance.now();
+  assert.equal(lib.countCharacters(text), 1048576);
+  assert.ok(performance.now() - start < 15, `took ${performance.now() - start} ms`);
+});

@@ -631,8 +631,31 @@
     );
   }
 
+  // Characters that can join the one before or after them into a single user-perceived character:
+  // a carriage return (joined to a line feed), combining marks, spacing marks, the zero-width
+  // joiner, regional indicators, emoji skin-tone modifiers, Hangul jamo, and the Prepend characters
+  // of the Unicode segmentation rules.
+  const CLUSTER_JOINER =
+    /[\r\p{Grapheme_Extend}\p{Mc}\u200D\p{Regional_Indicator}\p{Emoji_Modifier}\u1100-\u11FF\uA960-\uA97F\uD7B0-\uD7FF\u0600-\u0605\u06DD\u070F\u0890\u0891\u08E2\u0D4E\u0E33\u0EB3\u{110BD}\u{110CD}\u{111C2}\u{111C3}\u{1193F}\u{11941}\u{11A3A}\u{11A84}-\u{11A89}\u{11D46}\u{11F02}\u{113D1}\u{16D63}\u{16D67}-\u{16D6A}]/u;
+
+  // The number of characters a person sees in the text. Counting with Intl.Segmenter takes about
+  // 70 ms per megabyte, so text with no character that can join a cluster is counted by code
+  // points instead, which gives the same number.
+  function countCharacters(text) {
+    if (CLUSTER_JOINER.test(text)) return graphemes(text).length;
+    let count = text.length;
+    for (let i = 0; i < text.length; i++) {
+      const unit = text.charCodeAt(i);
+      if (unit >= 0xd800 && unit <= 0xdbff) {
+        count--;
+        i++;
+      }
+    }
+    return count;
+  }
+
   function characterCount(text, locale) {
-    const count = graphemes(text).length;
+    const count = countCharacters(text);
     return `${count.toLocaleString(locale)} ${count === 1 ? 'character' : 'characters'}`;
   }
 
@@ -688,6 +711,7 @@
     previewLine,
     filterSnippets,
     characterCount,
+    countCharacters,
   };
 
   if (typeof module === 'object' && module.exports) module.exports = api;
