@@ -83,34 +83,200 @@ function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// Removes what GitHub does not show as text: fenced code blocks, inline code, and HTML comments.
-// A fence ends at a line with at least as many of its characters, or at the end of the file. An
-// inline code span ends at the next run of as many backticks in the same paragraph.
-function visibleText(markdown) {
-  return markdown
-    .replace(/^[ \t]*(([`~])\2{2,})[\s\S]*?(?:\n[ \t]*\1\2*[ \t]*$|(?![\s\S]))/gm, '')
-    .replace(/(?<!`)(`+)[^`\n](?:(?!\n[ \t]*\n)[\s\S])*?(?<!`)\1(?!`)/g, '')
-    .replace(/<!--[\s\S]*?-->/g, '');
+// Measures the spaces and tabs at the start of text in columns, with a tab stop every 4 columns
+// counted from the column where the text starts. Returns the width and the text after them.
+function leading(text, start = 0) {
+  let column = start;
+  let i = 0;
+  for (; text[i] === ' ' || text[i] === '\t'; i++) {
+    column = text[i] === '\t' ? column + 4 - (column % 4) : column + 1;
+  }
+  return { width: column - start, rest: text.slice(i) };
 }
 
-// Builds the heading anchors that GitHub makes for a Markdown file.
+// Names the block that a line starts, or returns null for a line of paragraph text. rel is the
+// line's indent past the list item that holds it. When the line would interrupt a paragraph, a
+// list item must be a bullet or start at 1, and it must have text.
+function blockStart(rest, rel, interrupting) {
+  if (rel > 3) return null;
+  if (/^([-*_])(?:[ \t]*\1){2,}[ \t]*$/.test(rest)) return 'break';
+  const item = /^(?:[-+*]|(\d{1,9})[.)])(?=[ \t]|$)/.exec(rest);
+  if (item && !(interrupting && ((item[1] && Number(item[1]) !== 1) || !rest.slice(item[0].length).trim()))) {
+    return 'item';
+  }
+  if (/^(?:`{3,}(?!.*`)|~{3,})/.test(rest)) return 'fence';
+  if (rest.startsWith('<!--')) return 'comment';
+  if (/^#{1,6}(?:[ \t]|$)/.test(rest)) return 'heading';
+  return null;
+}
+
+// Splits Markdown into the headings and paragraphs that GitHub reads as Markdown text, as
+// { level, text } with level 0 for a paragraph. It leaves out fenced code blocks, indented code
+// blocks, and HTML comment blocks. It follows list items far enough to tell an indented paragraph
+// in an item from indented code; block quotes and setext headings are read as paragraph text.
+function blocksOf(markdown) {
+  const blocks = [];
+  let paragraph = [];
+  let prev = 'blank'; // What the last line was: 'blank', 'paragraph', or 'other'.
+  let fence = null; // The open fenced code block, as { base, close }.
+  let comment = false; // Whether an HTML comment block is open.
+  let indented = false; // Whether an indented code block is open.
+  let items = []; // The content indent of each open list item, outermost first.
+  const end = (next) => {
+    if (paragraph.length) blocks.push({ level: 0, text: paragraph.join('\n') });
+    paragraph = [];
+    prev = next;
+  };
+  for (const raw of markdown.split('\n')) {
+    const line = raw.replace(/\r$/, '');
+    if (!line.trim()) {
+      end('blank');
+      continue;
+    }
+    let { width: column, rest } = leading(line);
+    if (fence && column < fence.base) {
+      // The list item that holds the fence has ended, and so has the fence.
+      fence = null;
+      prev = 'other';
+    }
+    if (fence) {
+      if (column - fence.base <= 3 && fence.close.test(rest)) {
+        fence = null;
+        prev = 'other';
+      }
+      continue;
+    }
+    if (comment) {
+      if (line.includes('-->')) {
+        comment = false;
+        prev = 'other';
+      }
+      continue;
+    }
+    let open = items;
+    while (open.length && open[open.length - 1] > column) open = open.slice(0, -1);
+    let base = open.length ? open[open.length - 1] : 0;
+    if (indented && column - base >= 4) {
+      items = open;
+      continue;
+    }
+    indented = false;
+    let kind = blockStart(rest, column - base, prev === 'paragraph' && open.length === items.length);
+    // A line that starts no other block continues the paragraph before it, even when it is
+    // indented less than the list item that holds that paragraph.
+    if (prev === 'paragraph' && !kind) {
+      paragraph.push(rest);
+      continue;
+    }
+    items = open;
+    // A list item marker opens an item, and the rest of the line is read as the item's first line.
+    while (kind === 'item') {
+      const marker = /^(?:[-+*]|\d{1,9}[.)])/.exec(rest)[0];
+      const after = leading(rest.slice(marker.length), column + marker.length);
+      base = column + marker.length + (!after.rest || after.width > 4 ? 1 : after.width);
+      items = [...items, base];
+      end('blank');
+      column += marker.length + after.width;
+      rest = after.rest;
+      kind = rest ? blockStart(rest, column - base, false) : null;
+    }
+    if (!rest) continue;
+    if (column - base >= 4) {
+      end('other');
+      indented = true;
+    } else if (kind === 'break') {
+      end('other');
+    } else if (kind === 'fence') {
+      end('other');
+      const run = /^(`+|~+)/.exec(rest)[1];
+      fence = { base, close: new RegExp(`^${run[0]}{${run.length},}[ \\t]*$`) };
+    } else if (kind === 'comment') {
+      end('other');
+      comment = !rest.includes('-->');
+    } else if (kind === 'heading') {
+      end('other');
+      const [, hashes, text] = /^(#{1,6})(?:[ \t]+|$)(.*)$/.exec(rest);
+      blocks.push({ level: hashes.length, text: text.replace(/(?:^|[ \t]+)#+[ \t]*$/, '').trim() });
+    } else {
+      paragraph.push(rest);
+      prev = 'paragraph';
+    }
+  }
+  end('blank');
+  return blocks;
+}
+
+// Splits the text of one heading or paragraph into code spans and other text, as { code, text },
+// and drops HTML comments. A code span ends at the next run of as many backticks; a run with no
+// match, or a backtick after a backslash, is plain text. Like GitHub, it turns line breaks in a
+// code span into spaces and strips one space from both ends.
+function segmentsOf(text) {
+  const segments = [];
+  let plain = '';
+  let i = 0;
+  while (i < text.length) {
+    if (text[i] === '\\' && /[!-/:-@[-`{-~]/.test(text[i + 1] || '')) {
+      plain += text.slice(i, i + 2);
+      i += 2;
+    } else if (text[i] === '`') {
+      const run = /^`+/.exec(text.slice(i))[0];
+      const close = new RegExp(`(?<!\`)\`{${run.length}}(?!\`)`, 'g');
+      close.lastIndex = i + run.length;
+      const match = close.exec(text);
+      if (!match) {
+        plain += run;
+        i += run.length;
+        continue;
+      }
+      let code = text.slice(i + run.length, match.index).replace(/\n/g, ' ');
+      if (/^ .*[^ ].* $/.test(code)) code = code.slice(1, -1);
+      segments.push({ code: false, text: plain }, { code: true, text: code });
+      plain = '';
+      i = match.index + run.length;
+    } else if (text.startsWith('<!--', i) && text.includes('-->', i + 2)) {
+      i = text.indexOf('-->', i + 2) + 3;
+    } else {
+      plain += text[i];
+      i += 1;
+    }
+  }
+  segments.push({ code: false, text: plain });
+  return segments;
+}
+
+function plainText(segments) {
+  return segments.filter((segment) => !segment.code).map((segment) => segment.text).join('');
+}
+
+// Returns the Markdown text that GitHub shows, without code blocks, inline code, or HTML
+// comments, with a blank line between blocks.
+function visibleText(markdown) {
+  return blocksOf(markdown).map(({ text }) => plainText(segmentsOf(text))).join('\n\n');
+}
+
+// Builds the heading anchors that GitHub makes for a Markdown file. The text of inline code
+// counts toward an anchor, but links and HTML tags count only by their text.
 function anchorsOf(markdown) {
   const anchors = new Set();
   const seen = new Map();
-  const body = visibleText(markdown);
-  for (const line of body.split('\n')) {
-    const heading = /^ {0,3}#{1,6}\s+(.*?)\s*#*\s*$/.exec(line);
-    if (heading) {
-      let text = heading[1]
+  for (const { level, text } of blocksOf(markdown)) {
+    const segments = segmentsOf(text);
+    if (level) {
+      // Inline code is held aside while links and tags are removed, so that code which looks like
+      // a link or a tag stays as it is.
+      const code = [];
+      const words = segments
+        .map((segment) => (segment.code ? `\uE000${code.push(segment.text) - 1}\uE001` : segment.text))
+        .join('')
         .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
         .replace(/<[^>]+>/g, '')
-        .replace(/[`*~]/g, '');
-      text = text.toLowerCase().replace(/[^\p{L}\p{N}\s_-]/gu, '').trim().replace(/\s/g, '-');
-      const count = seen.get(text) || 0;
-      seen.set(text, count + 1);
-      anchors.add(count ? `${text}-${count}` : text);
+        .replace(/\uE000(\d+)\uE001/g, (_, index) => code[index]);
+      const slug = words.toLowerCase().replace(/[^\p{L}\p{N}\s_-]/gu, '').trim().replace(/\s/g, '-');
+      const count = seen.get(slug) || 0;
+      seen.set(slug, count + 1);
+      anchors.add(count ? `${slug}-${count}` : slug);
     }
-    for (const explicit of line.matchAll(/<a\s[^>]*?(?:name|id)=["']([^"']+)["']/gi)) {
+    for (const explicit of plainText(segments).matchAll(/<a\s[^>]*?(?:name|id)=["']([^"']+)["']/gi)) {
       anchors.add(explicit[1].toLowerCase());
     }
   }
@@ -159,9 +325,10 @@ function check(local, remote, remoteName = 'origin') {
   const changelog = showAt(local, 'CHANGELOG.md');
   // A heading inside code or a comment does not count, and neither does a pre-release such as
   // 1.3.0-rc.1.
-  const headingPattern = new RegExp(`^#{1,6}[ \\t]+\\[?v?${escapeRegExp(newVersion)}\\]?(?=[\\s(:]|$)`, 'm');
+  const headingPattern = new RegExp(`^\\[?v?${escapeRegExp(newVersion)}\\]?(?=[\\s(:]|$)`);
+  const headings = changelog === null ? [] : blocksOf(changelog).filter(({ level }) => level);
   if (changelog === null) fail('CHANGELOG.md does not exist.');
-  else if (!headingPattern.test(visibleText(changelog))) {
+  else if (!headings.some(({ text }) => headingPattern.test(plainText(segmentsOf(text))))) {
     fail(`CHANGELOG.md has no heading for version ${newVersion}.`);
   }
 

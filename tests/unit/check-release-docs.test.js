@@ -237,6 +237,45 @@ test('does not check a link inside an HTML comment', () => {
   fs.rmSync(repo.cwd, { recursive: true, force: true });
 });
 
+test('builds a heading anchor from the text of inline code', () => {
+  const readme = [
+    '# Readme',
+    '## The `{date}` placeholder',
+    '## Press `<kbd>` and ` Esc `',
+    'See [date](#the-date-placeholder) and [keys](#press-kbd-and-esc).',
+    '',
+  ].join('\n');
+  const repo = makeRepo({ 'README.md': readme });
+  const { code, text } = run(repo.cwd, repo.release, repo.base);
+  assert.equal(code, 0, text);
+  fs.rmSync(repo.cwd, { recursive: true, force: true });
+});
+
+test('checks the link after a fence line inside an HTML comment', () => {
+  expectFailure(makeRepo({ 'README.md': '# Readme\n<!--\n```\n-->\n\n[after](missing-after.md)\n' }),
+    /README\.md links to missing-after\.md/);
+});
+
+test('skips an indented code block but checks an indented paragraph in a list item', () => {
+  const readme = [
+    '# Readme',
+    'An example:',
+    '',
+    '    handlers[name](event);',
+    '',
+    '1. A step.',
+    '',
+    '    See [the step](docs/nope.md).',
+    '',
+  ].join('\n');
+  const repo = makeRepo({ 'README.md': readme });
+  const { code, text } = run(repo.cwd, repo.release, repo.base);
+  assert.equal(code, 1, text);
+  assert.match(text, /README\.md links to docs\/nope\.md/);
+  assert.doesNotMatch(text, /links to event/);
+  fs.rmSync(repo.cwd, { recursive: true, force: true });
+});
+
 for (const [where, changelog] of [
   ['in a code block', '# Changelog\n\n```\n## 1.1.0\n```\n\n## 1.0.0\n'],
   ['in an HTML comment', '# Changelog\n\n<!--\n## 1.1.0\n-->\n\n## 1.0.0\n'],
