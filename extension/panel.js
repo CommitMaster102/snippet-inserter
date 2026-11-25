@@ -228,6 +228,29 @@ function icon(name) {
   return wrapper.firstChild;
 }
 
+// The message under a form field, with the id `id`: an alert, so a screen reader announces it when
+// it appears, and the description of `field` when there is one. The panel holds one form at a
+// time, so the ids stay unique.
+function fieldMessage(field, id) {
+  const message = el('div', 'feedback');
+  message.id = id;
+  message.setAttribute('role', 'alert');
+  message.hidden = true;
+  if (field) field.setAttribute('aria-describedby', id);
+  return message;
+}
+
+// Shows the message under a field, or hides it when `text` is empty, and marks the field invalid
+// while it shows. A hidden element named as a description still describes the field, so hiding
+// the message also clears its text.
+function showFieldMessage(field, message, text) {
+  message.textContent = text;
+  message.hidden = !text;
+  if (!field) return;
+  if (text) field.setAttribute('aria-invalid', 'true');
+  else field.removeAttribute('aria-invalid');
+}
+
 function showError(message) {
   els.error.textContent = message;
   els.error.hidden = false;
@@ -665,8 +688,7 @@ function renderForm() {
     contentField.append(content);
   }
   const contentText = () => (content ? content.value : snippet.content);
-  const contentMessage = el('div', 'feedback');
-  contentMessage.hidden = true;
+  const contentMessage = fieldMessage(content, 'contentMessage');
   const count = el('div', 'count');
   const placeholderList = el('div', 'placeholder-list');
   const unrecognizedList = el('div', 'placeholder-list unrecognized-list');
@@ -689,8 +711,7 @@ function renderForm() {
   title.placeholder = TEXT.placeholderTitle;
   title.value = isEdit ? snippet.title || '' : '';
   titleField.append(title);
-  const titleMessage = el('div', 'feedback');
-  titleMessage.hidden = true;
+  const titleMessage = fieldMessage(title, 'titleMessage');
 
   // Typing the abbreviation in a text field replaces it with the snippet.
   const abbreviationField = el('div', 'field');
@@ -702,10 +723,9 @@ function renderForm() {
   abbreviation.autocomplete = 'off';
   abbreviation.value = isEdit ? snippet.abbreviation || '' : '';
   abbreviationField.append(abbreviation);
-  const abbreviationMessage = el('div', 'feedback');
-  abbreviationMessage.hidden = true;
+  const abbreviationMessage = fieldMessage(abbreviation, 'abbreviationMessage');
   abbreviation.addEventListener('input', () => {
-    abbreviationMessage.hidden = true;
+    showFieldMessage(abbreviation, abbreviationMessage, '');
     updateCount();
   });
 
@@ -723,21 +743,20 @@ function renderForm() {
   folderOptions.id = 'folderOptions';
   for (const name of lib.folderNames(state.snippets)) folderOptions.append(new Option(name));
   folderField.append(folder, folderOptions);
-  const folderMessage = el('div', 'feedback');
-  folderMessage.hidden = true;
+  const folderMessage = fieldMessage(folder, 'folderMessage');
   folder.addEventListener('input', () => {
-    folderMessage.hidden = true;
+    showFieldMessage(folder, folderMessage, '');
   });
 
   if (content) {
     content.addEventListener('input', () => {
-      contentMessage.hidden = true;
+      showFieldMessage(content, contentMessage, '');
       updateCount();
       autosize(content);
     });
   }
   title.addEventListener('input', () => {
-    titleMessage.hidden = true;
+    showFieldMessage(title, titleMessage, '');
     updateCount();
   });
 
@@ -977,24 +996,20 @@ function autosize(textarea) {
 function validate(form) {
   let valid = true;
   if (form.content && form.content.value.trim() === '') {
-    form.contentMessage.textContent = TEXT.validationEmpty;
-    form.contentMessage.hidden = false;
+    showFieldMessage(form.content, form.contentMessage, TEXT.validationEmpty);
     valid = false;
   }
   if (lib.titleLength(form.title.value) > lib.TITLE_MAX_LENGTH) {
-    form.titleMessage.textContent = TEXT.validationTooLong(lib.TITLE_MAX_LENGTH);
-    form.titleMessage.hidden = false;
+    showFieldMessage(form.title, form.titleMessage, TEXT.validationTooLong(lib.TITLE_MAX_LENGTH));
     valid = false;
   }
   const problem = lib.abbreviationProblem(form.abbreviation.value.trim(), state.snippets, form.ownId);
   if (problem) {
-    form.abbreviationMessage.textContent = problem;
-    form.abbreviationMessage.hidden = false;
+    showFieldMessage(form.abbreviation, form.abbreviationMessage, problem);
     valid = false;
   }
   if (lib.folderLength(form.folder.value) > lib.FOLDER_MAX_LENGTH) {
-    form.folderMessage.textContent = TEXT.validationTooLong(lib.FOLDER_MAX_LENGTH);
-    form.folderMessage.hidden = false;
+    showFieldMessage(form.folder, form.folderMessage, TEXT.validationTooLong(lib.FOLDER_MAX_LENGTH));
     valid = false;
   }
   reportSize();

@@ -62,6 +62,36 @@ test('rejects blank content and names over 128 characters', async ({ page, servi
   expect(await readSnippets(serviceWorker)).toHaveLength(0);
 });
 
+test('an error of the form is announced and describes its field, marked invalid, until the field changes', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Signature', content: 'Ana', abbreviation: ';sig' }]);
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  await page.keyboard.press('Control+1');
+  await panel.locator('input.input-title').fill('x'.repeat(129));
+  await panel.locator('input.input-abbreviation').fill(';sig');
+  await panel.locator('input.input-folder').fill('x'.repeat(65));
+  await page.keyboard.press('Control+Enter');
+
+  const errors = [
+    ['textarea.input-content', 'This field must not be empty.', 'Hello'],
+    ['input.input-title', 'The input must not be longer than 128 characters.', 'Greeting'],
+    ['input.input-abbreviation', 'Another snippet already uses ;sig.', ';hi'],
+    ['input.input-folder', 'The input must not be longer than 64 characters.', 'Work'],
+  ];
+  for (const [field, message] of errors) {
+    await expect(panel.getByRole('alert').filter({ hasText: message })).toBeVisible();
+    await expect(panel.locator(field)).toHaveAccessibleDescription(message);
+    await expect(panel.locator(field)).toHaveAttribute('aria-invalid', 'true');
+  }
+  for (const [field, , value] of errors) {
+    await panel.locator(field).fill(value);
+    await expect(panel.locator(field)).toHaveAccessibleDescription('');
+    await expect(panel.locator(field)).not.toHaveAttribute('aria-invalid');
+  }
+  await expect(panel.getByRole('alert')).toHaveCount(0);
+  expect(await readSnippets(serviceWorker)).toHaveLength(1);
+});
+
 test('offers to create a snippet from the selected text', async ({ page, serviceWorker }) => {
   await seedSnippets(serviceWorker, [{ content: 'Existing' }]);
   await selectInTextarea(page, '#plain', 0, 5);
