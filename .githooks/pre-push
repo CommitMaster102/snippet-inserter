@@ -1,11 +1,13 @@
 #!/bin/sh
-# Runs scripts/check-release-docs.js for each ref being pushed. Git feeds one line per ref on
-# standard input: local ref, local sha, remote ref, remote sha. Skip with git push --no-verify.
+# Runs scripts/check-release-docs.js for each ref being pushed. Git passes the remote's name as the
+# first argument and feeds one line per ref on standard input: local ref, local sha, remote ref,
+# remote sha. Skip with git push --no-verify.
 
 root=$(git rev-parse --show-toplevel) || exit 1
+remote=$1
 status=0
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ -n "$local_sha" ] || continue
-  node "$root/scripts/check-release-docs.js" "$local_sha" "$remote_sha" || status=1
+  node "$root/scripts/check-release-docs.js" "$local_sha" "$remote_sha" "$remote" || status=1
 done
 exit $status

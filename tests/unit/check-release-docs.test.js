@@ -82,9 +82,10 @@ function makeRepo(overrides = {}, { bumpFirst = false } = {}) {
   return { cwd, base, release };
 }
 
-function run(cwd, local, remote) {
+function run(cwd, local, remote, remoteName) {
   const args = [SCRIPT, local];
   if (remote !== undefined) args.push(remote);
+  if (remoteName !== undefined) args.push(remoteName);
   const result = spawnSync('node', args, { cwd, encoding: 'utf8' });
   return { code: result.status, text: result.stderr };
 }
@@ -220,21 +221,74 @@ test('reports every failure at once', () => {
   fs.rmSync(repo.cwd, { recursive: true, force: true });
 });
 
-test('compares a new branch with the root commit when there is no remote default branch', () => {
+test('checks a push that changes only the manifest version', () => {
+  expectFailure(makeRepo({ 'package.json': JSON.stringify({ name: 'x', version: '1.0.0' }) }),
+    /manifest\.json has version 1\.1\.0, but package\.json has 1\.0\.0/);
+});
+
+test('refuses a code change after the review that the remote already has', () => {
+  const { cwd } = makeRepo({}, { bumpFirst: true });
+  writeRelease(cwd, '1.1.0', { 'package.json': JSON.stringify({ name: 'x', version: '1.0.0' }) });
+  commit(cwd, 'Review the docs for 1.1.0');
+  write(cwd, 'extension/other.js', 'other();\n');
+  const pushed = commit(cwd, 'Code change after review');
+  write(cwd, 'package.json', JSON.stringify({ name: 'x', version: '1.1.0' }));
+  const release = commit(cwd, 'Raise package.json to 1.1.0');
+  expectFailure({ cwd, base: pushed, release },
+    /last change under extension\/ \([0-9a-f]+ Code change after review\)/);
+});
+
+const ZERO_SHA = '0'.repeat(40);
+
+// Builds main with version 1.0.0, a reviewed release of 1.1.0, and a code change after the
+// review, which is the usual state between releases. A push that raises the version to 1.1.0
+// from 1.0.0 would fail, because the code change is newer than the review.
+function makeReleasedRepo() {
+  const { cwd, base } = makeRepo({}, { bumpFirst: true });
+  writeRelease(cwd, '1.1.0');
+  commit(cwd, 'Release 1.1.0');
+  write(cwd, 'extension/other.js', 'other();\n');
+  const main = commit(cwd, 'Code change after the release');
+  return { cwd, base, main };
+}
+
+test('does nothing for a new branch at the commit of the remote default branch', () => {
+  const { cwd, main } = makeReleasedRepo();
+  git(cwd, 'update-ref', 'refs/remotes/origin/main', main);
+  git(cwd, 'symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/main');
+  const { code, text } = run(cwd, main, ZERO_SHA, 'origin');
+  assert.equal(code, 0, text);
+  fs.rmSync(cwd, { recursive: true, force: true });
+});
+
+test('compares a new branch with the remote branches when the remote has no HEAD', () => {
+  const { cwd, main } = makeReleasedRepo();
+  git(cwd, 'update-ref', 'refs/remotes/origin/main', main);
+  write(cwd, 'extension/feature.js', 'feature();\n');
+  const head = commit(cwd, 'A change on a new branch');
+  const { code, text } = run(cwd, head, ZERO_SHA, 'origin');
+  assert.equal(code, 0, text);
+  fs.rmSync(cwd, { recursive: true, force: true });
+});
+
+test('compares a new branch with the default branch of the remote it is pushed to', () => {
+  const { cwd, base, main } = makeReleasedRepo();
+  git(cwd, 'update-ref', 'refs/remotes/origin/main', base);
+  git(cwd, 'symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/main');
+  git(cwd, 'update-ref', 'refs/remotes/upstream/main', main);
+  git(cwd, 'symbolic-ref', 'refs/remotes/upstream/HEAD', 'refs/remotes/upstream/main');
+  const upstream = run(cwd, main, ZERO_SHA, 'upstream');
+  assert.equal(upstream.code, 0, upstream.text);
+  const origin = run(cwd, main, ZERO_SHA, 'origin');
+  assert.equal(origin.code, 1, origin.text);
+  assert.match(origin.text, /changes the version to 1\.1\.0/);
+  fs.rmSync(cwd, { recursive: true, force: true });
+});
+
+test('compares a new branch with the root commit when there is no remote-tracking branch', () => {
   const repo = makeRepo({ 'CHANGELOG.md': '# Changelog\n' });
-  const { code, text } = run(repo.cwd, repo.release, '0'.repeat(40));
+  const { code, text } = run(repo.cwd, repo.release, ZERO_SHA);
   assert.equal(code, 1);
   assert.match(text, /CHANGELOG\.md has no heading/);
   fs.rmSync(repo.cwd, { recursive: true, force: true });
-});
-
-test('compares a new branch with the remote default branch', () => {
-  const { cwd, base } = makeRepo({}, { bumpFirst: true });
-  git(cwd, 'update-ref', 'refs/remotes/origin/main', base);
-  git(cwd, 'symbolic-ref', 'refs/remotes/origin/HEAD', 'refs/remotes/origin/main');
-  git(cwd, 'checkout', '-q', '-b', 'feature');
-  write(cwd, 'extension/content.js', 'changed();\n');
-  const head = commit(cwd, 'A change on a new branch');
-  assert.equal(run(cwd, head, '0'.repeat(40)).code, 0);
-  fs.rmSync(cwd, { recursive: true, force: true });
 });

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-// Refuses a push that raises the version in package.json while the docs are stale.
+// Refuses a push that changes the version while the release docs are stale.
 //
-// Usage: node scripts/check-release-docs.js <local-sha> [<remote-sha>]
+// Usage: node scripts/check-release-docs.js <local-sha> [<remote-sha> [<remote-name>]]
 //
-// The pre-push hook calls this once for each ref being pushed. When "version" in package.json is
-// the same at both ends of the range, the script does nothing and exits 0. When it changed, the
-// script checks the release docs as they are at the local commit and exits 1 with one message per
+// The pre-push hook calls this once for each ref being pushed, with the name of the remote. The
+// version is "version" in package.json and in extension/manifest.json. When both are the same at
+// both ends of the range, the script does nothing and exits 0. When either changed, the script
+// checks the release docs as they are at the local commit and exits 1 with one message per
 // failure. It has no dependencies and reads the repository through git, not the working tree.
 'use strict';
 
@@ -31,25 +32,45 @@ function commitExists(sha) {
   return git(['cat-file', '-e', `${sha}^{commit}`]) !== null;
 }
 
-// Finds the commit to compare a new branch with: the remote default branch, else the root commit.
-function defaultBase(local) {
-  const head = git(['symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD']);
-  if (head) {
-    const base = git(['rev-parse', '--verify', '--quiet', `${head.trim()}^{commit}`]);
-    if (base && base.trim() !== local) return base.trim();
+function mergeBase(a, b) {
+  const base = git(['merge-base', a, b]);
+  return base ? base.trim() : null;
+}
+
+// Finds the commit to compare a new branch with, one that the remote already has. That is the
+// commit where the branch leaves the remote's default branch, <remote>/HEAD. Without that ref, it
+// is the nearest commit that the branch shares with one of the remote's branches, or else with any
+// remote-tracking branch. Only when no remote-tracking branch shares a commit is it the root commit.
+function defaultBase(local, remoteName) {
+  const head = git(['symbolic-ref', '--quiet', `refs/remotes/${remoteName}/HEAD`]);
+  const base = head && mergeBase(local, head.trim());
+  if (base) return base;
+  for (const prefix of [`refs/remotes/${remoteName}/`, 'refs/remotes/']) {
+    const refs = (git(['for-each-ref', '--format=%(objectname)', prefix]) || '').split('\n').filter(Boolean);
+    let nearest = null;
+    let nearestCount = Infinity;
+    for (const ref of new Set(refs)) {
+      const shared = mergeBase(local, ref);
+      if (!shared) continue;
+      const count = Number((git(['rev-list', '--count', `${shared}..${local}`]) || '').trim());
+      if (count < nearestCount) {
+        nearest = shared;
+        nearestCount = count;
+      }
+    }
+    if (nearest) return nearest;
   }
   const roots = git(['rev-list', '--max-parents=0', local]);
-  const root = roots && roots.trim().split('\n')[0];
-  return root && root !== local ? root : null;
+  return roots ? roots.trim().split('\n')[0] : null;
 }
 
 function showAt(sha, file) {
   return git(['show', `${sha}:${file}`]);
 }
 
-function versionAt(sha) {
+function versionAt(sha, file) {
   if (!sha) return null;
-  const text = showAt(sha, 'package.json');
+  const text = showAt(sha, file);
   if (text === null) return null;
   try {
     return JSON.parse(text).version || null;
@@ -105,14 +126,20 @@ function linksOf(markdown) {
   return found;
 }
 
-function check(local, remote) {
+function check(local, remote, remoteName = 'origin') {
   const failures = [];
   const fail = (message) => failures.push(message);
 
-  const newVersion = versionAt(local);
-  if (!newVersion) return { changed: false, failures };
-  if (!remote || ZERO.test(remote) || !commitExists(remote)) remote = defaultBase(local);
-  if (versionAt(remote) === newVersion) return { changed: false, failures };
+  const packageVersion = versionAt(local, 'package.json');
+  const manifestVersion = versionAt(local, 'extension/manifest.json');
+  if (!packageVersion && !manifestVersion) return { changed: false, failures };
+  if (!remote || ZERO.test(remote) || !commitExists(remote)) remote = defaultBase(local, remoteName);
+  const packageChanged = versionAt(remote, 'package.json') !== packageVersion;
+  const manifestChanged = versionAt(remote, 'extension/manifest.json') !== manifestVersion;
+  if (!packageChanged && !manifestChanged) return { changed: false, failures };
+  // The docs are checked against the version in package.json, or against the manifest's version
+  // when only the manifest changed.
+  const newVersion = packageChanged && packageVersion ? packageVersion : manifestVersion || packageVersion;
 
   const files = new Set((git(['ls-tree', '-r', '--name-only', '-z', local], { fail: true }) || '')
     .split('\0').filter(Boolean));
@@ -130,11 +157,8 @@ function check(local, remote) {
   }
 
   // The manifest version matches package.json.
-  const manifestText = showAt(local, 'extension/manifest.json');
-  let manifestVersion = null;
-  try { manifestVersion = JSON.parse(manifestText).version; } catch { /* reported below */ }
-  if (manifestVersion !== newVersion) {
-    fail(`extension/manifest.json has version ${manifestVersion || '(none)'}, but package.json has ${newVersion}.`);
+  if (manifestVersion !== packageVersion) {
+    fail(`extension/manifest.json has version ${manifestVersion || '(none)'}, but package.json has ${packageVersion || '(none)'}.`);
   }
 
   // The review record lists every tracked Markdown file at the new version.
@@ -164,13 +188,13 @@ function check(local, remote) {
     }
   }
 
-  // The review record is not older than the last change to the extension in the range.
+  // No change under extension/ comes after the last change to the review record, whether or not
+  // the push carries that change.
   if (reviewText !== null) {
-    const range = remote ? [`${remote}..${local}`] : [local];
-    const extension = (git(['log', '-1', '--format=%H', ...range, '--', 'extension/']) || '').trim();
     const reviewed = (git(['log', '-1', '--format=%H', local, '--', 'docs/doc-review.json']) || '').trim();
-    if (extension && reviewed && git(['merge-base', '--is-ancestor', extension, reviewed]) === null) {
-      const short = git(['log', '-1', '--format=%h %s', extension]).trim();
+    const later = reviewed && (git(['rev-list', '-1', `${reviewed}..${local}`, '--', 'extension/']) || '').trim();
+    if (later) {
+      const short = git(['log', '-1', '--format=%h %s', later]).trim();
       fail(`docs/doc-review.json was last changed before the last change under extension/ (${short}). Review the docs again and update it.`);
     }
   }
@@ -235,9 +259,9 @@ function check(local, remote) {
 }
 
 function main() {
-  const [local, remote] = process.argv.slice(2);
+  const [local, remote, remoteName] = process.argv.slice(2);
   if (!local) {
-    console.error('Usage: node scripts/check-release-docs.js <local-sha> [<remote-sha>]');
+    console.error('Usage: node scripts/check-release-docs.js <local-sha> [<remote-sha> [<remote-name>]]');
     process.exit(2);
   }
   if (ZERO.test(local)) process.exit(0); // The ref is being deleted.
@@ -245,9 +269,9 @@ function main() {
     console.error(`check-release-docs: ${local} is not a commit in this repository.`);
     process.exit(2);
   }
-  const { changed, version, failures } = check(local, remote);
+  const { changed, version, failures } = check(local, remote, remoteName || 'origin');
   if (!changed || failures.length === 0) process.exit(0);
-  console.error(`The push raises the version to ${version}, but the release docs are not ready:`);
+  console.error(`The push changes the version to ${version}, but the release docs are not ready:`);
   for (const message of failures) console.error(`  - ${message}`);
   console.error('Fix these and push again, or skip this check with git push --no-verify.');
   process.exit(1);

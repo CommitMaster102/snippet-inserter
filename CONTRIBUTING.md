@@ -32,13 +32,15 @@ Contributions are licensed under the MIT license in [LICENSE](LICENSE).
 
 ## Release a version
 
-A pre-push hook stops a push that raises `version` in `package.json` while the docs are stale. `npm install` turns it on by setting `core.hooksPath` to `.githooks`. The hook does nothing when the version is the same as on the remote. When the version changed, it checks that:
+A pre-push hook stops a push that changes the version while the docs are stale. The version is `version` in `package.json` and in `extension/manifest.json`. `npm install` turns the hook on by setting `core.hooksPath` to `.githooks`.
+
+The hook compares each pushed branch with that branch on the remote. A new branch has no commit there, so the hook compares it with the commit where it leaves the remote's default branch, such as `origin/HEAD`. If the remote has no default branch in your clone, the hook uses the nearest commit that the new branch shares with a remote-tracking branch, and if there is none, the repository's first commit. When neither version differs from the compared commit, the hook does nothing. When one differs, it checks that:
 
 - `CHANGELOG.md` has a heading for the new version.
 - `extension/manifest.json` has the same version as `package.json`.
 - `docs/doc-review.json` lists every tracked Markdown file at the new version, and lists no file that is gone.
-- `docs/doc-review.json` was last changed after the last change under `extension/` in the pushed range.
+- No commit after the last change to `docs/doc-review.json` changes anything under `extension/`, whether or not the push carries that commit.
 - Every relative link and `#anchor` in the Markdown files resolves.
 - The file sizes in `docs/development.md` and the number of languages in the README match `extension/`.
 
-To release, change the code first. Then read each Markdown file against the code, fix what is out of date, and set each file's version in `docs/doc-review.json` to the new version. Add the changelog entry and commit both after the last code change. `scripts/check-release-docs.js <local-sha> <remote-sha>` runs the check by hand, and `git push --no-verify` skips it.
+To release, change the code first. Then read each Markdown file against the code and fix what is out of date. In one commit after the last code change, set each file's version in `docs/doc-review.json` to the new version, raise `version` in `package.json` and `extension/manifest.json`, and add the changelog entry. `node scripts/check-release-docs.js <local-sha> <remote-sha>` runs the check by hand, with a third argument for a remote other than `origin`, and `git push --no-verify` skips it.
