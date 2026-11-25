@@ -11,8 +11,10 @@
  * scripts and load nothing.
  *
  * The cleaner runs when a snippet is saved, when a backup is imported, and again before each
- * insert. The manager page and the panel load this file, and content-main.js imports it the first
- * time a frame inserts a formatted snippet. The placeholder functions come from placeholders.js.
+ * insert. The manager page and the panel load this file. content-main.js imports it the first time
+ * a frame inserts a formatted snippet into a rich editor, or an abbreviation is typed into a rich
+ * editor for a snippet that includes others while any stored snippet is formatted. The placeholder
+ * functions come from placeholders.js.
  */
 (function (root) {
   'use strict';

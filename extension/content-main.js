@@ -59,8 +59,9 @@ export function create(shared) {
   let richTextLoading = null;
 
   // lib/richtext.js, the cleaner for formatted snippets. It is imported the first time this frame
-  // inserts a formatted snippet into a rich editor, so a frame that inserts only plain text never
-  // loads it. A failed import can be tried again.
+  // inserts a formatted snippet into a rich editor, or an abbreviation is typed into a rich editor
+  // for a snippet that includes others while any stored snippet is formatted. A frame that does
+  // neither never loads it. A failed import can be tried again.
   function loadRichText() {
     if (!richTextLoading) {
       richTextLoading = import('./lib/richtext.js').then(() => globalThis.SnippetInserter.richText);
