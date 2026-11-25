@@ -83,18 +83,21 @@ function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// Blanks out fenced code blocks and inline code so that links inside them are not checked.
-function stripCode(markdown) {
+// Removes what GitHub does not show as text: fenced code blocks, inline code, and HTML comments.
+// A fence ends at a line with at least as many of its characters, or at the end of the file. An
+// inline code span ends at the next run of as many backticks in the same paragraph.
+function visibleText(markdown) {
   return markdown
-    .replace(/^ {0,3}(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:\n {0,3}\1[`~]*[ \t]*(?=\n|$)|$)/gm, '')
-    .replace(/(`+)[^`\n][\s\S]*?\1/g, '');
+    .replace(/^[ \t]*(([`~])\2{2,})[\s\S]*?(?:\n[ \t]*\1\2*[ \t]*$|(?![\s\S]))/gm, '')
+    .replace(/(?<!`)(`+)[^`\n](?:(?!\n[ \t]*\n)[\s\S])*?(?<!`)\1(?!`)/g, '')
+    .replace(/<!--[\s\S]*?-->/g, '');
 }
 
 // Builds the heading anchors that GitHub makes for a Markdown file.
 function anchorsOf(markdown) {
   const anchors = new Set();
   const seen = new Map();
-  const body = stripCode(markdown);
+  const body = visibleText(markdown);
   for (const line of body.split('\n')) {
     const heading = /^ {0,3}#{1,6}\s+(.*?)\s*#*\s*$/.exec(line);
     if (heading) {
@@ -114,8 +117,9 @@ function anchorsOf(markdown) {
   return anchors;
 }
 
+// Lists the targets of inline links, reference definitions, and the href of <a> and src of <img>.
 function linksOf(markdown) {
-  const body = stripCode(markdown);
+  const body = visibleText(markdown);
   const found = [];
   for (const match of body.matchAll(/\]\(\s*<?([^)\s>]+)>?(?:\s+(?:"[^"]*"|'[^']*'))?\s*\)/g)) {
     found.push(match[1]);
@@ -123,7 +127,10 @@ function linksOf(markdown) {
   for (const match of body.matchAll(/^ {0,3}\[[^\]]+\]:\s*<?(\S+?)>?(?:\s|$)/gm)) {
     found.push(match[1]);
   }
-  return found;
+  for (const match of body.matchAll(/<(?:a\b[^>]*?\shref|img\b[^>]*?\ssrc)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi)) {
+    found.push(match[1] ?? match[2]);
+  }
+  return found.filter(Boolean);
 }
 
 function check(local, remote, remoteName = 'origin') {
@@ -150,9 +157,11 @@ function check(local, remote, remoteName = 'origin') {
 
   // The changelog has a heading for the new version.
   const changelog = showAt(local, 'CHANGELOG.md');
-  const headingPattern = new RegExp(`^#{1,6}[ \\t]+\\[?v?${escapeRegExp(newVersion)}\\]?(?=[\\s(:-]|$)`, 'm');
+  // A heading inside code or a comment does not count, and neither does a pre-release such as
+  // 1.3.0-rc.1.
+  const headingPattern = new RegExp(`^#{1,6}[ \\t]+\\[?v?${escapeRegExp(newVersion)}\\]?(?=[\\s(:]|$)`, 'm');
   if (changelog === null) fail('CHANGELOG.md does not exist.');
-  else if (!headingPattern.test(changelog)) {
+  else if (!headingPattern.test(visibleText(changelog))) {
     fail(`CHANGELOG.md has no heading for version ${newVersion}.`);
   }
 

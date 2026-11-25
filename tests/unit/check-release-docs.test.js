@@ -191,6 +191,62 @@ test('refuses an anchor in the same file that does not exist', () => {
     /links to #nope, but docs\/guide\.md has no heading #nope/);
 });
 
+test('skips every line of a multi-line code block and checks the line after it', () => {
+  const readme = [
+    '# Readme',
+    '```js',
+    'const first = 1;',
+    'handlers[name](event);',
+    '[a](b.md)',
+    '```',
+    '[after](missing-after.md)',
+    '',
+  ].join('\n');
+  const repo = makeRepo({ 'README.md': readme });
+  const { code, text } = run(repo.cwd, repo.release, repo.base);
+  assert.equal(code, 1, text);
+  assert.match(text, /README\.md links to missing-after\.md/);
+  assert.doesNotMatch(text, /links to (event|b\.md)/);
+  fs.rmSync(repo.cwd, { recursive: true, force: true });
+});
+
+test('checks the line after an empty code block', () => {
+  expectFailure(makeRepo({ 'README.md': '# Readme\n```\n```\n[after](missing-after.md)\n' }),
+    /README\.md links to missing-after\.md/);
+});
+
+test('keeps an inline code span inside one paragraph', () => {
+  const readme = '# Readme\nPress the ` key to start.\n\nSee [setup](docs/nope.md) for `npm` setup.\n';
+  expectFailure(makeRepo({ 'README.md': readme }), /README\.md links to docs\/nope\.md/);
+});
+
+test('checks the href and src of HTML tags', () => {
+  const readme = '# Readme\n<a href="docs/nope.md">x</a>\n<img alt="" src="docs/nope.png">\n';
+  const repo = makeRepo({ 'README.md': readme });
+  const { code, text } = run(repo.cwd, repo.release, repo.base);
+  assert.equal(code, 1, text);
+  assert.match(text, /links to docs\/nope\.md/);
+  assert.match(text, /links to docs\/nope\.png/);
+  fs.rmSync(repo.cwd, { recursive: true, force: true });
+});
+
+test('does not check a link inside an HTML comment', () => {
+  const repo = makeRepo({ 'docs/guide.md': '# Guide\n\n## Set up\n\n<!-- [x](missing.md) -->\n' });
+  const { code, text } = run(repo.cwd, repo.release, repo.base);
+  assert.equal(code, 0, text);
+  fs.rmSync(repo.cwd, { recursive: true, force: true });
+});
+
+for (const [where, changelog] of [
+  ['in a code block', '# Changelog\n\n```\n## 1.1.0\n```\n\n## 1.0.0\n'],
+  ['in an HTML comment', '# Changelog\n\n<!--\n## 1.1.0\n-->\n\n## 1.0.0\n'],
+  ['for a pre-release only', '# Changelog\n\n## 1.1.0-rc.1\n\n## 1.0.0\n'],
+]) {
+  test(`refuses a changelog whose heading for the version is ${where}`, () => {
+    expectFailure(makeRepo({ 'CHANGELOG.md': changelog }), /CHANGELOG\.md has no heading for version 1\.1\.0/);
+  });
+}
+
 test('refuses a stated file size that is wrong', () => {
   expectFailure(makeRepo({ 'README.md': '# Readme\n`content.js`, 9,999 bytes.\n2 languages besides English.\n' }),
     /says content\.js is 9,999 bytes, but it is 24 bytes/);
