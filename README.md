@@ -179,6 +179,10 @@ Turning the box off asks nothing. The text box gets the text without its formatt
 or a number before each list item and each link's address in parentheses after its text, and Save
 then removes the formatting.
 
+Snippets made in the snippet panel are plain. The panel's edit form shows a formatted snippet's text
+with its formatting but does not change it: "Open in snippet manager" opens the snippet in the
+manager, and the name, abbreviation, and folder can still be changed in the panel.
+
 ## Abbreviations
 
 A snippet can have an abbreviation, such as `;addr`. Typing the abbreviation in a text field

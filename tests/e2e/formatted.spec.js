@@ -3,7 +3,22 @@
 'use strict';
 
 const { test, expect } = require('./fixtures');
-const { seedSnippets, readSnippets, openManager } = require('./helpers');
+const {
+  seedSnippets,
+  readSnippets,
+  openManager,
+  selectInTextarea,
+  openPanel,
+  waitForPanelFit,
+  waitForStablePanel,
+  expectPanelClosed,
+} = require('./helpers');
+
+const ORDER = {
+  title: 'Order',
+  content: 'Your order ships {date}.\n• Track it',
+  html: '<b>Your order</b> ships {date}.<ul><li>Track it</li></ul>',
+};
 
 const TOOL_NAMES = [
   'Bold (Ctrl+B)',
@@ -214,4 +229,57 @@ test('options.html#edit= opens that snippet, and an unknown id says so', async (
   expect(new URL(manager.url()).hash).toBe('#snippets');
   await manager.goto(`chrome-extension://${extensionId}/options.html#edit=missing`);
   await expect(manager.locator('#pageError')).toHaveText('Could not find the snippet.');
+});
+
+test('the panel shows a formatted snippet read-only, and saving a new name keeps its text', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [ORDER]);
+  await selectInTextarea(page, '#plain', 11);
+  const panel = await openPanel(page);
+  const item = panel.locator('.list .item', { hasText: 'Order' });
+  await item.hover();
+  await item.locator('.edit-button').click();
+  await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  const view = panel.getByRole('document', { name: 'Snippet text' });
+  await expect(view.locator('b')).toHaveText('Your order');
+  await expect(view.locator('li')).toHaveText('Track it');
+  await expect(panel.locator('textarea')).toHaveCount(0);
+  await expect(panel.getByText('This snippet has formatting. Change its text in the snippet manager.')).toBeVisible();
+  await expect(panel.getByRole('button', { name: 'Open in snippet manager' })).toBeVisible();
+  await expect(panel.locator('.placeholder-list').first()).toContainText('{date}');
+  await expect(panel.locator('.input-title')).toBeFocused();
+
+  await panel.locator('.input-title').fill('Order confirmation');
+  await page.keyboard.press('Control+Enter');
+  await expect(item.locator('.item-label')).toHaveText('edited');
+  const [stored] = await readSnippets(serviceWorker);
+  expect(stored).toMatchObject({ title: 'Order confirmation', content: ORDER.content, html: ORDER.html });
+
+  // A snippet made in the panel is plain.
+  await page.keyboard.press('Control+1');
+  await expect(panel.locator('.caption')).toHaveText('Create a new snippet');
+  await panel.locator('textarea.input-content').fill('Made in the panel');
+  await page.keyboard.press('Control+Enter');
+  await expect(panel.locator('.list .item-caption')).toHaveCount(2);
+  const made = (await readSnippets(serviceWorker)).find((s) => s.content === 'Made in the panel');
+  expect('html' in made).toBe(false);
+});
+
+test('Open in snippet manager opens that snippet in the manager and closes the panel', async ({ context, page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Plain', content: 'Plain text' }, ORDER]);
+  await selectInTextarea(page, '#plain', 11);
+  const panel = await openPanel(page);
+  const item = panel.locator('.list .item', { hasText: 'Order' });
+  await item.hover();
+  await item.locator('.edit-button').click();
+  await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  await waitForPanelFit(page, panel);
+  await waitForStablePanel(page);
+  const [manager] = await Promise.all([
+    context.waitForEvent('page'),
+    panel.getByRole('button', { name: 'Open in snippet manager' }).click(),
+  ]);
+  await expect(manager.locator('#title')).toHaveValue('Order');
+  await expect(manager.getByLabel('Formatted text')).toBeChecked();
+  expect(new URL(manager.url()).hash).toBe('#snippets');
+  await expectPanelClosed(page);
 });

@@ -80,6 +80,9 @@ const TEXT = {
   siteOff: (host) => `Turn off the double tap and abbreviations for ${host}`,
   siteOn: (entry) => `Turn the double tap and abbreviations back on for ${entry}`,
   siteError: 'Failed to change the setting for this site.',
+  formattedView: 'Snippet text',
+  formattedNote: 'This snippet has formatting. Change its text in the snippet manager.',
+  openManager: 'Open in snippet manager',
 };
 
 const ICONS = {
@@ -636,13 +639,29 @@ function renderForm() {
 
   const form = el('div', 'form');
 
-  const contentField = el('div', 'field field-multiline');
-  const content = el('textarea', 'input input-content');
-  content.placeholder = TEXT.placeholderContent;
-  content.value = isEdit ? snippet.content : state.selectedText;
-  content.rows = 6;
-  content.dir = 'auto';
-  contentField.append(content);
+  // A formatted snippet's text is shown with its formatting and changed only in the manager, so
+  // the panel never saves formatting it cannot edit. Snippets made here are plain.
+  const formatted = Boolean(isEdit && snippet.html);
+  let content = null;
+  let contentField;
+  let formattedNote = null;
+  if (formatted) {
+    contentField = formattedView(snippet.html);
+    formattedNote = el('div', 'formatted-note', `${TEXT.formattedNote} `);
+    const open = el('button', 'link-button', TEXT.openManager);
+    open.type = 'button';
+    open.addEventListener('click', () => openInManager(snippet.id));
+    formattedNote.append(open);
+  } else {
+    contentField = el('div', 'field field-multiline');
+    content = el('textarea', 'input input-content');
+    content.placeholder = TEXT.placeholderContent;
+    content.value = isEdit ? snippet.content : state.selectedText;
+    content.rows = 6;
+    content.dir = 'auto';
+    contentField.append(content);
+  }
+  const contentText = () => (content ? content.value : snippet.content);
   const contentMessage = el('div', 'feedback');
   contentMessage.hidden = true;
   const count = el('div', 'count');
@@ -652,10 +671,11 @@ function renderForm() {
   const referenceProblems = el('div', 'reference-problems');
   // The title and abbreviation fields are made below; they are read when this runs.
   const updateCount = () => {
-    count.textContent = lib.characterCount(content.value);
-    renderPlaceholderList(placeholderList, content.value);
-    renderUnrecognized(unrecognizedList, content.value);
-    const own = { id: isEdit ? snippet.id : '', title: title.value, content: content.value, abbreviation: abbreviation.value.trim() };
+    const text = contentText();
+    count.textContent = lib.characterCount(text);
+    renderPlaceholderList(placeholderList, text);
+    renderUnrecognized(unrecognizedList, text);
+    const own = { id: isEdit ? snippet.id : '', title: title.value, content: text, abbreviation: abbreviation.value.trim() };
     renderReferences(referenceList, referenceProblems, own, state.snippets.filter((s) => s.id !== own.id));
   };
 
@@ -706,11 +726,13 @@ function renderForm() {
     folderMessage.hidden = true;
   });
 
-  content.addEventListener('input', () => {
-    contentMessage.hidden = true;
-    updateCount();
-    autosize(content);
-  });
+  if (content) {
+    content.addEventListener('input', () => {
+      contentMessage.hidden = true;
+      updateCount();
+      autosize(content);
+    });
+  }
   title.addEventListener('input', () => {
     titleMessage.hidden = true;
     updateCount();
@@ -718,8 +740,9 @@ function renderForm() {
 
   updateCount();
 
+  form.append(contentField);
+  if (formattedNote) form.append(formattedNote);
   form.append(
-    contentField,
     contentMessage,
     placeholderList,
     unrecognizedList,
@@ -756,9 +779,40 @@ function renderForm() {
   };
   setPrimary(TEXT.formApply, currentForm.submit, IS_MAC ? COMMAND_KEY + RETURN_KEY : `Ctrl ${RETURN_KEY}`);
 
+  if (!content) {
+    title.focus(NO_SCROLL);
+    return;
+  }
   autosize(content);
   content.focus(NO_SCROLL);
   content.setSelectionRange(content.value.length, content.value.length);
+}
+
+// The read-only box that shows a formatted snippet's text. It takes one Tab stop so it can be
+// scrolled with the keyboard. A link shows its address as a tooltip and opens nothing.
+function formattedView(html) {
+  const view = el('div', 'field formatted-view');
+  view.tabIndex = 0;
+  view.dir = 'auto';
+  view.setAttribute('role', 'document');
+  view.setAttribute('aria-label', TEXT.formattedView);
+  view.append(lib.richText.toFragment(html, document, { titles: true }));
+  view.addEventListener('click', (event) => {
+    if (event.target.closest('a')) event.preventDefault();
+  });
+  return view;
+}
+
+// Opens the manager at the snippet in a new tab, and closes the panel. Changes typed in the form
+// are not saved.
+async function openInManager(id) {
+  const url = chrome.runtime.getURL(`options.html#edit=${encodeURIComponent(id)}`);
+  try {
+    await chrome.tabs.create({ url });
+  } catch {
+    window.open(url, '_blank');
+  }
+  post({ type: 'close' });
 }
 
 // The placeholders found in the text, shown under it so the user sees which parts will be
@@ -907,7 +961,7 @@ function autosize(textarea) {
 // The content has no length limit.
 function validate(form) {
   let valid = true;
-  if (form.content.value.trim() === '') {
+  if (form.content && form.content.value.trim() === '') {
     form.contentMessage.textContent = TEXT.validationEmpty;
     form.contentMessage.hidden = false;
     valid = false;
@@ -971,8 +1025,9 @@ async function saveEdit(id) {
   if (!form || state.busy || !validate(form)) return;
   const result = await change(
     () =>
+      // A formatted snippet's form has no text field, and its text stays as stored.
       lib.updateSnippet(id, {
-        content: form.content.value,
+        content: form.content ? form.content.value : undefined,
         title: form.title.value,
         abbreviation: form.abbreviation.value.trim(),
         folder: form.folder.value,

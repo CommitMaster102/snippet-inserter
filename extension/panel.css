@@ -530,6 +530,70 @@ svg {
   font-size: var(--font-small);
 }
 
+/* A formatted snippet's text, shown read-only in the edit form, and the note under it. */
+
+.formatted-view {
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 6px 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.formatted-view:focus-visible {
+  outline: 2px solid var(--brand-default);
+}
+
+.formatted-view ul,
+.formatted-view ol,
+.fill-preview ul,
+.fill-preview ol {
+  margin: 0;
+  padding-inline-start: 20px;
+}
+
+.formatted-view a,
+.fill-preview a {
+  color: var(--brand-default);
+}
+
+.formatted-view code,
+.formatted-view pre,
+.fill-preview code,
+.fill-preview pre {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  background: var(--bg-neutral);
+  border-radius: 4px;
+}
+
+.formatted-view pre,
+.fill-preview pre {
+  margin: 2px 0;
+  padding: 4px 6px;
+  white-space: pre-wrap;
+}
+
+.formatted-view pre code,
+.fill-preview pre code {
+  background: transparent;
+}
+
+.formatted-note {
+  margin: 0 12px 6px;
+  color: var(--text-subtle);
+  font-size: var(--font-small);
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand-default);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .count {
   margin: 0 12px 2px;
   text-align: right;
