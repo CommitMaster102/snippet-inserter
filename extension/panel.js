@@ -58,7 +58,7 @@ const TEXT = {
   folderNone: t('folderNone'),
   foldersLabel: t('foldersLabel'),
   validationEmpty: t('validationEmpty'),
-  validationTooLong: (max) => t('validationTooLong', [i18n.number(max)]),
+  validationTooLong: (max) => i18n.plural('validationTooLong', max, [i18n.number(max)]),
   labelEdited: t('labelEdited'),
   labelNew: t('labelNew'),
   searchPlaceholder: t('searchPlaceholder'),

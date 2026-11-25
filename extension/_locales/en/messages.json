@@ -243,9 +243,19 @@
     "message": "This field must not be empty.",
     "description": "Error under a form field that was left empty."
   },
-  "validationTooLong": {
+  "validationTooLong_one": {
+    "message": "The input must not be longer than $MAX$ character.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. Singular form: the maximum is one (or the form for one in your language).",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "validationTooLong_other": {
     "message": "The input must not be longer than $MAX$ characters.",
-    "description": "Error under a form field whose text is too long. The maximum is filled in for you.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. Plural form.",
     "placeholders": {
       "max": {
         "content": "$1",

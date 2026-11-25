@@ -40,6 +40,18 @@ test('a plural message has an _other form', () => {
   }
 });
 
+test('a message that counts a number it is given is a plural family', () => {
+  // A position needs no plural, and these messages are only ever given one fixed number.
+  const exceptions = new Set(['jsonPosition', 'moved', 'abbreviationLength', 'jsonTooDeep']);
+  for (const [key, entry] of Object.entries(messages)) {
+    if (PLURAL_SUFFIX.test(key) || exceptions.has(key)) continue;
+    for (const [name, definition] of Object.entries(entry.placeholders || {})) {
+      const counted = /^\$[1-9]$/.test(definition.content) && /^\d[\d,]*$/.test(definition.example || '');
+      assert.ok(!counted, `${key} is given the number $${name.toUpperCase()}$, so it needs plural forms`);
+    }
+  }
+});
+
 test('the language keys exist', () => {
   assert.equal(messages.localeCode.message, 'en');
   assert.equal(messages.textDirection.message, 'ltr');

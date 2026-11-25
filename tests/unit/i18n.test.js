@@ -8,7 +8,7 @@ const assert = require('node:assert/strict');
 const i18n = require('../../extension/lib/i18n.js');
 
 test('a message takes its substitutions in order', () => {
-  assert.equal(i18n.t('validationTooLong', [128]), 'The input must not be longer than 128 characters.');
+  assert.equal(i18n.t('copyOf', ['Address']), 'Copy of Address');
   assert.equal(
     i18n.t('referenceMissing', [';addr', '{snippet:;addr}']),
     'No snippet has the abbreviation ;addr, so {snippet:;addr} is inserted as written.'
@@ -32,6 +32,7 @@ test('plural forms follow the language of the catalog', () => {
   assert.equal(i18n.plural('fillCount', 0, [0]), 'Fill in 0 fields');
   assert.equal(i18n.plural('fillCount', 1, [1]), 'Fill in 1 field');
   assert.equal(i18n.plural('fillCount', 2, [2]), 'Fill in 2 fields');
+  assert.equal(i18n.plural('validationTooLong', 128, [128]), 'The input must not be longer than 128 characters.');
 });
 
 test('a missing key reads as the key, so a gap is seen', () => {

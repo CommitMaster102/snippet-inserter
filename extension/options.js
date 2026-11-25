@@ -390,7 +390,7 @@ els.renameForm.addEventListener('submit', async (event) => {
   const problem = !lib.cleanFolder(typed)
     ? t('folderNameRequired')
     : lib.folderLength(typed) > lib.FOLDER_MAX_LENGTH
-      ? t('validationTooLong', [i18n.number(lib.FOLDER_MAX_LENGTH)])
+      ? tooLong(lib.FOLDER_MAX_LENGTH)
       : '';
   els.renameError.hidden = !problem;
   els.renameError.textContent = problem;
@@ -872,6 +872,11 @@ function showContentError(message) {
   els.contentError.hidden = !message;
 }
 
+// The error for a field longer than `max` characters, in the plural form that `max` takes.
+function tooLong(max) {
+  return i18n.plural('validationTooLong', max, [i18n.number(max)]);
+}
+
 // Form rules, the same as in the panel: the text must not be blank, the name must not be longer
 // than 128 characters, and the folder must not be longer than 64.
 function validate() {
@@ -881,12 +886,12 @@ function validate() {
   if (empty) valid = false;
   els.titleError.hidden = lib.titleLength(els.title.value) <= lib.TITLE_MAX_LENGTH;
   if (!els.titleError.hidden) {
-    els.titleError.textContent = t('validationTooLong', [i18n.number(lib.TITLE_MAX_LENGTH)]);
+    els.titleError.textContent = tooLong(lib.TITLE_MAX_LENGTH);
     valid = false;
   }
   els.folderError.hidden = lib.folderLength(els.folder.value) <= lib.FOLDER_MAX_LENGTH;
   if (!els.folderError.hidden) {
-    els.folderError.textContent = t('validationTooLong', [i18n.number(lib.FOLDER_MAX_LENGTH)]);
+    els.folderError.textContent = tooLong(lib.FOLDER_MAX_LENGTH);
     valid = false;
   }
   const ownId = state.creating ? null : state.selectedId;

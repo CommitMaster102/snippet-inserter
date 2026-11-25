@@ -83,6 +83,9 @@ test('a language gets the plural forms of its own rules', () => {
   russian.localeCode.message = 'ru';
   delete russian.extName;
   assert.match(problems('ru', russian).join('\n'), /exportNote_few: missing/);
+  // A name may have 128 characters and a folder 64, which Russian counts with different forms.
+  assert.match(problems('ru', russian).join('\n'), /validationTooLong_few: missing/);
+  assert.match(problems('ru', russian).join('\n'), /validationTooLong_many: missing/);
 
   for (const key of Object.keys(english)) {
     const match = /^(.*)_other$/.exec(key);
