@@ -109,3 +109,13 @@ test('the character count of 1 MB with one clustering character takes under 15 m
     assert.ok(took < 15, `${JSON.stringify(cluster)} took ${took} ms`);
   }
 });
+
+test('the character count of 1 MB with 3000 emoji takes under 15 ms', () => {
+  const emoji = '\u{1F44D}\u{1F3FD}';
+  const step = Math.floor(MEGABYTE / 3000);
+  let text = '';
+  for (let i = 0; i < 3000; i++) text += PLAIN_MEGABYTE.slice(i * step, (i + 1) * step - emoji.length) + emoji;
+  const { took } = timeCount(text);
+  assert.equal(lib.countCharacters(text), characterCount(text));
+  assert.ok(took < 15, `took ${took} ms`);
+});

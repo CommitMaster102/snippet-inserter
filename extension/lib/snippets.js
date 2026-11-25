@@ -641,8 +641,10 @@
   // The same set, scanned from one match to the next.
   const CLUSTER_JOINERS = new RegExp(CLUSTER_JOINER.source, 'gu');
 
-  // More clusters than this, and cutting the text into windows costs more than segmenting it all.
-  const MAX_CLUSTER_WINDOWS = 500;
+  // Cutting the text into windows costs less than segmenting all of it only while there is about
+  // one window for every 128 units of text. With more windows than that, the whole text is
+  // segmented instead.
+  const CLUSTER_WINDOW_SPAN = 128;
 
   // The number of code points in the text.
   function countCodePoints(text) {
@@ -679,7 +681,7 @@
     let windows = 0;
     CLUSTER_JOINERS.lastIndex = 0;
     for (let match = CLUSTER_JOINERS.exec(text); match; match = CLUSTER_JOINERS.exec(text)) {
-      if (++windows > MAX_CLUSTER_WINDOWS) return graphemes(text).length;
+      if (++windows > text.length / CLUSTER_WINDOW_SPAN) return graphemes(text).length;
       const start = previousPointStart(text, match.index);
       let end = match.index + match[0].length;
       while (end < text.length) {
