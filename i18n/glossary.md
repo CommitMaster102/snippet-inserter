@@ -398,6 +398,7 @@ Chrome uses Annulla both for Undo and for Cancel; this file does the same.
 | snippet panel; the panel | Snippet-Panel; das Panel | |
 | snippet manager | Snippet-Manager | |
 | abbreviation | Kürzel | |
+| expand (an abbreviation) | ersetzen | |
 | placeholder (`{date}`) | Platzhalter | |
 | fill-in form; a field in it | Ausfüllformular; Feld | |
 | text field; text box | Textfeld; Textfeld | |
@@ -1600,7 +1601,7 @@ characters the Undo button allows, so this file writes আনডু করুন
 | restore | மீட்டமை | Chrome: மீட்டமை |
 | remove (a folder, a link) | அகற்று | Chrome: அகற்று |
 | move | நகர்த்து | |
-| duplicate; Copy of | நகலெடு; இன் நகல் ("$TITLE$ இன் நகல்") | |
+| duplicate; Copy of | நகல் உருவாக்கு; இன் நகல் ("$TITLE$ இன் நகல்") | |
 | edit | திருத்து | Chrome: திருத்து |
 | create; New snippet | உருவாக்கு; புதிய துணுக்கு | DevTools: புதிய துணுக்கு |
 | name | பெயர் | Chrome: பெயர் |

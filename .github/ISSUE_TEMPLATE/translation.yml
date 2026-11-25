@@ -18,7 +18,7 @@ body:
     id: where
     attributes:
       label: Where the text appears
-      description: The screen, and the button or line, such as "Settings and backup, the line under Backup", or "the right-click menu". A screenshot helps. You can drag it into the last box.
+      description: The screen, and the button or line, such as "Settings and backup, the line under Backup", or "the right-click menu". A screenshot helps. You can drag it into the "What it should say" box.
     validations:
       required: true
   - type: textarea

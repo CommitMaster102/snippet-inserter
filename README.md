@@ -305,8 +305,8 @@ manager are mirrored to read from right to left.
 
 A language model drafted every translation, and automatic checks (`npm run test:locales`) test
 that each one has every message, the same placeholders as English, the plural forms its language
-uses, and text that fits its spot. A native speaker has not read any of them yet. This table lists
-the languages a native speaker has reviewed:
+uses, and no text longer than the character budget for its spot. This table lists the languages a
+native speaker has reviewed:
 
 | Language | Reviewed by | Date |
 | --- | --- | --- |
@@ -492,7 +492,7 @@ Persian digits, to check that every count and position on the pages and in a not
 the digits of the interface language. Another test gives Ctrl and the Mac Command key other names in
 the catalog, in a browser that reports a Mac, and checks that the formatting toolbar's shortcuts and
 the notes in the settings use the catalog's name for the Command key. `npm run test:locales` checks
-the real language folders and passes while only English is present. It lets a translation write a
+all 30 language folders. It lets a translation write a
 fixed number, such as the 20 of Recently deleted, in the digits of its language, and a key name,
 such as Ctrl or Cmd, as keyboards in its language print it, the same way in every message and with
 no space around a plus sign.
