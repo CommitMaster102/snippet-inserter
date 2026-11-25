@@ -4,6 +4,7 @@
 
 const { test, expect } = require('./fixtures');
 const {
+  PANEL,
   seedSnippets,
   readSnippets,
   selectInTextarea,
@@ -135,4 +136,47 @@ test('Escape leaves the form, then closes the panel and refocuses the field', as
   await expectPanelClosed(page);
   await expect(page.locator('#plain')).toBeFocused();
   await expect(page.locator('#plain')).toHaveValue('Hello world');
+});
+
+// A view that reports its size before it is built shrinks the frame to the panel's header and
+// grows it back. Until the browser catches up, a click on the lower part of the form goes to the
+// page and is lost, which is how the Save click in a test was lost now and then.
+test('a form opens at its own height, without the frame first shrinking to the header', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Signature', content: 'Best,\n{input:Name}' }]);
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+  // Every height the page gives the panel's frame, recorded as it is set.
+  await page.locator(PANEL).evaluate((frame) => {
+    window.frameHeights = [];
+    new MutationObserver(() => window.frameHeights.push(parseFloat(frame.style.height))).observe(frame, {
+      attributeFilter: ['style'],
+    });
+  });
+  // Waits until the frame has the height of the view the panel shows, and returns the heights
+  // below it that the frame took since the last call.
+  const heightsBelowView = async () => {
+    const view = Math.ceil(await panel.locator('#app').evaluate((app) => app.getBoundingClientRect().height));
+    await expect.poll(() => page.evaluate(() => window.frameHeights.at(-1))).toBe(view);
+    return page.evaluate((height) => window.frameHeights.splice(0).filter((h) => h < height), view);
+  };
+
+  await page.keyboard.press('Control+1');
+  await expect(panel.locator('.caption')).toHaveText('Create a new snippet');
+  expect(await heightsBelowView()).toEqual([]);
+
+  await page.keyboard.press('Escape');
+  await expect(panel.locator('.caption')).toHaveText('Insert snippet');
+  await heightsBelowView();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('F2');
+  await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  expect(await heightsBelowView()).toEqual([]);
+
+  await page.keyboard.press('Escape');
+  await expect(panel.locator('.caption')).toHaveText('Insert snippet');
+  await heightsBelowView();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await expect(panel.locator('.fill-input')).toBeFocused();
+  expect(await heightsBelowView()).toEqual([]);
 });

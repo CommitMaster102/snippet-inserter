@@ -190,11 +190,14 @@ window.addEventListener('message', (event) => {
 // the iframe can be sized to fit. The direct calls matter because Chromium may delay
 // ResizeObserver callbacks in a frame that is not yet visible.
 // The first size goes out after the first render, so content.js does not show a panel that
-// holds only its header.
+// holds only its header. While render() builds a view, the view is not all in the panel yet, so
+// the size goes out when render() has finished. A size measured earlier would shrink the frame
+// to the header for a moment, and a click on the lower part of the form would then reach the page.
 let lastReportedHeight = 0;
 let firstRenderDone = false;
+let rendering = false;
 function reportSize() {
-  if (!firstRenderDone) return;
+  if (!firstRenderDone || rendering) return;
   const height = Math.ceil(els.app.getBoundingClientRect().height);
   if (height === lastReportedHeight) return;
   lastReportedHeight = height;
@@ -350,10 +353,15 @@ async function toggleSite() {
 }
 
 function render() {
-  els.error.hidden = true;
-  if (state.view === 'insert') renderInsert();
-  else if (state.view === 'fill') renderFill();
-  else renderForm();
+  rendering = true;
+  try {
+    els.error.hidden = true;
+    if (state.view === 'insert') renderInsert();
+    else if (state.view === 'fill') renderFill();
+    else renderForm();
+  } finally {
+    rendering = false;
+  }
   firstRenderDone = true;
   reportSize();
 }
