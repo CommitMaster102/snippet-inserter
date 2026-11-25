@@ -64,7 +64,7 @@
   },
   "noticeFieldRoom_one": {
     "message": "በዚህ መስክ የቀረው ቦታ $FREE$ ቁምፊ ብቻ ነው፤ የቅንጣቢው ርዝመት ግን $TOTAL$ ነው። ምንም አልገባም።",
-    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $FREE$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $FREE$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "free": {
         "content": "$1",
@@ -245,7 +245,7 @@
   },
   "validationTooLong_one": {
     "message": "ግቤቱ ከ$MAX$ ቁምፊ መብለጥ የለበትም።",
-    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 128 in Filipino. Keep $MAX$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 128 in Filipino. Keep $MAX$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -265,7 +265,7 @@
   },
   "characterCount_one": {
     "message": "$COUNT$ ቁምፊ",
-    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -354,7 +354,7 @@
   },
   "fillCount_one": {
     "message": "$COUNT$ መስክ ይሙሉ",
-    "description": "Line at the top of the panel's fill-in form, which asks for values before a snippet is inserted. The panel's heading above it shows the snippet's name. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Line at the top of the panel's fill-in form, which asks for values before a snippet is inserted. The panel's heading above it shows the snippet's name. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -721,7 +721,7 @@
   },
   "savedRenamed_one": {
     "message": "ተቀምጧል። $OLD$ ይጠቀም የነበረ $COUNT$ ቅንጣቢ አሁን $NEW$ ይጠቀማል።",
-    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. The number and the two abbreviations are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. The number and the two abbreviations are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -757,7 +757,7 @@
   },
   "savedCleared_one": {
     "message": "ተቀምጧል። አሁን $ABBREVIATION$ ያለው ቅንጣቢ ስለሌለ $COUNT$ ቅንጣቢ $TOKEN$ እንደተጻፈ ያስገባል።",
-    "description": "Status after saving a snippet whose abbreviation was removed, when another snippet includes it. The abbreviation, the number, and the text in braces are filled in for you, and the number, $COUNT$, chooses the plural form. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Status after saving a snippet whose abbreviation was removed, when another snippet includes it. The abbreviation, the number, and the text in braces are filled in for you, and the number, $COUNT$, chooses the plural form. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "abbreviation": {
         "content": "$1",
@@ -1083,7 +1083,7 @@
   },
   "exportNote_one": {
     "message": "$COUNT$ ቅንጣቢውን ወደ $FILE$ ያስቀምጣል።",
-    "description": "Text next to the Export snippets button. The number and the file name are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Text next to the Export snippets button. The number and the file name are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1111,7 +1111,7 @@
   },
   "exported_one": {
     "message": "$COUNT$ ቅንጣቢ ወደ ውጭ ተልኳል፦ $FILE$።",
-    "description": "Status after the export. The number and the file name are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Status after the export. The number and the file name are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1281,7 +1281,7 @@
   },
   "importedCount_one": {
     "message": "$COUNT$ ቅንጣቢ ከምትኬው መጥቷል።",
-    "description": "First sentence of the report after an import. The sentences of the report follow each other in one paragraph, separated by a space. The number is filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "First sentence of the report after an import. The sentences of the report follow each other in one paragraph, separated by a space. The number is filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1301,7 +1301,7 @@
   },
   "importSkipped_one": {
     "message": "አስቀድሞ የነበረ $COUNT$ ቅንጣቢ ተዘሏል።",
-    "description": "Sentence in the report after an import, for snippets that were already stored. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Sentence in the report after an import, for snippets that were already stored. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1321,7 +1321,7 @@
   },
   "importInvalid_one": {
     "message": "ጽሑፍ የሌለው $COUNT$ መዝገብ ተዘሏል።",
-    "description": "Sentence in the report after an import, for entries in the file that have no text. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1341,7 +1341,7 @@
   },
   "importAbbrDropped_one": {
     "message": "$COUNT$ ቅንጣቢ ሌላ ቅንጣቢ አስቀድሞ የሚጠቀምበትን አህጽሮተ ቃል አጥቷል።",
-    "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless docs/translation-glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "count": {
         "content": "$1",

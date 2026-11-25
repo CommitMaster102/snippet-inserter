@@ -460,9 +460,11 @@ scripts/
   make-icons.py       Redraws extension/icons.
   check-locales.js    The check behind npm run test:locales.
   pseudo-locales.js   Makes the stretched and the mirrored pseudo-language for the layout tests.
-i18n/                 The glossary of fixed terms in each language, and the width budgets of
-                      the interface text, for the language check.
-docs/screenshots/     Screenshots used in this README.
+i18n/                 The width budgets of the interface text, for the language check.
+docs/
+  translation-glossary.md
+                      The glossary of fixed terms in each language.
+  screenshots/        Screenshots used in this README.
 playwright.config.js        Configuration for npm test.
 playwright.live.config.js   Configuration for npm run test:docs-live.
 package.json
