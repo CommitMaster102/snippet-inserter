@@ -422,7 +422,8 @@ check that the panel, the manager, and the page notices fit and mirror. The righ
 runs with Persian digits, to check that every count and position on the pages and in a notice is
 written in the digits of the interface language. `npm run test:locales` checks the real language
 folders and passes while only English is present. It lets a translation write a fixed number, such
-as the 20 of Recently deleted, in the digits of its language.
+as the 20 of Recently deleted, in the digits of its language, and a key name, such as Ctrl, as
+keyboards in its language print it, the same way in every message.
 
 `extension/lib/richtext.js` parses HTML with the browser's own parser, so its unit tests,
 `tests/e2e/richtext.spec.js`, run in Playwright's Chromium with `npm test` instead of in Node.

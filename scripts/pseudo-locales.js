@@ -16,6 +16,7 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { keyParts } = require('./check-locales.js');
 
 const EXTENSION = path.resolve(__dirname, '..', 'extension');
 const META_KEYS = new Set(['localeCode', 'textDirection', 'languageName']);
@@ -90,7 +91,9 @@ function arabicText(part) {
 function mirrored(english) {
   const catalog = copy(english);
   for (const [key, entry] of Object.entries(catalog)) {
-    if (META_KEYS.has(key) || key === 'extName') continue;
+    // A message that is only a key name, such as keyCtrl, stays as the key placeholders do, so the
+    // catalog writes each key one way.
+    if (META_KEYS.has(key) || key === 'extName' || keyParts(entry.message)) continue;
     entry.message = mapText(entry.message, arabicText);
     delete entry.description;
   }

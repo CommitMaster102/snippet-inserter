@@ -9,6 +9,10 @@
  * message may be up to 3 times as long as the English plus 20 characters. With only the English
  * folder present the check passes.
  *
+ * A placeholder keeps its English content, with two exceptions. A key name, such as Ctrl, may be
+ * written as keyboards in the language print it, the same way in every message of the catalog.
+ * A fixed number may be written in the digits of the language.
+ *
  * The pseudo-languages for the layout tests are not checked here, because they are never put in
  * _locales.
  */
@@ -28,6 +32,8 @@ const SUPPORTED = new Set(
 // The languages written from right to left, by the first part of the code.
 const RIGHT_TO_LEFT = new Set(['ar', 'fa', 'he', 'ur']);
 const META_KEYS = new Set(['localeCode', 'textDirection', 'languageName']);
+// The keys whose names a translation may write as keyboards in its language print them.
+const KEY_NAMES = new Set(['Ctrl', 'Shift', 'Alt', 'Enter', 'Esc', 'Tab', 'Space']);
 const PLURAL_SUFFIX = /_(zero|one|two|few|many|other)$/;
 // A form for a count that may leave out the number, as in "One snippet".
 const NUMBER_OPTIONAL = new Set(['zero', 'one', 'two']);
@@ -64,9 +70,39 @@ function count(text, part) {
   return text.split(part).length - 1;
 }
 
-// Whether a translated placeholder holds what the English one holds. A fixed number, such as the 20
-// of deletedNote, may be written in the digits of the language, as the pages write every number.
-function sameContent(english, translated, code) {
+// The parts of a key name between plus signs, such as Ctrl and B for Ctrl+B, or null when the text
+// is not a key name. A translation may write a named key the way keyboards in its language print
+// it, such as Strg for Ctrl in German, and keeps a letter or a digit as it is.
+function keyParts(text) {
+  const parts = String(text).split('+');
+  const named = parts.some((part) => KEY_NAMES.has(part));
+  return named && parts.every((part) => KEY_NAMES.has(part) || /^[A-Z0-9]$/.test(part)) ? parts : null;
+}
+
+// Whether `translated` names the keys of the English key name `parts`. Each named key it writes is
+// added to `names`, so that a key written two ways in one catalog can be reported.
+function sameKeys(parts, translated, names) {
+  const written = String(translated ?? '').split('+');
+  if (written.length !== parts.length) return false;
+  for (const [index, part] of parts.entries()) {
+    const own = written[index].trim();
+    if (!KEY_NAMES.has(part)) {
+      if (own !== part) return false;
+    } else {
+      if (!own || own.includes('$')) return false;
+      if (!names.has(part)) names.set(part, new Set());
+      names.get(part).add(own);
+    }
+  }
+  return true;
+}
+
+// Whether a translated placeholder holds what the English one holds. A key name may be translated,
+// and a fixed number, such as the 20 of deletedNote, may be written in the digits of the language,
+// as the pages write every number.
+function sameContent(english, translated, code, names) {
+  const parts = keyParts(english);
+  if (parts) return sameKeys(parts, translated, names);
   if (translated === english) return true;
   if (!/^\d+$/.test(english)) return false;
   try {
@@ -107,6 +143,8 @@ function checkCatalog(code, catalog, english, budgets) {
   }
 
   for (const key of required) if (!catalog[key]) problems.push(`${key}: missing`);
+  // Each named key, such as Ctrl, with every way the catalog writes it.
+  const names = new Map();
   for (const key of Object.keys(catalog)) {
     if (required.has(key)) continue;
     const match = PLURAL_SUFFIX.exec(key);
@@ -136,11 +174,15 @@ function checkCatalog(code, catalog, english, budgets) {
     }
     if (META_KEYS.has(key) || key === 'extName') continue;
 
+    // A message that is only a key name, such as keyCtrl, follows the rule of a key placeholder.
+    const keys = keyParts(reference.message);
+    if (keys && !sameKeys(keys, entry.message, names)) problems.push(`${key}: does not name the key ${reference.message}`);
+
     const expected = definitions(reference);
     const actual = definitions(entry);
     const same =
       Object.keys(expected).length === Object.keys(actual).length &&
-      Object.entries(expected).every(([name, content]) => sameContent(content, actual[name], code));
+      Object.entries(expected).every(([name, content]) => sameContent(content, actual[name], code, names));
     if (!same) {
       problems.push(`${key}: the placeholders differ from English (${Object.keys(expected).join(', ') || 'none'} expected)`);
     } else {
@@ -161,6 +203,10 @@ function checkCatalog(code, catalog, english, budgets) {
     const length = renderedLength(entry);
     const limit = budgets[key] ?? (code === 'en' ? Infinity : LENGTH_FACTOR * renderedLength(reference) + EXTRA_LENGTH);
     if (length > limit) problems.push(`${key}: ${length} characters, longer than ${limit}`);
+  }
+
+  for (const [key, written] of names) {
+    if (written.size > 1) problems.push(`key names: ${key} is written as both ${[...written].join(' and ')}`);
   }
   return problems;
 }
@@ -198,7 +244,7 @@ function checkAll(directory = LOCALES) {
   return problems;
 }
 
-module.exports = { SUPPORTED, checkCatalog, checkAll, readBudgets, renderedLength };
+module.exports = { SUPPORTED, checkCatalog, checkAll, readBudgets, renderedLength, keyParts };
 
 if (require.main === module) {
   const problems = checkAll();

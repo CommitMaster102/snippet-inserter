@@ -45,7 +45,10 @@
     const skip = () => {
       while (i < text.length && ' \t\n\r'.includes(text[i])) i++;
     };
-    const describe = (at) => (at >= text.length ? i18n().t('jsonEndOfText') : `"${[...text.slice(at, at + 2)][0]}"`);
+    // The character at `at` in quotes, for a message that says what was found there. When the text
+    // ends at `at`, nothing was found, and the error has a whole sentence of its own instead.
+    const found = (at) => `"${[...text.slice(at, at + 2)][0]}"`;
+    const atEnd = () => i >= text.length;
 
     function string() {
       const start = i++;
@@ -100,10 +103,10 @@
       }
       if (/[a-z]/i.test(c)) {
         const guess = LITERALS.find((word) => word[0] === c);
-        fail(i, guess ? i18n().t('jsonExpected', [guess]) : i18n().t('jsonUnexpected', [describe(i)]));
+        fail(i, guess ? i18n().t('jsonExpected', [guess]) : i18n().t('jsonUnexpected', [found(i)]));
       }
       if (c === '/' && (text[i + 1] === '/' || text[i + 1] === '*')) fail(i, i18n().t('jsonComments'));
-      fail(i, i18n().t('jsonUnexpectedValue', [describe(i)]));
+      fail(i, i18n().t('jsonUnexpectedValue', [found(i)]));
     }
 
     function array(depth, level) {
@@ -124,7 +127,7 @@
           i++;
           return `[\n${items.join(',\n')}\n${INDENT.repeat(level)}]`;
         } else {
-          fail(i, i18n().t('jsonExpectedClose', [']', describe(i)]));
+          fail(i, atEnd() ? i18n().t('jsonExpectedCloseEnd', [']']) : i18n().t('jsonExpectedClose', [']', found(i)]));
         }
       }
     }
@@ -140,10 +143,10 @@
       const members = [];
       for (;;) {
         skip();
-        if (text[i] !== '"') fail(i, i18n().t('jsonExpectedName', [describe(i)]));
+        if (text[i] !== '"') fail(i, atEnd() ? i18n().t('jsonExpectedNameEnd') : i18n().t('jsonExpectedName', [found(i)]));
         const key = string();
         skip();
-        if (text[i] !== ':') fail(i, i18n().t('jsonExpectedColon', [describe(i)]));
+        if (text[i] !== ':') fail(i, atEnd() ? i18n().t('jsonExpectedColonEnd') : i18n().t('jsonExpectedColon', [found(i)]));
         i++;
         members.push(`${pad}${key}: ${value(depth + 1, level + 1)}`);
         skip();
@@ -153,7 +156,7 @@
           i++;
           return `{\n${members.join(',\n')}\n${INDENT.repeat(level)}}`;
         } else {
-          fail(i, i18n().t('jsonExpectedClose', ['}', describe(i)]));
+          fail(i, atEnd() ? i18n().t('jsonExpectedCloseEnd', ['}']) : i18n().t('jsonExpectedClose', ['}', found(i)]));
         }
       }
     }
@@ -162,7 +165,7 @@
       run() {
         const out = value(0, 0);
         skip();
-        if (i < text.length) fail(i, i18n().t('jsonExpectedEnd', [describe(i)]));
+        if (i < text.length) fail(i, i18n().t('jsonExpectedEnd', [found(i)]));
         return out;
       },
     };

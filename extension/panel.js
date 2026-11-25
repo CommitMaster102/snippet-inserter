@@ -780,7 +780,7 @@ function renderForm() {
     ownId: isEdit ? snippet.id : null,
     submit: () => (isEdit ? saveEdit(snippet.id) : saveCreate()),
   };
-  setPrimary(TEXT.formApply, currentForm.submit, IS_MAC ? COMMAND_KEY + RETURN_KEY : `Ctrl ${RETURN_KEY}`);
+  setPrimary(TEXT.formApply, currentForm.submit, IS_MAC ? COMMAND_KEY + RETURN_KEY : `${t('keyCtrl')} ${RETURN_KEY}`);
 
   if (!content) {
     title.focus(NO_SCROLL);
@@ -954,7 +954,7 @@ function renderFill() {
     inputs,
     submit: () => post({ type: 'insert', content, values: values(), ...formatted }),
   };
-  setPrimary(TEXT.insertApply, currentForm.submit, IS_MAC ? COMMAND_KEY + RETURN_KEY : `Ctrl ${RETURN_KEY}`);
+  setPrimary(TEXT.insertApply, currentForm.submit, IS_MAC ? COMMAND_KEY + RETURN_KEY : `${t('keyCtrl')} ${RETURN_KEY}`);
   if (inputs.length) inputs[0].focus(NO_SCROLL);
 }
 

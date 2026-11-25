@@ -1246,7 +1246,7 @@ function setToolStop(stop) {
 
 if (IS_MAC) {
   for (const button of toolButtons()) {
-    for (const name of ['aria-label', 'title']) button.setAttribute(name, button.getAttribute(name).replace('Ctrl+', 'Cmd+'));
+    for (const name of ['aria-label', 'title']) button.setAttribute(name, button.getAttribute(name).replace(`${t('keyCtrl')}+`, 'Cmd+'));
   }
 }
 setToolStop(toolButtons()[0]);

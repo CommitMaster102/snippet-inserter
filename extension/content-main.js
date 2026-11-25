@@ -44,7 +44,7 @@ export function create(shared) {
   // A click older than this is not used to place the panel.
   const LAST_POINTER_MAX_AGE_MS = 60_000;
   const NOTICE_MS = 6000;
-  const PASTE_KEYS = navigator.userAgent.includes('Mac OS') ? 'Cmd+V' : 'Ctrl+V';
+  const IS_MAC = navigator.userAgent.includes('Mac OS');
 
   // Text from the message catalog. The keys of a plural family end in the plural category. A
   // count is written in the digits and with the thousands separator of the catalog's language.
@@ -305,7 +305,7 @@ export function create(shared) {
     }
     showNotice(
       copied
-        ? msg('noticeDocsCopied', PASTE_KEYS)
+        ? msg('noticeDocsCopied', IS_MAC ? 'Cmd+V' : `${msg('keyCtrl')}+V`)
         : msg('noticeDocsNotInserted')
     );
   }

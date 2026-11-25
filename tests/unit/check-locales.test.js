@@ -70,6 +70,32 @@ test('a changed or dropped $placeholder$ is reported', () => {
   assert.match(problems('de', content).join('\n'), /exportNote_other: .*placeholder/);
 });
 
+test('a key name may be translated, the same way in every message, and nothing else may', () => {
+  // German keyboards print Strg for Ctrl.
+  const strg = (catalog) => {
+    catalog.keyCtrl.message = 'Strg';
+    for (const entry of Object.values(catalog)) {
+      for (const definition of Object.values(entry.placeholders || {})) {
+        definition.content = definition.content.replace(/^Ctrl\b/, 'Strg');
+      }
+    }
+    return catalog;
+  };
+  assert.deepEqual(problems('de', strg(german())), []);
+
+  const mixed = strg(german());
+  mixed.toolBold.placeholders.shortcut.content = 'Ctrl+B';
+  assert.match(problems('de', mixed).join('\n'), /Ctrl is written as both/);
+
+  const letter = strg(german());
+  letter.toolBold.placeholders.shortcut.content = 'Strg+F';
+  assert.match(problems('de', letter).join('\n'), /toolBold: .*placeholder/);
+
+  const name = german();
+  name.formatHint.placeholders.google_docs.content = 'Google Dokumente';
+  assert.match(problems('de', name).join('\n'), /formatHint: .*placeholder/);
+});
+
 test('a fixed number may be written in the digits of the language, but stays the same number', () => {
   const persian = copy(english);
   persian.localeCode.message = 'fa';

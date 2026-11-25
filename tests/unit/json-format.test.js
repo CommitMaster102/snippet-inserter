@@ -36,7 +36,7 @@ const BAD = [
   ['{"a": 1,}', 1, 9, 'property name'],
   ['{"a" 1}', 1, 6, ':'],
   ["{'a': 1}", 1, 2, 'property name'],
-  ['[1, 2', 1, 6, 'end of the text'],
+  ['[1, 2', 1, 6, 'text ends'],
   ['[1 2]', 1, 4, ', or ]'],
   ['{\n  "a": tru\n}', 2, 8, 'true'],
   ['{\n  "a": 01\n}', 2, 9, ', or }'],
@@ -110,4 +110,14 @@ test('columns count characters, and a line break is not a column', () => {
   const result = format('{\r\n"é😀": x}');
   assert.equal(result.line, 2);
   assert.equal(result.column, 7);
+});
+
+test('an error at the end of the text is one whole sentence, not a sentence with a fragment put in', () => {
+  const cases = [
+    ['[1, 2', 'The text ends where , or ] is expected.'],
+    ['{"a": 1', 'The text ends where , or } is expected.'],
+    ['{"a": 1,', 'The text ends where a property name in double quotes is expected.'],
+    ['{"a"', 'The text ends where : is expected after the property name.'],
+  ];
+  for (const [text, message] of cases) assert.equal(format(text).message.replace(/^Line \d+, column \d+: /, ''), message, text);
 });

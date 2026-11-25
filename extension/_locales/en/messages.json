@@ -5,7 +5,7 @@
   },
   "extDescription": {
     "message": "Insert saved text snippets into any text field with a double tap of $KEY$. Snippets have no length limit.",
-    "description": "One sentence shown on the extension page in the browser and in the Chrome Web Store. Keep it under 132 characters. The key name is filled in for you.",
+    "description": "One sentence shown on the extension page in the browser and in the Chrome Web Store. Keep it under 132 characters. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
     "placeholders": {
       "key": {
         "content": "Ctrl"
@@ -386,7 +386,7 @@
   },
   "back": {
     "message": "Back ($KEY$)",
-    "description": "Tooltip on the button at the top left of the panel that goes back to the list. The key name is filled in for you.",
+    "description": "Tooltip on the button at the top left of the panel that goes back to the list. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
     "placeholders": {
       "key": {
         "content": "Esc"
@@ -395,7 +395,7 @@
   },
   "close": {
     "message": "Close ($KEY$)",
-    "description": "Tooltip on the button at the top right of the panel that closes it. The key name is filled in for you.",
+    "description": "Tooltip on the button at the top right of the panel that closes it. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
     "placeholders": {
       "key": {
         "content": "Esc"
@@ -560,8 +560,13 @@
     "description": "Grey hint inside the empty folder box of the manager form. Work is an example of a folder name; use a common word in your language."
   },
   "formatJson": {
-    "message": "Format JSON",
-    "description": "Button in the manager form that checks the text as JSON and indents it. JSON is a data format and keeps its name."
+    "message": "Format $JSON$",
+    "description": "Button in the manager form that checks the text as JSON and indents it. JSON is a data format, and its name is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
   },
   "formattedText": {
     "message": "Formatted text",
@@ -573,7 +578,7 @@
   },
   "toolBold": {
     "message": "Bold ($SHORTCUT$)",
-    "description": "Tooltip of the bold button. The keyboard shortcut is filled in for you.",
+    "description": "Tooltip of the bold button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter.",
     "placeholders": {
       "shortcut": {
         "content": "Ctrl+B"
@@ -582,7 +587,7 @@
   },
   "toolItalic": {
     "message": "Italic ($SHORTCUT$)",
-    "description": "Tooltip of the italic button. The keyboard shortcut is filled in for you.",
+    "description": "Tooltip of the italic button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter.",
     "placeholders": {
       "shortcut": {
         "content": "Ctrl+I"
@@ -591,7 +596,7 @@
   },
   "toolUnderline": {
     "message": "Underline ($SHORTCUT$)",
-    "description": "Tooltip of the underline button. The keyboard shortcut is filled in for you.",
+    "description": "Tooltip of the underline button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter.",
     "placeholders": {
       "shortcut": {
         "content": "Ctrl+U"
@@ -600,7 +605,7 @@
   },
   "toolLink": {
     "message": "Link ($SHORTCUT$)",
-    "description": "Tooltip of the button that turns the selected text into a link. The keyboard shortcut is filled in for you.",
+    "description": "Tooltip of the button that turns the selected text into a link. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter.",
     "placeholders": {
       "shortcut": {
         "content": "Ctrl+K"
@@ -827,8 +832,13 @@
     }
   },
   "jsonFormatted": {
-    "message": "JSON formatted.",
-    "description": "Status after the Format JSON button indented the text."
+    "message": "$JSON$ formatted.",
+    "description": "Status after the Format JSON button indented the text. The name of the data format is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
   },
   "jsonNoCodeBlock": {
     "message": "Put the caret in a code block first.",
@@ -879,7 +889,7 @@
   },
   "hotkeyControl": {
     "message": "Double tap $KEY$",
-    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you.",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
     "placeholders": {
       "key": {
         "content": "Ctrl"
@@ -888,7 +898,7 @@
   },
   "hotkeyShift": {
     "message": "Double tap $KEY$",
-    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you.",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
     "placeholders": {
       "key": {
         "content": "Shift"
@@ -897,12 +907,16 @@
   },
   "hotkeyAlt": {
     "message": "Double tap $KEY$",
-    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you.",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
     "placeholders": {
       "key": {
         "content": "Alt"
       }
     }
+  },
+  "keyCtrl": {
+    "message": "Ctrl",
+    "description": "The name of the Ctrl key. The panel shows it in the key hint of its save button, and a notice in Google Docs uses it in Ctrl+V. Write it as keyboards in your language print it, the same way as in every other message."
   },
   "off": {
     "message": "Off",
@@ -937,18 +951,38 @@
     "description": "Menu entry: an abbreviation is replaced as soon as its last character is typed."
   },
   "abbreviationsDelimiter": {
-    "message": "After I press Space, Tab, or Enter",
-    "description": "Menu entry: an abbreviation is replaced after the user presses one of the keys Space, Tab, or Enter. Use the names that appear on keyboards in your language."
+    "message": "After I press $SPACE$, $TAB$, or $ENTER$",
+    "description": "Menu entry: an abbreviation is replaced after the user presses one of the keys Space, Tab, or Enter. The key names are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "space": {
+        "content": "Space"
+      },
+      "tab": {
+        "content": "Tab"
+      },
+      "enter": {
+        "content": "Enter"
+      }
+    }
   },
   "abbreviationsNote": {
-    "message": "Typing a snippet's abbreviation in a text field replaces it with the snippet, and <kbd>$CTRL$</kbd>+<kbd>$Z$</kbd> brings the typed text back. When abbreviations wait for Space, Tab, or Enter, a space stays after the snippet, while Tab and Enter only expand it. This does not work in $GOOGLE_DOCS$.",
-    "description": "Text under the abbreviations menu. Keep each <kbd>...</kbd> pair around the name of a key. The two key names, and the product name, are filled in for you. The names Space, Tab, and Enter in the running text are not.",
+    "message": "Typing a snippet's abbreviation in a text field replaces it with the snippet, and <kbd>$CTRL$</kbd>+<kbd>$Z$</kbd> brings the typed text back. When abbreviations wait for $SPACE$, $TAB$, or $ENTER$, a space stays after the snippet, while $TAB$ and $ENTER$ only expand it. This does not work in $GOOGLE_DOCS$.",
+    "description": "Text under the abbreviations menu. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the letter Z, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
     "placeholders": {
       "ctrl": {
         "content": "Ctrl"
       },
       "z": {
         "content": "Z"
+      },
+      "space": {
+        "content": "Space"
+      },
+      "tab": {
+        "content": "Tab"
+      },
+      "enter": {
+        "content": "Enter"
       },
       "google_docs": {
         "content": "Google Docs"
@@ -999,7 +1033,7 @@
   },
   "usageNote": {
     "message": "Click in a text box, a rich-text editor, or a $GOOGLE_DOCS$ document and tap the key twice quickly. In the panel, pick a snippet with the mouse, the arrow keys and <kbd>$ENTER$</kbd>, or <kbd>$CTRL$</kbd>+<kbd>$N2$</kbd> to <kbd>$CTRL$</kbd>+<kbd>$N9$</kbd>. <kbd>$CTRL$</kbd>+<kbd>$N1$</kbd> creates a snippet, and if text is selected when the panel opens, the new snippet starts with that text. Snippets have no length limit.",
-    "description": "Short instructions at the end of the settings. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the digits, and the product name are filled in for you.",
+    "description": "Short instructions at the end of the settings. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the digits, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
     "placeholders": {
       "google_docs": {
         "content": "Google Docs"
@@ -1206,8 +1240,13 @@
     }
   },
   "importNotJson": {
-    "message": "This file is not a snippet backup: it is not valid JSON.",
-    "description": "Error after the user picked a file to import that is not JSON. JSON is a data format and keeps its name."
+    "message": "This file is not a snippet backup: it is not valid $JSON$.",
+    "description": "Error after the user picked a file to import that is not JSON. JSON is a data format, and its name is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
   },
   "importNewer": {
     "message": "This backup was made by a newer version of $NAME$. Update the extension and try again.",
@@ -1324,10 +1363,6 @@
       }
     }
   },
-  "jsonEndOfText": {
-    "message": "the end of the text",
-    "description": "A phrase used inside JSON errors, as in Unexpected the end of the text. It stands for the place after the last character."
-  },
   "jsonStringNotClosed": {
     "message": "The string is not closed.",
     "description": "JSON error. A string is text in double quotes."
@@ -1410,8 +1445,13 @@
     }
   },
   "jsonComments": {
-    "message": "Comments are not allowed in JSON.",
-    "description": "JSON error for text that starts like a comment."
+    "message": "Comments are not allowed in $JSON$.",
+    "description": "JSON error for text that starts like a comment. The name of the data format is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
   },
   "jsonExpectedClose": {
     "message": "Expected $COMMA$ or $CLOSE$ but found $WHAT$.",
@@ -1430,6 +1470,19 @@
       }
     }
   },
+  "jsonExpectedCloseEnd": {
+    "message": "The text ends where $COMMA$ or $CLOSE$ is expected.",
+    "description": "JSON error when a list or an object is not closed before the end of the text. The two characters are filled in for you.",
+    "placeholders": {
+      "close": {
+        "content": "$1",
+        "example": "]"
+      },
+      "comma": {
+        "content": ","
+      }
+    }
+  },
   "jsonExpectedName": {
     "message": "Expected a property name in double quotes but found $WHAT$.",
     "description": "JSON error in an object. What was found is filled in for you.",
@@ -1440,6 +1493,10 @@
       }
     }
   },
+  "jsonExpectedNameEnd": {
+    "message": "The text ends where a property name in double quotes is expected.",
+    "description": "JSON error when an object ends after a comma, at the end of the text."
+  },
   "jsonExpectedColon": {
     "message": "Expected $COLON$ after the property name but found $WHAT$.",
     "description": "JSON error in an object. The colon and what was found are filled in for you.",
@@ -1448,6 +1505,15 @@
         "content": "$1",
         "example": "\"x\""
       },
+      "colon": {
+        "content": ":"
+      }
+    }
+  },
+  "jsonExpectedColonEnd": {
+    "message": "The text ends where $COLON$ is expected after the property name.",
+    "description": "JSON error when the text ends right after a property name of an object. The colon is filled in for you.",
+    "placeholders": {
       "colon": {
         "content": ":"
       }
@@ -1464,12 +1530,15 @@
     }
   },
   "jsonPlaceholder": {
-    "message": "$TOKEN$ is a placeholder, and a placeholder outside quotes is not valid JSON. Put it in quotes, or fill it in first.",
-    "description": "JSON error when the text has a placeholder in braces outside quotes. The placeholder is filled in for you.",
+    "message": "$TOKEN$ is a placeholder, and a placeholder outside quotes is not valid $JSON$. Put it in quotes, or fill it in first.",
+    "description": "JSON error when the text has a placeholder in braces outside quotes. The placeholder and the name of the data format are filled in for you.",
     "placeholders": {
       "token": {
         "content": "$1",
         "example": "{date}"
+      },
+      "json": {
+        "content": "JSON"
       }
     }
   }
