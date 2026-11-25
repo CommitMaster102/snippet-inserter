@@ -1,6 +1,6 @@
 # Changelog
 
-Each version lists what a person using Snippet Inserter sees. The version is `version` in `package.json`,, and `extension/manifest.json` has the same one.
+Each version lists what a person using Snippet Inserter sees. The version is `version` in `package.json`, and `extension/manifest.json` has the same one.
 
 ## 1.2.0 (2026-11-20)
 
