@@ -11,6 +11,7 @@ const {
   selectInTextarea,
   caretAtEndOf,
   openPanel,
+  waitForPanelFit,
   pressInPanel,
   expectPanelClosed,
   openManager,
@@ -112,6 +113,8 @@ async function deleteSignature(page, serviceWorker) {
   const item = panel.locator('.list .item', { hasText: 'Signature' });
   await item.hover();
   await item.locator('.edit-button').click();
+  await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  await waitForPanelFit(page, panel);
   await panel.locator('.item-danger').click();
   await expect(panel.locator('#undoBar')).toBeVisible();
   return panel;

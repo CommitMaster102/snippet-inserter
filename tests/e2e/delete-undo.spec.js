@@ -2,13 +2,14 @@
 'use strict';
 
 const { test, expect } = require('./fixtures');
-const { seedSnippets, readSnippets, readDeleted, selectInTextarea, openPanel } = require('./helpers');
+const { seedSnippets, readSnippets, readDeleted, selectInTextarea, openPanel, waitForPanelFit } = require('./helpers');
 
-async function openEditForm(panel, name) {
+async function openEditForm(page, panel, name) {
   const item = panel.locator('.list .item', { hasText: name });
   await item.hover();
   await item.locator('.edit-button').click();
   await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  await waitForPanelFit(page, panel);
 }
 
 test('Undo puts a deleted snippet back at its old position', async ({ page, serviceWorker }) => {
@@ -16,7 +17,7 @@ test('Undo puts a deleted snippet back at its old position', async ({ page, serv
   await selectInTextarea(page, '#plain', 5);
   const panel = await openPanel(page);
 
-  await openEditForm(panel, 'Second');
+  await openEditForm(page, panel, 'Second');
   await panel.locator('.item-danger').click();
   const captions = panel.locator('.list .item-caption');
   await expect(captions).toHaveText(['First', 'Third']);
@@ -38,7 +39,7 @@ test('Ctrl+Z in the list undoes a delete, also of the last snippet', async ({ pa
   await selectInTextarea(page, '#plain', 5);
   const panel = await openPanel(page);
 
-  await openEditForm(panel, 'Only');
+  await openEditForm(page, panel, 'Only');
   await panel.locator('.item-danger').click();
   await expect(panel.locator('.empty-heading')).toBeVisible();
   await expect(panel.locator('#undoBar')).toBeVisible();
@@ -54,7 +55,7 @@ test('Ctrl+1 in the edit form does not delete the snippet', async ({ page, servi
   await selectInTextarea(page, '#plain', 5);
   const panel = await openPanel(page);
 
-  await openEditForm(panel, 'Keep me');
+  await openEditForm(page, panel, 'Keep me');
   await page.keyboard.press('Control+1');
   await page.waitForTimeout(300);
   await expect(panel.locator('.caption')).toHaveText('Edit snippet');

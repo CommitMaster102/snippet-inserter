@@ -11,6 +11,7 @@ const {
   caretAtEndOf,
   doubleTap,
   openPanel,
+  waitForPanelFit,
   pressInPanel,
   expectPanelClosed,
   openManager,
@@ -189,8 +190,11 @@ test('a clashing abbreviation set in the manager is refused by a panel that is s
   await page.bringToFront();
 
   await panel.locator('.list .item', { hasText: 'Create new snippet' }).click();
+  await expect(panel.locator('.caption')).toHaveText('Create a new snippet');
+  await waitForPanelFit(page, panel);
   await panel.locator('textarea.input-content').fill('More');
   await panel.locator('input.input-abbreviation').fill(';sigs');
+  await waitForPanelFit(page, panel);
   await panel.locator('#primary').click();
   await expect(panel.locator('#error')).toHaveText("This starts with another snippet's abbreviation, ;sig.");
 

@@ -96,7 +96,34 @@ async function openPanel(page, key = 'Control') {
   }).toPass({ timeout: 10_000 });
   await expect(frame).toHaveCSS('opacity', '1');
   await waitForStablePanel(page);
-  return frame.contentFrame();
+  const panel = frame.contentFrame();
+  await waitForPanelFit(page, panel);
+  return panel;
+}
+
+/**
+ * Wait until the panel's frame has grown to fit its content.
+ *
+ * When the panel changes view, it tells the page its new height, and the browser needs a round
+ * trip before the frame and the panel's own viewport have that size. A click Playwright computes
+ * from the panel's content in that time lands on the page underneath and is lost. Call this
+ * after the new view is on screen (for example after expecting its caption) and before clicking
+ * into its lower part. Pass the iframe locator when the panel is inside another frame.
+ */
+async function waitForPanelFit(page, panel, iframe = page.locator(PANEL)) {
+  await expect
+    .poll(
+      async () => {
+        const viewport = await panel.locator('#app').evaluate((app) => ({
+          inner: window.innerHeight,
+          content: Math.ceil(app.getBoundingClientRect().height),
+        }));
+        const box = await iframe.boundingBox();
+        return viewport.inner >= viewport.content && box !== null && Math.abs(box.height - viewport.inner) <= 1;
+      },
+      { timeout: 5000 }
+    )
+    .toBe(true);
 }
 
 /**
@@ -166,6 +193,7 @@ module.exports = {
   caretAtEndOf,
   doubleTap,
   openPanel,
+  waitForPanelFit,
   pressInPanel,
   openManager,
   expectPanelClosed,

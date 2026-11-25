@@ -343,6 +343,13 @@ In a test, send a key that closes the panel with the `pressInPanel` helper, not 
 `page.keyboard`. The panel iframe is removed on keydown, and `page.keyboard` would then wait for
 a keyup that can no longer reach it.
 
+When the panel changes view, its frame grows in a step that the browser needs a round trip to
+apply, and a click computed in that time lands on the page underneath and is lost. Before a test
+clicks into a form or the header after the panel opens or changes view, call
+`waitForPanelFit(page, panel)` from `tests/e2e/helpers.js`. It waits until the panel's viewport
+and its frame match the height of its content. `openPanel` already calls it. For a panel inside
+another frame, pass that frame's iframe locator as the third argument.
+
 ## Contributing
 
 Report bugs and suggest features in

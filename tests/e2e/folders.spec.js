@@ -9,6 +9,7 @@ const {
   readDeleted,
   selectInTextarea,
   openPanel,
+  waitForPanelFit,
   pressInPanel,
   expectPanelClosed,
   openManager,
@@ -154,6 +155,7 @@ test('editing shows the folder, Duplicate keeps it, and a folder name over 64 ch
   expect((await readSnippets(serviceWorker))[1].folder).toBe('Personal');
 
   await field.fill('Personal');
+  await waitForPanelFit(page, panel);
   await panel.locator('.item-action', { hasText: 'Duplicate snippet' }).click();
   await expect(captions(panel)).toHaveCount(5);
   const stored = await readSnippets(serviceWorker);
@@ -189,6 +191,8 @@ test('deleting the last snippet of the selected folder returns to All, and Undo 
   await chips(panel).filter({ hasText: 'Personal' }).click();
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('F2');
+  await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  await waitForPanelFit(page, panel);
   await panel.locator('.item-action', { hasText: 'Delete snippet' }).click();
 
   await expect(panel.locator('#undoBar')).toBeVisible();

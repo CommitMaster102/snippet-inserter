@@ -2,7 +2,7 @@
 'use strict';
 
 const { test, expect } = require('./fixtures');
-const { seedSnippets, readSnippets, selectInTextarea, openPanel, openManager, expectPanelClosed, doubleTap, longText } = require('./helpers');
+const { seedSnippets, readSnippets, selectInTextarea, openPanel, waitForPanelFit, openManager, expectPanelClosed, doubleTap, longText } = require('./helpers');
 
 test('the panel opens above a modal dialog and inserts on a click', async ({ page, pagesUrl, serviceWorker }) => {
   await page.goto(`${pagesUrl}/dialog.html`);
@@ -39,6 +39,7 @@ test('the edit form stays inside a short window with Save visible', async ({ pag
   await item.hover();
   await item.locator('.edit-button').click();
   await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  await waitForPanelFit(page, panel);
 
   const frame = await page.locator('iframe[title="Snippets"]').boundingBox();
   expect(frame.y).toBeGreaterThanOrEqual(8);
@@ -383,6 +384,7 @@ test('the edit form, Duplicate, and Delete can be reached with the keyboard alon
   await page.keyboard.press('F2');
   await expect(panel.locator('.caption')).toHaveText('Edit snippet');
   await expect(panel.locator('textarea.input-content')).toHaveValue('First');
+  await waitForPanelFit(page, panel);
 
   // Tab reaches Duplicate, and Enter presses it.
   const duplicate = panel.locator('.item-action', { hasText: 'Duplicate snippet' });
@@ -397,6 +399,8 @@ test('the edit form, Duplicate, and Delete can be reached with the keyboard alon
   // Back in the list, highlight a snippet, open its edit form, and delete it with Tab and Enter.
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('F2');
+  await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  await waitForPanelFit(page, panel);
   const remove = panel.locator('.item-action', { hasText: 'Delete snippet' });
   await expect(async () => {
     await page.keyboard.press('Tab');

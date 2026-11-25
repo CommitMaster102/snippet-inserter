@@ -3,7 +3,7 @@
 'use strict';
 
 const { test, expect } = require('./fixtures');
-const { seedSnippets, readSnippets, selectInTextarea, openPanel, pressInPanel, expectPanelClosed } = require('./helpers');
+const { seedSnippets, readSnippets, selectInTextarea, openPanel, waitForPanelFit, pressInPanel, expectPanelClosed } = require('./helpers');
 
 test('each row shows a preview line under the name', async ({ page, serviceWorker }) => {
   await seedSnippets(serviceWorker, [
@@ -41,6 +41,8 @@ test('Duplicate places a copy right after the original', async ({ page, serviceW
   const item = panel.locator('.list .item', { hasText: 'Greeting' });
   await item.hover();
   await item.locator('.edit-button').click();
+  await expect(panel.locator('.caption')).toHaveText('Edit snippet');
+  await waitForPanelFit(page, panel);
   await panel.locator('.item-action', { hasText: 'Duplicate snippet' }).click();
 
   await expect(panel.locator('.list .item-caption')).toHaveText(['Greeting', 'Copy of Greetingnew', 'Other']);

@@ -9,6 +9,7 @@ const {
   readSnippets,
   selectInTextarea,
   openPanel,
+  waitForPanelFit,
   pressInPanel,
   expectPanelClosed,
   longText,
@@ -116,6 +117,7 @@ test('edits a snippet, labels it edited, then deletes it', async ({ page, servic
   await item.hover();
   await item.locator('.edit-button').click();
   await expect(panel.locator('.item-danger')).toHaveText('Delete snippet');
+  await waitForPanelFit(page, panel);
   await panel.locator('.item-danger').click();
   await expect(panel.locator('.empty-heading')).toBeVisible();
   expect(await readSnippets(serviceWorker)).toHaveLength(0);
