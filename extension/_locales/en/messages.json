@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "Rich-text editors, such as webmail, get this formatting. Text boxes and $GOOGLE_DOCS$ get the plain text, with bullets as dots and each link's address in parentheses after it.",
+    "message": "Rich-text editors, such as webmail and $GOOGLE_DOCS$, get this formatting. Text boxes get the plain text, with bullets as dots and each link's address in parentheses after it.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

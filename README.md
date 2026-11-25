@@ -65,12 +65,12 @@ describes search, folders, the forms, and every shortcut.
 
 In the snippet manager, a snippet can have bold, italic, underlined, and code text, links,
 bulleted and numbered lists, and code blocks. A code block that names a language has its keywords,
-strings, numbers, and comments colored. A rich-text editor, such as webmail, gets the formatting
-and keeps as much of it as that editor supports. A text box and a single-line field get the plain
-text, with a bullet or a number before each list item and each link's address in parentheses after
-its text. Google Docs gets the plain text for now, and snippets made in the snippet panel are
-plain. The [user guide](docs/user-guide.md#formatting) describes the toolbar, the plain text, and
-which editors keep the colors.
+strings, numbers, and comments colored. A rich-text editor, such as webmail, and a Google Docs
+document get the formatting, and each keeps as much of it as it supports. A text box and a
+single-line field get the plain text, with a bullet or a number before each list item and each
+link's address in parentheses after its text. Snippets made in the snippet panel are plain. The
+[user guide](docs/user-guide.md#formatting) describes the toolbar, the plain text, and which
+editors keep the colors.
 
 ## Languages
 

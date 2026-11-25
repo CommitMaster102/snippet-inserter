@@ -42,11 +42,12 @@ parameters imitate changes Google could make, such as a renamed input frame or a
 To check the real editor, set `DOCS_TEST_URL` to a Google Doc that anyone with the link can edit
 and run `npm run test:docs-live`. The check replaces the document's text, so use a scratch
 document. If it fails while `npm test` passes, the failure message says which part of the live
-editor no longer matches the stand-in. Its second test, the formatted step, pastes HTML into the
-document the way a formatted insert would and checks that Docs keeps the bold text, the link, and
-the paragraphs. Until that test has passed and the Docs path in `extension/content-main.js` pastes
-HTML the same way, formatted snippets go into Docs as plain text, and a failure of that test alone
-changes nothing that ships.
+editor no longer matches the stand-in. Its second test, the formatted step, inserts a formatted
+snippet through the extension and checks that Docs keeps the bold text, the link, the paragraphs,
+and every space and tab of a code block. A formatted snippet goes into Docs as a paste that carries
+its HTML beside its plain text, and Docs inserts the HTML. In a code block, Docs drops the first
+space after each `<br>`, so the HTML for Docs breaks code lines with newline characters. The
+stand-in records the HTML of each paste but inserts only the plain text.
 
 `playwright.config.js` runs the tests fully in parallel on 4 worker processes (2 when the `CI`
 environment variable is set) and retries a failed test up to 2 times. Retries use Playwright's

@@ -177,17 +177,17 @@ manager, and the name, abbreviation, and folder can still be changed in the pane
 
 ### Plain text
 
-A rich-text editor, such as webmail, gets the formatting, and keeps as much of it as that editor
-supports. A text box and a single-line field get the plain text: a bullet before each item of a
-bulleted list, its number before each item of a numbered list, 2 more spaces for each level of a
-nested list, and each link's address in parentheses after its text, unless the text is the
-address. A code block keeps every space, tab, and line break there too, except that a single-line
-field joins the lines as it does for any snippet. Placeholder and fill-in values go in as text, even
-when they look like HTML. In a rich editor, a formatted snippet included with `{snippet:...}` keeps
-its formatting, whether the snippet that includes it is formatted or not. Included through a plain
-snippet, it loses its formatting: when A includes the plain snippet B and B includes the formatted
-snippet C, inserting A gives C as plain text, while inserting B keeps C's formatting. Outside a rich
-editor, every included snippet goes in as plain text.
+A rich-text editor, such as webmail, and a Google Docs document get the formatting, and each keeps
+as much of it as it supports. A text box and a single-line field get the plain text: a bullet
+before each item of a bulleted list, its number before each item of a numbered list, 2 more spaces
+for each level of a nested list, and each link's address in parentheses after its text, unless the
+text is the address. A code block keeps every space, tab, and line break there too, except that a
+single-line field joins the lines as it does for any snippet. Placeholder and fill-in values go in
+as text, even when they look like HTML. In a rich editor or in Docs, a formatted snippet included with
+`{snippet:...}` keeps its formatting, whether the snippet that includes it is formatted or not.
+Included through a plain snippet, it loses its formatting: when A includes the plain snippet B and B
+includes the formatted snippet C, inserting A gives C as plain text, while inserting B keeps C's
+formatting. In a text box or a single-line field, every included snippet goes in as plain text.
 
 ### Code blocks and colors
 
@@ -202,10 +202,11 @@ nothing new.
 
 ### Which editors keep colors
 
-Whether the colors of a code block arrive depends on the editor that receives the paste. Gmail,
-Outlook, and Google Docs keep pasted text colors, so a colored block shows its colors there, except
-that Docs gets a formatted snippet as plain text for now, as [Google Docs](#google-docs) says. Slack
-and many other editors drop colors and show plain code; the code and its line breaks still arrive.
+Whether the colors of a code block arrive depends on the editor that receives the paste. Gmail and
+Outlook keep pasted text colors, so a colored block shows its colors there. Google Docs shows a code
+block in its own code font and colors instead of the snippet's colors, and keeps every space, tab,
+and line break. Slack and many other editors drop colors and show plain code; the code and its line
+breaks still arrive.
 A text box gets the exact text of the block with no colors.
 
 ### Format JSON
@@ -320,18 +321,16 @@ In every language except English, Settings and backup links to it. To fix the te
 ## Google Docs
 
 Docs draws the document on a canvas and takes typing through a hidden frame. The extension opens
-the panel at the cursor Docs draws, and inserts the snippet into that hidden frame as a paste. In
-Docs, picking a snippet over a selection replaces it, "Create snippet from selection" and the
-keyboard shortcut work, and one Ctrl+Z removes an insert. With other people in the document, the
-panel opens at your own cursor. These things differ from other editors:
+the panel at the cursor Docs draws, and inserts the snippet into that hidden frame as a paste, with
+its formatting when it has some. In Docs, picking a snippet over a selection replaces it, "Create
+snippet from selection" and the keyboard shortcut work, and one Ctrl+Z removes an insert. With
+other people in the document, the panel opens at your own cursor. These things differ from other
+editors:
 
 - No space is added before or after the snippet, because Docs does not expose the text next to
   the cursor.
-- Docs drops spaces at the start and end of a pasted snippet.
+- Docs drops spaces at the start and end of a snippet that has no formatting.
 - Each line break in the snippet starts a new paragraph.
-- A formatted snippet goes in as its plain text. Formatting reaches Docs only through a paste whose
-  handling Google does not document, so it waits until the formatted step of
-  `npm run test:docs-live` passes against a real document.
 - Abbreviations do not expand, and `{cursor}` has no effect, because the text and the cursor
   position are not in the page.
 
@@ -341,8 +340,8 @@ each with a fallback. Those selectors are in the `DOCS` constant at the top of
 `extension/content.js`. If Google changes the editor, the panel still opens: at the cursor when
 the extension can find it, and otherwise at your last click or at the top of the document. After
 each insert the extension checks that the Docs cursor moved. If it cannot confirm the insert, it
-copies the snippet to the clipboard and shows a notice asking you to press Ctrl+V. Only Docs
-documents get this support, not Slides or Sheets.
+copies the snippet's text, without formatting, to the clipboard and shows a notice asking you to
+press Ctrl+V. Only Docs documents get this support, not Slides or Sheets.
 
 ## Limits
 
