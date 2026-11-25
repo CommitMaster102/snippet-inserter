@@ -111,18 +111,19 @@ export function create(shared) {
     if (!snippet || panel || !extensionAlive()) return;
     const { content } = placeholders.resolveReferences(snippet, list);
     const fillIn = placeholders.inputLabels(content).length > 0;
-    // A rich editor waits for the selection to settle before the paste. A space from an input
-    // method that arrives in that time would replace the selected text, so committed text is
-    // selected only after one settle wait, together with that space if it has come by then.
-    if (committed && !isValueField(target) && target.kind !== 'docs') {
+    // A rich editor waits for the selection to settle before the paste, and a fill-in form keeps
+    // the abbreviation selected while it is open. A space from an input method that arrives in
+    // that time would replace the selected text, so committed text is selected only after one
+    // settle wait, together with that space if it has come by then.
+    if (committed && (fillIn || (!isValueField(target) && target.kind !== 'docs'))) {
       await wait(SELECTION_SETTLE_MS);
       if (panel || !extensionAlive()) return;
     }
     const typed = abbreviation + delimiter;
     const follower = selectTypedText(target, typed, committed);
     if (follower === null) return;
-    // The user typed the abbreviation where the text belongs, so no spaces are added. In a rich
-    // editor the insert checks that `replaces` is still selected before it pastes over it.
+    // The user typed the abbreviation where the text belongs, so no spaces are added. The insert
+    // checks that `replaces` is still selected before it replaces it.
     const suffix = committed ? follower : delimiter ? ' ' : '';
     const ctx = { ...captureContext(target), noSpacing: true, suffix, replaces: typed + follower };
     if (fillIn) {
@@ -540,7 +541,7 @@ export function create(shared) {
     const text = (left ? ' ' : '') + body.text + (right ? ' ' : '') + (ctx.suffix || '');
     const caret = body.cursor === null ? null : body.cursor + (left ? 1 : 0);
     if (isValueField(ctx)) {
-      if (!fitsMaxLength(ctx, text)) return;
+      if (!stillReplaces(ctx) || !fitsMaxLength(ctx, text)) return;
       insertIntoTextarea(ctx.el, ctx.start, ctx.end, text);
       if (caret !== null) ctx.el.setSelectionRange(ctx.start + caret, ctx.start + caret);
       return;
@@ -555,12 +556,13 @@ export function create(shared) {
     }
   }
 
-  // Whether the selection in a rich editor still covers exactly `ctx.replaces`, the typed text
-  // that an abbreviation's insert replaces. The page may have changed that text while a fill-in
-  // form was open or while the selection settled, for example with a late space from an input
-  // method. Without `ctx.replaces` there is nothing to check.
+  // Whether the selection still covers exactly `ctx.replaces`, the typed text that an
+  // abbreviation's insert replaces. The page may have changed that text while a fill-in form was
+  // open or while the selection settled, for example with a late space from an input method.
+  // Without `ctx.replaces` there is nothing to check.
   function stillReplaces(ctx) {
     if (ctx.replaces === undefined) return true;
+    if (isValueField(ctx)) return ctx.el.value.slice(ctx.start, ctx.end) === ctx.replaces;
     const selection = selectionFor(ctx.el);
     if (!selection || !selection.rangeCount) return false;
     const range = selection.getRangeAt(0);

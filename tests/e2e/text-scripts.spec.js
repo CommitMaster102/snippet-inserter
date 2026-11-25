@@ -147,6 +147,20 @@ test('a tab or an ideographic space after the commit does not expand the abbrevi
   await expect(page.locator('#plain')).toHaveValue('Hello world 감사합니다. ');
 });
 
+// A fill-in form keeps the abbreviation selected while it is open, so a space from the input
+// method that arrives after the selection would replace the abbreviation.
+test('a snippet with a fill-in field keeps a space that arrives 5 ms after the commit', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: '감사합니다, {input:Name}.', abbreviation: '감사' }]);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.locator('#plain').focus();
+  await commitAndInsert(page, '감사', ' ', 5);
+  await expect(page.frameLocator(PANEL).locator('.fill-input')).toBeFocused();
+  await page.keyboard.type('Ana');
+  await pressInPanel(page, 'Enter');
+  await expectPanelClosed(page);
+  await expect(page.locator('#plain')).toHaveValue('Hello world 감사합니다, Ana. ');
+});
+
 // Writes "Hi " and `abbreviation` into the rich editor `selector` and commits the abbreviation as
 // an input method does. The space of the committing keystroke arrives `delay` ms later.
 async function commitInRichEditor(page, selector, abbreviation, delay) {

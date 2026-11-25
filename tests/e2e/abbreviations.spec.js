@@ -101,6 +101,34 @@ test('Escape in that form keeps the typed abbreviation and the caret after it', 
   await expect(page.locator('#plain')).toHaveValue('Hello world ;sig!');
 });
 
+// The insert replaces the abbreviation only if it is still where the form found it.
+test('the fill-in form inserts nothing if the page changed the abbreviation while it was open', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.keyboard.type(' ;sig');
+  await expect(page.frameLocator(PANEL).locator('.fill-input')).toBeFocused();
+  await page.locator('#plain').evaluate((el) => {
+    el.value = 'Hello world ;sog';
+  });
+  await page.keyboard.type('Ana');
+  await pressInPanel(page, 'Enter');
+  await expectPanelClosed(page);
+  await page.waitForTimeout(300);
+  await expect(page.locator('#plain')).toHaveValue('Hello world ;sog');
+
+  await caretAtEndOf(page, '#pasteEditor');
+  await page.keyboard.type(' ;sig');
+  await expect(page.frameLocator(PANEL).locator('.fill-input')).toBeFocused();
+  await page.locator('#pasteEditor').evaluate((el) => {
+    el.textContent = 'Editor: ;sog';
+  });
+  await page.keyboard.type('Ana');
+  await pressInPanel(page, 'Enter');
+  await expectPanelClosed(page);
+  await page.waitForTimeout(300);
+  await expect(page.locator('#pasteEditor')).toHaveText('Editor: ;sog');
+});
+
 test('the setting turns expansion off', async ({ context, extensionId, page, serviceWorker }) => {
   await seedSnippets(serviceWorker, SNIPPETS);
   const manager = await openManager(context, extensionId, 'settings');
