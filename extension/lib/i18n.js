@@ -91,9 +91,10 @@
     return lookup(`${key}_${category}`, substitutions) || lookup(`${key}_other`, substitutions) || `${key}_other`;
   }
 
-  // A whole number as text, in the digits of the catalog's language and without a separator.
-  function number(value) {
-    return new Intl.NumberFormat(languageTag(), { useGrouping: false }).format(value);
+  // A whole number as text, in the digits of the catalog's language. It has no thousands separator
+  // unless `grouping` is true, which a count that can pass 999 asks for.
+  function number(value, { grouping = false } = {}) {
+    return new Intl.NumberFormat(languageTag(), { useGrouping: grouping }).format(value);
   }
 
   // The language of the catalog as a BCP 47 tag, from its localeCode message (en, pt_BR).

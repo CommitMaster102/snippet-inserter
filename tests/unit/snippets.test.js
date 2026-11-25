@@ -112,9 +112,25 @@ test('preview line and character count', () => {
   assert.equal(lib.previewLine(stored[0]), '14 Elm Street');
   assert.equal(lib.previewLine(stored[1]), 'Ana');
   assert.equal(lib.previewLine({ title: '', content: 'One line' }), '');
-  assert.equal(lib.characterCount('', 'en-US'), '0 characters');
-  assert.equal(lib.characterCount('x', 'en-US'), '1 character');
-  assert.equal(lib.characterCount('x'.repeat(7693), 'en-US'), '7,693 characters');
+  assert.equal(lib.characterCount(''), '0 characters');
+  assert.equal(lib.characterCount('x'), '1 character');
+  assert.equal(lib.characterCount('x'.repeat(7693)), '7,693 characters');
+});
+
+test('the character count is a plural family of the catalog', () => {
+  // Outside the browser lib/i18n.js reads this object, so a change to it acts as another language.
+  const catalog = require('../../extension/_locales/en/messages.json');
+  const saved = { one: catalog.characterCount_one, other: catalog.characterCount_other };
+  try {
+    assert.ok(saved.one && saved.other, 'characterCount_one and characterCount_other are in the catalog');
+    catalog.characterCount_one = { ...saved.one, message: 'one: $COUNT$' };
+    catalog.characterCount_other = { ...saved.other, message: 'other: $COUNT$' };
+    assert.equal(lib.characterCount('x'), 'one: 1');
+    assert.equal(lib.characterCount('x'.repeat(1234)), 'other: 1,234');
+  } finally {
+    catalog.characterCount_one = saved.one;
+    catalog.characterCount_other = saved.other;
+  }
 });
 
 // A stand-in for chrome.storage.local that keeps values in a Map and copies them like the real
@@ -648,6 +664,6 @@ test('a folder name counts and cuts a flag, a skin-tone emoji, and a family emoj
 });
 
 test('the character count treats a flag, a skin-tone emoji, and a family emoji as one character each', () => {
-  for (const emoji of MULTI_CODE_POINT_EMOJI) assert.equal(lib.characterCount(emoji, 'en'), '1 character', emoji);
-  assert.equal(lib.characterCount(MULTI_CODE_POINT_EMOJI.join(''), 'en'), '3 characters');
+  for (const emoji of MULTI_CODE_POINT_EMOJI) assert.equal(lib.characterCount(emoji), '1 character', emoji);
+  assert.equal(lib.characterCount(MULTI_CODE_POINT_EMOJI.join('')), '3 characters');
 });

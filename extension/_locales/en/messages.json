@@ -253,6 +253,26 @@
       }
     }
   },
+  "characterCount_one": {
+    "message": "$COUNT$ character",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. Singular form: the count is one (or the form for one in your language).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "characterCount_other": {
+    "message": "$COUNT$ characters",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. Plural form. The number has the thousands separator of your language.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,234"
+      }
+    }
+  },
   "labelEdited": {
     "message": "edited",
     "description": "Small label next to a snippet in the panel list that was just changed."

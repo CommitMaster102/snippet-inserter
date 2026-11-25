@@ -38,8 +38,9 @@ test('a missing key reads as the key, so a gap is seen', () => {
   assert.equal(i18n.t('noSuchMessage'), 'noSuchMessage');
 });
 
-test('numbers have no grouping, as the English text had none', () => {
+test('numbers have no grouping, as the English text had none, unless a count asks for it', () => {
   assert.equal(i18n.number(1234567), '1234567');
+  assert.equal(i18n.number(1234567, { grouping: true }), '1,234,567');
 });
 
 test('the language and direction come from the catalog', () => {

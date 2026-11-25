@@ -31,7 +31,7 @@ test('the list shows the first line of the shared text, and the count treats an 
   assert.equal(lib.displayTitle({ title: '', content: TEXT }), PARTS.japanese);
   assert.equal(lib.previewLine({ title: '', content: TEXT }), PARTS.chinese);
   assert.equal(lib.characterCount(PARTS.family), '1 character');
-  assert.equal(lib.characterCount(TEXT, 'en'), `${characterCount(TEXT)} characters`);
+  assert.equal(lib.characterCount(TEXT), `${characterCount(TEXT)} characters`);
 });
 
 test('a placeholder label in Japanese is found, and the text around it is kept', () => {
@@ -107,13 +107,13 @@ const DENSE_MEGABYTES = {
 // the machine is busy slows both or neither. Comparing the two, instead of checking a fixed
 // number of milliseconds, keeps the tests from failing on a slow or busy machine.
 function timeCount(text) {
-  const result = lib.characterCount(text, 'en');
+  const result = lib.characterCount(text);
   lib.titleLength(text);
   let took = Infinity;
   let segmenting = Infinity;
   for (let run = 0; run < 3; run++) {
     let start = performance.now();
-    lib.characterCount(text, 'en');
+    lib.characterCount(text);
     took = Math.min(took, performance.now() - start);
     start = performance.now();
     lib.titleLength(text);

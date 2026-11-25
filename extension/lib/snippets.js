@@ -758,9 +758,12 @@
     return index < text.length && CLUSTER_JOINER.test(String.fromCodePoint(text.codePointAt(index)));
   }
 
-  function characterCount(text, locale) {
+  // The count under the text field of the snippet forms, such as "1,234 characters", in the
+  // plural form and with the thousands separator of the catalog's language.
+  function characterCount(text) {
     const count = countCharacters(text);
-    return `${count.toLocaleString(locale)} ${count === 1 ? 'character' : 'characters'}`;
+    const messages = i18n();
+    return messages.plural('characterCount', count, [messages.number(count, { grouping: true })]);
   }
 
   const api = {
