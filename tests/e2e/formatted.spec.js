@@ -461,8 +461,9 @@ test('the fill-in form of a plain snippet that includes a formatted one previews
   await expect(page.locator('#rich i')).toHaveCount(0);
 });
 
-// Lists what the root contains that the cleaner would never let through: an element or attribute outside
-// the allowlist, a style that loads something, and a link that is not a web, mail, or phone address.
+// Lists what the root contains that the cleaner would never let through: an element or attribute
+// outside the allowlist, a style that loads something, and a link that is not a web, mail, or phone
+// address.
 const AUDIT = (root) => {
   const tags = new Set(['B', 'I', 'U', 'S', 'A', 'BR', 'UL', 'OL', 'LI', 'PRE', 'CODE', 'SPAN', 'P', 'DIV']);
   const attributes = new Set(['href', 'title', 'class', 'style', 'data-language', 'dir', 'tabindex', 'role', 'aria-label']);

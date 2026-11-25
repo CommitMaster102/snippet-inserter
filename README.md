@@ -293,19 +293,20 @@ documents get this support, not Slides or Sheets.
 
 ## Storage
 
-Snippets are kept in `chrome.storage.local` under `snippet_manager.snippets`, as an array of `{
-createdAt, content, title, id }` records, plus `abbreviation`, `folder`, and `html` when a snippet
-has them. `html` holds the formatting of a formatted snippet, and `content` then holds the same text
-without formatting, which is what text boxes and search use. A folder name has up to 64 characters.
-There is no list of folders: the folders are the names that snippets carry, so a folder exists while
-a snippet is in it. The array order is the order of the list, and moving a snippet to another folder
-does not change its place. Deleted snippets go to `snippet_manager.deleted`, newest first, at most
-20, each with `deletedAt` and its old position. `snippet_manager.abbreviations` holds a small `{
-abbreviation: id }` copy written with every change to the list, so pages read only that. The
-settings are in `settings`. `abbreviationTiming` is stored only once someone picks "After I press
-Space, Tab, or Enter", and `offSites`, the host names of the turned-off sites, only once someone
-adds one. Settings are not part of an export. The extension has the `unlimitedStorage` permission,
-so the browser's 10 MB local-storage quota does not apply. Nothing is synced to other devices.
+Snippets are kept in `chrome.storage.local` under `snippet_manager.snippets`, as an array of
+`{ createdAt, content, title, id }` records, plus `abbreviation`, `folder`, and `html` when a
+snippet has them. `html` holds the formatting of a formatted snippet, and `content` then holds the
+same text without formatting, which is what text boxes and search use. A folder name has up to 64
+characters. There is no list of folders: the folders are the names that snippets carry, so a folder
+exists while a snippet is in it. The array order is the order of the list, and moving a snippet to
+another folder does not change its place. Deleted snippets go to `snippet_manager.deleted`, newest
+first, at most 20, each with `deletedAt` and its old position. `snippet_manager.abbreviations` holds
+a small `{ abbreviation: id }` copy written with every change to the list, so pages read only that.
+The settings are in `settings`. `abbreviationTiming` is stored only once someone picks "After I
+press Space, Tab, or Enter", and `offSites`, the host names of the turned-off sites, only once
+someone adds one. Settings are not part of an export. The extension has the `unlimitedStorage`
+permission, so the browser's 10 MB local-storage quota does not apply. Nothing is synced to other
+devices.
 
 Export in the manager saves every snippet to `snippets-YYYY-MM-DD.json`:
 

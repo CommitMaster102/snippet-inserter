@@ -1104,8 +1104,9 @@ function insertSnippet(snippet) {
   else post({ type: 'insert', content, values: {}, ...formattedText(snippet) });
 }
 
-// The formatted text of a snippet that has formatting or includes one that does, with its included snippets in place, to send along
-// with the plain text of an insert. The page decides which of the two its field takes.
+// The formatted text of a snippet that has formatting or includes one that does, with its included
+// snippets in place, to send along with the plain text of an insert. The page decides which of the
+// two its field takes.
 function formattedText(snippet) {
   const html = lib.richText.resolve(snippet, state.snippets);
   return html === null ? {} : { html };
