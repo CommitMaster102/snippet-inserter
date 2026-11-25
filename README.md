@@ -388,6 +388,8 @@ tests/
   pages/              Test pages served to the browser during the tests.
 scripts/
   make-icons.py       Redraws extension/icons.
+  check-locales.js    The check behind npm run test:locales.
+i18n/                 The width budgets of the interface text, for the language check.
 docs/screenshots/     Screenshots used in this README.
 playwright.config.js        Configuration for npm test.
 playwright.live.config.js   Configuration for npm run test:docs-live.
@@ -405,6 +407,7 @@ npm test              # headless run
 npm run test:headed   # watch the browser
 npm run test:report   # open the HTML report of the last run
 npm run test:unit     # Node unit tests for extension/lib, no browser
+npm run test:locales  # checks every language folder in extension/_locales
 ```
 
 `extension/lib/richtext.js` parses HTML with the browser's own parser, so its unit tests,
