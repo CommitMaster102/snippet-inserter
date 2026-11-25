@@ -501,7 +501,9 @@ that opens at the cursor, so this file uses Panel.
 | JSON terms: string; value; property name | ciąg; wartość; nazwa właściwości | |
 
 A keyboard shortcut is always "skrót klawiszowy", never a bare "skrót", which this file keeps for
-an abbreviation. Chrome's word for a name, "Imię i nazwisko", is a person's name; a snippet's name is
+an abbreviation. Where an abbreviation and a keyboard shortcut are listed together as ways to
+insert, write "skrót tekstowy" for the abbreviation, as the store description does: "skrótem
+klawiszowym albo skrótem tekstowym". Chrome's word for a name, "Imię i nazwisko", is a person's name; a snippet's name is
 "nazwa".
 
 ### ru: Russian
