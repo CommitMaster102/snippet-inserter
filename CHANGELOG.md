@@ -2,6 +2,19 @@
 
 Each version lists what a person using Snippet Inserter sees. The version is `version` in `package.json`, and `extension/manifest.json` has the same one.
 
+## 1.3.0
+
+- The interface comes in 29 languages besides English, chosen by the browser's language. A language model drafted the translations, so report a wrong one with the Translation problem form in Settings and backup. Arabic and Persian interfaces and Hebrew and Arabic snippets read from right to left.
+- A snippet can have a folder, and backups keep it.
+- `{date+3d}`, `{time-2h}`, and `{date+1fri}` count from now, and `{snippet:;sig}` puts one snippet inside another. The edit forms list typos as not recognized. Such text already in a snippet now expands, and its edit form lists it under Placeholders or Includes.
+- The snippet manager adds bold, italic, underline, links, lists, colored code blocks, and a Format JSON button. Rich editors and Google Docs get the formatting, and text boxes get plain text.
+- Abbreviations can wait for Space, Tab, or Enter, or be turned off, and work with Japanese, Chinese, and Korean input methods. A list of sites turns the double tap and abbreviations off there.
+- The panel opens above dialogs, popovers, and fullscreen elements, and fits short windows and high zoom. It was tested in plain, transformed, and shadow-root dialogs, but not in MUI or Radix dialogs.
+- The panel list is a list box for screen readers, Tab stays in the panel, F2 edits the highlighted snippet, and the manager list is one Tab stop. The Ctrl shortcuts work on any keyboard layout, and a narrow manager window shows the editor under the list.
+- A failed action shows a message, and a panel left open no longer saves an abbreviation that another tab took meanwhile.
+- Search finds Japanese and Thai text anywhere, and "école" in "l'école". Tabs stay tabs in rich editors, and an emoji counts as one character in names and folders.
+- Settings and backup links to Ko-fi for optional donations.
+
 ## 1.2.0 (2026-11-20)
 
 - Press a keyboard shortcut or use the right-click menu items to open the panel or create a snippet from the selected text.
