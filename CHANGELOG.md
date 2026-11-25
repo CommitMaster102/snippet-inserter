@@ -2,7 +2,7 @@
 
 Each version lists what a person using Snippet Inserter sees. The version is `version` in `package.json`, and `extension/manifest.json` has the same one.
 
-## 1.3.0
+## 1.3.0 (2026-11-25)
 
 - The interface comes in 29 languages besides English, chosen by the browser's language. A language model drafted the translations, so report a wrong one with the Translation problem form in Settings and backup. Arabic and Persian interfaces and Hebrew and Arabic snippets read from right to left.
 - A snippet can have a folder, and backups keep it.

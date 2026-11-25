@@ -1,6 +1,6 @@
 {
   "name": "snippet-inserter",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "description": "Browser extension that inserts saved text snippets into text fields and Google Docs with a double tap of Ctrl.",
   "license": "MIT",
