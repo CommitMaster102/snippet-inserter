@@ -191,9 +191,11 @@ with 2 spaces. Numbers and strings stay as typed, and so does the order of the k
 snippet it works on the code block that holds the caret. When the text is not valid JSON, it
 changes nothing and says the line and column of the first error. A placeholder outside quotes,
 such as `{input:Count}` where a number goes, makes the text invalid JSON, and the message says so.
-A placeholder inside quotes is ordinary text. A screen reader announces that error and the link
-address error of the link bar as they appear. While the JSON error shows, it is the description of
-the Format JSON button, and while the address error shows, the link field is marked invalid.
+A placeholder inside quotes is ordinary text. A screen reader announces that error when it appears,
+and does the same for the address error of the link bar and for each error under a field of the
+manager, such as a name longer than 128 characters or an abbreviation already in use. While the
+JSON error shows, it is the description of the Format JSON button. While any other of these errors
+shows, it is the description of its field, and the field is marked invalid.
 
 Each code block has a language menu in the toolbar: Plain text, JSON, JavaScript, TypeScript, Python,
 HTML, CSS, SQL, and Shell. Put the caret in a block to change its menu. When you save, a bundled

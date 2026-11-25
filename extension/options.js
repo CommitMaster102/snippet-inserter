@@ -351,7 +351,7 @@ function openRename() {
   els.folderButtons.hidden = true;
   els.renameForm.hidden = false;
   els.renameHint.hidden = true;
-  els.renameError.hidden = true;
+  showFieldError(els.renameInput, els.renameError, '');
   els.renameInput.value = state.folder;
   els.renameInput.focus();
   els.renameInput.select();
@@ -381,7 +381,7 @@ els.renameInput.addEventListener('keydown', (event) => {
   els.renameFolder.focus();
 });
 els.renameInput.addEventListener('input', () => {
-  els.renameError.hidden = true;
+  showFieldError(els.renameInput, els.renameError, '');
   const { target, joins } = renameTarget(els.renameInput.value);
   els.renameHint.hidden = !joins;
   els.renameHint.textContent = t('renameJoins', [target]);
@@ -395,8 +395,7 @@ els.renameForm.addEventListener('submit', async (event) => {
     : lib.folderLength(typed) > lib.FOLDER_MAX_LENGTH
       ? tooLong(lib.FOLDER_MAX_LENGTH)
       : '';
-  els.renameError.hidden = !problem;
-  els.renameError.textContent = problem;
+  showFieldError(els.renameInput, els.renameError, problem);
   if (!from || problem) return;
   const { target } = renameTarget(typed);
   if (target === from) {
@@ -742,9 +741,9 @@ function loadEditor(snippet, initialContent = '', initialFolder = '') {
     : { title: '', content: '', html: '', abbreviation: '', folder: initialFolder };
   els.duplicate.hidden = !snippet;
   els.delete.hidden = !snippet;
-  els.titleError.hidden = true;
-  els.abbreviationError.hidden = true;
-  els.folderError.hidden = true;
+  showFieldError(els.title, els.titleError, '');
+  showFieldError(els.abbreviation, els.abbreviationError, '');
+  showFieldError(els.folder, els.folderError, '');
   showContentError('');
   els.editorStatus.textContent = '';
   hideNotice();
@@ -867,13 +866,28 @@ async function run(work, { fromEditor = false } = {}) {
   }
 }
 
+// Shows the error under a field, or hides it when the message is empty. The field names the error
+// as its description, and a hidden element named that way still describes it, so hiding the error
+// also clears its text. The field is marked invalid while the error shows.
+function showFieldError(field, error, message) {
+  error.textContent = message;
+  error.hidden = !message;
+  if (message) field.setAttribute('aria-invalid', 'true');
+  else field.removeAttribute('aria-invalid');
+}
+
 // Shows the error line under the text, or hides it when the message is empty. The line describes
-// the Format JSON button only while it holds an error of that button, which showJsonError sets, so
-// any other message, or none, removes the description.
+// the Format JSON button only while it holds an error of that button, which showJsonError sets, and
+// the text box only while it holds the empty-text error of Save, which validate sets. Any other
+// message, or none, removes both descriptions.
 function showContentError(message) {
   els.contentError.textContent = message;
   els.contentError.hidden = !message;
   els.formatJson.removeAttribute('aria-describedby');
+  for (const box of [els.content, els.richContent]) {
+    box.removeAttribute('aria-describedby');
+    box.removeAttribute('aria-invalid');
+  }
 }
 
 // The error for a field longer than `max` characters, in the plural form that `max` takes.
@@ -882,30 +896,25 @@ function tooLong(max) {
 }
 
 // Form rules, the same as in the panel: the text must not be blank, the name must not be longer
-// than 128 characters, and the folder must not be longer than 64.
+// than 128 characters, the abbreviation must pass lib.abbreviationProblem(), and the folder must
+// not be longer than 64. Returns whether the form passes them all.
 function validate() {
-  let valid = true;
   const empty = textFields().content.trim() === '';
   showContentError(empty ? t('validationEmpty') : '');
-  if (empty) valid = false;
-  els.titleError.hidden = lib.titleLength(els.title.value) <= lib.TITLE_MAX_LENGTH;
-  if (!els.titleError.hidden) {
-    els.titleError.textContent = tooLong(lib.TITLE_MAX_LENGTH);
-    valid = false;
+  if (empty) {
+    for (const box of [els.content, els.richContent]) {
+      box.setAttribute('aria-describedby', 'contentError');
+      box.setAttribute('aria-invalid', 'true');
+    }
   }
-  els.folderError.hidden = lib.folderLength(els.folder.value) <= lib.FOLDER_MAX_LENGTH;
-  if (!els.folderError.hidden) {
-    els.folderError.textContent = tooLong(lib.FOLDER_MAX_LENGTH);
-    valid = false;
-  }
+  const titleProblem = lib.titleLength(els.title.value) > lib.TITLE_MAX_LENGTH ? tooLong(lib.TITLE_MAX_LENGTH) : '';
+  showFieldError(els.title, els.titleError, titleProblem);
+  const folderProblem = lib.folderLength(els.folder.value) > lib.FOLDER_MAX_LENGTH ? tooLong(lib.FOLDER_MAX_LENGTH) : '';
+  showFieldError(els.folder, els.folderError, folderProblem);
   const ownId = state.creating ? null : state.selectedId;
-  const problem = lib.abbreviationProblem(els.abbreviation.value.trim(), state.snippets, ownId);
-  els.abbreviationError.hidden = !problem;
-  if (problem) {
-    els.abbreviationError.textContent = problem;
-    valid = false;
-  }
-  return valid;
+  const problem = lib.abbreviationProblem(els.abbreviation.value.trim(), state.snippets, ownId) || '';
+  showFieldError(els.abbreviation, els.abbreviationError, problem);
+  return !empty && !titleProblem && !folderProblem && !problem;
 }
 
 // The status line after a save: it also says when other snippets' references were rewritten for a
@@ -966,17 +975,17 @@ els.content.addEventListener('input', () => {
   updateCount();
 });
 els.title.addEventListener('input', () => {
-  els.titleError.hidden = true;
+  showFieldError(els.title, els.titleError, '');
   els.editorStatus.textContent = '';
   renderReferences();
 });
 els.abbreviation.addEventListener('input', () => {
-  els.abbreviationError.hidden = true;
+  showFieldError(els.abbreviation, els.abbreviationError, '');
   els.editorStatus.textContent = '';
   renderReferences();
 });
 els.folder.addEventListener('input', () => {
-  els.folderError.hidden = true;
+  showFieldError(els.folder, els.folderError, '');
   els.editorStatus.textContent = '';
 });
 
@@ -1343,13 +1352,8 @@ function linkAddress(typed) {
   return /^[^\s/]+\.[^\s/]+/.test(text) ? richText.normalizeUrl(`https://${text}`) : null;
 }
 
-// Shows the link bar's error, or hides it when the message is empty, and marks the address field
-// as invalid while the error shows so a screen reader says so.
 function showLinkError(message) {
-  els.linkError.textContent = message;
-  els.linkError.hidden = !message;
-  if (message) els.linkUrl.setAttribute('aria-invalid', 'true');
-  else els.linkUrl.removeAttribute('aria-invalid');
+  showFieldError(els.linkUrl, els.linkError, message);
 }
 
 function openLinkBar() {
@@ -1648,13 +1652,12 @@ els.offSiteForm.addEventListener('submit', async (event) => {
   reportError('');
   try {
     const { offSites } = await lib.addOffSite(els.offSiteInput.value);
-    els.offSiteError.hidden = true;
+    showFieldError(els.offSiteInput, els.offSiteError, '');
     els.offSiteInput.value = '';
     renderOffSites(offSites);
   } catch (error) {
     if (error.invalid) {
-      els.offSiteError.textContent = error.message;
-      els.offSiteError.hidden = false;
+      showFieldError(els.offSiteInput, els.offSiteError, error.message);
     } else {
       reportError(t('saveChangeFailed', [error.message]));
     }
@@ -1663,7 +1666,7 @@ els.offSiteForm.addEventListener('submit', async (event) => {
 });
 
 els.offSiteInput.addEventListener('input', () => {
-  els.offSiteError.hidden = true;
+  showFieldError(els.offSiteInput, els.offSiteError, '');
 });
 
 // The key comes from the browser, which leaves it unset when another extension already uses

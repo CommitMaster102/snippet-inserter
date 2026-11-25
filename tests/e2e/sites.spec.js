@@ -170,6 +170,9 @@ test('the manager adds a site from an address, refuses bad input, and turns a si
   await input.fill('not a site');
   await manager.getByRole('button', { name: 'Add site' }).click();
   await expect(error).toHaveText('Enter a site such as example.com.');
+  await expect(manager.getByRole('alert')).toHaveText('Enter a site such as example.com.');
+  await expect(input).toHaveAccessibleDescription('Enter a site such as example.com.');
+  await expect(input).toHaveAttribute('aria-invalid', 'true');
   await input.fill('mail.example.com');
   await manager.getByRole('button', { name: 'Add site' }).click();
   await expect(error).toHaveText('mail.example.com is already on the list.');
@@ -178,6 +181,8 @@ test('the manager adds a site from an address, refuses bad input, and turns a si
   await expect(error).toHaveText('a.mail.example.com is already off, because mail.example.com is on the list.');
   await input.fill('x');
   await expect(error).toBeHidden();
+  await expect(input).toHaveAccessibleDescription('');
+  await expect(input).not.toHaveAttribute('aria-invalid');
 
   await input.fill('example.com');
   await manager.getByRole('button', { name: 'Add site' }).click();

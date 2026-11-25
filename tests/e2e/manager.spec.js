@@ -47,6 +47,34 @@ test('creates a snippet and checks the form rules', async ({ context, extensionI
   expect(await readSnippets(serviceWorker)).toMatchObject([{ title: 'Sign-off', content: 'Best,\nAna' }]);
 });
 
+test('an error of Save is announced and describes its field, marked invalid, until the field changes', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Signature', content: 'Ana', abbreviation: ';sig' }]);
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#newSnippet').click();
+  await manager.locator('#title').fill('x'.repeat(129));
+  await manager.locator('#abbreviation').fill(';sig');
+  await manager.locator('#folder').fill('x'.repeat(65));
+  await manager.locator('#save').click();
+
+  const errors = [
+    ['#content', 'This field must not be empty.', 'Hello'],
+    ['#title', 'The input must not be longer than 128 characters.', 'Greeting'],
+    ['#abbreviation', 'Another snippet already uses ;sig.', ';hi'],
+    ['#folder', 'The input must not be longer than 64 characters.', 'Work'],
+  ];
+  for (const [field, message] of errors) {
+    await expect(manager.getByRole('alert').filter({ hasText: message })).toBeVisible();
+    await expect(manager.locator(field)).toHaveAccessibleDescription(message);
+    await expect(manager.locator(field)).toHaveAttribute('aria-invalid', 'true');
+  }
+  for (const [field, , value] of errors) {
+    await manager.locator(field).fill(value);
+    await expect(manager.locator(field)).toHaveAccessibleDescription('');
+    await expect(manager.locator(field)).not.toHaveAttribute('aria-invalid');
+  }
+  await expect(manager.getByRole('alert')).toHaveCount(0);
+});
+
 test('drag and Alt+Up reorder snippets, and the panel shows the same order', async ({ context, extensionId, serviceWorker, page }) => {
   await seedSnippets(serviceWorker, [{ content: 'Alpha' }, { content: 'Beta' }, { content: 'Gamma' }]);
   const manager = await openManager(context, extensionId);

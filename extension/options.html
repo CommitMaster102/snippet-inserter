@@ -29,12 +29,12 @@
             </div>
             <form id="renameForm" class="rename-form" novalidate hidden>
               <div class="rename-row">
-                <input id="renameInput" class="input rename-input" dir="auto" type="text" data-i18n-aria-label="folderNameLabel" autocomplete="off" />
+                <input id="renameInput" class="input rename-input" dir="auto" type="text" aria-describedby="renameError" data-i18n-aria-label="folderNameLabel" autocomplete="off" />
                 <button id="renameApply" class="primary" type="submit" data-i18n="rename"></button>
                 <button id="renameCancel" class="secondary" type="button" data-i18n="cancel"></button>
               </div>
               <p id="renameHint" class="muted rename-hint" hidden></p>
-              <p id="renameError" class="field-error" hidden></p>
+              <p id="renameError" class="field-error" role="alert" hidden></p>
             </form>
           </div>
           <ol id="snippetList" class="snippet-list" role="listbox" data-i18n-aria-label="snippets"></ol>
@@ -59,19 +59,19 @@
             <h2 id="editorHeading"></h2>
             <label class="field">
               <span class="field-label" data-i18n="fieldName"></span>
-              <input id="title" class="input" dir="auto" type="text" data-i18n-placeholder="optionalPlaceholder" autocomplete="off" />
+              <input id="title" class="input" dir="auto" type="text" aria-describedby="titleError" data-i18n-placeholder="optionalPlaceholder" autocomplete="off" />
             </label>
-            <p id="titleError" class="field-error" hidden></p>
+            <p id="titleError" class="field-error" role="alert" hidden></p>
             <label class="field">
               <span class="field-label" data-i18n="fieldAbbreviation"></span>
-              <input id="abbreviation" class="input" dir="ltr" type="text" data-i18n-placeholder="optionalAbbreviationPlaceholder" autocomplete="off" spellcheck="false" />
+              <input id="abbreviation" class="input" dir="ltr" type="text" aria-describedby="abbreviationError" data-i18n-placeholder="optionalAbbreviationPlaceholder" autocomplete="off" spellcheck="false" />
             </label>
-            <p id="abbreviationError" class="field-error" hidden></p>
+            <p id="abbreviationError" class="field-error" role="alert" hidden></p>
             <label class="field">
               <span class="field-label" data-i18n="fieldFolder"></span>
-              <input id="folder" class="input" dir="auto" type="text" data-i18n-placeholder="optionalFolderPlaceholder" autocomplete="off" list="folderOptions" />
+              <input id="folder" class="input" dir="auto" type="text" aria-describedby="folderError" data-i18n-placeholder="optionalFolderPlaceholder" autocomplete="off" list="folderOptions" />
             </label>
-            <p id="folderError" class="field-error" hidden></p>
+            <p id="folderError" class="field-error" role="alert" hidden></p>
             <datalist id="folderOptions"></datalist>
             <div class="field field-grow">
               <div class="field-head">
@@ -175,10 +175,10 @@
         <div class="setting">
           <span id="offSitesLabel" class="setting-label" data-i18n="offSitesLabel"></span>
           <form id="offSiteForm" class="setting-row">
-            <input id="offSiteInput" class="input" type="text" placeholder="example.com" data-i18n-aria-label="offSiteInputLabel" autocomplete="off" spellcheck="false" />
+            <input id="offSiteInput" class="input" type="text" aria-describedby="offSiteError" placeholder="example.com" data-i18n-aria-label="offSiteInputLabel" autocomplete="off" spellcheck="false" />
             <button class="secondary" type="submit" data-i18n="addSite"></button>
           </form>
-          <p id="offSiteError" class="field-error" hidden></p>
+          <p id="offSiteError" class="field-error" role="alert" hidden></p>
           <ul id="offSiteList" class="site-list" aria-labelledby="offSitesLabel"></ul>
           <p id="offSitesEmpty" class="muted" data-i18n="offSitesNone"></p>
           <p class="muted" data-i18n="offSitesNote"></p>

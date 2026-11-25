@@ -332,9 +332,14 @@ test('Rename folder renames it on every snippet, and merges into an existing fol
   await input.fill('x'.repeat(65));
   await input.press('Enter');
   await expect(manager.locator('#renameError')).toHaveText('The input must not be longer than 64 characters.');
+  await expect(manager.getByRole('alert')).toHaveText('The input must not be longer than 64 characters.');
+  await expect(input).toHaveAccessibleDescription('The input must not be longer than 64 characters.');
+  await expect(input).toHaveAttribute('aria-invalid', 'true');
   expect(await folders(serviceWorker)).toEqual(['Work', 'Personal', 'Work', undefined]);
 
   await input.fill('Job');
+  await expect(input).toHaveAccessibleDescription('');
+  await expect(input).not.toHaveAttribute('aria-invalid');
   await input.press('Enter');
   await expect(manager.locator('#renameForm')).toBeHidden();
   await expect(mChips(manager)).toHaveText(['All 4', 'Job 2', 'Personal 1', 'No folder 1']);
