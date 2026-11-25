@@ -336,7 +336,7 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
   measured again at each release.
 - **What loads where**: every frame gets `content.js`, 21,815 bytes (about 21.8 KB), which only
   watches for the double tap, the shortcut, the menu items, and abbreviations. `content-main.js`,
-  52,201 bytes (about 52.2 KB), loads only in a frame where the panel opens or an abbreviation
+  52,263 bytes (about 52.3 KB), loads only in a frame where the panel opens or an abbreviation
   matches. `lib/richtext.js`, 39,120 bytes (about 39.1 KB), loads only in a frame where a formatted
   snippet goes into a rich-text editor. Prism loads only on the snippet manager page, never in a
   page you visit. The sizes are file sizes from `wc -c` and are measured again at each release.
