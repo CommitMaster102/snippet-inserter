@@ -1497,12 +1497,12 @@ els.newSnippet.addEventListener('click', () => {
 // Enter in the Folder field may be picking a suggestion from the field's list, so it must not
 // submit the form. Ctrl+S still saves.
 els.folder.addEventListener('keydown', (event) => {
-  const modifier = navigator.userAgent.includes('Mac OS') ? event.metaKey : event.ctrlKey;
+  const modifier = IS_MAC ? event.metaKey : event.ctrlKey;
   if (event.key === 'Enter' && !modifier && !event.isComposing) event.preventDefault();
 });
 
 document.addEventListener('keydown', (event) => {
-  const modifier = navigator.userAgent.includes('Mac OS') ? event.metaKey : event.ctrlKey;
+  const modifier = IS_MAC ? event.metaKey : event.ctrlKey;
   const shortcut = lib.keyboard.shortcutKey(event);
   if (modifier && shortcut === 's' && !els.editor.hidden && currentView() === 'snippets') {
     event.preventDefault();
