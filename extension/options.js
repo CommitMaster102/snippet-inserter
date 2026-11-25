@@ -1318,13 +1318,22 @@ function linkAddress(typed) {
   return /^[^\s/]+\.[^\s/]+/.test(text) ? richText.normalizeUrl(`https://${text}`) : null;
 }
 
+// Shows the link bar's error, or hides it when the message is empty, and marks the address field
+// as invalid while the error shows so a screen reader says so.
+function showLinkError(message) {
+  els.linkError.textContent = message;
+  els.linkError.hidden = !message;
+  if (message) els.linkUrl.setAttribute('aria-invalid', 'true');
+  else els.linkUrl.removeAttribute('aria-invalid');
+}
+
 function openLinkBar() {
   if (els.richContent.hidden) return;
   captureEditorRange();
   const link = enclosing('A');
   els.linkUrl.value = link ? link.getAttribute('href') || '' : '';
   els.linkRemove.hidden = !link;
-  els.linkError.hidden = true;
+  showLinkError('');
   els.linkBar.hidden = false;
   els.linkUrl.focus();
   els.linkUrl.select();
@@ -1332,7 +1341,7 @@ function openLinkBar() {
 
 function closeLinkBar(returnFocus) {
   els.linkBar.hidden = true;
-  els.linkError.hidden = true;
+  showLinkError('');
   if (returnFocus) restoreEditorRange();
 }
 
@@ -1341,8 +1350,7 @@ function closeLinkBar(returnFocus) {
 function applyLink() {
   const url = linkAddress(els.linkUrl.value);
   if (!url) {
-    els.linkError.textContent = LINK_ERROR;
-    els.linkError.hidden = false;
+    showLinkError(LINK_ERROR);
     return;
   }
   restoreEditorRange();
@@ -1380,7 +1388,7 @@ els.linkUrl.addEventListener('keydown', (event) => {
   }
 });
 els.linkUrl.addEventListener('input', () => {
-  els.linkError.hidden = true;
+  showLinkError('');
 });
 
 // A paste or a drop from elsewhere goes in through the cleaner, so the editor never holds an

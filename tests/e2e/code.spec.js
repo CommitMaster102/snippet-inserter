@@ -111,6 +111,9 @@ test('in a formatted snippet, Format JSON works on the code block that holds the
   });
   await button.click();
   await expect(manager.locator('#contentError')).toHaveText('Put the caret in a code block first.');
+  // A screen reader announces the error, and the button names it as its description.
+  await expect(manager.locator('#contentError')).toHaveAttribute('role', 'alert');
+  await expect(button).toHaveAttribute('aria-describedby', 'contentError');
   expect(await blockTexts(manager)).toEqual([MESSY, '{"b":2}']);
 
   // Only the block with the caret changes, and the rest of the snippet stays.

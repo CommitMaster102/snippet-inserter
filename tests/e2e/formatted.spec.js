@@ -118,7 +118,12 @@ test('Formatted text swaps the text box for an editor with a labelled toolbar, a
   await address.fill('javascript:alert(1)');
   await address.press('Enter');
   await expect(manager.locator('#linkError')).toHaveText('Use an address that starts with https://, http://, mailto:, or tel:.');
+  // The error is announced, belongs to the field, and marks it invalid until it goes away.
+  await expect(manager.locator('#linkError')).toHaveAttribute('role', 'alert');
+  await expect(address).toHaveAttribute('aria-describedby', 'linkError');
+  await expect(address).toHaveAttribute('aria-invalid', 'true');
   await address.fill('example.com');
+  await expect(address).not.toHaveAttribute('aria-invalid', 'true');
   await address.press('Enter');
   await expect(manager.locator('#linkBar')).toBeHidden();
   // Enter in the address field applies the link and does not save the snippet.

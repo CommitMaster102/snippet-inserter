@@ -184,7 +184,8 @@ The "Format JSON" button next to "Formatted text" checks that the text is valid 
 with 2 spaces. Numbers and strings stay as typed, and so does the order of the keys. In a formatted
 snippet it works on the code block that holds the caret. When the text is not valid JSON, it
 changes nothing and says the line and column of the first error. A placeholder outside quotes,
-such as `{input:Count}` where a number goes, makes the text invalid JSON, and the message says so.
+A placeholder inside quotes is ordinary text. A screen reader announces that error and the link
+address error of the link bar as they appear, and the link field is marked invalid while its error shows.
 A placeholder inside quotes is ordinary text.
 
 Each code block has a language menu in the toolbar: Plain text, JSON, JavaScript, TypeScript, Python,

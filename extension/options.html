@@ -77,7 +77,7 @@
               <div class="field-head">
                 <label id="contentLabel" class="field-label" for="content">Text</label>
                 <span class="field-tools">
-                  <button id="formatJson" class="secondary small" type="button">Format JSON</button>
+                  <button id="formatJson" class="secondary small" type="button" aria-describedby="contentError">Format JSON</button>
                   <label class="inline-check"><input id="formatted" type="checkbox" /> Formatted text</label>
                 </span>
               </div>
@@ -109,12 +109,12 @@
               </div>
               <div id="linkBar" class="link-bar" hidden>
                 <label for="linkUrl">Link address</label>
-                <input id="linkUrl" class="input link-input" type="text" inputmode="url" placeholder="https://example.com" autocomplete="off" spellcheck="false" />
+                <input id="linkUrl" class="input link-input" aria-describedby="linkError" type="text" inputmode="url" placeholder="https://example.com" autocomplete="off" spellcheck="false" />
                 <button id="linkApply" class="primary" type="button">Apply</button>
                 <button id="linkRemove" class="secondary" type="button">Remove link</button>
                 <button id="linkCancel" class="secondary" type="button">Cancel</button>
               </div>
-              <p id="linkError" class="field-error" hidden></p>
+              <p id="linkError" class="field-error" role="alert" hidden></p>
               <textarea id="content" class="input content" dir="auto" spellcheck="true"></textarea>
               <div id="richContent" class="input content rich" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="contentLabel" dir="auto" spellcheck="true" hidden></div>
               <p id="formatHint" class="muted format-hint" hidden>
@@ -122,7 +122,7 @@
                 plain text, with bullets as dots and each link's address in parentheses after it.
               </p>
             </div>
-            <p id="contentError" class="field-error" hidden></p>
+            <p id="contentError" class="field-error" role="alert" hidden></p>
             <p id="placeholderList" class="placeholder-list" hidden></p>
             <p id="unrecognizedList" class="placeholder-list" hidden></p>
             <p id="referenceList" class="placeholder-list" hidden></p>
