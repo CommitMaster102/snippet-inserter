@@ -4,9 +4,10 @@
  * The shortcuts Ctrl+1 to Ctrl+9, Ctrl+Z, Ctrl+S and Ctrl+K are written with Latin letters and
  * digits. A browser reports event.key as what the layout prints on the key, so on a Russian layout
  * the key labelled Z reports "я", and on a French AZERTY layout the key labelled 2 reports "é".
- * Reading event.code, the physical key, fixes both. It is used only when event.key is not already a
- * Latin letter or a digit, so a Dvorak layout, where the same physical key holds another letter,
- * still gets the letter on the key.
+ * Reading event.code, the physical key, fixes both. It is used only when event.key is one printed
+ * character that is not a Latin letter or a digit. A Dvorak layout, where the same physical key
+ * holds another letter, still gets the letter on the key. A key that reports a name, such as
+ * ArrowDown from the numpad 2 with Num Lock off, or a dead key, keeps that name.
  */
 (function (root) {
   'use strict';
@@ -17,9 +18,11 @@
     const code = typeof event.code === 'string' ? event.code : '';
     if (/^[a-z]$/i.test(key)) return key.toLowerCase();
     if (/^[0-9]$/.test(key)) return key;
+    // A key name such as "ArrowDown" or "Dead" is longer than one code point.
+    if ([...key].length !== 1) return key;
     const letter = /^Key([A-Z])$/.exec(code);
     if (letter) return letter[1].toLowerCase();
-    const digit = /^(?:Digit|Numpad)([1-9])$/.exec(code);
+    const digit = /^Digit([1-9])$/.exec(code);
     if (digit) return digit[1];
     return key;
   }

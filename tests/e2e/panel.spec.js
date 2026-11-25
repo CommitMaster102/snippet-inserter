@@ -199,3 +199,32 @@ test('Ctrl+3 picks the second snippet on a French layout, where the key reads a 
   });
   await expect(page.locator('#plain')).toHaveValue(/^two/);
 });
+
+test('Ctrl and a numpad key with Num Lock off act as Ctrl and that key, not as a number', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'First', content: 'one' },
+    { title: 'Second', content: 'two' },
+  ]);
+  await selectInTextarea(page, '#plain', 0);
+  const panel = await openPanel(page);
+  await expect(panel.locator('.list .item-caption').first()).toBeVisible();
+
+  // With Num Lock off, the numpad 2 reports ArrowDown and the numpad 4 reports ArrowLeft.
+  const prevented = await panel.locator('#search').evaluate((search) => {
+    const press = (key, code) => {
+      const event = new KeyboardEvent('keydown', { key, code, ctrlKey: true, bubbles: true, cancelable: true });
+      search.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    return { down: press('ArrowDown', 'Numpad2'), left: press('ArrowLeft', 'Numpad4') };
+  });
+  expect(prevented.left, 'Ctrl+Left still moves the caret by a word in the search box').toBe(false);
+  await expect(panel.locator('.list .item-caption')).toHaveText(['First', 'Second']);
+
+  await panel.locator('body').evaluate(() => {
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: '3', code: 'Digit3', ctrlKey: true, bubbles: true, cancelable: true })
+    );
+  });
+  await expect(page.locator('#plain')).toHaveValue(/^two/);
+});

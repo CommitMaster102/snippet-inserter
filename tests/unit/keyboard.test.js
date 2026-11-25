@@ -26,14 +26,23 @@ test('a digit comes from the key, or from the physical digit key on a layout suc
   assert.equal(shortcutKey({ key: 'é', code: 'Digit2' }), '2');
   assert.equal(shortcutKey({ key: '&', code: 'Digit1' }), '1');
   assert.equal(shortcutKey({ key: '9', code: 'Numpad9' }), '9');
-  assert.equal(shortcutKey({ key: 'PageUp', code: 'Numpad9' }), '9');
 });
 
-test('other keys keep their own name', () => {
+test('a numpad key with Num Lock off keeps the name of the key it acts as', () => {
+  assert.equal(shortcutKey({ key: 'PageUp', code: 'Numpad9' }), 'PageUp');
+  assert.equal(shortcutKey({ key: 'ArrowDown', code: 'Numpad2' }), 'ArrowDown');
+  assert.equal(shortcutKey({ key: 'ArrowLeft', code: 'Numpad4' }), 'ArrowLeft');
+  assert.equal(shortcutKey({ key: 'Home', code: 'Numpad7' }), 'Home');
+});
+
+test('other keys keep their own name, even on a letter or digit key', () => {
   assert.equal(shortcutKey({ key: 'Enter', code: 'Enter' }), 'Enter');
   assert.equal(shortcutKey({ key: 'Escape', code: 'Escape' }), 'Escape');
   assert.equal(shortcutKey({ key: ';', code: 'Semicolon' }), ';');
-  assert.equal(shortcutKey({ key: 'Dead', code: 'KeyA' }), 'a');
+  // A dead key or an input method reports a name, not a printed character, so the physical key
+  // does not stand in for it.
+  assert.equal(shortcutKey({ key: 'Dead', code: 'KeyA' }), 'Dead');
+  assert.equal(shortcutKey({ key: 'Process', code: 'KeyZ' }), 'Process');
   assert.equal(shortcutKey({}), '');
 });
 
