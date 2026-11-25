@@ -60,6 +60,8 @@ describes search, folders, the forms, and every shortcut.
 - [Export and import](docs/user-guide.md#backup) of every snippet in a JSON file.
 - Support for [Google Docs](docs/user-guide.md#google-docs) documents, but not Slides or Sheets.
 - [No length limit](docs/user-guide.md#limits) on a snippet's text.
+- The interface in [29 languages besides English](docs/user-guide.md#languages), chosen by the
+  browser's language.
 
 ## Formatting
 

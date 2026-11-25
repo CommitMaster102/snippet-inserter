@@ -49,6 +49,13 @@ its HTML beside its plain text, and Docs inserts the HTML. In a code block, Docs
 space after each `<br>`, so the HTML for Docs breaks code lines with newline characters. The
 stand-in records the HTML of each paste but inserts only the plain text.
 
+`tests/pages/editors.html` is the page a test opens unless it loads another. Besides text boxes,
+single-line fields, and rich editors, it has 2 editors that behave like ProseMirror and Lexical:
+`#trackingEditor` learns the selection only from `selectionchange` events and pastes where it last
+saw it, and `#keymapEditor` handles Enter itself at keydown. The abbreviation and text-script tests
+use them to check that a snippet replaces its abbreviation in such editors, and that keys typed
+during the insert go in after the snippet.
+
 `playwright.config.js` runs the tests fully in parallel on 4 worker processes (2 when the `CI`
 environment variable is set) and retries a failed test up to 2 times. Retries use Playwright's
 `isolated` strategy: they wait until the rest of the suite has finished, then run one at a time
@@ -127,6 +134,11 @@ playwright.live.config.js   Configuration for npm run test:docs-live.
 package.json
 ```
 
+`extension/manifest.json` sets a Content-Security-Policy for the extension's pages, such as the
+panel and the manager. They load scripts, images, and every other file only from the extension,
+connect to no server, and may use inline styles. A script or library that a page needs must be
+bundled in `extension/`.
+
 ## Storage
 
 Snippets are kept in `chrome.storage.local` under `snippet_manager.snippets`, as an array of
@@ -170,11 +182,11 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
   measured again at each release.
 - **What loads where**: every frame gets `content.js`, 21,815 bytes (about 21.8 KB), which only
   watches for the double tap, the shortcut, the menu items, and abbreviations. `content-main.js`,
-  52,636 bytes (about 52.6 KB), loads only in a frame where the panel opens or an abbreviation
-  matches. `lib/richtext.js`, 39,262 bytes (about 39.3 KB), loads only in a frame where a formatted
-  snippet goes into a rich-text editor, or where an abbreviation is typed into a rich-text editor
-  for a snippet that includes others while any snippet is formatted. Prism loads only on the
-  snippet manager page, never in a page you visit. The sizes are file sizes from `wc -c` and are
+  53,323 bytes (about 53.3 KB), loads only in a frame where the panel opens or an abbreviation
+  matches. `lib/richtext.js`, 39,716 bytes (about 39.7 KB), loads only in a frame where a formatted
+  snippet goes into a rich-text editor or a Google Docs document, or where an abbreviation is typed
+  into a rich-text editor for a snippet that includes others while any snippet is formatted. Prism
+  loads only on the snippet manager page, never in a page you visit. The sizes are file sizes from `wc -c` and are
   measured again at each release.
 - **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
   press, so frames nobody types in, such as ads, never read storage. The snippet text is read

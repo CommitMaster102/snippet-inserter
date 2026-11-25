@@ -14,11 +14,14 @@ uses the Control key.
   Enter, or with Ctrl+2 to Ctrl+9 (Ctrl+1 is "Create new snippet"). The Ctrl shortcuts in the
   panel and the manager (Ctrl+1 to Ctrl+9, Ctrl+Z, Ctrl+S, Ctrl+K) work on any keyboard layout, such
   as French AZERTY or Russian, because they use the Latin letter or digit printed on the key, or the
-  key's position when it prints another alphabet or a symbol.
+  key's position when it prints another alphabet or a symbol. With Num Lock off, a numpad key acts
+  as the arrow, Home, End, Page Up, or Page Down printed on it, never as a digit.
 - Type in the search box to filter. The list keeps the snippets whose name, text, or folder has a
-  word that starts with what you type, or whose abbreviation starts with it. A word starts after a
-  space, an apostrophe, or a hyphen, so "école" is found in "l'école". In Japanese, Chinese, and
-  Thai, which are written without spaces between words, what you type is found anywhere in the text.
+  word that starts with what you type, or whose abbreviation starts with it. A word starts after any
+  character that is not a letter or a digit, such as a space, an apostrophe, a hyphen, or a slash,
+  so "école" is found in "l'école". In Japanese, Chinese, Thai, Lao, Khmer, and Myanmar, which are
+  written without spaces between words, and for a search that starts with a symbol, what you type is
+  found anywhere in the text.
   Korean has spaces between words, so in Korean what you type is found at the start of a word, as in
   English. An accent typed as a separate mark matches the same letter stored as one character.
 - Alt+Up and Alt+Down move the highlighted snippet up or down the list while the search box is
@@ -40,7 +43,12 @@ uses the Control key.
 - In a form, Ctrl+Enter saves, and Enter in the name or abbreviation field saves too. Enter in the
   folder field does not, because it may be picking a suggestion from that field's list. Escape
   goes back to the list, and Escape in the list closes the panel.
-- A screen reader announces an error under a field of the panel or the manager when it appears,
+- The panel also opens in dialogs, popovers, and fullscreen elements, and shows above them. In a
+  short window or at a high zoom it stays inside the window: the header and the form's Save button
+  stay in view, and the list or the form scrolls. Tab and Shift+Tab move only between the panel's
+  own controls while it is open.
+- A screen reader reads the panel's list as a list of options and announces the highlighted
+  snippet. It also announces an error under a field of the panel or the manager when it appears,
   such as a name longer than 128 characters or an abbreviation already in use. While the error
   shows, it describes its field, and the field is marked invalid.
 - To save text from any page as a snippet, select it, right-click, and choose "Save selection as
@@ -58,11 +66,20 @@ Under the search box, a button for each folder shows how many snippets it holds.
 button to move that snippet into the folder, or onto No folder to take it out; it keeps its place in
 the list. With a folder selected, Rename folder renames it on every snippet, and joins it to another
 folder if you type that folder's name. Remove folder, which asks for a second click, takes the
-snippets out of the folder and keeps them. In its Settings and backup section you can change the
-trigger key to Shift or Alt or turn it off, choose when abbreviations expand or turn them off, list
-the sites where the double tap and abbreviations are off, and export or import snippets. The same
-section shows the keyboard shortcut, with a button that opens the browser's shortcuts page to change
-it.
+snippets out of the folder and keeps them.
+
+In the manager, the snippet list is one Tab stop: the Up and Down arrows move between snippets, and
+Enter or Space opens one. While the search box is empty, Alt+Up and Alt+Down move the focused
+snippet up or down the list, and a screen reader announces its new place. Ctrl+S saves the snippet.
+As in the panel, Enter in the Folder field does not save. In a window narrower than 900 pixels, the
+editor sits under the list. The list then scrolls on its own, so the search box stays in view, and
+choosing or creating a snippet scrolls the editor into view.
+
+In the manager's Settings and backup section you can change the trigger key to Shift or Alt or turn
+it off, choose when abbreviations expand or turn them off, list the sites where the double tap and
+abbreviations are off, and export or import snippets. The same section shows the keyboard shortcut,
+with a button that opens the browser's shortcuts page to change it. It ends with a link to donate on
+Ko-fi, which is optional: every feature works without paying.
 
 ![Snippet manager](screenshots/manager.png)
 
@@ -74,11 +91,11 @@ browser does not tell the panel, such as a local file. The panel closes and a no
 You can also add a site under "Sites where the double tap and abbreviations are off" in the
 manager's Settings, by typing a host name or pasting an address: `https://mail.example.com/inbox` is
 saved as `mail.example.com`. A site includes its subdomains, so `example.com` also covers
-`mail.example.com`, and adding `example.com` removes `mail.example.com` from the list. A page inside
-a frame counts as off when the top page is on the list, so listing `docs.google.com` covers Google
-Docs. On a listed site the keyboard shortcut and the "Insert snippet..." menu item still open the
-panel, and the extension's script still loads there; it only stops reacting to the double tap and to
-abbreviations. On such a site the panel's button is a power symbol in the brand color, and clicking
+`mail.example.com`, and adding `example.com` removes `mail.example.com` from the list. A frame
+counts as off when its own site or the site of the top page is on the list, so listing
+`docs.google.com` covers Google Docs. On a listed site the keyboard shortcut and the "Insert
+snippet..." menu item still open the panel, and the extension's script still loads there; it only
+stops reacting to the double tap and to abbreviations. On such a site the panel's button is a power symbol in the brand color, and clicking
 it turns the site back on, as does "Turn on" in the list. When the page is a subdomain, the button
 names the list entry that covers it. The list is part of the settings, which a backup does not
 include.
@@ -228,8 +245,8 @@ as typed. With a Japanese, Chinese, or Korean input method, an abbreviation such
 when you commit the text, not while it is still being composed. In a rich-text editor the snippet
 goes in a few tens of milliseconds after the abbreviation, and text, Enter, or Shift+Enter that you
 type in that time goes in after the snippet. The abbreviation of a snippet with fill-in fields
-stays selected while you fill them in. If the page changes it in that time, the snippet is not
-inserted, and a notice says so.
+stays selected while you fill them in. If the page changes the abbreviation before the snippet goes
+in, the snippet is not inserted, and after a fill-in form a notice says so.
 
 In the manager's Settings, "Expand abbreviations" has 3 choices. "As soon as I type them" is the
 default. "After I press Space, Tab, or Enter" waits for one of those keys: Space expands the
@@ -242,9 +259,10 @@ the waiting mode, and neither does an input method committing text.
 An abbreviation has 2 to 32 characters and no spaces, and one abbreviation cannot start another,
 because the shorter one would always expand first. Changing a snippet's abbreviation also changes it
 in the `{snippet:...}` references of your other snippets, in the same save, and the snippet manager
-says how many it changed. Clearing an abbreviation leaves the references as they are, and they are
-then inserted as written. Deleting an included snippet gives no warning; Undo or Recently deleted
-brings it back and the references work again.
+says how many it changed. Clearing an abbreviation, or changing it to one that a reference cannot
+name because it holds `{` or `}`, leaves the references as they are, and they are then inserted as
+written. The snippet manager says how many snippets that affects. Deleting an included snippet gives
+no warning; Undo or Recently deleted brings it back and the references work again.
 
 ## Backup
 
@@ -266,11 +284,14 @@ and keeps their text without the formatting.
 The panel, the snippet manager, the right-click menu items, the shortcut's description, and the
 notices on pages use your browser's display language when Snippet Inserter has it, and English
 otherwise. Chrome makes that choice, so the extension has no language setting. To change the
-language, change the browser's. The name stays "Snippet Inserter" in every language, and
+language, change the browser's display language and restart the browser. The right-click menu items
+change language only at that restart. The name stays "Snippet Inserter" in every language, and
 placeholders such as `{date}` and `{input:Label}` are written the same way in every language.
 
 Snippet Inserter has these 29 languages besides English. In Arabic and Persian, the panel and the
-manager are mirrored to read from right to left.
+manager are mirrored to read from right to left. In every interface language, snippet names,
+previews, folder names, and the name, folder, and text fields take their direction from the text,
+so a Hebrew or Arabic snippet reads from right to left. The abbreviation field stays left to right.
 
 | Language | Name shown in Settings and backup | Folder in `extension/_locales` |
 | --- | --- | --- |
@@ -315,8 +336,9 @@ native speaker has reviewed:
 
 If a translation is wrong, unclear, or does not fit, report it with the
 [Translation problem form](https://github.com/CommitMaster102/snippet-inserter/issues/new?template=translation.yml).
-In every language except English, Settings and backup links to it. To fix the text yourself, see
-"Fix a translation" in [CONTRIBUTING.md](../CONTRIBUTING.md#fix-a-translation).
+In every language except English, Settings and backup names the interface language and links to
+that form. To fix the text yourself, see "Fix a translation" in
+[CONTRIBUTING.md](../CONTRIBUTING.md#fix-a-translation).
 
 ## Google Docs
 
@@ -343,11 +365,21 @@ each insert the extension checks that the Docs cursor moved. If it cannot confir
 copies the snippet's text, without formatting, to the clipboard and shows a notice asking you to
 press Ctrl+V. Only Docs documents get this support, not Slides or Sheets.
 
+## When something fails
+
+The snippet manager says when an action fails. A failed Save, Duplicate, or Delete shows its message
+next to Save. Any other failure, such as a restore, a move, a folder change, a setting, or an
+export, shows at the top of the manager, which stays in view while the page scrolls. A setting that
+could not be saved goes back to the value that is stored. If the panel cannot read your snippets,
+it says so instead of showing an empty list. If the field is gone from the page when a snippet goes
+in, nothing is inserted and a notice says so.
+
 ## Limits
 
-- Snippet content has no length limit. A snippet name can be up to 128 characters, and an emoji
-  counts as one, even a flag, a skin-tone emoji, or a family emoji. A longer name is cut between
-  whole characters.
+- Snippet content has no length limit. A snippet name can be up to 128 characters, and a folder
+  name up to 64. An emoji counts as one character, even a flag, a skin-tone emoji, or a family
+  emoji. The forms show an error for a longer name or folder. Elsewhere, such as in an import, a
+  longer one is cut between whole characters.
 - Single-line fields work when their type is text, search, url, or tel. Password fields are left
   alone, because a password field is not a place for a snippet. Email and number fields are left
   alone too, because they do not expose the cursor position.
