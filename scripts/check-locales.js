@@ -33,7 +33,7 @@ const SUPPORTED = new Set(
 const RIGHT_TO_LEFT = new Set(['ar', 'fa', 'he', 'ur']);
 const META_KEYS = new Set(['localeCode', 'textDirection', 'languageName']);
 // The keys whose names a translation may write as keyboards in its language print them.
-const KEY_NAMES = new Set(['Ctrl', 'Shift', 'Alt', 'Enter', 'Esc', 'Tab', 'Space']);
+const KEY_NAMES = new Set(['Ctrl', 'Cmd', 'Shift', 'Alt', 'Enter', 'Esc', 'Tab', 'Space']);
 const PLURAL_SUFFIX = /_(zero|one|two|few|many|other)$/;
 // A form for a count that may leave out the number, as in "One snippet".
 const NUMBER_OPTIONAL = new Set(['zero', 'one', 'two']);

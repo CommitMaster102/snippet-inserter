@@ -53,8 +53,9 @@ test('a message that counts a number it is given is a plural family', () => {
 });
 
 test('key names and the name JSON are placeholders in every message', () => {
-  // In these messages Enter is the verb, not the key, and keyCtrl is the key name itself.
-  const exceptions = new Set(['placeholderContent', 'placeholderTitle', 'folderNameRequired', 'siteEnter', 'keyCtrl']);
+  // In these messages Enter is the verb, not the key, and keyCtrl and keyCmd are the key names
+  // themselves.
+  const exceptions = new Set(['placeholderContent', 'placeholderTitle', 'folderNameRequired', 'siteEnter', 'keyCtrl', 'keyCmd']);
   for (const [key, entry] of Object.entries(messages)) {
     if (exceptions.has(key)) continue;
     const text = entry.message.replace(/\$[A-Za-z0-9_@]+\$/g, '');
@@ -62,10 +63,10 @@ test('key names and the name JSON are placeholders in every message', () => {
   }
 });
 
-test('the scripts take the name of the Ctrl key from the catalog', () => {
+test('the scripts take the names of the Ctrl key and the Mac Cmd key from the catalog', () => {
   for (const file of ['panel.js', 'options.js', 'content-main.js']) {
     const code = read(file).replace(/^\s*\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
-    assert.ok(!/['"`]Ctrl\b/.test(code), `${file} writes Ctrl itself`);
+    for (const key of ['Ctrl', 'Cmd']) assert.ok(!new RegExp(`['"\`]${key}\\b`).test(code), `${file} writes ${key} itself`);
   }
 });
 

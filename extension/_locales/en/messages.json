@@ -918,6 +918,10 @@
     "message": "Ctrl",
     "description": "The name of the Ctrl key. The panel shows it in the key hint of its save button, and a notice in Google Docs uses it in Ctrl+V. Write it as keyboards in your language print it, the same way as in every other message."
   },
+  "keyCmd": {
+    "message": "Cmd",
+    "description": "The name of the Command key of a Mac keyboard. On a Mac it takes the place of Ctrl in the shortcuts of the formatting buttons in the snippet manager, as in Cmd+B, and in a notice in Google Docs, as in Cmd+V. Write it as Mac keyboards in your language print it."
+  },
   "off": {
     "message": "Off",
     "description": "Menu entry that turns a setting off."

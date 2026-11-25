@@ -305,7 +305,7 @@ export function create(shared) {
     }
     showNotice(
       copied
-        ? msg('noticeDocsCopied', IS_MAC ? 'Cmd+V' : `${msg('keyCtrl')}+V`)
+        ? msg('noticeDocsCopied', IS_MAC ? `${msg('keyCmd')}+V` : `${msg('keyCtrl')}+V`)
         : msg('noticeDocsNotInserted')
     );
   }

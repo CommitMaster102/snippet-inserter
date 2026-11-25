@@ -115,6 +115,14 @@ test('a key name is written without spaces around the plus sign, as the code joi
   assert.match(problems('de', padded).join('\n'), /keyCtrl: does not name the key Ctrl/);
 });
 
+test('the Mac Cmd key may be translated, and stays one key name', () => {
+  const command = german();
+  command.keyCmd.message = 'Befehl';
+  assert.deepEqual(problems('de', command), []);
+  command.keyCmd.message = 'Befehl+V';
+  assert.match(problems('de', command).join('\n'), /keyCmd: does not name the key Cmd/);
+});
+
 test('a fixed number may be written in the digits of the language, but stays the same number', () => {
   const persian = copy(english);
   persian.localeCode.message = 'fa';

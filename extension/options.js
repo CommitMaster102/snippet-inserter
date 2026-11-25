@@ -1244,9 +1244,11 @@ function setToolStop(stop) {
   for (const button of toolButtons()) button.tabIndex = button === stop ? 0 : -1;
 }
 
+// On a Mac the shortcuts use the Command key, so the tooltips name it, as the catalog writes it, in
+// place of Ctrl.
 if (IS_MAC) {
   for (const button of toolButtons()) {
-    for (const name of ['aria-label', 'title']) button.setAttribute(name, button.getAttribute(name).replace(`${t('keyCtrl')}+`, 'Cmd+'));
+    for (const name of ['aria-label', 'title']) button.setAttribute(name, button.getAttribute(name).replace(`${t('keyCtrl')}+`, `${t('keyCmd')}+`));
   }
 }
 setToolStop(toolButtons()[0]);
