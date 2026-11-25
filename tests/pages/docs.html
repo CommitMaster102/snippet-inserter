@@ -62,8 +62,8 @@
       const CARET_LEFT = 120;
       const CHAR_WIDTH = 8;
       // `pasteTypes` lists the data types of each paste, so a test can tell a plain paste from one
-      // that carries HTML.
-      window.docState = { text: 'Hello world.', start: 5, end: 5, pastes: [], pasteTypes: [] };
+      // that carries HTML, and `pasteHtml` holds the HTML of each paste, or '' for a plain one.
+      window.docState = { text: 'Hello world.', start: 5, end: 5, pastes: [], pasteTypes: [], pasteHtml: [] };
 
       const editor = document.querySelector('.kix-appview-editor');
       const ownCursor = document.getElementById('ownCursor');
@@ -127,7 +127,9 @@
         textbox.focus();
       });
 
-      // As in Docs, a paste replaces the selection with the pasted plain text.
+      // As in Docs, a paste replaces the selection with the pasted text. Docs inserts the HTML of a
+      // paste that carries HTML, with its formatting. This page keeps only text, so it inserts the
+      // plain text and records the HTML.
       textbox.addEventListener('paste', (event) => {
         if (params.get('paste') === 'ignore') return;
         event.preventDefault();
@@ -135,6 +137,7 @@
         const pasted = event.clipboardData.getData('text/plain');
         state.pastes.push(pasted);
         state.pasteTypes.push([...event.clipboardData.types]);
+        state.pasteHtml.push(event.clipboardData.getData('text/html'));
         state.text = state.text.slice(0, state.start) + pasted + state.text.slice(state.end);
         state.start = state.end = state.start + pasted.length;
         render();

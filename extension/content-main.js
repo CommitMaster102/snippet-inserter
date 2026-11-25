@@ -62,9 +62,9 @@ export function create(shared) {
   let richTextLoading = null;
 
   // lib/richtext.js, the cleaner for formatted snippets. It is imported the first time this frame
-  // inserts a formatted snippet into a rich editor, or an abbreviation is typed into a rich editor
-  // for a snippet that includes others while any stored snippet is formatted. A frame that does
-  // neither never loads it. A failed import can be tried again.
+  // inserts a formatted snippet into a rich editor or Google Docs, or an abbreviation is typed into
+  // a rich editor for a snippet that includes others while any stored snippet is formatted. A frame
+  // that does neither never loads it. A failed import can be tried again.
   function loadRichText() {
     if (!richTextLoading) {
       richTextLoading = import('./lib/richtext.js').then(() => globalThis.SnippetInserter.richText);
@@ -75,9 +75,9 @@ export function create(shared) {
     return richTextLoading;
   }
 
-  // Only a rich editor takes formatting. Text fields and Google Docs get the plain text.
+  // Rich editors and Google Docs take formatting. Text fields get the plain text.
   function takesFormatting(target) {
-    return target.kind === 'rich';
+    return target.kind === 'rich' || target.kind === 'docs';
   }
 
   // The characters an input method may insert after the text it commits, with the same keystroke:
@@ -565,9 +565,9 @@ export function create(shared) {
   // Placeholders are filled in first, with `values` from the panel's fill-in form. In a
   // single-line field the lines are joined next, and the spacing rule runs last. `caret`, the
   // {cursor} position inside the text, is carried through each step. `html` is the formatted text
-  // of a formatted snippet, with its included snippets in place. A rich editor gets it, cleaned
-  // again and with the same values and the same moment filled in, and every other field gets the
-  // plain `content`.
+  // of a formatted snippet, with its included snippets in place. A rich editor or Google Docs gets
+  // it, cleaned again and with the same values and the same moment filled in, and every other field
+  // gets the plain `content`.
   async function insertSnippet(ctx, content, values = {}, html = null) {
     let richText = null;
     if (html && takesFormatting(ctx)) {
@@ -587,10 +587,20 @@ export function create(shared) {
     if (ctx.kind === 'docs') {
       // The extension cannot move the Docs caret, so {cursor} has no effect in Docs.
       const text = expanded.text;
+      let markup = null;
+      if (richText) {
+        try {
+          const formatted = richText.expand(html, { values, locale: ctx.locale, now });
+          markup = richText.forPaste(formatted.html, { codeNewlines: true });
+        } catch {
+          // Docs pages refuse HTML parsing in their own scripts. If that rule ever reaches the
+          // extension's scripts, the snippet goes in as plain text.
+        }
+      }
       await wait(SELECTION_SETTLE_MS);
       // Without any caret the insert cannot be confirmed, and counts as failed.
       const before = docsCaretRect() || (ctx.caretFound ? ctx.caret : null);
-      pasteIntoDocs(ctx, text);
+      pasteIntoDocs(ctx, text, markup);
       if (!(await docsCaretMoved(before))) await docsInsertFallback(text);
       return;
     }
@@ -815,13 +825,16 @@ export function create(shared) {
     }
   }
 
-  // Docs inserts the plain text of a paste at its caret, replacing any selection, and turns each
-  // line break into a new paragraph. It drops spaces at the very start and end of the pasted
-  // text. The spacing rule is not applied, because Docs exposes no text next to the caret.
-  function pasteIntoDocs(ctx, text) {
+  // Docs inserts a paste at its caret, replacing any selection, and turns each line break into a new
+  // paragraph. `markup` is the HTML of a formatted snippet. A paste that carries HTML beside the
+  // plain text goes in as the HTML, with its formatting. Docs drops spaces at the very start and
+  // end of a plain paste. The spacing rule is not applied, because Docs exposes no text next to
+  // the caret.
+  function pasteIntoDocs(ctx, text, markup = null) {
     const win = ctx.el.ownerDocument.defaultView;
     const data = new win.DataTransfer();
     data.setData('text/plain', text.replace(/\r\n?/g, '\n'));
+    if (markup !== null) data.setData('text/html', markup);
     ctx.el.dispatchEvent(
       new win.ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true })
     );

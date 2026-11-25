@@ -183,52 +183,6 @@ test('the Docs support works in the live editor', async ({ context, page, servic
   expect(await page.evaluate(() => navigator.clipboard.readText()), 'the clipboard was written').toBe(CLIPBOARD_SENTINEL);
 });
 
-/**
- * Pastes `lines` into the document the way a formatted insert into Docs would: the paste carries
- * only text/html, and the same HTML is put into Docs' hidden input textbox one task later, because
- * Docs reads that textbox after the paste and a synthetic paste does not fill it. Each line is a
- * list of parts: a string, ['b', text], or ['a', text, href]. The nodes are made one by one,
- * because Docs only lets trusted code assign HTML strings.
- */
-async function pasteHtml(page, lines) {
-  return page.evaluate((spec) => {
-    for (const frame of document.querySelectorAll('iframe')) {
-      let doc = null;
-      try {
-        doc = frame.contentDocument;
-      } catch {
-        continue;
-      }
-      const target = doc && doc.activeElement;
-      if (!target || !target.isContentEditable) continue;
-      const win = frame.contentWindow;
-      const build = () =>
-        spec.map((parts) => {
-          const paragraph = doc.createElement('p');
-          for (const part of parts) {
-            if (typeof part === 'string') {
-              paragraph.append(part);
-              continue;
-            }
-            const element = doc.createElement(part[0]);
-            element.textContent = part[1];
-            if (part[2]) element.setAttribute('href', part[2]);
-            paragraph.append(element);
-          }
-          return paragraph;
-        });
-      const holder = doc.createElement('div');
-      holder.append(...build());
-      const data = new win.DataTransfer();
-      data.setData('text/html', holder.innerHTML);
-      win.setTimeout(() => target.replaceChildren(...build()), 0);
-      target.dispatchEvent(new win.ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
-      return true;
-    }
-    return false;
-  }, lines);
-}
-
 /** Like readDocument, but returns the HTML that Docs puts in a copy event. */
 async function readDocumentHtml(page) {
   await page.keyboard.press('Control+a');
@@ -252,18 +206,38 @@ async function readDocumentHtml(page) {
   return html;
 }
 
-// The formatted step. Formatted snippets go into Docs as plain text, and their formatting goes
-// there only after this test has passed and the Docs path of content-main.js has been changed to
-// paste HTML the way this test does.
-test('formatted step: Docs keeps bold text, a link, and paragraphs from an HTML paste', async ({ page }) => {
+// The formatted step. The extension inserts a formatted snippet into Docs as a paste that carries
+// its HTML beside its plain text. If this step fails while the first test passes, Docs no longer
+// takes the HTML of such a paste, or no longer keeps every space of a code block in it.
+test('formatted step: a formatted snippet keeps its bold text, link, paragraphs, and code block in Docs', async ({
+  context,
+  page,
+  serviceWorker,
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'https://docs.google.com' });
+  await seedSnippets(serviceWorker, [
+    {
+      title: 'formatted',
+      content: 'Plain, bold and link (https://example.com/)\nSecond line\n  if (a) {\n\treturn  1;\n\n  }',
+      html:
+        'Plain, <b>bold</b> and <a href="https://example.com/">link</a><br>Second line' +
+        '<pre><code class="language-javascript">  if (a) {<br>\treturn  1;<br><br>  }</code></pre>',
+    },
+  ]);
+
   await openDocument(page);
+  await page.evaluate((text) => navigator.clipboard.writeText(text), CLIPBOARD_SENTINEL);
   await page.keyboard.press('Control+a');
   await page.keyboard.press('Delete');
-  const pasted = await pasteHtml(page, [['Plain, ', ['b', 'bold'], ' and ', ['a', 'link', 'https://example.com/']], ['Second line']]);
-  expect(pasted, 'the Docs input frame has no focused textbox').toBe(true);
-  await page.waitForTimeout(1500);
-  expect(await readDocument(page), 'Docs did not take the text of an HTML paste').toBe('Plain, bold and link\nSecond line');
+  await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expectPanelClosed(page);
+  await expectNoNotice(page);
+  expect(await readDocument(page), 'Docs did not take the formatted snippet, or changed the spaces of its code block').toBe(
+    'Plain, bold and link\nSecond line\n  if (a) {\n\treturn  1;\n\n  }'
+  );
   const html = await readDocumentHtml(page);
-  expect(html, 'Docs dropped the bold text of an HTML paste').toMatch(/font-weight:\s*700/);
-  expect(html, 'Docs dropped the link of an HTML paste').toContain('href="https://example.com/"');
+  expect(html, 'Docs dropped the bold text of the formatted snippet').toMatch(/font-weight:\s*700/);
+  expect(html, 'Docs dropped the link of the formatted snippet').toContain('href="https://example.com/"');
+  expect(await page.evaluate(() => navigator.clipboard.readText()), 'the clipboard was written').toBe(CLIPBOARD_SENTINEL);
 });

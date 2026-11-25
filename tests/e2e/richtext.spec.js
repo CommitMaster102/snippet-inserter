@@ -215,6 +215,10 @@ test('prepares HTML for a paste into another editor', async ({ page }) => {
   expect(await call(page, 'forPaste', '<ul><li>a</li></ul>', { left: true, right: true, suffix: ' ' })).toBe('<ul><li>a</li></ul>');
   expect(await call(page, 'forPaste', 'a<br><br>', { suffix: '\n' })).toBe('a<br><br>');
   expect(await call(page, 'fragment', 'a<br><br>')).toBe('a<br>');
+  // The HTML for Google Docs breaks the lines of a code block with newline characters.
+  expect(await call(page, 'forPaste', 'a<br>b<pre><code>  x<br>\ty<br><br>z</code></pre>', { codeNewlines: true })).toBe(
+    'a<br>b<pre><code>  x\n\ty\n\nz</code></pre>'
+  );
 });
 
 test('includes other snippets in formatted text and renames references across formatting', async ({ page }) => {

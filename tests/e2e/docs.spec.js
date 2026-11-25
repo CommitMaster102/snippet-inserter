@@ -107,22 +107,74 @@ test('inserts the snippet as a paste, with no spaces added and no notice', async
   await expect
     .poll(() => page.evaluate(() => window.docState.pastes))
     .toEqual(['XYZ', 'First line\nSecond line']);
+  expect(await page.evaluate(() => window.docState.pasteTypes)).toEqual([['text/plain'], ['text/plain']]);
   await expectNoNotice(page);
 });
 
-test('a formatted snippet goes into Docs as its plain text only', async ({ page, serviceWorker }) => {
+test('a formatted snippet goes into Docs as cleaned HTML together with its plain text', async ({
+  page,
+  serviceWorker,
+}) => {
   await seedSnippets(serviceWorker, [
     { content: 'Bold and site (https://example.com/)\nLine two', html: '<b>Bold</b> and <a href="https://example.com/">site</a><br>Line two' },
+    {
+      content: 'Hi bad link',
+      html: `<b>Hi</b><img src="https://example.com/x.png" onerror="document.title = 'ran'"> <a href="javascript:document.title = 'ran'">bad link</a><script>document.title = 'ran'</script>`,
+    },
   ]);
   await openDocs(page);
   await focusDocument(page, 5);
   await openPanel(page);
   await pressInPanel(page, '2', { ctrl: true });
   await expectPanelClosed(page);
-  await expect
-    .poll(() => page.evaluate(() => window.docState.pastes))
-    .toEqual(['Bold and site (https://example.com/)\nLine two']);
-  expect(await page.evaluate(() => window.docState.pasteTypes)).toEqual([['text/plain']]);
+  await expect.poll(() => page.evaluate(() => window.docState.pastes)).toEqual(['Bold and site (https://example.com/)\nLine two']);
+
+  await focusDocument(page, 0);
+  await openPanel(page);
+  await pressInPanel(page, '3', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect.poll(() => page.evaluate(() => window.docState.pastes.length)).toBe(2);
+  const state = await page.evaluate(() => window.docState);
+  expect(state.pasteTypes).toEqual([['text/plain', 'text/html'], ['text/plain', 'text/html']]);
+  expect(state.pasteHtml).toEqual(['<b>Bold</b> and <a href="https://example.com/">site</a><br>Line two', '<b>Hi</b> bad link']);
+  expect(state.pastes[1]).toBe('Hi bad link');
+  await expectNoNotice(page);
+});
+
+// After a line break written as <br> in a code block, Docs drops the first space of the next line,
+// and after a newline character it keeps every space. The HTML for Docs breaks code lines with
+// newline characters.
+test('a code block goes into Docs with every space, tab, and line break', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Code', content: 'Run:\n  if (a) {\n\treturn  1;\n\n  }', html: 'Run:<pre><code class="language-javascript">  if (a) {<br>\treturn  1;<br><br>  }</code></pre>' },
+  ]);
+  await openDocs(page);
+  await focusDocument(page, 5);
+  await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect.poll(() => page.evaluate(() => window.docState.pastes)).toEqual(['Run:\n  if (a) {\n\treturn  1;\n\n  }']);
+  expect(await page.evaluate(() => window.docState.pasteHtml)).toEqual([
+    'Run:<pre><code class="language-javascript">  if (a) {\n\treturn  1;\n\n  }</code></pre>',
+  ]);
+  await expectNoNotice(page);
+});
+
+test('fill-in values and placeholders go into the HTML for Docs as text', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Dear', content: 'Dear {input:Name}, on {date:iso}.', html: '<b>Dear {input:Name}</b>, on {date:iso}.' },
+  ]);
+  await openDocs(page);
+  await focusDocument(page, 5);
+  const panel = await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await panel.locator('.fill-input').fill('<i>x</i>');
+  await pressInPanel(page, 'Enter', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect.poll(() => page.evaluate(() => window.docState.pasteHtml.length)).toBe(1);
+  const state = await page.evaluate(() => window.docState);
+  expect(state.pasteHtml[0]).toMatch(/^<b>Dear &lt;i&gt;x&lt;\/i&gt;<\/b>, on \d{4}-\d{2}-\d{2}\.$/);
+  expect(state.pastes[0]).toMatch(/^Dear <i>x<\/i>, on \d{4}-\d{2}-\d{2}\.$/);
   await expectNoNotice(page);
 });
 
@@ -268,6 +320,28 @@ test.describe('when Google changes the editor', () => {
     // Windows stores clipboard line breaks as \r\n.
     const clipboard = await page.evaluate(() => navigator.clipboard.readText());
     expect(clipboard.replace(/\r\n/g, '\n')).toBe('Line one\nLine two');
+    expect(await documentText(page)).toBe('Hello world.');
+  });
+
+  test('an ignored paste of a formatted snippet puts its plain text on the clipboard', async ({
+    context,
+    page,
+    serviceWorker,
+  }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+      origin: 'https://docs.google.com',
+    });
+    await seedSnippets(serviceWorker, [
+      { content: 'Bold and site (https://example.com/)', html: '<b>Bold</b> and <a href="https://example.com/">site</a>' },
+    ]);
+    await openDocs(page, '?paste=ignore');
+    await focusDocument(page, 5);
+    await openPanel(page);
+    await pressInPanel(page, '2', { ctrl: true });
+    await expectPanelClosed(page);
+
+    await expect(page.getByRole('status')).toHaveText(NOTICE_TEXT);
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('Bold and site (https://example.com/)');
     expect(await documentText(page)).toBe('Hello world.');
   });
 

@@ -12,9 +12,9 @@
  *
  * The cleaner runs when a snippet is saved, when a backup is imported, and again before each
  * insert. The manager page and the panel load this file. content-main.js imports it the first time
- * a frame inserts a formatted snippet into a rich editor, or an abbreviation is typed into a rich
- * editor for a snippet that includes others while any stored snippet is formatted. The placeholder
- * functions come from placeholders.js.
+ * a frame inserts a formatted snippet into a rich editor or Google Docs, or an abbreviation is typed
+ * into a rich editor for a snippet that includes others while any stored snippet is formatted. The
+ * placeholder functions come from placeholders.js.
  */
 (function (root) {
   'use strict';
@@ -531,7 +531,8 @@
     });
   }
 
-  function stringSink(paste) {
+  // With `codeNewlines`, a line break inside a code block is written as a newline character.
+  function stringSink(paste, codeNewlines = false) {
     let out = '';
     const open = [];
     return {
@@ -545,7 +546,7 @@
         out += `</${open.pop()}>`;
       },
       br() {
-        out += '<br>';
+        out += codeNewlines && open.includes('pre') ? '\n' : '<br>';
       },
       text(value) {
         let html = escapeHtml(value);
@@ -559,8 +560,8 @@
     };
   }
 
-  function serialize(tree, mode = 'store') {
-    const sink = stringSink(mode === 'paste');
+  function serialize(tree, mode = 'store', { codeNewlines = false } = {}) {
+    const sink = stringSink(mode === 'paste', codeNewlines);
     render(tree.segments, sink, { paste: mode === 'paste', whole: mode === 'store' });
     return sink.result();
   }
@@ -942,10 +943,12 @@
     return { html: serialize(tree), cursorFromEnd };
   }
 
-  // The HTML that goes to a rich editor as a paste. `left` and `right` add the spaces of the spacing
-  // rule, and `suffix` is the text typed after an abbreviation. They are added only next to text,
-  // not next to a list or a code block, which start and end a line of their own.
-  function forPaste(html, { left = false, right = false, suffix = '' } = {}) {
+  // The HTML that goes to a rich editor or Google Docs as a paste. `left` and `right` add the spaces
+  // of the spacing rule, and `suffix` is the text typed after an abbreviation. They are added only
+  // next to text, not next to a list or a code block, which start and end a line of their own.
+  // `codeNewlines` breaks the lines of a code block with newline characters instead of <br>, for
+  // Google Docs, which drops the first space after each <br> in a code block.
+  function forPaste(html, { left = false, right = false, suffix = '', codeNewlines = false } = {}) {
     const tree = parse(html);
     const segments = tree.segments;
     const first = segments[0];
@@ -956,7 +959,7 @@
       last.lines[last.lines.length - 1].push(run(pieces[0], NO_MARKS));
       for (const piece of pieces.slice(1)) last.lines.push(piece ? [run(piece, NO_MARKS)] : []);
     }
-    return serialize(tree, 'paste');
+    return serialize(tree, 'paste', { codeNewlines });
   }
 
   const api = {
