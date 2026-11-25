@@ -290,8 +290,16 @@ function linksOf(markdown) {
   for (const match of body.matchAll(/\]\(\s*<?([^)\s>]+)>?(?:\s+(?:"[^"]*"|'[^']*'))?\s*\)/g)) {
     found.push(match[1]);
   }
-  for (const match of body.matchAll(/^ {0,3}\[[^\]]+\]:\s*<?(\S+?)>?(?:\s|$)/gm)) {
-    found.push(match[1]);
+  // A reference definition starts its own line in the source and holds nothing after its
+  // destination except an optional title. A list item such as "- [Esc]: closes the panel" reads
+  // "[Esc]: closes the panel" once visibleText drops the list marker, so the source line is
+  // checked as well.
+  const definitionLines = new Set(markdown.split(/\r?\n/)
+    .filter((line) => /^ {0,3}\[[^\]]+\]:/.test(line))
+    .map((line) => line.trim()));
+  const definition = /^ {0,3}\[[^\]]+\]:[ \t]*<?([^\s>]+)>?(?:[ \t]+(?:"[^"]*"|'[^']*'|\([^)]*\)))?[ \t]*$/gm;
+  for (const match of body.matchAll(definition)) {
+    if (definitionLines.has(match[0].trim())) found.push(match[1]);
   }
   for (const match of body.matchAll(/<(?:a\b[^>]*?\shref|img\b[^>]*?\ssrc)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi)) {
     found.push(match[1] ?? match[2]);

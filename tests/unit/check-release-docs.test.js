@@ -276,6 +276,25 @@ test('skips an indented code block but checks an indented paragraph in a list it
   fs.rmSync(repo.cwd, { recursive: true, force: true });
 });
 
+test('reads a list item that starts with a bracketed key as text, not as a link definition', () => {
+  const readme = [
+    '# Readme',
+    '',
+    '- [Esc]: closes the panel',
+    '- [F2]: opens the edit form',
+    '',
+    '[guide]: docs/nope.md "The user guide"',
+    '',
+  ].join('\n');
+  const repo = makeRepo({ 'README.md': readme });
+  const { code, text } = run(repo.cwd, repo.release, repo.base);
+  assert.equal(code, 1, text);
+  assert.match(text, /README\.md links to docs\/nope\.md/);
+  assert.doesNotMatch(text, /links to closes/);
+  assert.doesNotMatch(text, /links to opens/);
+  fs.rmSync(repo.cwd, { recursive: true, force: true });
+});
+
 for (const [where, changelog] of [
   ['in a code block', '# Changelog\n\n```\n## 1.1.0\n```\n\n## 1.0.0\n'],
   ['in an HTML comment', '# Changelog\n\n<!--\n## 1.1.0\n-->\n\n## 1.0.0\n'],
