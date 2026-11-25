@@ -180,6 +180,13 @@ Turning the box off asks nothing. The text box gets the text without its formatt
 or a number before each list item and each link's address in parentheses after its text, and Save
 then removes the formatting.
 
+The "Format JSON" button next to "Formatted text" checks that the text is valid JSON and indents it
+with 2 spaces. Numbers and strings stay as typed, and so does the order of the keys. In a formatted
+snippet it works on the code block that holds the caret. When the text is not valid JSON, it
+changes nothing and says the line and column of the first error. A placeholder outside quotes,
+such as `{input:Count}` where a number goes, makes the text invalid JSON, and the message says so.
+A placeholder inside quotes is ordinary text.
+
 A rich-text editor, such as webmail, gets the formatting, and keeps as much of it as that editor
 supports. A text box and a single-line field get the plain text: a bullet before each item of a
 bulleted list, its number before each item of a numbered list, 2 more spaces for each level of a
@@ -340,6 +347,7 @@ extension/            The extension itself; this is the folder to load.
     placeholders.js   {date}, {time}, {cursor}, {input:Label}, and
                       {snippet:;abbreviation}.
     richtext.js       The cleaner for formatted snippets, and their plain text.
+    json-format.js    The Format JSON button: the check and the 2-space indent.
   icons/
 tests/
   e2e/                Playwright end-to-end tests and their fixtures.

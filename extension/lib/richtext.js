@@ -553,7 +553,12 @@
           element.setAttribute('href', attributes.href);
           if (titles) element.title = attributes.href;
         }
-        if (attributes && attributes.class) element.className = attributes.class;
+        if (attributes && attributes.class) {
+          element.className = attributes.class;
+          // The manager reads a code block's language from its pre element.
+          const parent = open[open.length - 1];
+          if (tag === 'code' && parent.localName === 'pre') parent.setAttribute('data-language', attributes.class.replace(/^language-/, ''));
+        }
         add(element);
         open.push(element);
       },
@@ -749,6 +754,16 @@
     return serialize(parse(input, options), 'fragment');
   }
 
+  // The HTML of one code block holding `text`, which keeps every space, tab, and line break. The
+  // language is kept when it is one of LANGUAGES.
+  function codeBlock(text, language = '') {
+    const lines = String(text)
+      .split(/\r\n?|\n/)
+      .map((line) => (line ? [run(line, NO_MARKS)] : []));
+    const named = LANGUAGES.includes(language) ? language : '';
+    return serialize({ segments: [{ type: 'pre', language: named, lines }] });
+  }
+
   function toText(html) {
     return treeText(parse(html));
   }
@@ -872,6 +887,7 @@
     fragment,
     toText,
     fromText,
+    codeBlock,
     hasFormatting,
     toFragment,
     renameText,

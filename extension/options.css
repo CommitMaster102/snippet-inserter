@@ -428,6 +428,17 @@ select:focus {
   gap: 8px;
 }
 
+.field-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.small {
+  padding: 2px 10px;
+  font-size: 12px;
+}
+
 .inline-check {
   display: inline-flex;
   align-items: center;

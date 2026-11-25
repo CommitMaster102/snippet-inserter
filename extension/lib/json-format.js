@@ -1,0 +1,204 @@
+/*
+ * The Format JSON button of the snippet manager: checks that text is valid JSON and indents it with
+ * 2 spaces. The text is read by a small parser of its own instead of JSON.parse, for three reasons.
+ * It can name the line and column of the first error, which the browser's messages do not always
+ * give. It writes every number and string as it was typed, so a long number loses no digits. And it
+ * keeps the order of the keys, which JSON.parse changes for keys such as "2" and "1".
+ *
+ * A placeholder such as {input:Count} outside quotes is not valid JSON, and the message says so.
+ * Inside quotes it is ordinary text.
+ */
+(function (root) {
+  'use strict';
+
+  const INDENT = '  ';
+  // Arrays and objects nested deeper than this are reported instead of read, so the recursion
+  // below cannot run out of stack.
+  const MAX_DEPTH = 100;
+  const NUMBER = /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/y;
+  const ESCAPES = new Set('"\\/bfnrt');
+  const LITERALS = ['true', 'false', 'null'];
+
+  function placeholders() {
+    return typeof module === 'object' && module.exports ? require('./placeholders.js') : root.SnippetInserter.placeholders;
+  }
+
+  class JsonError extends Error {
+    constructor(index, message) {
+      super(message);
+      this.index = index;
+    }
+  }
+
+  // Reads `text` with a cursor that only moves forward and writes the formatted copy as it goes.
+  function parser(text) {
+    let i = 0;
+
+    const fail = (at, message) => {
+      throw new JsonError(at, message);
+    };
+    const skip = () => {
+      while (i < text.length && ' \t\n\r'.includes(text[i])) i++;
+    };
+    const describe = (at) => (at >= text.length ? 'the end of the text' : `"${[...text.slice(at, at + 2)][0]}"`);
+
+    function string() {
+      const start = i++;
+      for (;;) {
+        if (i >= text.length) fail(start, 'The string is not closed.');
+        const c = text[i];
+        if (c === '"') return text.slice(start, ++i);
+        if (c === '\n' || c === '\r') fail(i, 'A line break inside a string must be written as \\n.');
+        if (c < ' ') fail(i, 'A control character inside a string must be written as an escape.');
+        if (c === '\\') {
+          const next = text[i + 1];
+          if (next === 'u') {
+            if (!/^[0-9a-fA-F]{4}$/.test(text.slice(i + 2, i + 6))) fail(i, 'Expected 4 hexadecimal digits after \\u.');
+            i += 6;
+          } else if (next !== undefined && ESCAPES.has(next)) {
+            i += 2;
+          } else {
+            fail(i, 'Unknown escape in a string.');
+          }
+        } else {
+          i++;
+        }
+      }
+    }
+
+    function number() {
+      NUMBER.lastIndex = i;
+      const match = NUMBER.exec(text);
+      // A minus sign needs digits after it, and so do a decimal point and an exponent.
+      if (!match) fail(text[i] === '-' ? i + 1 : i, 'Expected a digit.');
+      const end = i + match[0].length;
+      if (/^(?:\.|[eE][+-]?)(?!\d)/.test(text.slice(end, end + 3))) fail(end + 1, 'Expected a digit.');
+      i = end;
+      return match[0];
+    }
+
+    function value(depth, level) {
+      skip();
+      const c = text[i];
+      if (c === undefined) fail(i, 'Unexpected end of the text, where a value is expected.');
+      if (c === '{' || c === '[') {
+        if (depth >= MAX_DEPTH) fail(i, `Arrays and objects are nested more than ${MAX_DEPTH} levels deep.`);
+        return c === '{' ? object(depth, level) : array(depth, level);
+      }
+      if (c === '"') return string();
+      if (c === '-' || (c >= '0' && c <= '9')) return number();
+      for (const word of LITERALS) {
+        if (text.startsWith(word, i)) {
+          i += word.length;
+          return word;
+        }
+      }
+      if (/[a-z]/i.test(c)) {
+        const guess = LITERALS.find((word) => word[0] === c);
+        fail(i, guess ? `Expected ${guess}.` : `Unexpected ${describe(i)}.`);
+      }
+      if (c === '/' && (text[i + 1] === '/' || text[i + 1] === '*')) fail(i, 'Comments are not allowed in JSON.');
+      fail(i, `Unexpected ${describe(i)}, where a value is expected.`);
+    }
+
+    function array(depth, level) {
+      i++;
+      skip();
+      if (text[i] === ']') {
+        i++;
+        return '[]';
+      }
+      const pad = INDENT.repeat(level + 1);
+      const items = [];
+      for (;;) {
+        items.push(pad + value(depth + 1, level + 1));
+        skip();
+        if (text[i] === ',') {
+          i++;
+        } else if (text[i] === ']') {
+          i++;
+          return `[\n${items.join(',\n')}\n${INDENT.repeat(level)}]`;
+        } else {
+          fail(i, `Expected , or ] but found ${describe(i)}.`);
+        }
+      }
+    }
+
+    function object(depth, level) {
+      i++;
+      skip();
+      if (text[i] === '}') {
+        i++;
+        return '{}';
+      }
+      const pad = INDENT.repeat(level + 1);
+      const members = [];
+      for (;;) {
+        skip();
+        if (text[i] !== '"') fail(i, `Expected a property name in double quotes but found ${describe(i)}.`);
+        const key = string();
+        skip();
+        if (text[i] !== ':') fail(i, `Expected : after the property name but found ${describe(i)}.`);
+        i++;
+        members.push(`${pad}${key}: ${value(depth + 1, level + 1)}`);
+        skip();
+        if (text[i] === ',') {
+          i++;
+        } else if (text[i] === '}') {
+          i++;
+          return `{\n${members.join(',\n')}\n${INDENT.repeat(level)}}`;
+        } else {
+          fail(i, `Expected , or } but found ${describe(i)}.`);
+        }
+      }
+    }
+
+    return {
+      run() {
+        const out = value(0, 0);
+        skip();
+        if (i < text.length) fail(i, `Expected the end of the text but found ${describe(i)}.`);
+        return out;
+      },
+    };
+  }
+
+  // The 1-based line and column of a character index. A column counts characters, not UTF-16 units.
+  function position(text, index) {
+    const before = text.slice(0, index);
+    const start = before.lastIndexOf('\n') + 1;
+    return { line: before.split('\n').length, column: [...before.slice(start)].length + 1 };
+  }
+
+  // The placeholder that the error at `index` falls inside, or null. The parser stops inside a
+  // placeholder it met outside quotes, since its opening brace starts an object.
+  function placeholderAt(text, index) {
+    for (const match of placeholders().scan(text)) {
+      if (index >= match.index && index < match.index + match[0].length) return match;
+    }
+    return null;
+  }
+
+  // { ok: true, text } with the text indented, or { ok: false, line, column, message } for the first
+  // error. A text with only white space has no position.
+  function format(input) {
+    const text = String(input);
+    if (!text.trim()) return { ok: false, message: 'There is no text to format.' };
+    try {
+      return { ok: true, text: parser(text).run() };
+    } catch (error) {
+      if (!(error instanceof JsonError)) throw error;
+      const found = placeholderAt(text, error.index);
+      const at = position(text, found ? found.index : error.index);
+      const message = found
+        ? `${found[0]} is a placeholder, and a placeholder outside quotes is not valid JSON. Put it in quotes, or fill it in first.`
+        : error.message;
+      return { ok: false, line: at.line, column: at.column, message: `Line ${at.line}, column ${at.column}: ${message}` };
+    }
+  }
+
+  const api = { format, MAX_DEPTH };
+
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.SnippetInserter = Object.assign(root.SnippetInserter || {}, { jsonFormat: api });
+})(typeof globalThis !== 'undefined' ? globalThis : this);

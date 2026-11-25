@@ -73,6 +73,7 @@ const els = {
   offSitesEmpty: $('offSitesEmpty'),
   content: $('content'),
   formatted: $('formatted'),
+  formatJson: $('formatJson'),
   toolbar: $('toolbar'),
   linkBar: $('linkBar'),
   linkUrl: $('linkUrl'),
@@ -1204,6 +1205,51 @@ els.toolbar.addEventListener('keydown', (event) => {
   setToolStop(buttons[to]);
   buttons[to].focus();
 });
+
+// Format JSON checks the text and indents it with 2 spaces. In the rich editor it works on the code
+// block that holds the caret. When the text is not valid JSON, nothing changes and the message says
+// where the first error is.
+
+function showJsonError(message) {
+  els.contentError.textContent = message;
+  els.contentError.hidden = false;
+  els.editorStatus.textContent = '';
+}
+
+function formatJson() {
+  els.contentError.hidden = true;
+  if (!els.formatted.checked) {
+    const result = lib.jsonFormat.format(els.content.value);
+    if (!result.ok) {
+      showJsonError(result.message);
+      return;
+    }
+    els.content.value = result.text;
+    els.content.dispatchEvent(new Event('input'));
+    els.editorStatus.textContent = 'JSON formatted.';
+    return;
+  }
+  captureEditorRange();
+  const pre = enclosing('PRE');
+  if (!pre) {
+    showJsonError('Put the caret in a code block first.');
+    return;
+  }
+  const result = lib.jsonFormat.format(richText.toText(pre.outerHTML));
+  if (!result.ok) {
+    showJsonError(result.message);
+    return;
+  }
+  const block = richText.toFragment(richText.codeBlock(result.text, pre.dataset.language || ''), document).firstChild;
+  pre.replaceWith(block);
+  selectContents(block);
+  getSelection().collapseToStart();
+  captureEditorRange();
+  els.richContent.dispatchEvent(new Event('input'));
+  els.editorStatus.textContent = 'JSON formatted.';
+}
+
+els.formatJson.addEventListener('click', formatJson);
 
 // The link bar.
 
