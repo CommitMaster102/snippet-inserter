@@ -715,7 +715,7 @@
     }
   },
   "formatHint": {
-    "message": "Les éditeurs de texte enrichi, comme les messageries web, reçoivent cette mise en forme. Les zones de texte et $GOOGLE_DOCS$ reçoivent le texte brut, avec des points pour les puces et l'adresse de chaque lien entre parenthèses après celui-ci.",
+    "message": "Les éditeurs de texte enrichi, comme les messageries web et $GOOGLE_DOCS$, reçoivent cette mise en forme. Les zones de texte reçoivent le texte brut, avec des points pour les puces et l'adresse de chaque lien entre parenthèses après celui-ci.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

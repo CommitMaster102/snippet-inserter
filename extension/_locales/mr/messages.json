@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "वेबमेलसारख्या रिच मजकूर संपादकांना हे फॉरमॅटिंग मिळते. मजकूर बॉक्स आणि $GOOGLE_DOCS$ यांना साधा मजकूर मिळतो: बुलेटच्या जागी बिंदू, आणि प्रत्येक लिंकचा पत्ता तिच्यानंतर कंसात.",
+    "message": "वेबमेल आणि $GOOGLE_DOCS$ यांसारख्या रिच मजकूर संपादकांना हे फॉरमॅटिंग मिळते. मजकूर बॉक्सना साधा मजकूर मिळतो: बुलेटच्या जागी बिंदू, आणि प्रत्येक लिंकचा पत्ता तिच्यानंतर कंसात.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

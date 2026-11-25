@@ -715,7 +715,7 @@
     }
   },
   "formatHint": {
-    "message": "Gli editor di testo formattato, come la webmail, ricevono questa formattazione. Le caselle di testo e $GOOGLE_DOCS$ ricevono il testo normale, con gli elenchi puntati resi da punti e l'indirizzo di ogni link tra parentesi dopo il testo.",
+    "message": "Gli editor di testo formattato, come la webmail e $GOOGLE_DOCS$, ricevono questa formattazione. Le caselle di testo ricevono il testo normale, con gli elenchi puntati resi da punti e l'indirizzo di ogni link tra parentesi dopo il testo.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

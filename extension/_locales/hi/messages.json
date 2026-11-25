@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "वेबमेल जैसे रिच टेक्स्ट एडिटर में यह फ़ॉर्मैटिंग बनी रहती है. टेक्स्ट बॉक्स और $GOOGLE_DOCS$ में सादा टेक्स्ट जाता है: बुलेट की जगह बिंदु, और हर लिंक के बाद कोष्ठक में उसका पता.",
+    "message": "वेबमेल और $GOOGLE_DOCS$ जैसे रिच टेक्स्ट एडिटर में यह फ़ॉर्मैटिंग बनी रहती है. टेक्स्ट बॉक्स में सादा टेक्स्ट जाता है: बुलेट की जगह बिंदु, और हर लिंक के बाद कोष्ठक में उसका पता.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

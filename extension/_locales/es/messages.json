@@ -715,7 +715,7 @@
     }
   },
   "formatHint": {
-    "message": "Los editores de texto enriquecido, como el correo web, reciben este formato. Los cuadros de texto y $GOOGLE_DOCS$ reciben el texto sin formato, con las viñetas como puntos y la dirección de cada enlace entre paréntesis a continuación.",
+    "message": "Los editores de texto enriquecido, como el correo web y $GOOGLE_DOCS$, reciben este formato. Los cuadros de texto reciben el texto sin formato, con las viñetas como puntos y la dirección de cada enlace entre paréntesis a continuación.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

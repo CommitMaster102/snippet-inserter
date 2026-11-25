@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "ویرایشگرهای متن قالب‌دار، مانند وب‌میل، این قالب‌بندی را دریافت می‌کنند. کادرهای متن و $GOOGLE_DOCS$ متن ساده را دریافت می‌کنند، با نقطه به‌جای نشانه‌های فهرست و نشانی هر پیوند در پرانتز پس از آن.",
+    "message": "ویرایشگرهای متن قالب‌دار، مانند وب‌میل و $GOOGLE_DOCS$، این قالب‌بندی را دریافت می‌کنند. کادرهای متن، متن ساده را دریافت می‌کنند، با نقطه به‌جای نشانه‌های فهرست و نشانی هر پیوند در پرانتز پس از آن.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

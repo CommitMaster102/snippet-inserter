@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "వెబ్‌మెయిల్ వంటి రిచ్ టెక్స్ట్ ఎడిటర్‌లు ఈ ఫార్మాటింగ్‌ను పొందుతాయి. టెక్స్ట్ బాక్స్‌లు, $GOOGLE_DOCS$ సాదా టెక్స్ట్‌ను పొందుతాయి: బుల్లెట్‌లు చుక్కలుగా, ప్రతి లింక్ అడ్రస్ దాని తర్వాత బ్రాకెట్లలో ఉంటాయి.",
+    "message": "వెబ్‌మెయిల్, $GOOGLE_DOCS$ వంటి రిచ్ టెక్స్ట్ ఎడిటర్‌లు ఈ ఫార్మాటింగ్‌ను పొందుతాయి. టెక్స్ట్ బాక్స్‌లు సాదా టెక్స్ట్‌ను పొందుతాయి: బుల్లెట్‌లు చుక్కలుగా, ప్రతి లింక్ అడ్రస్ దాని తర్వాత బ్రాకెట్లలో ఉంటాయి.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

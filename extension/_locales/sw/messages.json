@@ -667,7 +667,7 @@
     }
   },
   "formatHint": {
-    "message": "Vihariri vya maandishi yenye muundo, kama barua pepe ya wavuti, hupokea muundo huu. Visanduku vya maandishi na $GOOGLE_DOCS$ hupokea maandishi dhahiri, vitone vikiwa nukta na anwani ya kila kiungo ikiwa kwenye mabano baada yake.",
+    "message": "Vihariri vya maandishi yenye muundo, kama barua pepe ya wavuti na $GOOGLE_DOCS$, hupokea muundo huu. Visanduku vya maandishi hupokea maandishi dhahiri, vitone vikiwa nukta na anwani ya kila kiungo ikiwa kwenye mabano baada yake.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

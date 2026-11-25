@@ -623,7 +623,7 @@
     }
   },
   "formatHint": {
-    "message": "เครื่องมือแก้ไขข้อความแบบมีรูปแบบ เช่น เว็บเมล จะได้รับการจัดรูปแบบนี้ ส่วนกล่องข้อความและ $GOOGLE_DOCS$ จะได้รับข้อความธรรมดา โดยสัญลักษณ์หัวข้อย่อยจะเป็นจุด และที่อยู่ของแต่ละลิงก์จะอยู่ในวงเล็บต่อท้ายลิงก์นั้น",
+    "message": "เครื่องมือแก้ไขข้อความแบบมีรูปแบบ เช่น เว็บเมลและ $GOOGLE_DOCS$ จะได้รับการจัดรูปแบบนี้ ส่วนกล่องข้อความจะได้รับข้อความธรรมดา โดยสัญลักษณ์หัวข้อย่อยจะเป็นจุด และที่อยู่ของแต่ละลิงก์จะอยู่ในวงเล็บต่อท้ายลิงก์นั้น",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

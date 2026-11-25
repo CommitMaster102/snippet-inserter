@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "ವೆಬ್‌ಮೇಲ್‌ನಂತಹ ರಿಚ್ ಟೆಕ್ಸ್ಟ್ ಎಡಿಟರ್‌ಗಳಲ್ಲಿ ಈ ಫಾರ್ಮ್ಯಾಟಿಂಗ್ ಉಳಿಯುತ್ತದೆ. ಪಠ್ಯ ಬಾಕ್ಸ್‌ಗಳಲ್ಲಿ ಮತ್ತು $GOOGLE_DOCS$ ನಲ್ಲಿ ಸರಳ ಪಠ್ಯ ಸೇರುತ್ತದೆ: ಬುಲೆಟ್‌ಗಳು ಚುಕ್ಕೆಗಳಾಗುತ್ತವೆ, ಮತ್ತು ಪ್ರತಿ ಲಿಂಕ್‌ನ ವಿಳಾಸ ಅದರ ನಂತರ ಆವರಣದಲ್ಲಿ ಬರುತ್ತದೆ.",
+    "message": "ವೆಬ್‌ಮೇಲ್ ಮತ್ತು $GOOGLE_DOCS$ ನಂತಹ ರಿಚ್ ಟೆಕ್ಸ್ಟ್ ಎಡಿಟರ್‌ಗಳಲ್ಲಿ ಈ ಫಾರ್ಮ್ಯಾಟಿಂಗ್ ಉಳಿಯುತ್ತದೆ. ಪಠ್ಯ ಬಾಕ್ಸ್‌ಗಳಲ್ಲಿ ಸರಳ ಪಠ್ಯ ಸೇರುತ್ತದೆ: ಬುಲೆಟ್‌ಗಳು ಚುಕ್ಕೆಗಳಾಗುತ್ತವೆ, ಮತ್ತು ಪ್ರತಿ ಲಿಂಕ್‌ನ ವಿಳಾಸ ಅದರ ನಂತರ ಆವರಣದಲ್ಲಿ ಬರುತ್ತದೆ.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

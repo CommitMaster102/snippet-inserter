@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "እንደ ዌብሜይል ያሉ የበለጸገ ጽሑፍ አርታዒዎች ይህን ቅርጸት ይቀበላሉ። የጽሑፍ ሳጥኖች እና $GOOGLE_DOCS$ ቅርፀት አልባውን ጽሑፍ ይቀበላሉ፤ ነጥበ ምልክቶች እንደ ነጥብ ይታያሉ፣ የእያንዳንዱ አገናኝ አድራሻም ከአገናኙ በኋላ በቅንፍ ውስጥ ይገባል።",
+    "message": "እንደ ዌብሜይል እና $GOOGLE_DOCS$ ያሉ የበለጸገ ጽሑፍ አርታዒዎች ይህን ቅርጸት ይቀበላሉ። የጽሑፍ ሳጥኖች ቅርፀት አልባውን ጽሑፍ ይቀበላሉ፤ ነጥበ ምልክቶች እንደ ነጥብ ይታያሉ፣ የእያንዳንዱ አገናኝ አድራሻም ከአገናኙ በኋላ በቅንፍ ውስጥ ይገባል።",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

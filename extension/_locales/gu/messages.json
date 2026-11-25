@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "વેબમેઇલ જેવા રિચ ટેક્સ્ટ એડિટરમાં આ ફૉર્મેટિંગ જળવાય છે. ટેક્સ્ટ બૉક્સ અને $GOOGLE_DOCS$માં સાદી ટેક્સ્ટ જાય છે, જેમાં બુલેટ ટપકાં તરીકે અને દરેક લિંકનું ઍડ્રેસ તેના પછી કૌંસમાં આવે છે.",
+    "message": "વેબમેઇલ અને $GOOGLE_DOCS$ જેવા રિચ ટેક્સ્ટ એડિટરમાં આ ફૉર્મેટિંગ જળવાય છે. ટેક્સ્ટ બૉક્સમાં સાદી ટેક્સ્ટ જાય છે, જેમાં બુલેટ ટપકાં તરીકે અને દરેક લિંકનું ઍડ્રેસ તેના પછી કૌંસમાં આવે છે.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

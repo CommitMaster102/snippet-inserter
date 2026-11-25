@@ -627,7 +627,7 @@
     }
   },
   "formatHint": {
-    "message": "富文字編輯器（例如網頁郵件）會套用這些格式。文字方塊和 $GOOGLE_DOCS$ 則會收到純文字：項目符號會變成圓點，每個連結的網址會放在連結文字後面的括號中。",
+    "message": "富文字編輯器（例如網頁郵件和 $GOOGLE_DOCS$）會套用這些格式。文字方塊則會收到純文字：項目符號會變成圓點，每個連結的網址會放在連結文字後面的括號中。",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

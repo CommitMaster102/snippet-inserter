@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "Rich-Text-Editoren, etwa von Webmail-Diensten, übernehmen diese Formatierung. Textfelder und $GOOGLE_DOCS$ erhalten den Nur-Text, mit Punkten als Aufzählungszeichen und der Adresse jedes Links in Klammern dahinter.",
+    "message": "Rich-Text-Editoren, etwa von Webmail-Diensten und $GOOGLE_DOCS$, übernehmen diese Formatierung. Textfelder erhalten den Nur-Text, mit Punkten als Aufzählungszeichen und der Adresse jedes Links in Klammern dahinter.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

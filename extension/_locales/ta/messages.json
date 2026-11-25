@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "வெப்மெயில் போன்ற ரிச் டெக்ஸ்ட் எடிட்டர்களில் இந்த வடிவமைப்பு அப்படியே வரும். உரைப் பெட்டிகளிலும் $GOOGLE_DOCS$ ஆவணங்களிலும் எளிய உரை மட்டுமே வரும்: புல்லட்டுகள் புள்ளிகளாகவும், ஒவ்வொரு இணைப்பின் முகவரியும் அதற்குப் பின் அடைப்புக்குறிக்குள்ளும் இருக்கும்.",
+    "message": "வெப்மெயில், $GOOGLE_DOCS$ போன்ற ரிச் டெக்ஸ்ட் எடிட்டர்களில் இந்த வடிவமைப்பு அப்படியே வரும். உரைப் பெட்டிகளில் எளிய உரை மட்டுமே வரும்: புல்லட்டுகள் புள்ளிகளாகவும், ஒவ்வொரு இணைப்பின் முகவரியும் அதற்குப் பின் அடைப்புக்குறிக்குள்ளும் இருக்கும்.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

@@ -627,7 +627,7 @@
     }
   },
   "formatHint": {
-    "message": "富文本编辑器（例如网页版电子邮件）会保留此格式。文本框和 $GOOGLE_DOCS$ 会收到纯文本：项目符号显示为圆点，每个链接的地址放在其后的括号中。",
+    "message": "富文本编辑器（例如网页版电子邮件和 $GOOGLE_DOCS$）会保留此格式。文本框会收到纯文本：项目符号显示为圆点，每个链接的地址放在其后的括号中。",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

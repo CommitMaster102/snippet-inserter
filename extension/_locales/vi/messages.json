@@ -627,7 +627,7 @@
     }
   },
   "formatHint": {
-    "message": "Các trình soạn thảo văn bản có định dạng, như webmail, nhận được định dạng này. Hộp văn bản và $GOOGLE_DOCS$ nhận văn bản thuần túy, với dấu đầu dòng là dấu chấm tròn và địa chỉ của mỗi đường liên kết nằm trong dấu ngoặc đơn phía sau.",
+    "message": "Các trình soạn thảo văn bản có định dạng, như webmail và $GOOGLE_DOCS$, nhận được định dạng này. Hộp văn bản nhận văn bản thuần túy, với dấu đầu dòng là dấu chấm tròn và địa chỉ của mỗi đường liên kết nằm trong dấu ngoặc đơn phía sau.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

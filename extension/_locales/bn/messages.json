@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "ওয়েবমেলের মতো রিচ টেক্সট এডিটরে এই ফর্ম্যাটিং থাকে। টেক্সট বক্স আর $GOOGLE_DOCS$ পায় প্লেন টেক্সট: বুলেটের জায়গায় বিন্দু, আর প্রতিটি লিঙ্কের পরে বন্ধনীতে তার ঠিকানা।",
+    "message": "ওয়েবমেল আর $GOOGLE_DOCS$-এর মতো রিচ টেক্সট এডিটরে এই ফর্ম্যাটিং থাকে। টেক্সট বক্স পায় প্লেন টেক্সট: বুলেটের জায়গায় বিন্দু, আর প্রতিটি লিঙ্কের পরে বন্ধনীতে তার ঠিকানা।",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

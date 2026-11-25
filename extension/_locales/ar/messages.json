@@ -847,7 +847,7 @@
     }
   },
   "formatHint": {
-    "message": "تحتفظ محررات النص المنسق، مثل بريد الويب، بهذا التنسيق. أما مربعات النص و $GOOGLE_DOCS$ فتحصل على النص العادي، حيث تصبح علامات القوائم النقطية نقاطًا ويأتي عنوان كل رابط بين قوسين بعده.",
+    "message": "تحتفظ محررات النص المنسق، مثل بريد الويب و $GOOGLE_DOCS$، بهذا التنسيق. أما مربعات النص فتحصل على النص العادي، حيث تصبح علامات القوائم النقطية نقاطًا ويأتي عنوان كل رابط بين قوسين بعده.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

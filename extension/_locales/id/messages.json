@@ -627,7 +627,7 @@
     }
   },
   "formatHint": {
-    "message": "Editor teks kaya, seperti webmail, menerima pemformatan ini. Kotak teks dan $GOOGLE_DOCS$ menerima teks biasa, dengan poin berupa titik dan alamat setiap link dalam tanda kurung setelahnya.",
+    "message": "Editor teks kaya, seperti webmail dan $GOOGLE_DOCS$, menerima pemformatan ini. Kotak teks menerima teks biasa, dengan poin berupa titik dan alamat setiap link dalam tanda kurung setelahnya.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

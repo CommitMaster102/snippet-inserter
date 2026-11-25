@@ -759,7 +759,7 @@
     }
   },
   "formatHint": {
-    "message": "Edytory tekstu sformatowanego, np. poczta w przeglądarce, otrzymują to formatowanie. Pola tekstowe i $GOOGLE_DOCS$ otrzymują zwykły tekst, z punktorami jako kropkami i adresem każdego linku w nawiasie po nim.",
+    "message": "Edytory tekstu sformatowanego, np. poczta w przeglądarce i $GOOGLE_DOCS$, otrzymują to formatowanie. Pola tekstowe otrzymują zwykły tekst, z punktorami jako kropkami i adresem każdego linku w nawiasie po nim.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

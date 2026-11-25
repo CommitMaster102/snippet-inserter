@@ -759,7 +759,7 @@
     }
   },
   "formatHint": {
-    "message": "Редакторы форматированного текста, например веб-почта, получают это форматирование. Текстовые поля и $GOOGLE_DOCS$ получают обычный текст: маркеры списков заменяются точками, а адрес каждой ссылки ставится после нее в скобках.",
+    "message": "Редакторы форматированного текста, например веб-почта и $GOOGLE_DOCS$, получают это форматирование. Текстовые поля получают обычный текст: маркеры списков заменяются точками, а адрес каждой ссылки ставится после нее в скобках.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

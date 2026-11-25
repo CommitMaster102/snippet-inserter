@@ -627,7 +627,7 @@
     }
   },
   "formatHint": {
-    "message": "웹메일 같은 서식 있는 텍스트 편집기에는 이 서식이 그대로 들어갑니다. 텍스트 상자와 $GOOGLE_DOCS$에는 일반 텍스트가 들어가며, 글머리 기호는 점으로 바뀌고 각 링크의 주소는 링크 뒤 괄호 안에 표시됩니다.",
+    "message": "웹메일과 $GOOGLE_DOCS$ 같은 서식 있는 텍스트 편집기에는 이 서식이 그대로 들어갑니다. 텍스트 상자에는 일반 텍스트가 들어가며, 글머리 기호는 점으로 바뀌고 각 링크의 주소는 링크 뒤 괄호 안에 표시됩니다.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

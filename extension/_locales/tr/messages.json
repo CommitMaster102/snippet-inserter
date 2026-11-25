@@ -671,7 +671,7 @@
     }
   },
   "formatHint": {
-    "message": "Zengin metin düzenleyiciler (örneğin web posta) bu biçimlendirmeyi alır. Metin kutuları ve $GOOGLE_DOCS$ düz metni alır; madde işaretleri nokta olarak, her bağlantının adresi ise metninden sonra parantez içinde gelir.",
+    "message": "Zengin metin düzenleyiciler (örneğin web posta ve $GOOGLE_DOCS$) bu biçimlendirmeyi alır. Metin kutuları düz metni alır; madde işaretleri nokta olarak, her bağlantının adresi ise metninden sonra parantez içinde gelir.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {
