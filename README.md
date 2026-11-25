@@ -170,8 +170,8 @@ and keeps lists and code blocks. Lists nest up to 3 levels.
 
 A link needs an address that starts with `https://`, `http://`, `mailto:`, or `tel:`. A typed
 address such as `example.com` becomes `https://example.com/`, and an email address becomes a
-`mailto:` link. Text pasted into the editor keeps only this formatting: images, tables, colors,
-fonts, headings, and anything else a snippet cannot hold are left out, and their text stays.
+`mailto:` link. Text pasted into the editor keeps only this formatting: images, tables, text colors
+(except the code colors below), fonts, headings, and anything else a snippet cannot hold are left out, and their text stays.
 Placeholders and `{snippet:...}` references work in formatted text, and the Placeholders and
 Includes rows list them as for plain text. The snippet manager and the panel run only the
 extension's own scripts and load nothing from the network, whatever a snippet's HTML holds.
@@ -186,6 +186,15 @@ snippet it works on the code block that holds the caret. When the text is not va
 changes nothing and says the line and column of the first error. A placeholder outside quotes,
 such as `{input:Count}` where a number goes, makes the text invalid JSON, and the message says so.
 A placeholder inside quotes is ordinary text.
+
+Each code block has a language menu in the toolbar: Plain text, JSON, JavaScript, TypeScript, Python,
+HTML, CSS, SQL, and Shell. Put the caret in a block to change its menu. When you save, a bundled
+copy of [Prism](https://prismjs.com/) 1.30.0 colors the keywords, strings, numbers, and comments of
+a block that names a language, and the colors are stored with the snippet. Only the manager page
+loads Prism, so no other page grows. The colors are 4 fixed ones, chosen to read on a white and on a
+near-black background (contrast of at least 4.0:1 on both): keywords `#2f7fc0`, strings `#2f8f4e`,
+numbers `#c0602a`, and comments `#7a7f87`. A snippet that never uses a code block language stores
+nothing new.
 
 A rich-text editor, such as webmail, gets the formatting, and keeps as much of it as that editor
 supports. A text box and a single-line field get the plain text: a bullet before each item of a
@@ -348,6 +357,10 @@ extension/            The extension itself; this is the folder to load.
                       {snippet:;abbreviation}.
     richtext.js       The cleaner for formatted snippets, and their plain text.
     json-format.js    The Format JSON button: the check and the 2-space indent.
+    highlight.js      Syntax colors for code blocks; loaded by the manager only.
+    prism-setup.js    Stops Prism from highlighting the manager page by itself.
+  vendor/prism/       Prism 1.30.0 (MIT), unmodified files from the prismjs npm package,
+                      with its LICENSE. Loaded by the manager only.
   icons/
 tests/
   e2e/                Playwright end-to-end tests and their fixtures.
@@ -437,3 +450,7 @@ development, you can donate on [Ko-fi](https://ko-fi.com/commitmaster102).
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+The snippet manager bundles [Prism](https://prismjs.com/) 1.30.0 by Lea Verou, also under the MIT
+license, to color code blocks. Its files and license are in
+[extension/vendor/prism](extension/vendor/prism), unchanged from the `prismjs@1.30.0` npm package.

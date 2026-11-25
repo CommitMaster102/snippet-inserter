@@ -58,18 +58,30 @@
       .split(' ')
   );
 
-  const NO_MARKS = Object.freeze({ b: false, i: false, u: false, code: false, href: '' });
+  // The colors a span in a code block may carry. The cleaner writes each one itself, and no other
+  // color survives. Each is at least 4:1 against both #ffffff and #111213, so code reads on a light
+  // and on a dark background; lib/highlight.js picks one for each kind of token.
+  const COLORS = Object.freeze({ keyword: '#2f7fc0', string: '#2f8f4e', number: '#c0602a', comment: '#7a7f87' });
+  // How the browser writes a color of the palette in a style, to tell it from every other color.
+  const COLOR_NAMES = new Map(
+    Object.entries(COLORS).map(([name, hex]) => {
+      const [r, g, b] = [1, 3, 5].map((at) => parseInt(hex.slice(at, at + 2), 16));
+      return [`rgb(${r}, ${g}, ${b})`, name];
+    })
+  );
+
+  const NO_MARKS = Object.freeze({ b: false, i: false, u: false, code: false, href: '', color: '' });
 
   function placeholders() {
     return root.SnippetInserter.placeholders;
   }
 
   function run(text, marks) {
-    return { text, b: marks.b, i: marks.i, u: marks.u, code: marks.code, href: marks.href };
+    return { text, b: marks.b, i: marks.i, u: marks.u, code: marks.code, href: marks.href, color: marks.color || '' };
   }
 
   function sameMarks(a, b) {
-    return a.b === b.b && a.i === b.i && a.u === b.u && a.code === b.code && a.href === b.href;
+    return a.b === b.b && a.i === b.i && a.u === b.u && a.code === b.code && a.href === b.href && a.color === b.color;
   }
 
   function hasText(line) {
@@ -84,7 +96,8 @@
   //   { type: 'lines', lines }                 lines of text, each an array of runs
   //   { type: 'list', ordered, items }         a list, each item { segments }
   //   { type: 'pre', language, lines }         a code block, whose runs carry no marks
-  // A run is { text, b, i, u, code, href }. Its text holds no line break.
+  // A run is { text, b, i, u, code, href, color }, where color is a name in COLORS or ''. Its text
+  // holds no line break, and only a run in a code block has a color.
   //
   // The builder below turns a stream of text, line breaks, and blocks into a tree, with the line
   // rules a browser uses on screen: a block starts and ends a line, and a line break at the end of a
@@ -147,7 +160,10 @@
       if (!text) return;
       if (frame.line === null) frame.line = [];
       const line = frame.line;
-      const plainMarks = frame.kind === 'pre' ? NO_MARKS : marks;
+      // A code block keeps only a color. Everywhere else a color is dropped.
+      let plainMarks = marks;
+      if (frame.kind === 'pre') plainMarks = marks.color ? { ...NO_MARKS, color: marks.color } : NO_MARKS;
+      else if (marks.color) plainMarks = { ...marks, color: '' };
       const last = line[line.length - 1];
       if (last && sameMarks(last, plainMarks)) last.text += text;
       else line.push(run(text, plainMarks));
@@ -393,6 +409,11 @@
         b.boundary();
         close = b.boundary;
       }
+      // A span in a code block may name a color of the palette, and no other element or color counts.
+      if (name === 'span' && style && b.inPre()) {
+        const color = COLOR_NAMES.get(style.color);
+        if (color) marks = { ...marks, color };
+      }
       marks = marksOf(name, style, marks);
       if (close) work.push({ close });
       pushChildren(node, { marks, whiteSpace });
@@ -474,11 +495,13 @@
       const want = [];
       if (part.href) want.push(`a ${part.href}`);
       for (const key of ['b', 'i', 'u', 'code']) if (part[key]) want.push(key);
+      if (part.color) want.push(`span ${part.color}`);
       let keep = 0;
       while (keep < open.length && keep < want.length && open[keep] === want[keep]) keep++;
       for (let n = open.length; n > keep; n--) sink.close();
       for (const mark of want.slice(keep)) {
         if (mark.startsWith('a ')) sink.open('a', { href: mark.slice(2) });
+        else if (mark.startsWith('span ')) sink.open('span', { style: `color:${COLORS[mark.slice(5)]}` });
         else sink.open(mark);
       }
       open = want;
@@ -549,6 +572,7 @@
     render(parse(html).segments, {
       open(tag, attributes) {
         const element = doc.createElement(tag);
+        if (attributes && attributes.style) element.setAttribute('style', attributes.style);
         if (attributes && attributes.href) {
           element.setAttribute('href', attributes.href);
           if (titles) element.title = attributes.href;
@@ -692,6 +716,7 @@
       u: part.u || extra.u,
       code: part.code || extra.code,
       href: part.href || extra.href,
+      color: part.color || extra.color || '',
     };
   }
 
@@ -733,6 +758,51 @@
   function finder(pattern) {
     const global = new RegExp(pattern.source, 'g');
     return (text) => [...text.matchAll(global)];
+  }
+
+  // Colors for code blocks. `colorize(language, text)` returns [start, end, color name] ranges over
+  // the text of a block, whose lines are joined with one line break each. A range that is not a pair
+  // of whole numbers inside the text with a name in COLORS is ignored, so the colorizer cannot
+  // write anything but the palette. A block with no language, or one the colorizer gives no
+  // ranges, loses its colors.
+  function recolor(seg, colorize) {
+    const text = seg.lines.map(lineString).join('\n');
+    const names = new Array(text.length).fill('');
+    const ranges = seg.language ? colorize(seg.language, text) : [];
+    for (const range of Array.isArray(ranges) ? ranges : []) {
+      if (!Array.isArray(range)) continue;
+      const [start, end, name] = range;
+      if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end <= start) continue;
+      if (typeof name !== 'string' || !Object.hasOwn(COLORS, name)) continue;
+      names.fill(name, start, Math.min(end, text.length));
+    }
+    let at = 0;
+    seg.lines = seg.lines.map((line) => {
+      const runs = [];
+      for (const char of lineString(line)) {
+        const color = names[at];
+        const last = runs[runs.length - 1];
+        if (last && last.color === color) last.text += char;
+        else runs.push({ ...run(char, NO_MARKS), color });
+        at += char.length;
+      }
+      at += 1;
+      return runs;
+    });
+  }
+
+  function colorSegments(segments, colorize) {
+    for (const seg of segments) {
+      if (seg.type === 'list') for (const item of seg.items) colorSegments(item.segments, colorize);
+      else if (seg.type === 'pre') recolor(seg, colorize);
+    }
+  }
+
+  // The HTML of `input` with each code block colored by `colorize`; see recolor().
+  function colorCode(input, colorize) {
+    const tree = parse(input);
+    colorSegments(tree.segments, colorize);
+    return serialize(tree);
   }
 
   // The public functions. Each one reads its HTML through the cleaner first.
@@ -881,7 +951,10 @@
 
   const api = {
     LANGUAGES,
+    COLORS,
+    languageOf,
     normalizeUrl,
+    colorCode,
     clean,
     sanitize,
     fragment,

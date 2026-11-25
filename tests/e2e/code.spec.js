@@ -130,8 +130,10 @@ test('in a formatted snippet, Format JSON works on the code block that holds the
   await expect(manager.locator('#editorStatus')).toHaveText('Saved.');
   const [stored] = await readSnippets(serviceWorker);
   expect(stored.content).toBe(`Before\n${PRETTY}\nMiddle\n{\n  "b": 2\n}\nAfter`);
-  expect(stored.html).toContain('<pre><code class="language-json">{<br>  &quot;name&quot;');
-  expect(stored.html).toContain('</code></pre>Middle<pre><code>{<br>  &quot;b&quot;: 2<br>}</code></pre>After');
+  // The JSON block is colored on save; the colors are checked in the tests below.
+  const plain = stored.html.replace(/<span style="color:#[0-9a-f]{6}">|<\/span>/g, '');
+  expect(plain).toContain('<pre><code class="language-json">{<br>  &quot;name&quot;');
+  expect(plain).toContain('</code></pre>Middle<pre><code>{<br>  &quot;b&quot;: 2<br>}</code></pre>After');
 });
 
 test('in a formatted snippet, invalid JSON in the block gives its line and column and changes nothing', async ({ context, extensionId, serviceWorker }) => {
@@ -144,4 +146,137 @@ test('in a formatted snippet, invalid JSON in the block gives its line and colum
   await manager.getByRole('button', { name: 'Format JSON' }).click();
   await expect(manager.locator('#contentError')).toContainText('Line 3, column 1:');
   expect(await blockTexts(manager)).toEqual(['{\n  "a": 1,\n}']);
+});
+
+const KEYWORD = '#2f7fc0';
+const STRING = '#2f8f4e';
+const NUMBER = '#c0602a';
+const COMMENT = '#7a7f87';
+
+// One snippet of code per language, and the palette colors Prism gives it.
+const SAMPLES = {
+  json: ['{"a": "x", "n": 12} // c', [KEYWORD, STRING, NUMBER, COMMENT]],
+  javascript: ['const a = "x" + 42; // c', [KEYWORD, STRING, NUMBER, COMMENT]],
+  typescript: ["let a: string = 'x'; // c\nconst n = 42;", [KEYWORD, STRING, NUMBER, COMMENT]],
+  python: ['# c\ndef f():\n    return "x" + 42', [KEYWORD, STRING, NUMBER, COMMENT]],
+  html: ['<!-- c -->\n<a href="x">t</a>', [KEYWORD, STRING, COMMENT]],
+  css: ['/* c */\na { margin: 10px; content: "x" }', [KEYWORD, STRING, NUMBER, COMMENT]],
+  sql: ["-- c\nSELECT 42 FROM t WHERE x = 'y'", [KEYWORD, STRING, NUMBER, COMMENT]],
+  shell: ['# c\nif true; then echo "x" 3; fi', [KEYWORD, STRING, NUMBER, COMMENT]],
+};
+
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br>');
+}
+
+test('the language menu follows the code block that holds the caret, and Save stores that language', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Two', content: 'a\nb\nc', html: 'text<pre><code>a</code></pre><pre><code class="language-python">b</code></pre>' },
+  ]);
+  const manager = await openManager(context, extensionId);
+  await openSnippet(manager, 'Two');
+  const menu = manager.getByLabel('Code block language');
+  await expect(menu.locator('option')).toHaveText(['Plain text', 'JSON', 'JavaScript', 'TypeScript', 'Python', 'HTML', 'CSS', 'SQL', 'Shell']);
+  await manager.locator('#richContent').evaluate((editor) => {
+    editor.focus();
+    const range = document.createRange();
+    range.setStart(editor.firstChild, 1);
+    range.collapse(true);
+    getSelection().removeAllRanges();
+    getSelection().addRange(range);
+  });
+  await expect(menu).toBeDisabled();
+  await caretInBlock(manager, 1, 0);
+  await expect(menu).toBeEnabled();
+  await expect(menu).toHaveValue('python');
+  await caretInBlock(manager, 0, 0);
+  await expect(menu).toHaveValue('');
+  await menu.selectOption('sql');
+  await expect(manager.locator('#richContent pre').first()).toHaveAttribute('data-label', 'SQL');
+  await expect(manager.locator('#richContent pre').nth(1)).toHaveAttribute('data-label', 'Python');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#editorStatus')).toHaveText('Saved.');
+  const [stored] = await readSnippets(serviceWorker);
+  expect(stored.html).toBe('text<pre><code class="language-sql">a</code></pre><pre><code class="language-python">b</code></pre>');
+  // Back to Plain text removes the language and the colors.
+  await caretInBlock(manager, 0, 0);
+  await menu.selectOption('');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#editorStatus')).toHaveText('Saved.');
+  expect((await readSnippets(serviceWorker))[0].html).toBe('text<pre><code>a</code></pre><pre><code class="language-python">b</code></pre>');
+});
+
+for (const [language, [code, colors]] of Object.entries(SAMPLES)) {
+  test(`Save colors a ${language} code block with the palette, and keeps the text`, async ({ context, extensionId, serviceWorker }) => {
+    await seedSnippets(serviceWorker, [
+      { title: 'Code', content: `x\n${code}`, html: `x<pre><code class="language-${language}">${escapeHtml(code)}</code></pre>` },
+    ]);
+    const manager = await openManager(context, extensionId);
+    await openSnippet(manager, 'Code');
+    await manager.locator('#save').click();
+    await expect(manager.locator('#editorStatus')).toHaveText('Saved.');
+    const [stored] = await readSnippets(serviceWorker);
+    expect(stored.content).toBe(`x\n${code}`);
+    for (const color of colors) expect(stored.html, `${language} ${color}`).toContain(`<span style="color:${color}">`);
+    // Nothing but the palette is stored, and only in spans.
+    const used = [...stored.html.matchAll(/style="([^"]*)"/g)].map((m) => m[1]);
+    for (const style of used) expect([KEYWORD, STRING, NUMBER, COMMENT].map((c) => `color:${c}`)).toContain(style);
+    expect(stored.html.replace(/<span style="color:#[0-9a-f]{6}">|<\/span>/g, '')).toBe(`x<pre><code class="language-${language}">${escapeHtml(code)}</code></pre>`);
+    // The editor shows the colors after the save, and the saved snippet has nothing unsaved.
+    const first = manager.locator('#richContent pre span').first();
+    await expect(first).toBeVisible();
+    expect(await first.evaluate((el) => getComputedStyle(el).color)).toMatch(/^rgb\(\d+, \d+, \d+\)$/);
+    await manager.locator('#newSnippet').click();
+    await expect(manager.locator('#editorNotice')).toBeHidden();
+  });
+}
+
+test('a hostile color in a stored snippet is gone after Save, and a plain-text block has no colors', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    {
+      title: 'Hostile',
+      content: 'a b',
+      html: '<span style="color:red">a</span><pre><span style="color:red;background:url(https://example.com/p.png)">b</span><span style="color:#2f7fc0">c</span></pre>',
+    },
+  ]);
+  const manager = await openManager(context, extensionId);
+  await openSnippet(manager, 'Hostile');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#editorStatus')).toHaveText('Saved.');
+  const [stored] = await readSnippets(serviceWorker);
+  expect(stored.html).toBe('a<pre><code>bc</code></pre>');
+});
+
+test('only the manager loads Prism', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Code', content: 'x', html: '<pre><code class="language-json"><span style="color:#2f7fc0">x</span></code></pre>' },
+  ]);
+  const loaded = [];
+  context.on('request', (request) => {
+    if (request.url().includes('/vendor/prism/')) loaded.push(request.url());
+  });
+  const manager = await openManager(context, extensionId);
+  expect(await manager.evaluate(() => typeof window.Prism)).toBe('object');
+  expect(loaded.length).toBeGreaterThan(0);
+  expect(loaded.every((url) => url.includes(extensionId))).toBe(true);
+  loaded.length = 0;
+  const panel = await context.newPage();
+  await panel.goto(`chrome-extension://${extensionId}/panel.html`);
+  expect(await panel.evaluate(() => typeof window.Prism)).toBe('undefined');
+  expect(loaded).toEqual([]);
+});
+
+test('a snippet with colors goes into a rich editor with its colors', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Code', content: 'Run:\nlet a', html: 'Run:<pre><code class="language-javascript"><span style="color:#2f7fc0">let</span> a</code></pre>' },
+  ]);
+  const { caretAtEndOf, openPanel, pressInPanel, expectPanelClosed } = require('./helpers');
+  await caretAtEndOf(page, '#pasteEditor');
+  await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect.poll(() => page.evaluate(() => window.pasteSeen)).not.toBeNull();
+  const seen = await page.evaluate(() => window.pasteSeen);
+  expect(seen.html).toBe('&nbsp;Run:<pre><code class="language-javascript"><span style="color:#2f7fc0">let</span> a</code></pre>');
+  expect(seen.plain).toBe(' Run:\nlet a');
 });

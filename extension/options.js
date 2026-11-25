@@ -74,6 +74,7 @@ const els = {
   content: $('content'),
   formatted: $('formatted'),
   formatJson: $('formatJson'),
+  codeLanguage: $('codeLanguage'),
   toolbar: $('toolbar'),
   linkBar: $('linkBar'),
   linkUrl: $('linkUrl'),
@@ -592,7 +593,7 @@ els.search.addEventListener('input', () => renderList());
 function textFields() {
   if (!els.formatted.checked) return { content: els.content.value, html: '' };
   const clean = richText.clean(els.richContent);
-  return { content: clean.text, html: clean.formatted ? clean.html : '' };
+  return { content: clean.text, html: clean.formatted ? lib.highlight.colorBlocks(clean.html) : '' };
 }
 
 function fields() {
@@ -924,6 +925,8 @@ async function save() {
   // The folder is shown as stored, which may spell it with other capitals than the user typed.
   els.folder.value = result.snippet.folder || '';
   state.snapshot = { ...values, folder: result.snippet.folder || '' };
+  // The saved colors show in the editor. A snippet with no formatting is left as typed.
+  if (els.formatted.checked && values.html && richText.clean(els.richContent).html !== values.html) showFormatted(true, values.html);
   els.editorHeading.textContent = 'Edit snippet';
   els.duplicate.hidden = false;
   els.delete.hidden = false;
@@ -964,7 +967,10 @@ els.folder.addEventListener('input', () => {
 
 // Shows the rich editor holding `html`, or the text box.
 function showFormatted(on, html = '') {
-  if (on) els.richContent.replaceChildren(richText.toFragment(html, document, { titles: true }));
+  if (on) {
+    els.richContent.replaceChildren(richText.toFragment(html, document, { titles: true }));
+    labelBlocks();
+  }
   els.formatted.checked = on;
   els.content.hidden = on;
   for (const node of [els.richContent, els.toolbar, els.formatHint]) node.hidden = !on;
@@ -986,8 +992,52 @@ els.formatted.addEventListener('change', () => {
   updateCount();
 });
 
+// Code blocks and their language. The editor keeps a block's language in data-language on its pre
+// element, and shows it above the block from data-label. The cleaner reads data-language, so a
+// block pasted with a language class is labelled too.
+const LANGUAGE_LABELS = {
+  json: 'JSON',
+  javascript: 'JavaScript',
+  typescript: 'TypeScript',
+  python: 'Python',
+  html: 'HTML',
+  css: 'CSS',
+  sql: 'SQL',
+  shell: 'Shell',
+};
+
+function blockLanguage(pre) {
+  const code = pre.querySelector('code');
+  const found = richText.languageOf(pre) || (code ? richText.languageOf(code) : '');
+  return richText.LANGUAGES.includes(found) ? found : '';
+}
+
+function labelBlocks() {
+  for (const pre of els.richContent.querySelectorAll('pre')) {
+    const language = blockLanguage(pre);
+    if (language) pre.setAttribute('data-language', language);
+    else pre.removeAttribute('data-language');
+    pre.setAttribute('data-label', LANGUAGE_LABELS[language] || 'Plain text');
+  }
+}
+
+els.codeLanguage.addEventListener('change', () => {
+  restoreEditorRange();
+  const pre = enclosing('PRE');
+  if (!pre) return;
+  const language = els.codeLanguage.value;
+  for (const code of pre.querySelectorAll('code')) code.removeAttribute('class');
+  if (language) pre.setAttribute('data-language', language);
+  else pre.removeAttribute('data-language');
+  labelBlocks();
+  els.contentError.hidden = true;
+  els.editorStatus.textContent = '';
+  updateCount();
+});
+
 let richTimer = null;
 els.richContent.addEventListener('input', () => {
+  labelBlocks();
   els.contentError.hidden = true;
   els.editorStatus.textContent = '';
   refreshTools();
@@ -1103,7 +1153,10 @@ function refreshTools() {
       return false;
     }
   };
-  const inPre = Boolean(enclosing('PRE'));
+  const pre = enclosing('PRE');
+  const inPre = Boolean(pre);
+  els.codeLanguage.disabled = !inPre;
+  els.codeLanguage.value = pre ? blockLanguage(pre) : '';
   const pressed = { code: !inPre && Boolean(enclosing('CODE')), codeBlock: inPre };
   for (const [tool, command] of Object.entries(COMMANDS)) pressed[tool] = state(command);
   for (const button of els.toolbar.querySelectorAll('[aria-pressed]')) {
