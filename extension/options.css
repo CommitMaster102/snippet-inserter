@@ -129,6 +129,12 @@ select:focus {
   border-color: var(--brand-default);
 }
 
+/* An abbreviation is typed left to right, but while the input is empty it shows a sentence in the
+   language of the page, so in a right-to-left language that sentence reads right to left. */
+:root[dir="rtl"] #abbreviation:placeholder-shown {
+  direction: rtl;
+}
+
 /* Page layout: a top bar, a navigation column, and the current view. */
 
 .topbar {
@@ -154,7 +160,7 @@ select:focus {
   flex-direction: column;
   gap: 2px;
   padding: 14px 10px;
-  border-right: 1px solid var(--border-default);
+  border-inline-end: 1px solid var(--border-default);
 }
 
 .nav a {
@@ -202,7 +208,7 @@ select:focus {
   flex-direction: column;
   gap: 8px;
   padding: 14px;
-  border-right: 1px solid var(--border-default);
+  border-inline-end: 1px solid var(--border-default);
 }
 
 /* The folder buttons, which wrap onto more lines, and the actions for the selected folder. */
@@ -622,8 +628,11 @@ select:focus {
   font-size: 12px;
 }
 
+/* In a language with long button names, the buttons wrap to a second line, still at the end. */
 .editor-footer {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: 8px;
 }
@@ -761,14 +770,14 @@ select:focus {
   .nav {
     flex-direction: row;
     flex-wrap: wrap;
-    border-right: 0;
+    border-inline-end: 0;
     border-bottom: 1px solid var(--border-default);
   }
 
   /* A long list scrolls inside itself, so the editor under it stays near the top. The search
      box and the Undo bar stay outside the scrolling part, where they can always be seen. */
   .list-pane {
-    border-right: 0;
+    border-inline-end: 0;
     border-bottom: 1px solid var(--border-default);
   }
 

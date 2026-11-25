@@ -591,7 +591,13 @@ function snippetItem(snippet, index) {
 
   const heading = el('div', 'item-heading');
   heading.append(caption);
-  if (snippet.abbreviation) heading.append(el('span', 'item-abbreviation', snippet.abbreviation));
+  if (snippet.abbreviation) {
+    // Left to right, as the abbreviation input is, so ;addr keeps its semicolon in front in a
+    // right-to-left language.
+    const abbreviation = el('span', 'item-abbreviation', snippet.abbreviation);
+    abbreviation.dir = 'ltr';
+    heading.append(abbreviation);
+  }
 
   const main = el('div', 'item-main');
   main.append(heading);

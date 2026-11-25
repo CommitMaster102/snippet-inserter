@@ -274,6 +274,9 @@ mirrored.describe('mirrored pseudo-language layout', () => {
     const caption = panel.locator('.list .item', { hasText: 'Address' }).locator('.item-caption');
     expect(await caption.evaluate((element) => getComputedStyle(element).direction)).toBe('ltr');
     expect(await caption.evaluate((element) => element.closest('[dir]').getAttribute('dir'))).toBe('auto');
+    // An abbreviation reads left to right, as its input does, so ;addr keeps its semicolon in front.
+    const abbreviation = panel.locator('.list .item', { hasText: 'Address' }).locator('.item-abbreviation');
+    expect(await abbreviation.evaluate((element) => getComputedStyle(element).direction)).toBe('ltr');
     await pressInPanel(page, 'Escape');
 
     await page.goto(`${pagesUrl}/article.html`);
@@ -295,6 +298,30 @@ mirrored.describe('mirrored pseudo-language layout', () => {
     const nav = await manager.locator('nav').first().boundingBox();
     const list = await manager.locator('#snippetList').boundingBox();
     expect(nav.x).toBeGreaterThan(list.x);
+    const abbreviation = manager.locator('#snippetList .row', { hasText: 'Address' }).locator('.pill');
+    expect(await abbreviation.evaluate((element) => getComputedStyle(element).direction)).toBe('ltr');
+  });
+
+  // The abbreviation is typed left to right, but its placeholder is a sentence in the language.
+  mirrored('an empty abbreviation input shows its placeholder right to left, and a typed one left to right', async ({ context, extensionId, page, serviceWorker }) => {
+    const direction = (input) => input.evaluate((element) => getComputedStyle(element).direction);
+    await seedSnippets(serviceWorker, SNIPPETS);
+    await selectInTextarea(page, '#plain', 0, 5);
+    const panel = await openPanel(page);
+    await pressInPanel(page, '1', { ctrl: true });
+    const inPanel = panel.locator('input.input-abbreviation');
+    await expect(inPanel).toBeVisible();
+    expect(await direction(inPanel)).toBe('rtl');
+    await inPanel.fill(';x');
+    expect(await direction(inPanel)).toBe('ltr');
+
+    const manager = await openManager(context, extensionId);
+    await manager.locator('#snippetList .row', { hasText: 'Reply' }).click();
+    const inManager = manager.locator('#abbreviation');
+    await expect(inManager).toBeVisible();
+    expect(await direction(inManager)).toBe('rtl');
+    await inManager.fill(';x');
+    expect(await direction(inManager)).toBe('ltr');
   });
 });
 
@@ -378,6 +405,26 @@ macKeys('on a Mac, the toolbar shortcuts and the notes in the settings name the 
   // The panel's Cmd+1 to Cmd+9, and Cmd+Z after an abbreviation.
   await expect(manager.locator('[data-i18n-rich="usageNote"] kbd')).toHaveText(['Enter', 'Befehl', '2', 'Befehl', '9', 'Befehl', '1']);
   await expect(manager.locator('[data-i18n-rich="abbreviationsNote"] kbd')).toHaveText(['Befehl', 'Z']);
+});
+
+// The browser in Malayalam, with the extension's own Malayalam catalog. Its names for Duplicate,
+// Delete, and Save are wider than the stretched language's, so they do not fit on one line next to
+// the character count at 1000 pixels.
+const malayalam = base.extend({
+  context: async ({}, use) => {
+    const context = await launchContext(undefined, ['--lang=ml']);
+    await use(context);
+    await context.close();
+  },
+});
+
+malayalam('in Malayalam the editor buttons wrap instead of pushing Save out of the window', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  const manager = await openManager(context, extensionId);
+  await expect(manager.locator('html')).toHaveAttribute('lang', 'ml');
+  await manager.locator('#snippetList .row').first().click();
+  await expect(manager.locator('#content')).toBeVisible();
+  await expectFit(manager.locator('body'), 'editor');
 });
 
 base('the layout check reports text that is cut off, and accepts an ellipsis', async ({ page }) => {

@@ -515,7 +515,13 @@ function snippetRow(snippet) {
   }
 
   row.append(handle, main);
-  if (snippet.abbreviation) row.append(el('span', 'pill', snippet.abbreviation));
+  if (snippet.abbreviation) {
+    // Left to right, as the abbreviation input is, so ;addr keeps its semicolon in front in a
+    // right-to-left language.
+    const abbreviation = el('span', 'pill', snippet.abbreviation);
+    abbreviation.dir = 'ltr';
+    row.append(abbreviation);
+  }
 
   row.addEventListener('click', () => requestSelect(snippet.id));
   row.addEventListener('keydown', (event) => onRowKey(event, snippet));

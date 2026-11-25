@@ -93,7 +93,8 @@ svg {
   align-items: center;
   gap: 4px;
   min-height: 36px;
-  padding: 4px 4px 0 8px;
+  padding-block: 4px 0;
+  padding-inline: 8px 4px;
 }
 
 .caption {
@@ -101,11 +102,17 @@ svg {
   color: var(--text-default);
   font-size: var(--font-small);
   font-weight: 700;
-  padding-left: 2px;
-  text-transform: capitalize;
+  padding-inline-start: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* English capitalizes each word of the caption and of the "new" and "edited" labels. Other
+   languages keep the case of their translation, so French shows "Insérer un extrait". */
+:lang(en) .caption,
+:lang(en) .item-label {
+  text-transform: capitalize;
 }
 
 .icon-button {
@@ -211,6 +218,12 @@ svg {
   color: var(--text-disabled);
 }
 
+/* An abbreviation is typed left to right, but while the input is empty it shows a sentence in the
+   language of the page, so in a right-to-left language that sentence reads right to left. */
+:root[dir="rtl"] .input-abbreviation:placeholder-shown {
+  direction: rtl;
+}
+
 .error {
   margin: 4px 8px;
   padding: 6px 8px;
@@ -263,7 +276,7 @@ svg {
   border: 0;
   font: inherit;
   font-size: var(--font-small);
-  text-align: left;
+  text-align: start;
   background: var(--bg-neutral);
 }
 
@@ -294,7 +307,7 @@ svg {
 
 .item-caption {
   height: 20px;
-  margin-right: 8px;
+  margin-inline-end: 8px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -302,10 +315,9 @@ svg {
 }
 
 .item-label {
-  margin-left: 4px;
+  margin-inline-start: 4px;
   color: var(--text-selected);
   font-weight: 600;
-  text-transform: capitalize;
 }
 
 .item-main {
@@ -463,7 +475,7 @@ svg {
 }
 
 .placeholder-label {
-  margin-right: 2px;
+  margin-inline-end: 2px;
 }
 
 .placeholder-pill {
@@ -601,7 +613,7 @@ svg {
 
 .count {
   margin: 0 12px 2px;
-  text-align: right;
+  text-align: end;
   color: var(--text-subtle);
   font-size: var(--font-small);
 }
