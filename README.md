@@ -418,7 +418,10 @@ npm run test:locales  # checks every language folder in extension/_locales
 
 The layout tests in `tests/e2e/locales.spec.js` load a copy of the extension whose English text is
 replaced by a pseudo-language: one about 40 percent longer, and one written from right to left. They
-check that the panel, the manager, and the page notices fit and mirror. The right-to-left one also
+check that the panel, the manager, and the page notices fit and mirror, including the manager's
+formatting toolbar and link bar, and the manager at 800 pixels wide, where the list sits above the
+editor. In the longer one, every text that is not snippet text must carry its marks, so a text the
+code builds itself, outside the catalog, fails the test. The right-to-left one also
 runs with Persian digits, to check that every count and position on the pages and in a notice is
 written in the digits of the interface language. `npm run test:locales` checks the real language
 folders and passes while only English is present. It lets a translation write a fixed number, such

@@ -86,6 +86,52 @@ async function expectFit(locator, where) {
   expect(await layoutProblems(locator), where).toEqual([]);
 }
 
+// Text that may show without the marks of the stretched language: the snippets' own text, the
+// extension's name, which is not translated, and the shortcut the browser names.
+const NOT_FROM_CATALOG = [
+  ...SNIPPETS.flatMap((snippet) => [snippet.title, ...snippet.content.split('\n'), snippet.abbreviation, snippet.folder]),
+  'Name',
+  'Order',
+  'Snippet Inserter',
+  'Ctrl+Shift+Space',
+].filter(Boolean);
+
+/**
+ * Finds text in the stretched language that did not come from the message catalog: an element
+ * whose own text, with the keys inside it, has Latin letters but neither mark of the stretched
+ * language, and a title, aria-label, or placeholder attribute without them. Snippet text, the text
+ * of a select's options, which name code languages, and addresses given as examples are left out.
+ */
+async function untranslated(locator, allowed = NOT_FROM_CATALOG) {
+  return locator.evaluate((root, known) => {
+    const doc = root.ownerDocument;
+    const found = [];
+    const name = (element) => `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ''}${element.className && typeof element.className === 'string' ? `.${element.className.trim().split(/\s+/).join('.')}` : ''}`;
+    const marked = (text) => text.includes('⟦') || text.includes('⟧');
+    const exempt = (text) =>
+      !/[A-Za-z]{2,}/.test(text) || known.some((k) => text.startsWith(k)) || /^(\{[^}]*\}\s*)+$/.test(text) || /^(https:\/\/)?example\.com$/.test(text);
+    for (const element of doc.body.querySelectorAll('*')) {
+      if (element.closest('[hidden], option, kbd, textarea, [contenteditable], .fill-preview, script, style')) continue;
+      if (getComputedStyle(element).display === 'none') continue;
+      const own = [...element.childNodes]
+        .map((node) => (node.nodeType === Node.TEXT_NODE ? node.textContent : node.nodeName === 'KBD' ? node.textContent : ''))
+        .join('')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (own && !marked(own) && !exempt(own)) found.push(`${name(element)}: ${own}`);
+      for (const attribute of ['title', 'aria-label', 'placeholder']) {
+        const value = element.getAttribute(attribute);
+        if (value && !marked(value) && !exempt(value)) found.push(`${name(element)}[${attribute}]: ${value}`);
+      }
+    }
+    return found;
+  }, allowed);
+}
+
+async function expectTranslated(locator, where) {
+  expect(await untranslated(locator), `${where}: text that is not from the catalog`).toEqual([]);
+}
+
 async function openEditForm(panel, name) {
   const item = panel.locator('.list .item', { hasText: name });
   await item.hover();
@@ -95,6 +141,12 @@ async function openEditForm(panel, name) {
 for (const kind of ['stretched', 'mirrored']) {
   const test = testWith(kind);
 
+  // Checks that a view fits, and in the stretched language that all its text is from the catalog.
+  const expectView = async (locator, where) => {
+    await expectFit(locator, where);
+    if (kind === 'stretched') await expectTranslated(locator, where);
+  };
+
   test.describe(`${kind} pseudo-language`, () => {
     test('the panel fits in the list, the create form, the edit form, the fill-in form, and with Undo', async ({ page, serviceWorker }) => {
       await seedSnippets(serviceWorker, SNIPPETS);
@@ -103,21 +155,21 @@ for (const kind of ['stretched', 'mirrored']) {
       const body = panel.locator('body');
       await expect(panel.locator('.list .item')).toHaveCount(4);
       if (kind === 'stretched') await expect(panel.locator('#caption')).toContainText('⟦');
-      await expectFit(body, 'list');
+      await expectView(body, 'list');
 
       await openEditForm(panel, 'Address');
       await expect(panel.locator('textarea.input-content')).toBeVisible();
-      await expectFit(body, 'edit form');
+      await expectView(body, 'edit form');
       await panel.locator('.item-danger').click();
       await expect(panel.locator('#undoBar')).toBeVisible();
-      await expectFit(body, 'list with Undo');
+      await expectView(body, 'list with Undo');
 
       await pressInPanel(page, '1', { ctrl: true });
       await expect(panel.locator('textarea.input-content')).toBeVisible();
-      await expectFit(body, 'create form');
+      await expectView(body, 'create form');
       await panel.locator('textarea.input-content').fill('x');
       await panel.locator('.input-title').fill('A name that is long enough to need more than one line in a narrow box');
-      await expectFit(body, 'create form with a long name');
+      await expectView(body, 'create form with a long name');
     });
 
     test('the fill-in form fits', async ({ page, serviceWorker }) => {
@@ -126,25 +178,45 @@ for (const kind of ['stretched', 'mirrored']) {
       const panel = await openPanel(page);
       await panel.locator('.list .item', { hasText: 'Reply' }).click();
       await expect(panel.locator('.fill-input').first()).toBeVisible();
-      await expectFit(panel.locator('body'), 'fill-in form');
+      await expectView(panel.locator('body'), 'fill-in form');
     });
 
-    test('the manager fits in its three views', async ({ context, extensionId, serviceWorker }) => {
-      await seedSnippets(serviceWorker, SNIPPETS);
-      const manager = await openManager(context, extensionId);
-      await expect(manager.locator('#snippetList .row')).toHaveCount(3);
-      await expectFit(manager.locator('body'), 'snippet list');
-      await manager.locator('#snippetList .row').first().click();
-      await expect(manager.locator('#content')).toBeVisible();
-      await expectFit(manager.locator('body'), 'editor');
-      await manager.locator('#formatted').check().catch(() => {});
+    // Below 900 pixels the manager puts the list above the editor.
+    for (const width of [1000, 800]) {
+      test(`the manager fits in its three views, ${width} pixels wide`, async ({ context, extensionId, serviceWorker }) => {
+        await seedSnippets(serviceWorker, SNIPPETS);
+        const manager = await openManager(context, extensionId);
+        await manager.setViewportSize({ width, height: 720 });
+        const body = manager.locator('body');
+        await expect(manager.locator('#snippetList .row')).toHaveCount(3);
+        await expectView(body, 'snippet list');
+        await manager.locator('#snippetList .row').first().click();
+        await expect(manager.locator('#content')).toBeVisible();
+        await expectView(body, 'editor');
 
-      for (const view of ['deleted', 'settings']) {
-        await manager.goto(`chrome-extension://${extensionId}/options.html#${view}`);
-        await expect(manager.locator(`#view-${view}`)).toBeVisible();
-        await expectFit(manager.locator('body'), view);
-      }
-    });
+        // The formatting toolbar, its hint, and the language menu of a code block.
+        await manager.locator('#formatted').check();
+        await expect(manager.locator('#toolbar')).toBeVisible();
+        await expect(manager.locator('#formatHint')).toBeVisible();
+        await manager.locator('#richContent').click();
+        await manager.locator('#toolbar [data-tool="codeBlock"]').click();
+        await expect(manager.locator('#codeLanguage')).toBeEnabled();
+        await expectView(body, 'formatted editor');
+
+        // The link bar with its error.
+        await manager.locator('#toolbar [data-tool="link"]').click();
+        await expect(manager.locator('#linkBar')).toBeVisible();
+        await manager.locator('#linkApply').click();
+        await expect(manager.locator('#linkError')).toBeVisible();
+        await expectView(body, 'link bar');
+
+        for (const view of ['deleted', 'settings']) {
+          await manager.goto(`chrome-extension://${extensionId}/options.html#${view}`);
+          await expect(manager.locator(`#view-${view}`)).toBeVisible();
+          await expectView(body, view);
+        }
+      });
+    }
 
     test('a page notice fits', async ({ page, pagesUrl, serviceWorker }) => {
       await page.goto(`${pagesUrl}/article.html`);
