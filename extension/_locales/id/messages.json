@@ -863,7 +863,7 @@
     "description": "Button that opens the browser page where extension shortcuts are changed."
   },
   "shortcutNote": {
-    "message": "Membuka panel cuplikan di kolom yang sedang Anda ketik, seperti tekan dua kali.",
+    "message": "Membuka panel cuplikan di kolom yang sedang Anda ketik, seperti fitur tekan dua kali.",
     "description": "Text under the keyboard shortcut setting."
   },
   "expandAbbreviations": {
