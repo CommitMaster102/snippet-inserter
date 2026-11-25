@@ -1,10 +1,10 @@
 # Translation glossary
 
 This file fixes how each recurring term of Snippet Inserter is translated into the 29 languages
-besides English. Translators of `extension/_locales/<code>/messages.json`, and of the Chrome Web Store
-description, use it together with the
-English catalog, `extension/_locales/en/messages.json`. The description on each English message
-says where the text appears, what each `$PLACEHOLDER$` holds, and how long the text may be.
+besides English. Translators of `extension/_locales/<code>/messages.json`, and of the Chrome Web
+Store description, use it together with the English catalog, `extension/_locales/en/messages.json`.
+The description on each English message says where the text appears, what each `$PLACEHOLDER$`
+holds, and how long the text may be.
 
 ## How to use it
 

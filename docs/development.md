@@ -20,16 +20,16 @@ The layout tests in `tests/e2e/locales.spec.js` load a copy of the extension who
 replaced by a pseudo-language: one about 40 percent longer, and one written from right to left. They
 check that the panel, the manager, and the page notices fit and mirror, including the manager's
 formatting toolbar and link bar, and the manager at 800 pixels wide, where the list sits above the
-editor. In the longer one, every text that is not snippet text must start with ⟦ and end with ⟧,
-so a text the code builds itself, outside the catalog, fails the test. The right-to-left one also runs with
-Persian digits, to check that every count and position on the pages and in a notice is written in
-the digits of the interface language. Another test gives Ctrl and the Mac Command key other names in
-the catalog, in a browser that reports a Mac, and checks that the formatting toolbar's shortcuts and
-the notes in the settings use the catalog's name for the Command key.
+editor. In the longer one, every text that is not snippet text must start with ⟦ and end with ⟧, so
+a text the code builds itself, outside the catalog, fails the test. The right-to-left one also runs
+with Persian digits, to check that every count and position on the pages and in a notice is written
+in the digits of the interface language. Another test gives Ctrl and the Mac Command key other names
+in the catalog, in a browser that reports a Mac, and checks that the formatting toolbar's shortcuts
+and the notes in the settings use the catalog's name for the Command key.
 
-The check behind `npm run test:locales` lets a translation write a fixed number, such as the 20 of Recently deleted, in the digits of its language,
-and a key name, such as Ctrl or Cmd, as keyboards in its language print it, the same way in every
-message and with no space around a plus sign.
+The check behind `npm run test:locales` lets a translation write a fixed number, such as the 20 of
+Recently deleted, in the digits of its language, and a key name, such as Ctrl or Cmd, as keyboards
+in its language print it, the same way in every message and with no space around a plus sign.
 
 `extension/lib/richtext.js` parses HTML with the browser's own parser, so its unit tests,
 `tests/e2e/richtext.spec.js`, run in Playwright's Chromium with `npm test` instead of in Node.
@@ -192,7 +192,7 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
   `content.js` has grown since then.
 - **What loads where**: every frame gets `content.js`, 21,815 bytes (about 21.8 KB), which only
   watches for the double tap, the shortcut, the menu items, and abbreviations. `content-main.js`,
-  53,323 bytes (about 53.3 KB), loads only in a frame where the panel opens or an abbreviation
+  54,130 bytes (about 54.1 KB), loads only in a frame where the panel opens or an abbreviation
   matches. `lib/richtext.js`, 39,716 bytes (about 39.7 KB), loads only in a frame where a formatted
   snippet goes into a rich-text editor or a Google Docs document, or where an abbreviation is typed
   into a rich-text editor for a snippet that includes others while any snippet is formatted. Prism

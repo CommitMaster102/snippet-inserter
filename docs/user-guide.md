@@ -95,10 +95,10 @@ saved as `mail.example.com`. A site includes its subdomains, so `example.com` al
 counts as off when its own site or the site of the top page is on the list, so listing
 `docs.google.com` covers Google Docs. On a listed site the keyboard shortcut and the "Insert
 snippet..." menu item still open the panel, and the extension's script still loads there; it only
-stops reacting to the double tap and to abbreviations. On such a site the panel's button is a
-power symbol in the brand color, and clicking it turns the site back on, as does "Turn on" in the list. When the page is a subdomain, the button
-names the list entry that covers it. The list is part of the settings, which a backup does not
-include.
+stops reacting to the double tap and to abbreviations. On such a site the panel's button is a power
+symbol in the brand color, and clicking it turns the site back on, as does "Turn on" in the list.
+When the page is a subdomain, the button names the list entry that covers it. The list is part of
+the settings, which a backup does not include.
 
 ## Placeholders
 
@@ -283,8 +283,9 @@ refused with a message to update the extension.
 The panel, the snippet manager, the right-click menu items, the shortcut's description, and the
 notices on pages use your browser's display language when Snippet Inserter has it, and English
 otherwise. Chrome makes that choice, so the extension has no language setting. To change the
-language, change the browser's display language and restart the browser. The name stays "Snippet Inserter" in every language, and
-placeholders such as `{date}` and `{input:Label}` are written the same way in every language.
+language, change the browser's display language and restart the browser. The name stays "Snippet
+Inserter" in every language, and placeholders such as `{date}` and `{input:Label}` are written the
+same way in every language.
 
 Snippet Inserter has these 29 languages besides English. In Arabic and Persian, the panel and the
 manager are mirrored to read from right to left. In every interface language, snippet names,

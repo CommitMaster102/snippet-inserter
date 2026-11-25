@@ -62,8 +62,8 @@ describes search, folders, the forms, and every shortcut.
 - [No length limit](docs/user-guide.md#limits) on a snippet's text.
 - The interface in [29 languages besides English](docs/user-guide.md#languages).
 
-## Formatting
 
+You add formatting in the snippet manager. Snippets made in the snippet panel are plain.
 A snippet is formatted in the snippet manager, and snippets made in the snippet panel are plain.
 A rich-text editor, such as webmail, and a Google Docs document get the formatting, and each keeps
 as much of it as it supports. A text box and a single-line field get the plain text. The
