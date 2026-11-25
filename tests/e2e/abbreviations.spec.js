@@ -76,6 +76,61 @@ test('expands in an editor that reads the selection from selectionchange', async
   await expect(page.locator('#trackingEditor')).toHaveText('Editor: Tea time');
 });
 
+// Types each character of `keys` into the editor `selector` 5 ms after the expansion selects
+// `typed`, while the insert waits for the editor to take the selection. For each key the page does
+// what the browser does: it sends a cancelable "beforeinput" event and, unless a listener cancels
+// it, inserts the character in place of the selection. With `collapse`, the page then moves the
+// caret to the end of the selection, so the selection no longer covers the abbreviation.
+async function typeDuringExpansion(page, selector, typed, keys, { collapse = false } = {}) {
+  await page.evaluate(
+    ([editorSelector, abbreviation, characters, moveCaret]) => {
+      const editor = document.querySelector(editorSelector);
+      const onSelectionChange = () => {
+        const selection = getSelection();
+        if (!selection.rangeCount || !editor.contains(selection.anchorNode)) return;
+        if (selection.toString() !== abbreviation) return;
+        document.removeEventListener('selectionchange', onSelectionChange);
+        setTimeout(() => {
+          for (const key of characters) {
+            const init = { inputType: 'insertText', data: key, bubbles: true, cancelable: true, composed: true };
+            if (editor.dispatchEvent(new InputEvent('beforeinput', init))) {
+              document.execCommand('insertText', false, key);
+            }
+          }
+          if (moveCaret) getSelection().collapseToEnd();
+        }, 5);
+      };
+      document.addEventListener('selectionchange', onSelectionChange);
+    },
+    [selector, typed, keys, collapse]
+  );
+}
+
+for (const [where, editor] of [
+  ['a rich editor', '#pasteEditor'],
+  ['an editor that reads the selection from selectionchange', '#trackingEditor'],
+]) {
+  test(`in ${where}, a key typed while the selection settles goes in after the snippet`, async ({ page, serviceWorker }) => {
+    await seedSnippets(serviceWorker, [{ content: 'Tea time', abbreviation: ';tt' }]);
+    await ready(page, () => caretAtEndOf(page, editor));
+    await typeDuringExpansion(page, editor, ';tt', '!');
+    await page.keyboard.type(' ;tt');
+    await expect(page.locator(editor)).toHaveText('Editor: Tea time!');
+    await page.waitForTimeout(100);
+    await expect(page.locator(editor)).toHaveText('Editor: Tea time!');
+  });
+}
+
+test('keys typed before a rich-editor expansion gives up go in after the abbreviation, in order', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: 'Tea time', abbreviation: ';tt' }]);
+  await ready(page, () => caretAtEndOf(page, '#pasteEditor'));
+  await typeDuringExpansion(page, '#pasteEditor', ';tt', '!?', { collapse: true });
+  await page.keyboard.type(' ;tt');
+  await expect(page.locator('#pasteEditor')).toHaveText('Editor: ;tt!?');
+  await page.waitForTimeout(100);
+  await expect(page.locator('#pasteEditor')).toHaveText('Editor: ;tt!?');
+});
+
 test('a snippet with fill-in fields opens its fill-in form', async ({ page, serviceWorker }) => {
   await seedSnippets(serviceWorker, SNIPPETS);
   await ready(page, () => selectInTextarea(page, '#plain', 11));

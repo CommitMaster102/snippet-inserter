@@ -26,6 +26,9 @@ export function create(shared) {
   // Editors read the selection on "selectionchange", which fires after a task, so the insert
   // waits briefly after restoring the selection.
   const SELECTION_SETTLE_MS = 20;
+  // The "beforeinput" types of the keys that an insert into a rich editor holds back until it is
+  // done: typed text, Enter, and Shift+Enter. See holdTyping().
+  const HELD_INPUT_TYPES = new Set(['insertText', 'insertParagraph', 'insertLineBreak']);
   // The characters that count as an existing space when deciding whether to pad a snippet:
   // the no-break space, the ordinary space, the thin space, and the narrow no-break space. They
   // are built from code points so the source contains no invisible characters.
@@ -546,14 +549,54 @@ export function create(shared) {
       if (caret !== null) ctx.el.setSelectionRange(ctx.start + caret, ctx.start + caret);
       return;
     }
-    await wait(SELECTION_SETTLE_MS);
-    if (!stillReplaces(ctx)) return;
-    pasteIntoRichEditor(ctx, text);
-    if (caret !== null) {
-      // Editors that handle the paste themselves may update the page a moment later.
+    const hold = holdTyping(ctx);
+    try {
       await wait(SELECTION_SETTLE_MS);
-      moveCaretBack(ctx, text.length - caret);
+      if (!stillReplaces(ctx)) return;
+      pasteIntoRichEditor(ctx, text);
+      // Editors that handle the paste themselves may update the page a moment later, so the caret
+      // moves to {cursor}, and held keys are typed, only after that.
+      if (caret !== null || hold.typed()) await wait(SELECTION_SETTLE_MS);
+      if (caret !== null) moveCaretBack(ctx, text.length - caret);
+    } finally {
+      hold.release();
     }
+  }
+
+  // Holds back what the user types into a rich editor while an insert runs. The insert selects the
+  // text it replaces and waits for the editor to read the selection, and a key typed in that time
+  // would replace the selected text. Until release(), typed text, Enter, and Shift+Enter aimed at
+  // the field are cancelled and kept. release() types them at the caret, in order: after the
+  // snippet, at its {cursor} if it has one, or, when the insert gave up, after the text it would
+  // have replaced. If the selection has left the field by then, they are not typed.
+  function holdTyping(ctx) {
+    const doc = ctx.el.ownerDocument;
+    const win = doc.defaultView;
+    const kept = [];
+    const onBeforeInput = (event) => {
+      if (!HELD_INPUT_TYPES.has(event.inputType) || !event.cancelable) return;
+      if (!event.composedPath().includes(ctx.el)) return;
+      event.preventDefault();
+      // The editor's own handler must not insert the text as well.
+      event.stopImmediatePropagation();
+      kept.push({ type: event.inputType, data: event.data });
+    };
+    win.addEventListener('beforeinput', onBeforeInput, true);
+    return {
+      typed: () => kept.length > 0,
+      release() {
+        win.removeEventListener('beforeinput', onBeforeInput, true);
+        if (!kept.length) return;
+        const selection = selectionFor(ctx.el);
+        if (!selection || !selection.rangeCount || !ctx.el.contains(selection.focusNode)) return;
+        // Text that is still selected stays, and the held keys go in after it.
+        if (!selection.isCollapsed) selection.collapseToEnd();
+        for (const { type, data } of kept) {
+          if (type !== 'insertText') doc.execCommand(type);
+          else if (data) doc.execCommand('insertText', false, data);
+        }
+      },
+    };
   }
 
   // Whether the selection still covers exactly `ctx.replaces`, the typed text that an
