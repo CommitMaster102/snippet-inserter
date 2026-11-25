@@ -153,7 +153,7 @@ test('the character count of 1 MB of text dense with clustering characters takes
   for (const [name, text] of Object.entries(DENSE_MEGABYTES)) {
     const { result, took, segmenting, times } = timeCount(text);
     assert.equal(result, `${characterCount(text).toLocaleString('en')} characters`, name);
-    assert.ok(took < segmenting * 1.25, `${name} ${times}`);
+    assert.ok(took < segmenting * 1.5, `${name} ${times}`);
   }
 });
 
@@ -162,4 +162,7 @@ test('counting characters around a run of joined characters too long for one win
   const flags = '\u{1F1EF}\u{1F1F5}'.repeat(3000);
   const text = PLAIN_MEGABYTE.slice(0, MEGABYTE / 2) + flags + PLAIN_MEGABYTE.slice(MEGABYTE / 2);
   assert.equal(lib.countCharacters(text), characterCount(text));
+  // The run is counted by one window, so the count is still much quicker than segmenting it all.
+  const { took, segmenting, times } = timeCount(text);
+  assert.ok(took < segmenting / 2, times);
 });

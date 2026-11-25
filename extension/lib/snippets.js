@@ -693,11 +693,6 @@
   // joining character in 30 units.
   const CLUSTER_WINDOW_SPAN = 128;
 
-  // A window longer than this many units also makes the count segment the whole text. The limit
-  // on joining characters already keeps each window under about text.length / 64 units, so this
-  // applies only to texts over about 256 KB, where it bounds the work spent on one window.
-  const CLUSTER_WINDOW_MAX = 4096;
-
   // The number of code points in the text.
   function countCodePoints(text) {
     let count = text.length;
@@ -732,7 +727,8 @@
   // itself followed by one. Every code point that joins makes the count one lower, so the window's
   // code points minus its characters are taken off. The joining characters are found and counted
   // before any window is segmented, so a text with too many of them goes straight to segmenting
-  // the whole text.
+  // the whole text. That limit also keeps every window under about text.length / 32 units, so no
+  // separate limit on the length of a window is needed.
   function countCharacters(text) {
     const joiners = [];
     CLUSTER_JOINERS.lastIndex = 0;
@@ -748,7 +744,6 @@
       const start = previousPointStart(text, index);
       end = index + (text.codePointAt(index) > 0xffff ? 2 : 1);
       while (end < text.length) {
-        if (end - start > CLUSTER_WINDOW_MAX) return graphemes(text).length;
         const point = text.codePointAt(end);
         end += point > 0xffff ? 2 : 1;
         if (!CLUSTER_JOINER.test(String.fromCodePoint(point)) && !joinsAt(text, end)) break;
