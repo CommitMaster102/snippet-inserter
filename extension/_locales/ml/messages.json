@@ -667,7 +667,7 @@
     }
   },
   "formatHint": {
-    "message": "വെബ്മെയിലും $GOOGLE_DOCS$-ഉം പോലുള്ള റിച്ച് ടെക്‌സ്റ്റ് എഡിറ്ററുകളിൽ ഈ ഫോർമാറ്റിംഗ് അതേപടി വരും. ടെക്‌സ്റ്റ് ബോക്‌സുകളിൽ പ്ലെയിൻ ടെക്‌സ്റ്റ് ആയാണ് ചേർക്കുക: ബുള്ളറ്റുകൾ ഡോട്ടുകളായും ഓരോ ലിങ്കിന്റെയും വിലാസം അതിനു ശേഷം ബ്രാക്കറ്റിലും.",
+    "message": "വെബ്മെയിലും $GOOGLE_DOCS$-ഉം പോലുള്ള റിച്ച് ടെക്‌സ്റ്റ് എഡിറ്ററുകളിൽ ഈ ഫോർമാറ്റിംഗ് വരും. ടെക്‌സ്റ്റ് ബോക്‌സുകളിൽ പ്ലെയിൻ ടെക്‌സ്റ്റ് ആയാണ് ചേർക്കുക: ബുള്ളറ്റുകൾ ഡോട്ടുകളായും ഓരോ ലിങ്കിന്റെയും വിലാസം അതിനു ശേഷം ബ്രാക്കറ്റിലും.",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {

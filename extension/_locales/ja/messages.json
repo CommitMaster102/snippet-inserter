@@ -627,7 +627,7 @@
     }
   },
   "formatHint": {
-    "message": "ウェブメールや $GOOGLE_DOCS$ などのリッチテキスト エディタには、この書式のまま挿入されます。テキスト ボックスには、箇条書きの項目に「•」を付け、各リンクのアドレスをリンクの後ろに括弧で囲んで加えた書式なしテキストが挿入されます。",
+    "message": "ウェブメールや $GOOGLE_DOCS$ などのリッチテキスト エディタには、この書式で挿入されます。テキスト ボックスには、箇条書きの項目に「•」を付け、各リンクのアドレスをリンクの後ろに括弧で囲んで加えた書式なしテキストが挿入されます。",
     "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
     "placeholders": {
       "google_docs": {
