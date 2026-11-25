@@ -12,6 +12,7 @@ const {
   doubleTap,
   openPanel,
   waitForPanelFit,
+  waitForStablePanel,
   pressInPanel,
   expectPanelClosed,
   openManager,
@@ -293,6 +294,7 @@ test('turning a site off from a panel in a visible frame stops the frame, named 
     await expect(panel).toBeAttached({ timeout: 1000 });
   }).toPass({ timeout: 10_000 });
   await expect(panel).toHaveCSS('opacity', '1');
+  await waitForStablePanel(page, panel);
   await waitForPanelFit(page, frame.frameLocator(PANEL), panel);
   const button = frame.frameLocator(PANEL).locator('#site');
   await expect(button).toHaveAttribute('title', OFF_TITLE('frames.test'));

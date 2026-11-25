@@ -347,8 +347,12 @@ When the panel changes view, its frame grows in a step that the browser needs a 
 apply, and a click computed in that time lands on the page underneath and is lost. Before a test
 clicks into a form or the header after the panel opens or changes view, call
 `waitForPanelFit(page, panel)` from `tests/e2e/helpers.js`. It waits until the panel's viewport
-and its frame match the height of its content. `openPanel` already calls it. For a panel inside
-another frame, pass that frame's iframe locator as the third argument.
+and its frame match the height of its content. That does not yet mean the browser sends clicks
+there to the panel: for a few frames after the panel opens, the browser can still route them by
+the frame's old size. Before clicking into a panel that has just opened, call
+`waitForStablePanel(page)` first; it waits until the frame has kept its size for 100 ms.
+`openPanel` calls both. For a panel inside another frame, pass that frame's iframe locator as
+the last argument to each.
 
 ## Contributing
 

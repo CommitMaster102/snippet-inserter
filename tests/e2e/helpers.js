@@ -109,6 +109,10 @@ async function openPanel(page, key = 'Control') {
  * from the panel's content in that time lands on the page underneath and is lost. Call this
  * after the new view is on screen (for example after expecting its caption) and before clicking
  * into its lower part. Pass the iframe locator when the panel is inside another frame.
+ *
+ * This checks the layout only. The browser picks the process that gets a click from its own
+ * record of where the panel's frame is, which can lag a few frames behind the panel's viewport,
+ * so a panel that has just opened also needs waitForStablePanel first, as openPanel does.
  */
 async function waitForPanelFit(page, panel, iframe = page.locator(PANEL)) {
   await expect
@@ -129,14 +133,16 @@ async function waitForPanelFit(page, panel, iframe = page.locator(PANEL)) {
 /**
  * Wait until the panel's frame keeps the same position and size for 100 ms.
  *
- * The panel runs in its own process, and right after its frame is resized the browser can still
- * send a click to the page underneath, which closes the panel. A person cannot click that fast;
- * a test can.
+ * The panel runs in its own process. The browser sends each click to a process according to its
+ * own record of where the panel's frame is, and right after the frame appears or is resized, that
+ * record can lag up to about 4 frames behind. A click in that time goes to the page that holds
+ * the frame, where it is lost or closes the panel. A person cannot click that fast; a test can.
+ * Pass the iframe locator when the panel is inside another frame.
  */
-async function waitForStablePanel(page) {
+async function waitForStablePanel(page, iframe = page.locator(PANEL)) {
   let previous = null;
   await expect(async () => {
-    const box = await page.locator(PANEL).boundingBox();
+    const box = await iframe.boundingBox();
     const same = previous && box && ['x', 'y', 'width', 'height'].every((k) => box[k] === previous[k]);
     previous = box;
     expect(same).toBe(true);
@@ -195,6 +201,7 @@ module.exports = {
   doubleTap,
   openPanel,
   waitForPanelFit,
+  waitForStablePanel,
   pressInPanel,
   openManager,
   expectPanelClosed,
