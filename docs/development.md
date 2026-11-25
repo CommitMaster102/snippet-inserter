@@ -20,13 +20,14 @@ The layout tests in `tests/e2e/locales.spec.js` load a copy of the extension who
 replaced by a pseudo-language: one about 40 percent longer, and one written from right to left. They
 check that the panel, the manager, and the page notices fit and mirror, including the manager's
 formatting toolbar and link bar, and the manager at 800 pixels wide, where the list sits above the
-editor. In the longer one, every text that is not snippet text must carry its marks, so a text the
-code builds itself, outside the catalog, fails the test. The right-to-left one also runs with
+editor. In the longer one, every text that is not snippet text must start with ⟦ and end with ⟧,
+so a text the code builds itself, outside the catalog, fails the test. The right-to-left one also runs with
 Persian digits, to check that every count and position on the pages and in a notice is written in
 the digits of the interface language. Another test gives Ctrl and the Mac Command key other names in
 the catalog, in a browser that reports a Mac, and checks that the formatting toolbar's shortcuts and
-the notes in the settings use the catalog's name for the Command key. `npm run test:locales` lets a
-translation write a fixed number, such as the 20 of Recently deleted, in the digits of its language,
+the notes in the settings use the catalog's name for the Command key.
+
+The check behind `npm run test:locales` lets a translation write a fixed number, such as the 20 of Recently deleted, in the digits of its language,
 and a key name, such as Ctrl or Cmd, as keyboards in its language print it, the same way in every
 message and with no space around a plus sign.
 
@@ -36,6 +37,9 @@ message and with no space around a plus sign.
 Playwright cannot open the browser's own right-click menu or press an extension command, so the
 menu and shortcut tests call the service worker's handlers, which it exposes as
 `self.snippetInserter`. The real menu and shortcut call the same functions.
+
+The extension uses the selectors for Google Docs page elements only as hints, each with a
+fallback. They are in the `DOCS` constant at the top of `extension/content.js`.
 
 `tests/pages/docs.html` stands in for the Google Docs editor in `npm test`, and its query
 parameters imitate changes Google could make, such as a renamed input frame or a missing cursor.
@@ -121,14 +125,20 @@ tests/
 scripts/
   make-icons.py       Redraws extension/icons.
   check-locales.js    The check behind npm run test:locales.
+  check-release-docs.js  The release docs check that the pre-push hook runs.
+  install-hooks.js    Turns the hook on; npm install runs it.
   pseudo-locales.js   Makes the stretched and the mirrored pseudo-language for the layout tests.
 i18n/                 The width budgets of the interface text, for the language check.
 docs/
   user-guide.md       Every feature in detail.
+  doc-review.json     The version at which each Markdown file was last checked against the code.
   development.md      This page.
   translation-glossary.md
                       The glossary of fixed terms in each language.
   screenshots/        Screenshots used in the README and the user guide.
+CHANGELOG.md          What each version changes, for the people who use it.
+.githooks/            The pre-push hook that checks the docs when the version changes.
+.github/              The issue forms and the funding link.
 playwright.config.js        Configuration for npm test.
 playwright.live.config.js   Configuration for npm run test:docs-live.
 package.json
@@ -178,16 +188,16 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
 
 - **Each frame of a page**: the browser itself spends about 170 KB on any extension's content
   script. This extension's own code adds about 25 to 40 KB of memory and 0.2 to 0.6 ms of
-  script time when the frame loads. These two figures were measured on version 1.2.0 and are
-  measured again at each release.
+  script time when the frame loads. These two figures were measured on version 1.2.0, and
+  `content.js` has grown since then.
 - **What loads where**: every frame gets `content.js`, 21,815 bytes (about 21.8 KB), which only
   watches for the double tap, the shortcut, the menu items, and abbreviations. `content-main.js`,
   53,323 bytes (about 53.3 KB), loads only in a frame where the panel opens or an abbreviation
   matches. `lib/richtext.js`, 39,716 bytes (about 39.7 KB), loads only in a frame where a formatted
   snippet goes into a rich-text editor or a Google Docs document, or where an abbreviation is typed
   into a rich-text editor for a snippet that includes others while any snippet is formatted. Prism
-  loads only on the snippet manager page, never in a page you visit. The sizes are file sizes from `wc -c` and are
-  measured again at each release.
+  loads only on the snippet manager page, never in a page you visit. The sizes are file sizes from
+  `wc -c`, taken at each release.
 - **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
   press, so frames nobody types in, such as ads, never read storage. The snippet text is read
   only when the panel opens or an abbreviation matches.

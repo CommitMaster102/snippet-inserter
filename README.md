@@ -60,28 +60,24 @@ describes search, folders, the forms, and every shortcut.
 - [Export and import](docs/user-guide.md#backup) of every snippet in a JSON file.
 - Support for [Google Docs](docs/user-guide.md#google-docs) documents, but not Slides or Sheets.
 - [No length limit](docs/user-guide.md#limits) on a snippet's text.
-- The interface in [29 languages besides English](docs/user-guide.md#languages), chosen by the
-  browser's language.
+- The interface in [29 languages besides English](docs/user-guide.md#languages).
 
 ## Formatting
 
-In the snippet manager, a snippet can have bold, italic, underlined, and code text, links,
-bulleted and numbered lists, and code blocks. A code block that names a language has its keywords,
-strings, numbers, and comments colored. A rich-text editor, such as webmail, and a Google Docs
-document get the formatting, and each keeps as much of it as it supports. A text box and a
-single-line field get the plain text, with a bullet or a number before each list item and each
-link's address in parentheses after its text. Snippets made in the snippet panel are plain. The
+A snippet is formatted in the snippet manager, and snippets made in the snippet panel are plain.
+A rich-text editor, such as webmail, and a Google Docs document get the formatting, and each keeps
+as much of it as it supports. A text box and a single-line field get the plain text. The
 [user guide](docs/user-guide.md#formatting) describes the toolbar, the plain text, and which
 editors keep the colors.
 
 ## Languages
 
 The panel, the snippet manager, the right-click menu items, and the notices on pages use your
-browser's display language when Snippet Inserter has it, and English otherwise. Snippet Inserter
-has 29 languages besides English, and in Arabic and Persian the panel and the manager read from
-right to left. A language model drafted every translation. The
-[user guide](docs/user-guide.md#languages) lists the languages and the ones a native speaker has
-reviewed. Report a wrong or unclear translation with the
+browser's display language when Snippet Inserter has it, and English otherwise. In Arabic and
+Persian the panel and the manager read from right to left. A language model drafted every
+translation, and no translation has been reviewed by a native speaker yet. The
+[user guide](docs/user-guide.md#languages) lists the languages and will list the reviewed ones.
+Report a wrong or unclear translation with the
 [Translation problem form](https://github.com/CommitMaster102/snippet-inserter/issues/new?template=translation.yml).
 
 ## Contributing

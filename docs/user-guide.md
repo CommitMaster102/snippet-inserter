@@ -95,8 +95,8 @@ saved as `mail.example.com`. A site includes its subdomains, so `example.com` al
 counts as off when its own site or the site of the top page is on the list, so listing
 `docs.google.com` covers Google Docs. On a listed site the keyboard shortcut and the "Insert
 snippet..." menu item still open the panel, and the extension's script still loads there; it only
-stops reacting to the double tap and to abbreviations. On such a site the panel's button is a power symbol in the brand color, and clicking
-it turns the site back on, as does "Turn on" in the list. When the page is a subdomain, the button
+stops reacting to the double tap and to abbreviations. On such a site the panel's button is a
+power symbol in the brand color, and clicking it turns the site back on, as does "Turn on" in the list. When the page is a subdomain, the button
 names the list entry that covers it. The list is part of the settings, which a backup does not
 include.
 
@@ -276,16 +276,14 @@ added without the abbreviation. A folder that differs from one you have only in 
 so "work" goes into "Work". An imported snippet keeps only the formatting that a saved snippet can
 hold, and its plain text is taken from that formatting, so a file cannot show one text and insert
 another. A file from a newer version of the extension, in a format this version cannot read, is
-refused with a message to update the extension. Version 1.2.0 imports a file with formatted snippets
-and keeps their text without the formatting.
+refused with a message to update the extension.
 
 ## Languages
 
 The panel, the snippet manager, the right-click menu items, the shortcut's description, and the
 notices on pages use your browser's display language when Snippet Inserter has it, and English
 otherwise. Chrome makes that choice, so the extension has no language setting. To change the
-language, change the browser's display language and restart the browser. The right-click menu items
-change language only at that restart. The name stays "Snippet Inserter" in every language, and
+language, change the browser's display language and restart the browser. The name stays "Snippet Inserter" in every language, and
 placeholders such as `{date}` and `{input:Label}` are written the same way in every language.
 
 Snippet Inserter has these 29 languages besides English. In Arabic and Persian, the panel and the
@@ -356,10 +354,8 @@ editors:
 - Abbreviations do not expand, and `{cursor}` has no effect, because the text and the cursor
   position are not in the page.
 
-Docs has no documented interface for inserting text, so the extension relies first on how the
-browser delivers focus and pastes. It uses the selectors for Docs page elements only as hints,
-each with a fallback. Those selectors are in the `DOCS` constant at the top of
-`extension/content.js`. If Google changes the editor, the panel still opens: at the cursor when
+Docs has no documented interface for inserting text, so the extension relies on how the browser
+delivers focus and pastes. If Google changes the editor, the panel still opens: at the cursor when
 the extension can find it, and otherwise at your last click or at the top of the document. After
 each insert the extension checks that the Docs cursor moved. If it cannot confirm the insert, it
 copies the snippet's text, without formatting, to the clipboard and shows a notice asking you to

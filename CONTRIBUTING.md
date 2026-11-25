@@ -23,9 +23,9 @@ To fix the text yourself:
 1. Fork the repository and create a branch from `main`.
 2. Run `npm install`, then `npm run browsers` to download the browser the tests use.
 3. Load the `extension` folder as the ["Install from source" section of the README](README.md#install-from-source) describes, and try the change.
-4. Run `npm run test:unit` and `npm test`. A change in behavior needs a test that covers it. The [Tests section of docs/development.md](docs/development.md#tests) describes the suite.
-5. Write any text a person reads in `extension/_locales/en/messages.json`, with a note for translators in its `description`. The pages ask for it with `t()` and `plural()` from `lib/i18n.js` or a `data-i18n` attribute, and the content scripts with `chrome.i18n.getMessage`. Write the key as a string in the call, because `npm run test:unit` finds the keys in use that way. Put numbers, names, key names such as Ctrl, and syntax such as `{date}` in `$placeholders$`, and a message that is given a count needs plural forms. Format a number with `i18n.number` so it has the digits of the interface language.
-6. Leave `version` in `extension/manifest.json` unchanged. The version goes up when a release is uploaded to the Chrome Web Store.
+4. Run `npm run test:unit`, `npm run test:locales`, and `npm test`. A change in behavior needs a test that covers it. The [Tests section of docs/development.md](docs/development.md#tests) describes the suite.
+5. Write any text a person reads in `extension/_locales/en/messages.json`, with a note for translators in its `description`. The pages ask for it with `t()` and `plural()` from `lib/i18n.js` or a `data-i18n` attribute, and the content scripts with `chrome.i18n.getMessage`. Write the key as a string in the call, because `npm run test:unit` finds the keys in use that way. Put numbers, names, key names such as Ctrl, and syntax such as `{date}` in `$placeholders$`, and a message that is given a count needs plural forms. Format a number with `i18n.number` so it has the digits of the interface language. `npm run test:locales` reports every message that a translation lacks, so add the English text to each of the 29 other `messages.json` files too, or leave them and say so in the pull request.
+6. Leave `version` in `package.json` and `extension/manifest.json` unchanged. The version goes up when a release is uploaded to the Chrome Web Store.
 7. Open a pull request that says what changed and why.
 
 Contributions are licensed under the MIT license in [LICENSE](LICENSE).
