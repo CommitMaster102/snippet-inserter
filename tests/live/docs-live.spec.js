@@ -206,9 +206,23 @@ async function readDocumentHtml(page) {
   return html;
 }
 
+const ENTITIES = { '&nbsp;': ' ', '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
+
+/**
+ * The text of each <p> element in the HTML of a Docs copy, in order. Docs writes an empty
+ * paragraph as a <br> between the <p> elements, so it has no entry, and a line break inside a
+ * paragraph would join two lines into one entry.
+ */
+function paragraphTexts(html) {
+  return [...html.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)].map((match) =>
+    match[1].replace(/<[^>]*>/g, '').replace(/&(?:nbsp|amp|lt|gt|quot|#39);/g, (entity) => ENTITIES[entity])
+  );
+}
+
 // The formatted step. The extension inserts a formatted snippet into Docs as a paste that carries
 // its HTML beside its plain text. If this step fails while the first test passes, Docs no longer
-// takes the HTML of such a paste, or no longer keeps every space of a code block in it.
+// takes the HTML of such a paste, no longer makes each line of it a paragraph, or no longer keeps
+// every space of a code block in it.
 test('formatted step: a formatted snippet keeps its bold text, link, paragraphs, and code block in Docs', async ({
   context,
   page,
@@ -239,5 +253,14 @@ test('formatted step: a formatted snippet keeps its bold text, link, paragraphs,
   const html = await readDocumentHtml(page);
   expect(html, 'Docs dropped the bold text of the formatted snippet').toMatch(/font-weight:\s*700/);
   expect(html, 'Docs dropped the link of the formatted snippet').toContain('href="https://example.com/"');
+  // 2 lines of text and the 3 code lines that are not empty; the empty code line is a <br>.
+  expect((html.match(/<p\b/g) || []).length, 'Docs did not make each line of the formatted snippet a paragraph').toBe(5);
+  expect(paragraphTexts(html), 'Docs did not make each line of the formatted snippet a paragraph').toEqual([
+    'Plain, bold and link',
+    'Second line',
+    '  if (a) {',
+    '\treturn  1;',
+    '  }',
+  ]);
   expect(await page.evaluate(() => navigator.clipboard.readText()), 'the clipboard was written').toBe(CLIPBOARD_SENTINEL);
 });
