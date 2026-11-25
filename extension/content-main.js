@@ -47,39 +47,57 @@ export function create(shared) {
   let notice = null;
   let positionQueued = false;
 
-  // Selects `text` just before the caret, after checking that it is still there.
-  function selectTypedText(target, text) {
+  // The characters an input method may insert after the text it commits, with the same keystroke:
+  // a space, a no-break space, which is how a rich editor may store a space, or a line break.
+  const COMMIT_FOLLOWERS = [' ', String.fromCharCode(0x00a0), '\n'];
+
+  // What `before`, the text in front of the caret, has after `text`: '' when it ends with `text`,
+  // the one character of COMMIT_FOLLOWERS after `text` when `followed` allows one, or else null.
+  function textFollower(before, text, followed) {
+    if (before.endsWith(text)) return '';
+    const last = before.slice(-1);
+    return followed && COMMIT_FOLLOWERS.includes(last) && before.slice(0, -1).endsWith(text) ? last : null;
+  }
+
+  // Selects `text` just before the caret, after checking that it is still there. With `followed`,
+  // one character of COMMIT_FOLLOWERS may come after `text`, and it is selected too. Returns that
+  // character, '' when there is none, or null when `text` is not in front of the caret.
+  function selectTypedText(target, text, followed = false) {
     const el = target.el;
     const active = deepActiveElement(el.ownerDocument);
-    if (active !== el && !el.contains(active)) return false;
+    if (active !== el && !el.contains(active)) return null;
+    const reach = text.length + 1;
     if (isValueField(target)) {
       const caret = el.selectionStart;
-      if (caret === null || caret !== el.selectionEnd || caret < text.length) return false;
-      if (el.value.slice(caret - text.length, caret) !== text) return false;
-      el.setSelectionRange(caret - text.length, caret);
-      return true;
+      if (caret === null || caret !== el.selectionEnd) return null;
+      const follower = textFollower(el.value.slice(Math.max(0, caret - reach), caret), text, followed);
+      if (follower === null) return null;
+      el.setSelectionRange(caret - text.length - follower.length, caret);
+      return follower;
     }
     const selection = selectionFor(el);
-    if (!selection || !selection.isCollapsed || !selection.focusNode) return false;
+    if (!selection || !selection.isCollapsed || !selection.focusNode) return null;
     const node = selection.focusNode;
     const offset = selection.focusOffset;
-    if (node.nodeType !== Node.TEXT_NODE || offset < text.length) return false;
-    if (node.data.slice(offset - text.length, offset) !== text) return false;
+    if (node.nodeType !== Node.TEXT_NODE) return null;
+    const follower = textFollower(node.data.slice(Math.max(0, offset - reach), offset), text, followed);
+    if (follower === null) return null;
     const range = el.ownerDocument.createRange();
-    range.setStart(node, offset - text.length);
+    range.setStart(node, offset - text.length - follower.length);
     range.setEnd(node, offset);
     selection.removeAllRanges();
     selection.addRange(range);
-    return true;
+    return follower;
   }
 
   // Replaces the typed abbreviation with its snippet. This is the only time the content script
   // reads the snippet list. A snippet with fill-in fields opens the panel's fill-in form instead; the
   // abbreviation stays selected, so the insert replaces it. `delimiter` is the space the user
-  // typed after the abbreviation, or the space or line break an input method added when it
-  // committed. It is replaced too, and the insert puts back one plain space, or the line break,
-  // after the snippet.
-  async function expandAbbreviation(target, abbreviation, delimiter = '') {
+  // typed after the abbreviation. It is replaced too, and the insert puts back one plain space
+  // after the snippet. With `committed`, an input method committed the abbreviation, and the field
+  // is read only after the snippet is, because the space or line break of the committing keystroke
+  // may have arrived since. That character is replaced too, and the insert puts it back as it was.
+  async function expandAbbreviation(target, abbreviation, delimiter = '', committed = false) {
     let snippet = null;
     let list = [];
     try {
@@ -90,11 +108,11 @@ export function create(shared) {
     } catch {
       return;
     }
-    if (!snippet || panel || !extensionAlive() || !selectTypedText(target, abbreviation + delimiter)) return;
-    // The user typed the abbreviation where the text belongs, so no spaces are added. A line
-    // break the user typed stays a line break after the snippet, and other white space comes
-    // back as a plain space.
-    const suffix = delimiter === '\n' ? '\n' : delimiter ? ' ' : '';
+    if (!snippet || panel || !extensionAlive()) return;
+    const follower = selectTypedText(target, abbreviation + delimiter, committed);
+    if (follower === null) return;
+    // The user typed the abbreviation where the text belongs, so no spaces are added.
+    const suffix = committed ? follower : delimiter ? ' ' : '';
     const ctx = { ...captureContext(target), noSpacing: true, suffix };
     const { content } = placeholders.resolveReferences(snippet, list);
     if (placeholders.inputLabels(content).length) {

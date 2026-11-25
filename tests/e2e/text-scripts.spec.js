@@ -84,16 +84,24 @@ test('the notice for a field with a length limit counts a family emoji as one ch
 
 // A Korean input method commits a syllable on Space or Enter and inserts that space or line
 // break in the same keystroke. This sends the commit and the inserted character back to back,
-// before the timer that content.js sets on the commit can run.
-async function commitAndInsert(page, abbreviation, inserted) {
+// before the timer that content.js sets on the commit can run. With `delay`, the character
+// arrives that many milliseconds later instead, in a later task, as it does when the browser
+// gets the commit and the key as separate input messages.
+async function commitAndInsert(page, abbreviation, inserted, delay = null) {
   await page.locator('#plain').evaluate(
-    (el, [typed, extra]) => {
-      el.value = `Hello world ${typed}`;
-      el.setSelectionRange(el.value.length, el.value.length);
-      el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: typed }));
-      document.execCommand('insertText', false, extra);
-    },
-    [abbreviation, inserted]
+    (el, [typed, extra, ms]) =>
+      new Promise((resolve) => {
+        el.value = `Hello world ${typed}`;
+        el.setSelectionRange(el.value.length, el.value.length);
+        el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: typed }));
+        const insert = () => {
+          document.execCommand('insertText', false, extra);
+          resolve();
+        };
+        if (ms === null) insert();
+        else setTimeout(insert, ms);
+      }),
+    [abbreviation, inserted, delay]
   );
 }
 
@@ -111,4 +119,30 @@ test('an abbreviation committed together with a line break expands and keeps the
   await page.locator('#plain').focus();
   await commitAndInsert(page, '감사', '\n');
   await expect(page.locator('#plain')).toHaveValue('Hello world 감사합니다.\n');
+});
+
+for (const [name, inserted] of [['space', ' '], ['line break', '\n']]) {
+  for (const delay of [0, 1]) {
+    test(`an abbreviation expands when the ${name} after the commit arrives ${delay} ms later`, async ({ page, serviceWorker }) => {
+      await seedSnippets(serviceWorker, [{ content: '감사합니다.', abbreviation: '감사' }]);
+      await ready(page, () => selectInTextarea(page, '#plain', 11));
+      await page.locator('#plain').focus();
+      await commitAndInsert(page, '감사', inserted, delay);
+      await expect(page.locator('#plain')).toHaveValue(`Hello world 감사합니다.${inserted}`);
+    });
+  }
+}
+
+test('a tab or an ideographic space after the commit does not expand the abbreviation', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: '감사합니다.', abbreviation: '감사' }]);
+  await ready(page, () => selectInTextarea(page, '#plain', 11));
+  await page.locator('#plain').focus();
+  for (const inserted of ['\t', String.fromCharCode(0x3000)]) {
+    await commitAndInsert(page, '감사', inserted);
+    await page.waitForTimeout(300);
+    await expect(page.locator('#plain')).toHaveValue(`Hello world 감사${inserted}`);
+  }
+  // A space still expands it, so the listener was active.
+  await commitAndInsert(page, '감사', ' ');
+  await expect(page.locator('#plain')).toHaveValue('Hello world 감사합니다. ');
 });
