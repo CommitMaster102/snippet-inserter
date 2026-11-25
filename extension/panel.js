@@ -239,6 +239,8 @@ function setPrimary(label, action, keyHint) {
   els.footer.hidden = !label;
   els.primaryLabel.textContent = label || '';
   els.primaryKey.textContent = keyHint || '';
+  // A key name such as "Ctrl ↵" reads left to right in every language.
+  els.primaryKey.dir = 'ltr';
   els.primaryKey.hidden = !keyHint;
 }
 

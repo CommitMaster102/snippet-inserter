@@ -6,7 +6,8 @@
 
 const { expect } = require('@playwright/test');
 
-const PANEL = 'iframe[title="Snippets"]';
+// The panel frame is found by its address, because its title is in the language of the browser.
+const PANEL = 'iframe[src$="/panel.html"]';
 const STORAGE_KEY = 'snippet_manager.snippets';
 const DELETED_KEY = 'snippet_manager.deleted';
 const ABBREVIATIONS_KEY = 'snippet_manager.abbreviations';

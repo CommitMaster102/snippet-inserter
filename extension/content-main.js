@@ -324,6 +324,7 @@ export function create(shared) {
     });
     const box = document.createElement('div');
     box.setAttribute('role', 'status');
+    box.dir = msg('textDirection') === 'rtl' ? 'rtl' : 'ltr';
     box.textContent = message;
     setStyle(box, {
       font: '14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',

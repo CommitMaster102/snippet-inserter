@@ -123,6 +123,11 @@ svg {
   transition: background-color var(--speed) ease-in-out;
 }
 
+/* The Back arrow points toward the start of the line, so it turns around in a right-to-left language. */
+[dir="rtl"] #back svg {
+  transform: scaleX(-1);
+}
+
 .icon-button:hover {
   background: var(--bg-neutral);
 }

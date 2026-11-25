@@ -389,6 +389,7 @@ tests/
 scripts/
   make-icons.py       Redraws extension/icons.
   check-locales.js    The check behind npm run test:locales.
+  pseudo-locales.js   Makes the stretched and the mirrored pseudo-language for the layout tests.
 i18n/                 The width budgets of the interface text, for the language check.
 docs/screenshots/     Screenshots used in this README.
 playwright.config.js        Configuration for npm test.
@@ -409,6 +410,11 @@ npm run test:report   # open the HTML report of the last run
 npm run test:unit     # Node unit tests for extension/lib, no browser
 npm run test:locales  # checks every language folder in extension/_locales
 ```
+
+The layout tests in `tests/e2e/locales.spec.js` load a copy of the extension whose English text is
+replaced by a pseudo-language: one about 40 percent longer, and one written from right to left. They
+check that the panel, the manager, and the page notices fit and mirror. `npm run test:locales`
+checks the real language folders and passes while only English is present.
 
 `extension/lib/richtext.js` parses HTML with the browser's own parser, so its unit tests,
 `tests/e2e/richtext.spec.js`, run in Playwright's Chromium with `npm test` instead of in Node.
