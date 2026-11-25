@@ -54,6 +54,14 @@ test('counting characters gives the same number on the fast path and the segment
   for (const text of samples) assert.equal(lib.countCharacters(text), characterCount(text), JSON.stringify(text));
 });
 
+test('counting characters treats a lone surrogate as one character', () => {
+  const high = String.fromCharCode(0xd83d);
+  const low = String.fromCharCode(0xdc4d);
+  for (const text of ['aa' + high, high + 'a', low, high + high, low + high, 'a' + low + 'a', high + low]) {
+    assert.equal(lib.countCharacters(text), characterCount(text), JSON.stringify(text));
+  }
+});
+
 test('counting characters around a cluster matches the segmenter wherever a cluster sits', () => {
   const plain = 'The quick brown fox. ';
   const clusters = [

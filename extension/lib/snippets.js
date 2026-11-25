@@ -652,8 +652,11 @@
     for (let i = 0; i < text.length; i++) {
       const unit = text.charCodeAt(i);
       if (unit >= 0xd800 && unit <= 0xdbff) {
-        count--;
-        i++;
+        const next = text.charCodeAt(i + 1);
+        if (next >= 0xdc00 && next <= 0xdfff) {
+          count--;
+          i++;
+        }
       }
     }
     return count;
