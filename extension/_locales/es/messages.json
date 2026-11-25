@@ -1,0 +1,1711 @@
+{
+  "extName": {
+    "message": "Snippet Inserter",
+    "description": "The name of the extension. It is a product name and stays the same in every language."
+  },
+  "extDescription": {
+    "message": "Inserta fragmentos de texto guardados en cualquier campo de texto con una doble pulsación de $KEY$. Sin límite de longitud.",
+    "description": "One sentence shown on the extension page in the browser and in the Chrome Web Store. At most 132 characters, counting the key name. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Ctrl"
+      }
+    }
+  },
+  "commandOpenPanel": {
+    "message": "Abrir el panel de fragmentos",
+    "description": "The name of the keyboard shortcut on the browser page where people change extension shortcuts. At most 60 characters."
+  },
+  "localeCode": {
+    "message": "es",
+    "description": "The code of this language. Write the code of the folder this file is in, such as pt_BR. Used to choose plural forms and number formats."
+  },
+  "textDirection": {
+    "message": "ltr",
+    "description": "The direction of this language: ltr for left to right, rtl for right to left. It mirrors the panel and the manager."
+  },
+  "languageName": {
+    "message": "español",
+    "description": "The name of this language, written in this language, such as Deutsch for German."
+  },
+  "menuSaveSelection": {
+    "message": "Guardar selección como fragmento",
+    "description": "Right-click menu item shown when text on a page is selected. It opens the form for a new snippet that starts with that text. At most 50 characters."
+  },
+  "menuInsertSnippet": {
+    "message": "Insertar fragmento...",
+    "description": "Right-click menu item shown in a text field. The three dots mean that a panel opens to pick a snippet. At most 40 characters."
+  },
+  "noticeNoField": {
+    "message": "No se pueden insertar fragmentos en este tipo de campo.",
+    "description": "Short notice at the top of a web page after the user chose Insert snippet from the right-click menu on something that is not a text field the extension can fill."
+  },
+  "noticeFieldGone": {
+    "message": "No se insertó el fragmento porque el campo ya no existe.",
+    "description": "Short notice at the top of a web page. The text field closed or was removed while the panel was open."
+  },
+  "noticeFieldChanged": {
+    "message": "El texto del campo cambió, así que no se insertó el fragmento.",
+    "description": "Short notice at the top of a web page. The user typed an abbreviation and filled in a form, but the field changed in the meantime."
+  },
+  "noticeDocsCopied": {
+    "message": "Fragmento copiado. Si no apareció en el documento, pulsa $KEYS$.",
+    "description": "Short notice at the top of a Google Docs page. The text went to the clipboard because pasting into the document could not be confirmed. The key combination is filled in for you, for example Ctrl+V.",
+    "placeholders": {
+      "keys": {
+        "content": "$1",
+        "example": "Ctrl+V"
+      }
+    }
+  },
+  "noticeDocsNotInserted": {
+    "message": "No se ha podido insertar el fragmento. Ábrelo con el lápiz del panel de fragmentos y copia su texto.",
+    "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
+  },
+  "noticeFieldRoom_one": {
+    "message": "Este campo admite $FREE$ carácter más, y el fragmento tiene $TOTAL$. No se insertó nada.",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $FREE$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "free": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "40"
+      }
+    }
+  },
+  "noticeFieldRoom_many": {
+    "message": "Este campo admite $FREE$ de caracteres más, y el fragmento tiene $TOTAL$. No se insertó nada.",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
+    "placeholders": {
+      "free": {
+        "content": "$1",
+        "example": "12"
+      },
+      "total": {
+        "content": "$2",
+        "example": "40"
+      }
+    }
+  },
+  "noticeFieldRoom_other": {
+    "message": "Este campo admite $FREE$ caracteres más, y el fragmento tiene $TOTAL$. No se insertó nada.",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
+    "placeholders": {
+      "free": {
+        "content": "$1",
+        "example": "12"
+      },
+      "total": {
+        "content": "$2",
+        "example": "40"
+      }
+    }
+  },
+  "noticeSiteOff": {
+    "message": "La doble pulsación y las abreviaturas están desactivadas en $HOST$. Para volver a activarlas, abre el panel con la combinación de teclas o el menú contextual.",
+    "description": "Short notice at the top of a web page after the user turned the extension off for this site. The site name is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "noticeSiteOn": {
+    "message": "La doble pulsación y las abreviaturas vuelven a estar activadas en $HOST$.",
+    "description": "Short notice at the top of a web page after the user turned the extension back on for this site.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "noticeSaved": {
+    "message": "Fragmento guardado.",
+    "description": "Short notice at the top of a web page after the user saved a new snippet from selected text."
+  },
+  "snippets": {
+    "message": "Fragmentos",
+    "description": "The plural of snippet, a small piece of saved text. Used as the title of the panel, the name of the list of snippets, and the first section of the manager."
+  },
+  "editSnippet": {
+    "message": "Editar fragmento",
+    "description": "Heading of the form for changing a saved snippet, in the panel and in the manager."
+  },
+  "newSnippet": {
+    "message": "Nuevo fragmento",
+    "description": "Button in the manager that starts a new snippet, and the heading of the form for it. Other messages refer to this button by name, so keep them the same."
+  },
+  "captionInsert": {
+    "message": "Insertar fragmento",
+    "description": "Heading at the top of the panel while it shows the list of snippets. At most 36 characters."
+  },
+  "captionCreate": {
+    "message": "Crear un fragmento nuevo",
+    "description": "Heading of the form for a new snippet in the panel. At most 36 characters."
+  },
+  "createNew": {
+    "message": "Crear fragmento nuevo",
+    "description": "First entry in the panel list. It opens the form for a new snippet. At most 40 characters."
+  },
+  "createFromSelection": {
+    "message": "Crear fragmento a partir de la selección",
+    "description": "First entry in the panel list when text was selected on the page. The new snippet starts with that text."
+  },
+  "emptyApply": {
+    "message": "Crear",
+    "description": "Button at the bottom of the panel when there are no snippets yet. It opens the form for the first snippet. At most 16 characters."
+  },
+  "emptyHint": {
+    "message": "Haz clic abajo para empezar a crear tu primer fragmento.",
+    "description": "Second sentence of the text in the empty panel, after the message emptyText and a space. The button below it is the message emptyApply."
+  },
+  "emptyHeading": {
+    "message": "Aún no tienes fragmentos",
+    "description": "Heading of the empty panel."
+  },
+  "loadError": {
+    "message": "No se han podido cargar tus fragmentos. Cierra el panel y ábrelo de nuevo.",
+    "description": "Error in the panel when stored snippets could not be read."
+  },
+  "loadErrorHeading": {
+    "message": "No se han podido cargar los fragmentos",
+    "description": "Heading above the error in the panel when stored snippets could not be read."
+  },
+  "emptyText": {
+    "message": "Los fragmentos son textos breves y reutilizables, pensados para un uso repetitivo que ahorra tiempo (por ejemplo, una dirección o un correo electrónico).",
+    "description": "Explanation in the empty panel of what a snippet is. The examples in brackets are things people often save."
+  },
+  "formApply": {
+    "message": "Guardar fragmento",
+    "description": "Button at the bottom of the panel form for a new or changed snippet. At most 24 characters."
+  },
+  "createError": {
+    "message": "No se ha podido crear el fragmento.",
+    "description": "Error in the panel after saving a new snippet failed."
+  },
+  "editDelete": {
+    "message": "Eliminar fragmento",
+    "description": "Button in the panel form for a saved snippet. It deletes the snippet and offers Undo."
+  },
+  "editDuplicate": {
+    "message": "Duplicar fragmento",
+    "description": "Button in the panel form for a saved snippet. It makes a copy of the snippet."
+  },
+  "editError": {
+    "message": "No se ha podido guardar el fragmento.",
+    "description": "Error in the panel after saving a changed snippet failed."
+  },
+  "deleteError": {
+    "message": "No se ha podido eliminar el fragmento.",
+    "description": "Error in the panel after deleting a snippet failed."
+  },
+  "duplicateError": {
+    "message": "No se ha podido duplicar el fragmento.",
+    "description": "Error in the panel after copying a snippet failed."
+  },
+  "moveError": {
+    "message": "No se ha podido mover el fragmento.",
+    "description": "Error in the panel after moving a snippet up or down in the list failed."
+  },
+  "restoreError": {
+    "message": "No se ha podido restaurar el fragmento.",
+    "description": "Error in the panel after Undo of a deletion failed."
+  },
+  "notFound": {
+    "message": "No se ha podido encontrar el fragmento.",
+    "description": "Error in the panel or the manager when the snippet to show no longer exists."
+  },
+  "placeholderContent": {
+    "message": "Escribe un texto …",
+    "description": "Grey hint inside the empty text box of the panel form. The ellipsis character is part of the style. At most 38 characters."
+  },
+  "placeholderTitle": {
+    "message": "Escribe un nombre (opcional) …",
+    "description": "Grey hint inside the empty name box of the panel form. The ellipsis character is part of the style. At most 38 characters."
+  },
+  "placeholderAbbreviation": {
+    "message": "Abreviatura (opcional), como $EXAMPLE$ …",
+    "description": "Grey hint inside the empty abbreviation box of the panel form. An abbreviation is a short code the user types to insert a snippet. The example is filled in for you. At most 60 characters, counting the example.",
+    "placeholders": {
+      "example": {
+        "content": ";addr"
+      }
+    }
+  },
+  "placeholderFolder": {
+    "message": "Carpeta (opcional), como Trabajo …",
+    "description": "Grey hint inside the empty folder box of the panel form. Work is an example of a folder name; use a common word in your language. At most 50 characters."
+  },
+  "folderAll": {
+    "message": "Todos",
+    "description": "Label of the folder button that shows every snippet."
+  },
+  "folderNone": {
+    "message": "Sin carpeta",
+    "description": "Label of the folder button that shows the snippets that are in no folder."
+  },
+  "foldersLabel": {
+    "message": "Carpetas",
+    "description": "Accessible name of the row of folder buttons. Screen readers read it; it is not shown."
+  },
+  "validationEmpty": {
+    "message": "Este campo no puede estar vacío.",
+    "description": "Error under a form field that was left empty."
+  },
+  "validationTooLong_one": {
+    "message": "El texto no puede tener más de $MAX$ carácter.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 128 in Filipino. Keep $MAX$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "validationTooLong_many": {
+    "message": "El texto no puede tener más de $MAX$ de caracteres.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. Plural form.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "128"
+      }
+    }
+  },
+  "validationTooLong_other": {
+    "message": "El texto no puede tener más de $MAX$ caracteres.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. Plural form.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "128"
+      }
+    }
+  },
+  "characterCount_one": {
+    "message": "$COUNT$ carácter",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "characterCount_many": {
+    "message": "$COUNT$ de caracteres",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. Plural form. The number has the thousands separator of your language.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,234"
+      }
+    }
+  },
+  "characterCount_other": {
+    "message": "$COUNT$ caracteres",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. Plural form. The number has the thousands separator of your language.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,234"
+      }
+    }
+  },
+  "labelEdited": {
+    "message": "editado",
+    "description": "Small label next to a snippet in the panel list that was just changed. At most 12 characters."
+  },
+  "labelNew": {
+    "message": "nuevo",
+    "description": "Small label next to a snippet in the panel list that was just added. At most 8 characters."
+  },
+  "searchPlaceholder": {
+    "message": "Buscar fragmentos …",
+    "description": "Grey hint inside the search box of the panel. The ellipsis character is part of the style. At most 30 characters."
+  },
+  "undoDeleted": {
+    "message": "Fragmento eliminado.",
+    "description": "Message in the bar that appears after a snippet was deleted, with the Undo button next to it."
+  },
+  "undo": {
+    "message": "Deshacer",
+    "description": "Button in the bar that appears in the panel and the snippet manager after a snippet was deleted. It brings the snippet back. At most 12 characters."
+  },
+  "placeholders": {
+    "message": "Marcadores de posición",
+    "description": "Label before the list of placeholders in a snippet text. A placeholder is a word in braces, such as {date}, that is replaced when the snippet is inserted."
+  },
+  "placeholdersUnrecognized": {
+    "message": "No reconocidos, se insertan tal cual",
+    "description": "Label before the list of text in braces that looks like a placeholder but is not one. It is inserted exactly as typed."
+  },
+  "includes": {
+    "message": "Incluye",
+    "description": "Label before the list of other snippets that a snippet includes."
+  },
+  "referenceNotFound": {
+    "message": "No encontrado",
+    "description": "Tooltip on an included snippet that does not exist."
+  },
+  "referenceMissing": {
+    "message": "Ningún fragmento tiene la abreviatura $ABBREVIATION$, así que $TOKEN$ se inserta tal cual.",
+    "description": "Warning under a snippet that includes another snippet by its abbreviation, when no snippet has that abbreviation. The abbreviation and the text in braces are filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "token": {
+        "content": "$2",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "referenceLoop": {
+    "message": "$TOKEN$ pondría un fragmento dentro de sí mismo, así que se inserta tal cual.",
+    "description": "Warning under a snippet that includes itself, directly or through other snippets. The text in braces is filled in for you.",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "referenceLimit": {
+    "message": "Una inserción incluye como máximo $LIMIT$ fragmentos, así que las demás referencias se insertan tal cual.",
+    "description": "Warning under a snippet that includes more other snippets than one insert allows. The limit, always 100, is filled in for you, so write the word for snippets in the form that goes with 100.",
+    "placeholders": {
+      "limit": {
+        "content": "100"
+      }
+    }
+  },
+  "fillCount_one": {
+    "message": "Completa $COUNT$ campo",
+    "description": "Line at the top of the panel's fill-in form, which asks for values before a snippet is inserted. The panel's heading above it shows the snippet's name. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "fillCount_many": {
+    "message": "Completa $COUNT$ de campos",
+    "description": "Line at the top of the panel's fill-in form, which asks for values before a snippet is inserted. The panel's heading above it shows the snippet's name. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "fillCount_other": {
+    "message": "Completa $COUNT$ campos",
+    "description": "Line at the top of the panel's fill-in form, which asks for values before a snippet is inserted. The panel's heading above it shows the snippet's name. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "preview": {
+    "message": "Vista previa",
+    "description": "Label above the text a snippet will insert, with the typed values filled in."
+  },
+  "insertApply": {
+    "message": "Insertar",
+    "description": "Button at the bottom of the panel form that fills in a snippet and inserts it. At most 16 characters."
+  },
+  "edit": {
+    "message": "Editar",
+    "description": "Tooltip on the pencil button next to a snippet in the panel list."
+  },
+  "back": {
+    "message": "Atrás ($KEY$)",
+    "description": "Tooltip on the button at the top left of the panel that goes back to the list. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Esc"
+      }
+    }
+  },
+  "close": {
+    "message": "Cerrar ($KEY$)",
+    "description": "Tooltip on the button at the top right of the panel that closes it. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Esc"
+      }
+    }
+  },
+  "siteOff": {
+    "message": "Desactivar la doble pulsación y las abreviaturas en $HOST$",
+    "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are on. The site name is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteOn": {
+    "message": "Volver a activar la doble pulsación y las abreviaturas en $ENTRY$",
+    "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are off. $ENTRY$ is the entry in the list of turned-off sites that covers this site: the site itself, or a shorter address that covers it, such as example.com on mail.example.com.",
+    "placeholders": {
+      "entry": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteError": {
+    "message": "No se ha podido cambiar el ajuste de este sitio.",
+    "description": "Error in the panel after turning the extension off or on for a site failed."
+  },
+  "formattedView": {
+    "message": "Texto del fragmento",
+    "description": "Accessible name of the box that shows the text of a snippet with formatting. Screen readers read it; it is not shown."
+  },
+  "formattedNote": {
+    "message": "Este fragmento tiene formato. Cambia su texto en el administrador de fragmentos.",
+    "description": "Note in the panel form for a snippet that has bold text, lists, or links. The text can only be changed in the manager page."
+  },
+  "openManager": {
+    "message": "Abrir en el administrador de fragmentos",
+    "description": "Link-style button next to the note about formatting. It opens the manager page with this snippet."
+  },
+  "navLabel": {
+    "message": "Secciones",
+    "description": "Accessible name of the menu with the three sections of the manager. Screen readers read it; it is not shown."
+  },
+  "recentlyDeleted": {
+    "message": "Eliminados recientemente",
+    "description": "Name of the manager section that lists deleted snippets, and its heading."
+  },
+  "settingsAndBackup": {
+    "message": "Configuración y copia de seguridad",
+    "description": "Name of the manager section with the settings and the backup buttons."
+  },
+  "searchManagerPlaceholder": {
+    "message": "Buscar fragmentos...",
+    "description": "Grey hint inside the search box of the manager. At most 36 characters."
+  },
+  "renameFolder": {
+    "message": "Cambiar nombre de la carpeta",
+    "description": "Button in the manager that renames the selected folder."
+  },
+  "removeFolder": {
+    "message": "Quitar carpeta",
+    "description": "Button in the manager that removes the selected folder. The snippets in it stay."
+  },
+  "removeFolderConfirm": {
+    "message": "Haz clic de nuevo para quitar la carpeta",
+    "description": "The text of the Remove folder button after the first click, which asks for a second click."
+  },
+  "folderNameLabel": {
+    "message": "Nombre de la carpeta",
+    "description": "Accessible name of the box where a folder is renamed. Screen readers read it; it is not shown."
+  },
+  "rename": {
+    "message": "Cambiar nombre",
+    "description": "Button that applies the new folder name."
+  },
+  "cancel": {
+    "message": "Cancelar",
+    "description": "Button that closes a small form without changing anything."
+  },
+  "renameJoins": {
+    "message": "Ya existe $NAME$. Al cambiar el nombre, estos fragmentos se moverán a ella.",
+    "description": "Hint under the box where a folder is renamed to the name of a folder that already exists. The folder name is filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "folderNameRequired": {
+    "message": "Escribe un nombre de carpeta.",
+    "description": "Error under the box where a folder is renamed, when it was left empty."
+  },
+  "noSnippets": {
+    "message": "Aún no hay fragmentos. Haz clic en Nuevo fragmento para crear uno.",
+    "description": "Text in the empty list of the manager. New snippet is the name of a button; write it as in the message New snippet."
+  },
+  "selectOrNew": {
+    "message": "Selecciona un fragmento o haz clic en Nuevo fragmento.",
+    "description": "Text where the form is, when no snippet is open. New snippet is the name of a button; write it as in the message New snippet."
+  },
+  "dragReorder": {
+    "message": "Arrastra para reordenar",
+    "description": "Tooltip on the grip of a snippet row in the manager."
+  },
+  "dragReorderFolder": {
+    "message": "Arrastra para reordenar, o sobre una carpeta para moverlo",
+    "description": "Tooltip on the grip of a snippet row in the manager, when folders exist."
+  },
+  "moved": {
+    "message": "$TITLE$ se movió a la posición $POSITION$ de $TOTAL$.",
+    "description": "Message for screen readers after a snippet was moved up or down in the list. It is not shown. The name of the snippet and the numbers are filled in for you.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Address"
+      },
+      "position": {
+        "content": "$2",
+        "example": "2"
+      },
+      "total": {
+        "content": "$3",
+        "example": "9"
+      }
+    }
+  },
+  "fieldName": {
+    "message": "Nombre",
+    "description": "Label of the box for the name of a snippet in the manager form."
+  },
+  "fieldAbbreviation": {
+    "message": "Abreviatura",
+    "description": "Label of the box for the abbreviation of a snippet in the manager form. An abbreviation is a short code the user types to insert a snippet."
+  },
+  "fieldFolder": {
+    "message": "Carpeta",
+    "description": "Label of the box for the folder of a snippet in the manager form."
+  },
+  "fieldText": {
+    "message": "Texto",
+    "description": "Label of the box for the text of a snippet in the manager form."
+  },
+  "optionalPlaceholder": {
+    "message": "Opcional",
+    "description": "Grey hint inside the empty name box of the manager form, which may stay empty. At most 20 characters."
+  },
+  "optionalAbbreviationPlaceholder": {
+    "message": "Opcional, como $EXAMPLE$",
+    "description": "Grey hint inside the empty abbreviation box of the manager form. The example is filled in for you. At most 38 characters, counting the example.",
+    "placeholders": {
+      "example": {
+        "content": ";addr"
+      }
+    }
+  },
+  "optionalFolderPlaceholder": {
+    "message": "Opcional, como Trabajo",
+    "description": "Grey hint inside the empty folder box of the manager form. Work is an example of a folder name; use a common word in your language. At most 38 characters."
+  },
+  "formatJson": {
+    "message": "Formatear $JSON$",
+    "description": "Button in the manager form that checks the text as JSON and indents it. JSON is a data format, and its name is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "formattedText": {
+    "message": "Texto con formato",
+    "description": "Label of the checkbox in the manager form that turns on bold text, lists, links, and code blocks."
+  },
+  "toolbarLabel": {
+    "message": "Formato",
+    "description": "Accessible name of the row of formatting buttons. Screen readers read it; it is not shown."
+  },
+  "toolBold": {
+    "message": "Negrita ($SHORTCUT$)",
+    "description": "Tooltip of the bold button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+B"
+      }
+    }
+  },
+  "toolItalic": {
+    "message": "Cursiva ($SHORTCUT$)",
+    "description": "Tooltip of the italic button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+I"
+      }
+    }
+  },
+  "toolUnderline": {
+    "message": "Subrayado ($SHORTCUT$)",
+    "description": "Tooltip of the underline button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+U"
+      }
+    }
+  },
+  "toolLink": {
+    "message": "Enlace ($SHORTCUT$)",
+    "description": "Tooltip of the button that turns the selected text into a link. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+K"
+      }
+    }
+  },
+  "toolBulleted": {
+    "message": "Lista con viñetas",
+    "description": "Tooltip of the button that makes a list with bullets."
+  },
+  "toolNumbered": {
+    "message": "Lista numerada",
+    "description": "Tooltip of the button that makes a list with numbers."
+  },
+  "toolCode": {
+    "message": "Código",
+    "description": "Tooltip of the button that marks selected text as code inside a line."
+  },
+  "toolCodeBlock": {
+    "message": "Bloque de código",
+    "description": "Tooltip of the button that makes the selected lines a block of code."
+  },
+  "toolClear": {
+    "message": "Borrar formato",
+    "description": "Tooltip of the button that removes bold, italic, underline, code, and links from the selected text."
+  },
+  "codeLanguageLabel": {
+    "message": "Lenguaje del bloque de código",
+    "description": "Accessible name and tooltip of the menu that picks the programming language of a code block."
+  },
+  "languagePlain": {
+    "message": "Texto sin formato",
+    "description": "Entry in the menu of code block languages for a block with no language, and the label above such a block."
+  },
+  "linkAddress": {
+    "message": "Dirección del enlace",
+    "description": "Label of the box where the address of a link is typed."
+  },
+  "apply": {
+    "message": "Aplicar",
+    "description": "Button that puts the typed link address on the selected text."
+  },
+  "removeLink": {
+    "message": "Quitar enlace",
+    "description": "Button that removes a link and keeps its text."
+  },
+  "linkInvalid": {
+    "message": "Usa una dirección que empiece por $HTTPS$, $HTTP$, $MAILTO$ o $TEL$.",
+    "description": "Error under the box for a link address. The four address beginnings are filled in for you.",
+    "placeholders": {
+      "https": {
+        "content": "https://"
+      },
+      "http": {
+        "content": "http://"
+      },
+      "mailto": {
+        "content": "mailto:"
+      },
+      "tel": {
+        "content": "tel:"
+      }
+    }
+  },
+  "formatHint": {
+    "message": "Los editores de texto enriquecido, como el correo web, reciben este formato. Los cuadros de texto y $GOOGLE_DOCS$ reciben el texto sin formato, con las viñetas como puntos y la dirección de cada enlace entre paréntesis a continuación.",
+    "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
+    "placeholders": {
+      "google_docs": {
+        "content": "Google Docs"
+      }
+    }
+  },
+  "duplicate": {
+    "message": "Duplicar",
+    "description": "Button in the manager form that makes a copy of the snippet."
+  },
+  "delete": {
+    "message": "Eliminar",
+    "description": "Button in the manager form that deletes the snippet and offers Undo."
+  },
+  "save": {
+    "message": "Guardar",
+    "description": "Button in the manager form that saves the snippet, and in a notice that asks to save changes."
+  },
+  "unsavedChanges": {
+    "message": "Tienes cambios sin guardar.",
+    "description": "Notice in the manager when the user leaves a snippet that was changed but not saved. Buttons Save and Discard follow."
+  },
+  "discard": {
+    "message": "Descartar",
+    "description": "Button in a notice about unsaved changes. It throws the changes away."
+  },
+  "deletedElsewhere": {
+    "message": "Este fragmento se eliminó en otra pestaña. Al guardar, se creará de nuevo.",
+    "description": "Notice in the manager when the open snippet was deleted from another browser tab."
+  },
+  "changedElsewhere": {
+    "message": "Este fragmento cambió en otra pestaña.",
+    "description": "Notice in the manager when the open snippet was changed from another browser tab. Buttons to load the other version or keep the current one follow."
+  },
+  "loadOther": {
+    "message": "Cargar la otra versión",
+    "description": "Button in a notice. It replaces the form with the version saved from the other tab."
+  },
+  "keepMine": {
+    "message": "Conservar la mía",
+    "description": "Button in a notice. It keeps what the user typed."
+  },
+  "saved": {
+    "message": "Guardado.",
+    "description": "Status after a snippet was saved."
+  },
+  "savedRenamed_one": {
+    "message": "Guardado. $COUNT$ fragmento que usaba $OLD$ ahora usa $NEW$.",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. The number and the two abbreviations are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "old": {
+        "content": "$2",
+        "example": ";sig"
+      },
+      "new": {
+        "content": "$3",
+        "example": ";sign"
+      }
+    }
+  },
+  "savedRenamed_many": {
+    "message": "Guardado. $COUNT$ de fragmentos que usaban $OLD$ ahora usan $NEW$.",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "old": {
+        "content": "$2",
+        "example": ";sig"
+      },
+      "new": {
+        "content": "$3",
+        "example": ";sign"
+      }
+    }
+  },
+  "savedRenamed_other": {
+    "message": "Guardado. $COUNT$ fragmentos que usaban $OLD$ ahora usan $NEW$.",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "old": {
+        "content": "$2",
+        "example": ";sig"
+      },
+      "new": {
+        "content": "$3",
+        "example": ";sign"
+      }
+    }
+  },
+  "savedCleared_one": {
+    "message": "Guardado. Ningún fragmento tiene ahora $ABBREVIATION$, así que $COUNT$ fragmento inserta $TOKEN$ tal cual.",
+    "description": "Status after saving a snippet whose abbreviation was removed, when another snippet includes it. The abbreviation, the number, and the text in braces are filled in for you, and the number, $COUNT$, chooses the plural form. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "count": {
+        "content": "$2",
+        "example": "1"
+      },
+      "token": {
+        "content": "$3",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "savedCleared_many": {
+    "message": "Guardado. Ningún fragmento tiene ahora $ABBREVIATION$, así que $COUNT$ de fragmentos insertan $TOKEN$ tal cual.",
+    "description": "Status after saving a snippet whose abbreviation was removed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "count": {
+        "content": "$2",
+        "example": "3"
+      },
+      "token": {
+        "content": "$3",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "savedCleared_other": {
+    "message": "Guardado. Ningún fragmento tiene ahora $ABBREVIATION$, así que $COUNT$ fragmentos insertan $TOKEN$ tal cual.",
+    "description": "Status after saving a snippet whose abbreviation was removed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "count": {
+        "content": "$2",
+        "example": "3"
+      },
+      "token": {
+        "content": "$3",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "saveChangeFailed": {
+    "message": "No se ha podido guardar el cambio: $REASON$",
+    "description": "Error after saving or changing a snippet failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "QUOTA_BYTES quota exceeded"
+      }
+    }
+  },
+  "saveSettingFailed": {
+    "message": "No se ha podido guardar el ajuste: $REASON$",
+    "description": "Error after saving a setting failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "QUOTA_BYTES quota exceeded"
+      }
+    }
+  },
+  "loadFailed": {
+    "message": "No se han podido cargar tus fragmentos: $REASON$",
+    "description": "Error at the top of the manager when stored snippets could not be read. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "Extension context invalidated"
+      }
+    }
+  },
+  "exportFailed": {
+    "message": "No se han podido exportar los fragmentos: $REASON$",
+    "description": "Error after the export of the backup file failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "Extension context invalidated"
+      }
+    }
+  },
+  "jsonFormatted": {
+    "message": "$JSON$ formateado.",
+    "description": "Status after the Format JSON button indented the text. The name of the data format is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "jsonNoCodeBlock": {
+    "message": "Coloca primero el cursor en un bloque de código.",
+    "description": "Error after Format JSON was pressed while the text cursor is not inside a code block. The caret is the blinking text cursor."
+  },
+  "deletedOn": {
+    "message": "Eliminado el $DATE$",
+    "description": "Small line under a deleted snippet. The date and time are filled in for you, in the format of your language.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "11/20/2026, 9:14:00 AM"
+      }
+    }
+  },
+  "restore": {
+    "message": "Restaurar",
+    "description": "Button next to a deleted snippet that brings it back."
+  },
+  "deleteForever": {
+    "message": "Eliminar definitivamente",
+    "description": "Button next to a deleted snippet that removes it for good."
+  },
+  "deleteForeverConfirm": {
+    "message": "Haz clic de nuevo para eliminar definitivamente",
+    "description": "The text of the Delete forever button after the first click, which asks for a second click."
+  },
+  "deletedNote": {
+    "message": "Los últimos $COUNT$ fragmentos eliminados se quedan aquí hasta que los restaures o los elimines definitivamente.",
+    "description": "Text under the heading of the list of deleted snippets. The number, always 20, is filled in for you, so write the word for snippets in the form that goes with 20.",
+    "placeholders": {
+      "count": {
+        "content": "20"
+      }
+    }
+  },
+  "nothingDeleted": {
+    "message": "No se ha eliminado nada recientemente.",
+    "description": "Text in the empty list of deleted snippets."
+  },
+  "settings": {
+    "message": "Configuración",
+    "description": "Heading of the settings part of the settings page."
+  },
+  "openPanelWith": {
+    "message": "Abrir el panel de fragmentos con",
+    "description": "Label of the menu where the user picks the key that opens the panel with a double tap."
+  },
+  "hotkeyControl": {
+    "message": "Doble pulsación de $KEY$",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Ctrl"
+      }
+    }
+  },
+  "hotkeyShift": {
+    "message": "Doble pulsación de $KEY$",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Mayús"
+      }
+    }
+  },
+  "hotkeyAlt": {
+    "message": "Doble pulsación de $KEY$",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Alt"
+      }
+    }
+  },
+  "keyCtrl": {
+    "message": "Ctrl",
+    "description": "The name of the Ctrl key. The panel shows it in the key hint of its save and insert buttons, and a notice in Google Docs uses it in Ctrl+V. Write it as keyboards in your language print it, the same way as in every other message."
+  },
+  "keyCmd": {
+    "message": "Cmd",
+    "description": "The name of the Command key of a Mac keyboard. On a Mac it takes the place of Ctrl in the shortcuts of the formatting buttons in the snippet manager, as in Cmd+B, in the key names of usageNote and abbreviationsNote, as in Cmd+1 and Cmd+Z, and in a notice in Google Docs, as in Cmd+V. Write it as Mac keyboards in your language print it."
+  },
+  "off": {
+    "message": "Desactivado",
+    "description": "The last entry of 2 menus in the settings, the messages openPanelWith and expandAbbreviations. In the first it turns the double tap off, and in the second it turns abbreviations off. Write one text that fits both menus."
+  },
+  "settingSaved": {
+    "message": "Guardado. Las páginas abiertas aplican el cambio al instante.",
+    "description": "Status after the setting for the double tap key was saved."
+  },
+  "keyboardShortcut": {
+    "message": "Combinación de teclas",
+    "description": "Label of the setting that shows the keyboard shortcut for the panel."
+  },
+  "shortcutNotSet": {
+    "message": "Sin asignar",
+    "description": "Shown where the keyboard shortcut would be when the browser has none for this extension."
+  },
+  "changeShortcut": {
+    "message": "Cambiar en la configuración del navegador",
+    "description": "Button that opens the browser page where extension shortcuts are changed."
+  },
+  "shortcutNote": {
+    "message": "Abre el panel de fragmentos en el campo donde escribes, igual que la doble pulsación.",
+    "description": "Text under the keyboard shortcut setting."
+  },
+  "expandAbbreviations": {
+    "message": "Expandir abreviaturas",
+    "description": "Label of the menu where the user picks when a typed abbreviation is replaced by its snippet."
+  },
+  "abbreviationsImmediate": {
+    "message": "En cuanto las escribo",
+    "description": "Menu entry: an abbreviation is replaced as soon as its last character is typed."
+  },
+  "abbreviationsDelimiter": {
+    "message": "Después de pulsar $SPACE$, $TAB$ o $ENTER$",
+    "description": "Menu entry: an abbreviation is replaced after the user presses one of the keys Space, Tab, or Enter. The key names are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "space": {
+        "content": "Espacio"
+      },
+      "tab": {
+        "content": "Tabulador"
+      },
+      "enter": {
+        "content": "Intro"
+      }
+    }
+  },
+  "abbreviationsNote": {
+    "message": "Al escribir la abreviatura de un fragmento en un campo de texto, se sustituye por el fragmento, y <kbd>$CTRL$</kbd>+<kbd>$Z$</kbd> recupera el texto escrito. Cuando las abreviaturas esperan a $SPACE$, $TAB$ o $ENTER$, queda un espacio después del fragmento, mientras que $TAB$ y $ENTER$ solo la expanden. No funciona en $GOOGLE_DOCS$.",
+    "description": "Text under the abbreviations menu. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the letter Z, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "ctrl": {
+        "content": "Ctrl"
+      },
+      "z": {
+        "content": "Z"
+      },
+      "space": {
+        "content": "Espacio"
+      },
+      "tab": {
+        "content": "Tabulador"
+      },
+      "enter": {
+        "content": "Intro"
+      },
+      "google_docs": {
+        "content": "Google Docs"
+      }
+    }
+  },
+  "offSitesLabel": {
+    "message": "Sitios donde la doble pulsación y las abreviaturas están desactivadas",
+    "description": "Label of the list of sites where the extension is turned off."
+  },
+  "offSiteInputLabel": {
+    "message": "Sitio que desactivar",
+    "description": "Accessible name of the box where a site is typed. Screen readers read it; it is not shown."
+  },
+  "addSite": {
+    "message": "Añadir sitio",
+    "description": "Button that adds the typed site to the list of sites where the extension is off."
+  },
+  "offSitesNone": {
+    "message": "Aún no hay sitios. La doble pulsación y las abreviaturas funcionan en todos los sitios.",
+    "description": "Text under the empty list of sites where the extension is off."
+  },
+  "offSitesNote": {
+    "message": "Un sitio incluye sus subdominios: $EXAMPLE$ también abarca $SUBDOMAIN$. En estos sitios, la combinación de teclas y el menú contextual siguen abriendo el panel. El botón junto a Cerrar, en la parte superior del panel, desactiva o vuelve a activar el sitio actual.",
+    "description": "Text under the list of sites where the extension is off. Close is the name of a button in the panel; write it as in the message Close. The two web addresses are filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": "example.com"
+      },
+      "subdomain": {
+        "content": "mail.example.com"
+      }
+    }
+  },
+  "turnOn": {
+    "message": "Activar",
+    "description": "Button next to a site in the list. It turns the extension back on for that site."
+  },
+  "turnOnSite": {
+    "message": "Volver a activar $SITE$",
+    "description": "Accessible name of the Turn on button, which names the site. Screen readers read it; it is not shown.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "usageNote": {
+    "message": "Haz clic en un cuadro de texto, un editor de texto enriquecido o un documento de $GOOGLE_DOCS$ y pulsa la tecla dos veces rápidamente. En el panel, elige un fragmento con el ratón, las teclas de flecha y <kbd>$ENTER$</kbd>, o con <kbd>$CTRL$</kbd>+<kbd>$N2$</kbd> a <kbd>$CTRL$</kbd>+<kbd>$N9$</kbd>. <kbd>$CTRL$</kbd>+<kbd>$N1$</kbd> crea un fragmento y, si hay texto seleccionado al abrir el panel, el nuevo fragmento empieza con ese texto. Los fragmentos no tienen límite de longitud.",
+    "description": "Short instructions at the end of the settings. The key to tap twice is the one picked in the menu openPanelWith above. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the digits, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "google_docs": {
+        "content": "Google Docs"
+      },
+      "enter": {
+        "content": "Intro"
+      },
+      "ctrl": {
+        "content": "Ctrl"
+      },
+      "n1": {
+        "content": "1"
+      },
+      "n2": {
+        "content": "2"
+      },
+      "n9": {
+        "content": "9"
+      }
+    }
+  },
+  "languageNote": {
+    "message": "La interfaz sigue el idioma de tu navegador: $LANGUAGE$.",
+    "description": "Muted line in Settings and backup, shown in every language except English. It says which language the interface is in. The name of the language, written in that language, is filled in for you. At most 120 characters.",
+    "placeholders": {
+      "language": {
+        "content": "$1",
+        "example": "Deutsch"
+      }
+    }
+  },
+  "translationReport": {
+    "message": "Informar de un problema de traducción",
+    "description": "Link that opens a form on GitHub, shown in every language except English, under the line that names the interface language. It is for people who find a wrong or unclear translation. At most 60 characters."
+  },
+  "backup": {
+    "message": "Copia de seguridad",
+    "description": "Heading of the part of the settings page with the export and import buttons."
+  },
+  "exportSnippets": {
+    "message": "Exportar fragmentos",
+    "description": "Button that saves all snippets to a file."
+  },
+  "exportNote_one": {
+    "message": "Guarda $COUNT$ fragmento en $FILE$.",
+    "description": "Text next to the Export snippets button. The number and the file name are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exportNote_many": {
+    "message": "Guarda los $COUNT$ de fragmentos en $FILE$.",
+    "description": "Text next to the Export snippets button. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exportNote_other": {
+    "message": "Guarda los $COUNT$ fragmentos en $FILE$.",
+    "description": "Text next to the Export snippets button. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exported_one": {
+    "message": "Se exportó $COUNT$ fragmento a $FILE$.",
+    "description": "Status after the export. The number and the file name are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exported_many": {
+    "message": "Se exportaron $COUNT$ de fragmentos a $FILE$.",
+    "description": "Status after the export. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exported_other": {
+    "message": "Se exportaron $COUNT$ fragmentos a $FILE$.",
+    "description": "Status after the export. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "importSnippets": {
+    "message": "Importar fragmentos",
+    "description": "Button that reads snippets from a backup file."
+  },
+  "importNote": {
+    "message": "Añade los fragmentos de un archivo de copia de seguridad. Los que ya tienes se omiten.",
+    "description": "Text next to the Import snippets button."
+  },
+  "support": {
+    "message": "Apoyo",
+    "description": "Heading of the part of the settings page about supporting the author."
+  },
+  "supportNote": {
+    "message": "$NAME$ es gratuito y todas sus funciones están disponibles sin pagar. Si quieres apoyar su desarrollo, puedes donar en $KOFI$.",
+    "description": "Text under the Support heading. The extension name and the name of the donation site are filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "Snippet Inserter"
+      },
+      "kofi": {
+        "content": "Ko-fi"
+      }
+    }
+  },
+  "donate": {
+    "message": "Donar en $KOFI$",
+    "description": "Text of the link that opens the donation page. The name of the donation site is filled in for you.",
+    "placeholders": {
+      "kofi": {
+        "content": "Ko-fi"
+      }
+    }
+  },
+  "siteEnter": {
+    "message": "Escribe un sitio, como $EXAMPLE$.",
+    "description": "Error under the box where a site is added to the list of sites where the extension is off. The example is filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": "example.com"
+      }
+    }
+  },
+  "siteListed": {
+    "message": "$HOST$ ya está en la lista.",
+    "description": "Error under the box where a site is added, when the site is already in the list. The site is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteCovered": {
+    "message": "$HOST$ ya está desactivado, porque $COVERING$ está en la lista.",
+    "description": "Error under the box where a site is added, when a shorter entry already covers it. Both sites are filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "mail.example.com"
+      },
+      "covering": {
+        "content": "$2",
+        "example": "example.com"
+      }
+    }
+  },
+  "copyOf": {
+    "message": "Copia de $TITLE$",
+    "description": "The name given to a copy of a snippet that has a name. The name of the original is filled in for you.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Address"
+      }
+    }
+  },
+  "abbreviationLength": {
+    "message": "Usa de $MIN$ a $MAX$ caracteres sin espacios.",
+    "description": "Error under the abbreviation box. The two numbers, always 2 and 32, are filled in for you, so write the word for characters in the form that goes with 32.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "2"
+      },
+      "max": {
+        "content": "$2",
+        "example": "32"
+      }
+    }
+  },
+  "abbreviationTaken": {
+    "message": "Otro fragmento ya usa $ABBREVIATION$.",
+    "description": "Error under the abbreviation box. The abbreviation is filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";addr"
+      }
+    }
+  },
+  "abbreviationStartedBy": {
+    "message": "La abreviatura de otro fragmento, $OTHER$, empieza por esta.",
+    "description": "Error under the abbreviation box: the typed abbreviation is the beginning of another one, so the shorter one would always win. The other abbreviation is filled in for you.",
+    "placeholders": {
+      "other": {
+        "content": "$1",
+        "example": ";addr2"
+      }
+    }
+  },
+  "abbreviationStartsWith": {
+    "message": "Esta empieza por la abreviatura de otro fragmento, $OTHER$.",
+    "description": "Error under the abbreviation box: another abbreviation is the beginning of the typed one, so the shorter one would always win. The other abbreviation is filled in for you.",
+    "placeholders": {
+      "other": {
+        "content": "$1",
+        "example": ";a"
+      }
+    }
+  },
+  "importNotJson": {
+    "message": "Este archivo no es una copia de seguridad de fragmentos: no es $JSON$ válido.",
+    "description": "Error after the user picked a file to import that is not JSON. JSON is a data format, and its name is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "importNewer": {
+    "message": "Esta copia de seguridad la creó una versión más reciente de $NAME$. Actualiza la extensión e inténtalo de nuevo.",
+    "description": "Error after the user picked a backup file written by a later version of the extension. The extension name is filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "Snippet Inserter"
+      }
+    }
+  },
+  "importNotBackup": {
+    "message": "Este archivo no es una copia de seguridad de fragmentos.",
+    "description": "Error after the user picked a file to import that is JSON but not a backup of snippets."
+  },
+  "importedCount_one": {
+    "message": "Se importó $COUNT$ fragmento.",
+    "description": "First sentence of the report after an import. The sentences of the report follow each other in one paragraph, separated by a space. The number is filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importedCount_many": {
+    "message": "Se importaron $COUNT$ de fragmentos.",
+    "description": "First sentence of the report after an import. The sentences of the report follow each other in one paragraph, separated by a space. Plural form. The number is filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "importedCount_other": {
+    "message": "Se importaron $COUNT$ fragmentos.",
+    "description": "First sentence of the report after an import. The sentences of the report follow each other in one paragraph, separated by a space. Plural form. The number is filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "importSkipped_one": {
+    "message": "Se omitió $COUNT$ fragmento que ya estaba aquí.",
+    "description": "Sentence in the report after an import, for snippets that were already stored. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importSkipped_many": {
+    "message": "Se omitieron $COUNT$ de fragmentos que ya estaban aquí.",
+    "description": "Sentence in the report after an import, for snippets that were already stored. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importSkipped_other": {
+    "message": "Se omitieron $COUNT$ fragmentos que ya estaban aquí.",
+    "description": "Sentence in the report after an import, for snippets that were already stored. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importInvalid_one": {
+    "message": "Se omitió $COUNT$ registro sin texto.",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importInvalid_many": {
+    "message": "Se omitieron $COUNT$ de registros sin texto.",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importInvalid_other": {
+    "message": "Se omitieron $COUNT$ registros sin texto.",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importAbbrDropped_one": {
+    "message": "$COUNT$ fragmento perdió una abreviatura que ya usa otro fragmento.",
+    "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importAbbrDropped_many": {
+    "message": "$COUNT$ de fragmentos perdieron una abreviatura que ya usa otro fragmento.",
+    "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importAbbrDropped_other": {
+    "message": "$COUNT$ fragmentos perdieron una abreviatura que ya usa otro fragmento.",
+    "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "jsonEmpty": {
+    "message": "No hay texto que formatear.",
+    "description": "Error after Format JSON was pressed on an empty text."
+  },
+  "jsonPosition": {
+    "message": "Línea $LINE$, columna $COLUMN$: $MESSAGE$",
+    "description": "Start of every JSON error: where in the text the first problem is. The two numbers are filled in for you, and $MESSAGE$ is one of the other JSON error messages in this file, already in your language.",
+    "placeholders": {
+      "line": {
+        "content": "$1",
+        "example": "3"
+      },
+      "column": {
+        "content": "$2",
+        "example": "14"
+      },
+      "message": {
+        "content": "$3",
+        "example": "Expected a digit."
+      }
+    }
+  },
+  "jsonStringNotClosed": {
+    "message": "La cadena no está cerrada.",
+    "description": "JSON error. A string is text in double quotes."
+  },
+  "jsonLineBreak": {
+    "message": "Un salto de línea dentro de una cadena debe escribirse como $ESCAPE$.",
+    "description": "JSON error. The code for a line break is filled in for you.",
+    "placeholders": {
+      "escape": {
+        "content": "\\n"
+      }
+    }
+  },
+  "jsonControlChar": {
+    "message": "Un carácter de control dentro de una cadena debe escribirse como secuencia de escape.",
+    "description": "JSON error. A control character is an invisible character such as a tab. An escape is a backslash code."
+  },
+  "jsonHexDigits": {
+    "message": "Se esperaban $COUNT$ dígitos hexadecimales después de $ESCAPE$.",
+    "description": "JSON error. The number, always 4, and the backslash code are filled in for you, so write the word for digits in the form that goes with 4.",
+    "placeholders": {
+      "count": {
+        "content": "4"
+      },
+      "escape": {
+        "content": "\\u"
+      }
+    }
+  },
+  "jsonUnknownEscape": {
+    "message": "Secuencia de escape desconocida en una cadena.",
+    "description": "JSON error. An escape is a backslash followed by a letter that JSON does not know."
+  },
+  "jsonExpectedDigit": {
+    "message": "Se esperaba un dígito.",
+    "description": "JSON error in a number, for example after a minus sign or a decimal point."
+  },
+  "jsonEndWhereValue": {
+    "message": "El texto termina donde se espera un valor.",
+    "description": "JSON error when the text ends after [, after a comma in a list, or after the colon of a property. A value is a string, number, list, or object."
+  },
+  "jsonTooDeep": {
+    "message": "Las matrices y los objetos están anidados a más de $DEPTH$ niveles de profundidad.",
+    "description": "JSON error. The number, always 100, is filled in for you, so write the word for levels in the form that goes with 100.",
+    "placeholders": {
+      "depth": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "jsonExpected": {
+    "message": "Se esperaba $WORD$.",
+    "description": "JSON error for a word that looks like true, false, or null but is misspelled. The expected word is filled in for you and is not translated.",
+    "placeholders": {
+      "word": {
+        "content": "$1",
+        "example": "true"
+      }
+    }
+  },
+  "jsonUnexpected": {
+    "message": "Carácter inesperado $WHAT$.",
+    "description": "JSON error. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonUnexpectedValue": {
+    "message": "Carácter inesperado $WHAT$ donde se espera un valor.",
+    "description": "JSON error. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonComments": {
+    "message": "No se permiten comentarios en $JSON$.",
+    "description": "JSON error for text that starts like a comment. The name of the data format is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "jsonExpectedClose": {
+    "message": "Se esperaba $COMMA$ o $CLOSE$, pero se encontró $WHAT$.",
+    "description": "JSON error in a list or an object. The two characters and what was found are filled in for you. What was found is one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "close": {
+        "content": "$1",
+        "example": "]"
+      },
+      "what": {
+        "content": "$2",
+        "example": "\"x\""
+      },
+      "comma": {
+        "content": ","
+      }
+    }
+  },
+  "jsonExpectedCloseEnd": {
+    "message": "El texto termina donde se espera $COMMA$ o $CLOSE$.",
+    "description": "JSON error when a list or an object is not closed before the end of the text. The two characters are filled in for you.",
+    "placeholders": {
+      "close": {
+        "content": "$1",
+        "example": "]"
+      },
+      "comma": {
+        "content": ","
+      }
+    }
+  },
+  "jsonExpectedName": {
+    "message": "Se esperaba un nombre de propiedad entre comillas dobles, pero se encontró $WHAT$.",
+    "description": "JSON error in an object. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonExpectedNameEnd": {
+    "message": "El texto termina donde se espera un nombre de propiedad entre comillas dobles.",
+    "description": "JSON error when the text ends after { or after a comma in an object."
+  },
+  "jsonExpectedColon": {
+    "message": "Se esperaba $COLON$ después del nombre de la propiedad, pero se encontró $WHAT$.",
+    "description": "JSON error in an object. The colon and what was found are filled in for you. What was found is one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      },
+      "colon": {
+        "content": ":"
+      }
+    }
+  },
+  "jsonExpectedColonEnd": {
+    "message": "El texto termina donde se espera $COLON$ después del nombre de la propiedad.",
+    "description": "JSON error when the text ends right after a property name of an object. The colon is filled in for you.",
+    "placeholders": {
+      "colon": {
+        "content": ":"
+      }
+    }
+  },
+  "jsonExpectedEnd": {
+    "message": "Se esperaba el final del texto, pero se encontró $WHAT$.",
+    "description": "JSON error when text follows a complete value. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonPlaceholder": {
+    "message": "$TOKEN$ es un marcador de posición, y un marcador de posición fuera de comillas no es $JSON$ válido. Ponlo entre comillas o complétalo primero.",
+    "description": "JSON error when the text has a placeholder in braces outside quotes. The placeholder and the name of the data format are filled in for you.",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "{date}"
+      },
+      "json": {
+        "content": "JSON"
+      }
+    }
+  }
+}

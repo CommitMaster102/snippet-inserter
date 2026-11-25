@@ -1,0 +1,1563 @@
+{
+  "extName": {
+    "message": "Snippet Inserter",
+    "description": "The name of the extension. It is a product name and stays the same in every language."
+  },
+  "extDescription": {
+    "message": "$KEY$ को दो बार दबाकर सेव किए गए स्निपेट किसी भी टेक्स्ट फ़ील्ड में डालें. स्निपेट की लंबाई की कोई सीमा नहीं है.",
+    "description": "One sentence shown on the extension page in the browser and in the Chrome Web Store. At most 132 characters, counting the key name. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Ctrl"
+      }
+    }
+  },
+  "commandOpenPanel": {
+    "message": "स्निपेट पैनल खोलें",
+    "description": "The name of the keyboard shortcut on the browser page where people change extension shortcuts. At most 60 characters."
+  },
+  "localeCode": {
+    "message": "hi",
+    "description": "The code of this language. Write the code of the folder this file is in, such as pt_BR. Used to choose plural forms and number formats."
+  },
+  "textDirection": {
+    "message": "ltr",
+    "description": "The direction of this language: ltr for left to right, rtl for right to left. It mirrors the panel and the manager."
+  },
+  "languageName": {
+    "message": "हिन्दी",
+    "description": "The name of this language, written in this language, such as Deutsch for German."
+  },
+  "menuSaveSelection": {
+    "message": "चुने गए टेक्स्ट को स्निपेट के रूप में सेव करें",
+    "description": "Right-click menu item shown when text on a page is selected. It opens the form for a new snippet that starts with that text. At most 50 characters."
+  },
+  "menuInsertSnippet": {
+    "message": "स्निपेट डालें...",
+    "description": "Right-click menu item shown in a text field. The three dots mean that a panel opens to pick a snippet. At most 40 characters."
+  },
+  "noticeNoField": {
+    "message": "इस तरह के फ़ील्ड में स्निपेट नहीं डाले जा सकते.",
+    "description": "Short notice at the top of a web page after the user chose Insert snippet from the right-click menu on something that is not a text field the extension can fill."
+  },
+  "noticeFieldGone": {
+    "message": "स्निपेट नहीं डाला गया, क्योंकि फ़ील्ड अब मौजूद नहीं है.",
+    "description": "Short notice at the top of a web page. The text field closed or was removed while the panel was open."
+  },
+  "noticeFieldChanged": {
+    "message": "फ़ील्ड का टेक्स्ट बदल गया, इसलिए स्निपेट नहीं डाला गया.",
+    "description": "Short notice at the top of a web page. The user typed an abbreviation and filled in a form, but the field changed in the meantime."
+  },
+  "noticeDocsCopied": {
+    "message": "स्निपेट कॉपी हो गया. अगर यह दस्तावेज़ में नहीं दिखा, तो $KEYS$ दबाएं.",
+    "description": "Short notice at the top of a Google Docs page. The text went to the clipboard because pasting into the document could not be confirmed. The key combination is filled in for you, for example Ctrl+V.",
+    "placeholders": {
+      "keys": {
+        "content": "$1",
+        "example": "Ctrl+V"
+      }
+    }
+  },
+  "noticeDocsNotInserted": {
+    "message": "स्निपेट नहीं डाला जा सका. स्निपेट पैनल में पेंसिल से इसे खोलें और इसका टेक्स्ट कॉपी करें.",
+    "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
+  },
+  "noticeFieldRoom_one": {
+    "message": "इस फ़ील्ड में सिर्फ़ $FREE$ और वर्ण की जगह है, जबकि स्निपेट की लंबाई $TOTAL$ है. कुछ भी नहीं डाला गया.",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $FREE$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "free": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "40"
+      }
+    }
+  },
+  "noticeFieldRoom_other": {
+    "message": "इस फ़ील्ड में सिर्फ़ $FREE$ और वर्णों की जगह है, जबकि स्निपेट की लंबाई $TOTAL$ है. कुछ भी नहीं डाला गया.",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
+    "placeholders": {
+      "free": {
+        "content": "$1",
+        "example": "12"
+      },
+      "total": {
+        "content": "$2",
+        "example": "40"
+      }
+    }
+  },
+  "noticeSiteOff": {
+    "message": "$HOST$ पर दो बार दबाना और संक्षिप्त रूप बंद हैं. इन्हें फिर से चालू करने के लिए, कीबोर्ड शॉर्टकट या राइट-क्लिक मेन्यू से पैनल खोलें.",
+    "description": "Short notice at the top of a web page after the user turned the extension off for this site. The site name is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "noticeSiteOn": {
+    "message": "$HOST$ पर दो बार दबाना और संक्षिप्त रूप फिर से चालू हैं.",
+    "description": "Short notice at the top of a web page after the user turned the extension back on for this site.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "noticeSaved": {
+    "message": "स्निपेट सेव हो गया.",
+    "description": "Short notice at the top of a web page after the user saved a new snippet from selected text."
+  },
+  "snippets": {
+    "message": "स्निपेट",
+    "description": "The plural of snippet, a small piece of saved text. Used as the title of the panel, the name of the list of snippets, and the first section of the manager."
+  },
+  "editSnippet": {
+    "message": "स्निपेट में बदलाव करें",
+    "description": "Heading of the form for changing a saved snippet, in the panel and in the manager."
+  },
+  "newSnippet": {
+    "message": "नया स्निपेट",
+    "description": "Button in the manager that starts a new snippet, and the heading of the form for it. Other messages refer to this button by name, so keep them the same."
+  },
+  "captionInsert": {
+    "message": "स्निपेट डालें",
+    "description": "Heading at the top of the panel while it shows the list of snippets. At most 36 characters."
+  },
+  "captionCreate": {
+    "message": "नया स्निपेट बनाएं",
+    "description": "Heading of the form for a new snippet in the panel. At most 36 characters."
+  },
+  "createNew": {
+    "message": "नया स्निपेट बनाएं",
+    "description": "First entry in the panel list. It opens the form for a new snippet. At most 40 characters."
+  },
+  "createFromSelection": {
+    "message": "चुने गए टेक्स्ट से स्निपेट बनाएं",
+    "description": "First entry in the panel list when text was selected on the page. The new snippet starts with that text."
+  },
+  "emptyApply": {
+    "message": "बनाएं",
+    "description": "Button at the bottom of the panel when there are no snippets yet. It opens the form for the first snippet. At most 16 characters."
+  },
+  "emptyHint": {
+    "message": "अपना पहला स्निपेट बनाने के लिए नीचे क्लिक करें.",
+    "description": "Second sentence of the text in the empty panel, after the message emptyText and a space. The button below it is the message emptyApply."
+  },
+  "emptyHeading": {
+    "message": "अभी आपके पास कोई स्निपेट नहीं है",
+    "description": "Heading of the empty panel."
+  },
+  "loadError": {
+    "message": "आपके स्निपेट लोड नहीं किए जा सके. पैनल बंद करके फिर से खोलें.",
+    "description": "Error in the panel when stored snippets could not be read."
+  },
+  "loadErrorHeading": {
+    "message": "स्निपेट लोड नहीं किए जा सके",
+    "description": "Heading above the error in the panel when stored snippets could not be read."
+  },
+  "emptyText": {
+    "message": "स्निपेट टेक्स्ट के छोटे टुकड़े हैं, जिन्हें बार-बार इस्तेमाल करके आप समय बचा सकते हैं (जैसे पता, ईमेल).",
+    "description": "Explanation in the empty panel of what a snippet is. The examples in brackets are things people often save."
+  },
+  "formApply": {
+    "message": "स्निपेट सेव करें",
+    "description": "Button at the bottom of the panel form for a new or changed snippet. At most 24 characters."
+  },
+  "createError": {
+    "message": "स्निपेट नहीं बनाया जा सका.",
+    "description": "Error in the panel after saving a new snippet failed."
+  },
+  "editDelete": {
+    "message": "स्निपेट मिटाएं",
+    "description": "Button in the panel form for a saved snippet. It deletes the snippet and offers Undo."
+  },
+  "editDuplicate": {
+    "message": "स्निपेट का डुप्लीकेट बनाएं",
+    "description": "Button in the panel form for a saved snippet. It makes a copy of the snippet."
+  },
+  "editError": {
+    "message": "स्निपेट सेव नहीं किया जा सका.",
+    "description": "Error in the panel after saving a changed snippet failed."
+  },
+  "deleteError": {
+    "message": "स्निपेट नहीं मिटाया जा सका.",
+    "description": "Error in the panel after deleting a snippet failed."
+  },
+  "duplicateError": {
+    "message": "स्निपेट का डुप्लीकेट नहीं बनाया जा सका.",
+    "description": "Error in the panel after copying a snippet failed."
+  },
+  "moveError": {
+    "message": "स्निपेट को नहीं ले जाया जा सका.",
+    "description": "Error in the panel after moving a snippet up or down in the list failed."
+  },
+  "restoreError": {
+    "message": "स्निपेट वापस नहीं लाया जा सका.",
+    "description": "Error in the panel after Undo of a deletion failed."
+  },
+  "notFound": {
+    "message": "स्निपेट नहीं मिला.",
+    "description": "Error in the panel or the manager when the snippet to show no longer exists."
+  },
+  "placeholderContent": {
+    "message": "कुछ टेक्स्ट लिखें …",
+    "description": "Grey hint inside the empty text box of the panel form. The ellipsis character is part of the style. At most 38 characters."
+  },
+  "placeholderTitle": {
+    "message": "नाम लिखें (वैकल्पिक) …",
+    "description": "Grey hint inside the empty name box of the panel form. The ellipsis character is part of the style. At most 38 characters."
+  },
+  "placeholderAbbreviation": {
+    "message": "संक्षिप्त रूप (वैकल्पिक), जैसे $EXAMPLE$ …",
+    "description": "Grey hint inside the empty abbreviation box of the panel form. An abbreviation is a short code the user types to insert a snippet. The example is filled in for you. At most 60 characters, counting the example.",
+    "placeholders": {
+      "example": {
+        "content": ";addr"
+      }
+    }
+  },
+  "placeholderFolder": {
+    "message": "फ़ोल्डर (वैकल्पिक), जैसे ऑफ़िस …",
+    "description": "Grey hint inside the empty folder box of the panel form. Work is an example of a folder name; use a common word in your language. At most 50 characters."
+  },
+  "folderAll": {
+    "message": "सभी",
+    "description": "Label of the folder button that shows every snippet."
+  },
+  "folderNone": {
+    "message": "बिना फ़ोल्डर",
+    "description": "Label of the folder button that shows the snippets that are in no folder."
+  },
+  "foldersLabel": {
+    "message": "फ़ोल्डर",
+    "description": "Accessible name of the row of folder buttons. Screen readers read it; it is not shown."
+  },
+  "validationEmpty": {
+    "message": "यह फ़ील्ड खाली नहीं छोड़ा जा सकता.",
+    "description": "Error under a form field that was left empty."
+  },
+  "validationTooLong_one": {
+    "message": "इनपुट $MAX$ वर्ण से ज़्यादा लंबा नहीं हो सकता.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 128 in Filipino. Keep $MAX$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "validationTooLong_other": {
+    "message": "इनपुट $MAX$ वर्णों से ज़्यादा लंबा नहीं हो सकता.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. Plural form.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "128"
+      }
+    }
+  },
+  "characterCount_one": {
+    "message": "$COUNT$ वर्ण",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "characterCount_other": {
+    "message": "$COUNT$ वर्ण",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. Plural form. The number has the thousands separator of your language.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,234"
+      }
+    }
+  },
+  "labelEdited": {
+    "message": "बदला गया",
+    "description": "Small label next to a snippet in the panel list that was just changed. At most 12 characters."
+  },
+  "labelNew": {
+    "message": "नया",
+    "description": "Small label next to a snippet in the panel list that was just added. At most 8 characters."
+  },
+  "searchPlaceholder": {
+    "message": "स्निपेट खोजें …",
+    "description": "Grey hint inside the search box of the panel. The ellipsis character is part of the style. At most 30 characters."
+  },
+  "undoDeleted": {
+    "message": "स्निपेट मिटा दिया गया.",
+    "description": "Message in the bar that appears after a snippet was deleted, with the Undo button next to it."
+  },
+  "undo": {
+    "message": "पूर्ववत करें",
+    "description": "Button in the bar that appears in the panel and the snippet manager after a snippet was deleted. It brings the snippet back. At most 12 characters."
+  },
+  "placeholders": {
+    "message": "प्लेसहोल्डर",
+    "description": "Label before the list of placeholders in a snippet text. A placeholder is a word in braces, such as {date}, that is replaced when the snippet is inserted."
+  },
+  "placeholdersUnrecognized": {
+    "message": "पहचाना नहीं गया, जैसा लिखा है वैसा ही डाला जाता है",
+    "description": "Label before the list of text in braces that looks like a placeholder but is not one. It is inserted exactly as typed."
+  },
+  "includes": {
+    "message": "इसमें शामिल",
+    "description": "Label before the list of other snippets that a snippet includes."
+  },
+  "referenceNotFound": {
+    "message": "नहीं मिला",
+    "description": "Tooltip on an included snippet that does not exist."
+  },
+  "referenceMissing": {
+    "message": "किसी भी स्निपेट का संक्षिप्त रूप $ABBREVIATION$ नहीं है, इसलिए $TOKEN$ जैसा लिखा है वैसा ही डाला जाता है.",
+    "description": "Warning under a snippet that includes another snippet by its abbreviation, when no snippet has that abbreviation. The abbreviation and the text in braces are filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "token": {
+        "content": "$2",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "referenceLoop": {
+    "message": "$TOKEN$ किसी स्निपेट को उसी के अंदर डाल देगा, इसलिए यह जैसा लिखा है वैसा ही डाला जाता है.",
+    "description": "Warning under a snippet that includes itself, directly or through other snippets. The text in braces is filled in for you.",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "referenceLimit": {
+    "message": "एक बार डालने में ज़्यादा से ज़्यादा $LIMIT$ स्निपेट शामिल होते हैं, इसलिए बाकी रेफ़रेंस जैसे लिखे हैं वैसे ही डाले जाते हैं.",
+    "description": "Warning under a snippet that includes more other snippets than one insert allows. The limit, always 100, is filled in for you, so write the word for snippets in the form that goes with 100.",
+    "placeholders": {
+      "limit": {
+        "content": "100"
+      }
+    }
+  },
+  "fillCount_one": {
+    "message": "$COUNT$ फ़ील्ड भरें",
+    "description": "Line at the top of the panel's fill-in form, which asks for values before a snippet is inserted. The panel's heading above it shows the snippet's name. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "fillCount_other": {
+    "message": "$COUNT$ फ़ील्ड भरें",
+    "description": "Line at the top of the panel's fill-in form, which asks for values before a snippet is inserted. The panel's heading above it shows the snippet's name. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "preview": {
+    "message": "झलक",
+    "description": "Label above the text a snippet will insert, with the typed values filled in."
+  },
+  "insertApply": {
+    "message": "डालें",
+    "description": "Button at the bottom of the panel form that fills in a snippet and inserts it. At most 16 characters."
+  },
+  "edit": {
+    "message": "बदलाव करें",
+    "description": "Tooltip on the pencil button next to a snippet in the panel list."
+  },
+  "back": {
+    "message": "वापस जाएं ($KEY$)",
+    "description": "Tooltip on the button at the top left of the panel that goes back to the list. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Esc"
+      }
+    }
+  },
+  "close": {
+    "message": "बंद करें ($KEY$)",
+    "description": "Tooltip on the button at the top right of the panel that closes it. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Esc"
+      }
+    }
+  },
+  "siteOff": {
+    "message": "$HOST$ के लिए दो बार दबाना और संक्षिप्त रूप बंद करें",
+    "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are on. The site name is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteOn": {
+    "message": "$ENTRY$ के लिए दो बार दबाना और संक्षिप्त रूप फिर से चालू करें",
+    "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are off. $ENTRY$ is the entry in the list of turned-off sites that covers this site: the site itself, or a shorter address that covers it, such as example.com on mail.example.com.",
+    "placeholders": {
+      "entry": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteError": {
+    "message": "इस साइट की सेटिंग नहीं बदली जा सकी.",
+    "description": "Error in the panel after turning the extension off or on for a site failed."
+  },
+  "formattedView": {
+    "message": "स्निपेट का टेक्स्ट",
+    "description": "Accessible name of the box that shows the text of a snippet with formatting. Screen readers read it; it is not shown."
+  },
+  "formattedNote": {
+    "message": "इस स्निपेट में फ़ॉर्मैटिंग है. इसका टेक्स्ट स्निपेट मैनेजर में बदलें.",
+    "description": "Note in the panel form for a snippet that has bold text, lists, or links. The text can only be changed in the manager page."
+  },
+  "openManager": {
+    "message": "स्निपेट मैनेजर में खोलें",
+    "description": "Link-style button next to the note about formatting. It opens the manager page with this snippet."
+  },
+  "navLabel": {
+    "message": "सेक्शन",
+    "description": "Accessible name of the menu with the three sections of the manager. Screen readers read it; it is not shown."
+  },
+  "recentlyDeleted": {
+    "message": "हाल ही में मिटाए गए",
+    "description": "Name of the manager section that lists deleted snippets, and its heading."
+  },
+  "settingsAndBackup": {
+    "message": "सेटिंग और बैकअप",
+    "description": "Name of the manager section with the settings and the backup buttons."
+  },
+  "searchManagerPlaceholder": {
+    "message": "स्निपेट खोजें...",
+    "description": "Grey hint inside the search box of the manager. At most 36 characters."
+  },
+  "renameFolder": {
+    "message": "फ़ोल्डर का नाम बदलें",
+    "description": "Button in the manager that renames the selected folder."
+  },
+  "removeFolder": {
+    "message": "फ़ोल्डर हटाएं",
+    "description": "Button in the manager that removes the selected folder. The snippets in it stay."
+  },
+  "removeFolderConfirm": {
+    "message": "फ़ोल्डर हटाने के लिए फिर से क्लिक करें",
+    "description": "The text of the Remove folder button after the first click, which asks for a second click."
+  },
+  "folderNameLabel": {
+    "message": "फ़ोल्डर का नाम",
+    "description": "Accessible name of the box where a folder is renamed. Screen readers read it; it is not shown."
+  },
+  "rename": {
+    "message": "नाम बदलें",
+    "description": "Button that applies the new folder name."
+  },
+  "cancel": {
+    "message": "रद्द करें",
+    "description": "Button that closes a small form without changing anything."
+  },
+  "renameJoins": {
+    "message": "$NAME$ पहले से मौजूद है. नाम बदलने पर ये स्निपेट उसमें चले जाएंगे.",
+    "description": "Hint under the box where a folder is renamed to the name of a folder that already exists. The folder name is filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "folderNameRequired": {
+    "message": "फ़ोल्डर का नाम लिखें.",
+    "description": "Error under the box where a folder is renamed, when it was left empty."
+  },
+  "noSnippets": {
+    "message": "अभी कोई स्निपेट नहीं है. स्निपेट बनाने के लिए \"नया स्निपेट\" पर क्लिक करें.",
+    "description": "Text in the empty list of the manager. New snippet is the name of a button; write it as in the message New snippet."
+  },
+  "selectOrNew": {
+    "message": "कोई स्निपेट चुनें या \"नया स्निपेट\" पर क्लिक करें.",
+    "description": "Text where the form is, when no snippet is open. New snippet is the name of a button; write it as in the message New snippet."
+  },
+  "dragReorder": {
+    "message": "क्रम बदलने के लिए खींचें",
+    "description": "Tooltip on the grip of a snippet row in the manager."
+  },
+  "dragReorderFolder": {
+    "message": "क्रम बदलने के लिए खींचें, या फ़ोल्डर में ले जाने के लिए उस पर छोड़ें",
+    "description": "Tooltip on the grip of a snippet row in the manager, when folders exist."
+  },
+  "moved": {
+    "message": "$TITLE$ को $TOTAL$ में से स्थान $POSITION$ पर ले जाया गया.",
+    "description": "Message for screen readers after a snippet was moved up or down in the list. It is not shown. The name of the snippet and the numbers are filled in for you.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Address"
+      },
+      "position": {
+        "content": "$2",
+        "example": "2"
+      },
+      "total": {
+        "content": "$3",
+        "example": "9"
+      }
+    }
+  },
+  "fieldName": {
+    "message": "नाम",
+    "description": "Label of the box for the name of a snippet in the manager form."
+  },
+  "fieldAbbreviation": {
+    "message": "संक्षिप्त रूप",
+    "description": "Label of the box for the abbreviation of a snippet in the manager form. An abbreviation is a short code the user types to insert a snippet."
+  },
+  "fieldFolder": {
+    "message": "फ़ोल्डर",
+    "description": "Label of the box for the folder of a snippet in the manager form."
+  },
+  "fieldText": {
+    "message": "टेक्स्ट",
+    "description": "Label of the box for the text of a snippet in the manager form."
+  },
+  "optionalPlaceholder": {
+    "message": "वैकल्पिक",
+    "description": "Grey hint inside the empty name box of the manager form, which may stay empty. At most 20 characters."
+  },
+  "optionalAbbreviationPlaceholder": {
+    "message": "वैकल्पिक, जैसे $EXAMPLE$",
+    "description": "Grey hint inside the empty abbreviation box of the manager form. The example is filled in for you. At most 38 characters, counting the example.",
+    "placeholders": {
+      "example": {
+        "content": ";addr"
+      }
+    }
+  },
+  "optionalFolderPlaceholder": {
+    "message": "वैकल्पिक, जैसे ऑफ़िस",
+    "description": "Grey hint inside the empty folder box of the manager form. Work is an example of a folder name; use a common word in your language. At most 38 characters."
+  },
+  "formatJson": {
+    "message": "$JSON$ फ़ॉर्मैट करें",
+    "description": "Button in the manager form that checks the text as JSON and indents it. JSON is a data format, and its name is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "formattedText": {
+    "message": "फ़ॉर्मैट किया गया टेक्स्ट",
+    "description": "Label of the checkbox in the manager form that turns on bold text, lists, links, and code blocks."
+  },
+  "toolbarLabel": {
+    "message": "फ़ॉर्मैटिंग",
+    "description": "Accessible name of the row of formatting buttons. Screen readers read it; it is not shown."
+  },
+  "toolBold": {
+    "message": "बोल्ड ($SHORTCUT$)",
+    "description": "Tooltip of the bold button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+B"
+      }
+    }
+  },
+  "toolItalic": {
+    "message": "इटैलिक ($SHORTCUT$)",
+    "description": "Tooltip of the italic button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+I"
+      }
+    }
+  },
+  "toolUnderline": {
+    "message": "अंडरलाइन ($SHORTCUT$)",
+    "description": "Tooltip of the underline button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+U"
+      }
+    }
+  },
+  "toolLink": {
+    "message": "लिंक ($SHORTCUT$)",
+    "description": "Tooltip of the button that turns the selected text into a link. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+K"
+      }
+    }
+  },
+  "toolBulleted": {
+    "message": "बुलेट वाली सूची",
+    "description": "Tooltip of the button that makes a list with bullets."
+  },
+  "toolNumbered": {
+    "message": "नंबर वाली सूची",
+    "description": "Tooltip of the button that makes a list with numbers."
+  },
+  "toolCode": {
+    "message": "कोड",
+    "description": "Tooltip of the button that marks selected text as code inside a line."
+  },
+  "toolCodeBlock": {
+    "message": "कोड ब्लॉक",
+    "description": "Tooltip of the button that makes the selected lines a block of code."
+  },
+  "toolClear": {
+    "message": "फ़ॉर्मैटिंग हटाएं",
+    "description": "Tooltip of the button that removes bold, italic, underline, code, and links from the selected text."
+  },
+  "codeLanguageLabel": {
+    "message": "कोड ब्लॉक की भाषा",
+    "description": "Accessible name and tooltip of the menu that picks the programming language of a code block."
+  },
+  "languagePlain": {
+    "message": "सादा टेक्स्ट",
+    "description": "Entry in the menu of code block languages for a block with no language, and the label above such a block."
+  },
+  "linkAddress": {
+    "message": "लिंक का पता",
+    "description": "Label of the box where the address of a link is typed."
+  },
+  "apply": {
+    "message": "लागू करें",
+    "description": "Button that puts the typed link address on the selected text."
+  },
+  "removeLink": {
+    "message": "लिंक हटाएं",
+    "description": "Button that removes a link and keeps its text."
+  },
+  "linkInvalid": {
+    "message": "ऐसा पता इस्तेमाल करें जो $HTTPS$, $HTTP$, $MAILTO$ या $TEL$ से शुरू होता हो.",
+    "description": "Error under the box for a link address. The four address beginnings are filled in for you.",
+    "placeholders": {
+      "https": {
+        "content": "https://"
+      },
+      "http": {
+        "content": "http://"
+      },
+      "mailto": {
+        "content": "mailto:"
+      },
+      "tel": {
+        "content": "tel:"
+      }
+    }
+  },
+  "formatHint": {
+    "message": "वेबमेल जैसे रिच टेक्स्ट एडिटर में यह फ़ॉर्मैटिंग बनी रहती है. टेक्स्ट बॉक्स और $GOOGLE_DOCS$ में सादा टेक्स्ट जाता है: बुलेट की जगह बिंदु, और हर लिंक के बाद कोष्ठक में उसका पता.",
+    "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
+    "placeholders": {
+      "google_docs": {
+        "content": "Google Docs"
+      }
+    }
+  },
+  "duplicate": {
+    "message": "डुप्लीकेट बनाएं",
+    "description": "Button in the manager form that makes a copy of the snippet."
+  },
+  "delete": {
+    "message": "मिटाएं",
+    "description": "Button in the manager form that deletes the snippet and offers Undo."
+  },
+  "save": {
+    "message": "सेव करें",
+    "description": "Button in the manager form that saves the snippet, and in a notice that asks to save changes."
+  },
+  "unsavedChanges": {
+    "message": "आपके कुछ बदलाव सेव नहीं हुए हैं.",
+    "description": "Notice in the manager when the user leaves a snippet that was changed but not saved. Buttons Save and Discard follow."
+  },
+  "discard": {
+    "message": "खारिज करें",
+    "description": "Button in a notice about unsaved changes. It throws the changes away."
+  },
+  "deletedElsewhere": {
+    "message": "यह स्निपेट किसी दूसरे टैब में मिटा दिया गया. सेव करने पर यह फिर से बन जाएगा.",
+    "description": "Notice in the manager when the open snippet was deleted from another browser tab."
+  },
+  "changedElsewhere": {
+    "message": "यह स्निपेट किसी दूसरे टैब में बदल दिया गया.",
+    "description": "Notice in the manager when the open snippet was changed from another browser tab. Buttons to load the other version or keep the current one follow."
+  },
+  "loadOther": {
+    "message": "दूसरा वर्शन लोड करें",
+    "description": "Button in a notice. It replaces the form with the version saved from the other tab."
+  },
+  "keepMine": {
+    "message": "मेरा वर्शन रखें",
+    "description": "Button in a notice. It keeps what the user typed."
+  },
+  "saved": {
+    "message": "सेव हो गया.",
+    "description": "Status after a snippet was saved."
+  },
+  "savedRenamed_one": {
+    "message": "सेव हो गया. $OLD$ इस्तेमाल करने वाला $COUNT$ स्निपेट अब $NEW$ इस्तेमाल करता है.",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. The number and the two abbreviations are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "old": {
+        "content": "$2",
+        "example": ";sig"
+      },
+      "new": {
+        "content": "$3",
+        "example": ";sign"
+      }
+    }
+  },
+  "savedRenamed_other": {
+    "message": "सेव हो गया. $OLD$ इस्तेमाल करने वाले $COUNT$ स्निपेट अब $NEW$ इस्तेमाल करते हैं.",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "old": {
+        "content": "$2",
+        "example": ";sig"
+      },
+      "new": {
+        "content": "$3",
+        "example": ";sign"
+      }
+    }
+  },
+  "savedCleared_one": {
+    "message": "सेव हो गया. अब किसी भी स्निपेट का संक्षिप्त रूप $ABBREVIATION$ नहीं है, इसलिए $COUNT$ स्निपेट $TOKEN$ को जैसा लिखा है वैसा ही डालता है.",
+    "description": "Status after saving a snippet whose abbreviation was removed, when another snippet includes it. The abbreviation, the number, and the text in braces are filled in for you, and the number, $COUNT$, chooses the plural form. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "count": {
+        "content": "$2",
+        "example": "1"
+      },
+      "token": {
+        "content": "$3",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "savedCleared_other": {
+    "message": "सेव हो गया. अब किसी भी स्निपेट का संक्षिप्त रूप $ABBREVIATION$ नहीं है, इसलिए $COUNT$ स्निपेट $TOKEN$ को जैसा लिखा है वैसा ही डालते हैं.",
+    "description": "Status after saving a snippet whose abbreviation was removed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "count": {
+        "content": "$2",
+        "example": "3"
+      },
+      "token": {
+        "content": "$3",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "saveChangeFailed": {
+    "message": "बदलाव सेव नहीं किया जा सका: $REASON$",
+    "description": "Error after saving or changing a snippet failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "QUOTA_BYTES quota exceeded"
+      }
+    }
+  },
+  "saveSettingFailed": {
+    "message": "सेटिंग सेव नहीं की जा सकी: $REASON$",
+    "description": "Error after saving a setting failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "QUOTA_BYTES quota exceeded"
+      }
+    }
+  },
+  "loadFailed": {
+    "message": "आपके स्निपेट लोड नहीं किए जा सके: $REASON$",
+    "description": "Error at the top of the manager when stored snippets could not be read. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "Extension context invalidated"
+      }
+    }
+  },
+  "exportFailed": {
+    "message": "स्निपेट एक्सपोर्ट नहीं किए जा सके: $REASON$",
+    "description": "Error after the export of the backup file failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "Extension context invalidated"
+      }
+    }
+  },
+  "jsonFormatted": {
+    "message": "$JSON$ फ़ॉर्मैट हो गया.",
+    "description": "Status after the Format JSON button indented the text. The name of the data format is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "jsonNoCodeBlock": {
+    "message": "पहले कर्सर को किसी कोड ब्लॉक में रखें.",
+    "description": "Error after Format JSON was pressed while the text cursor is not inside a code block. The caret is the blinking text cursor."
+  },
+  "deletedOn": {
+    "message": "$DATE$ को मिटाया गया",
+    "description": "Small line under a deleted snippet. The date and time are filled in for you, in the format of your language.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "11/20/2026, 9:14:00 AM"
+      }
+    }
+  },
+  "restore": {
+    "message": "वापस लाएं",
+    "description": "Button next to a deleted snippet that brings it back."
+  },
+  "deleteForever": {
+    "message": "हमेशा के लिए मिटाएं",
+    "description": "Button next to a deleted snippet that removes it for good."
+  },
+  "deleteForeverConfirm": {
+    "message": "हमेशा के लिए मिटाने के लिए फिर से क्लिक करें",
+    "description": "The text of the Delete forever button after the first click, which asks for a second click."
+  },
+  "deletedNote": {
+    "message": "मिटाए गए आखिरी $COUNT$ स्निपेट यहां तब तक रहते हैं, जब तक आप उन्हें वापस नहीं लाते या हमेशा के लिए नहीं मिटाते.",
+    "description": "Text under the heading of the list of deleted snippets. The number, always 20, is filled in for you, so write the word for snippets in the form that goes with 20.",
+    "placeholders": {
+      "count": {
+        "content": "20"
+      }
+    }
+  },
+  "nothingDeleted": {
+    "message": "हाल ही में कुछ भी नहीं मिटाया गया.",
+    "description": "Text in the empty list of deleted snippets."
+  },
+  "settings": {
+    "message": "सेटिंग",
+    "description": "Heading of the settings part of the settings page."
+  },
+  "openPanelWith": {
+    "message": "स्निपेट पैनल खोलने के लिए",
+    "description": "Label of the menu where the user picks the key that opens the panel with a double tap."
+  },
+  "hotkeyControl": {
+    "message": "$KEY$ को दो बार दबाएं",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Ctrl"
+      }
+    }
+  },
+  "hotkeyShift": {
+    "message": "$KEY$ को दो बार दबाएं",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Shift"
+      }
+    }
+  },
+  "hotkeyAlt": {
+    "message": "$KEY$ को दो बार दबाएं",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Alt"
+      }
+    }
+  },
+  "keyCtrl": {
+    "message": "Ctrl",
+    "description": "The name of the Ctrl key. The panel shows it in the key hint of its save and insert buttons, and a notice in Google Docs uses it in Ctrl+V. Write it as keyboards in your language print it, the same way as in every other message."
+  },
+  "keyCmd": {
+    "message": "Cmd",
+    "description": "The name of the Command key of a Mac keyboard. On a Mac it takes the place of Ctrl in the shortcuts of the formatting buttons in the snippet manager, as in Cmd+B, in the key names of usageNote and abbreviationsNote, as in Cmd+1 and Cmd+Z, and in a notice in Google Docs, as in Cmd+V. Write it as Mac keyboards in your language print it."
+  },
+  "off": {
+    "message": "बंद",
+    "description": "The last entry of 2 menus in the settings, the messages openPanelWith and expandAbbreviations. In the first it turns the double tap off, and in the second it turns abbreviations off. Write one text that fits both menus."
+  },
+  "settingSaved": {
+    "message": "सेव हो गया. खुले हुए पेजों पर बदलाव तुरंत लागू हो जाता है.",
+    "description": "Status after the setting for the double tap key was saved."
+  },
+  "keyboardShortcut": {
+    "message": "कीबोर्ड शॉर्टकट",
+    "description": "Label of the setting that shows the keyboard shortcut for the panel."
+  },
+  "shortcutNotSet": {
+    "message": "सेट नहीं है",
+    "description": "Shown where the keyboard shortcut would be when the browser has none for this extension."
+  },
+  "changeShortcut": {
+    "message": "ब्राउज़र की सेटिंग में बदलें",
+    "description": "Button that opens the browser page where extension shortcuts are changed."
+  },
+  "shortcutNote": {
+    "message": "दो बार दबाने की तरह, यह उस फ़ील्ड में स्निपेट पैनल खोलता है जिसमें आप टाइप कर रहे हैं.",
+    "description": "Text under the keyboard shortcut setting."
+  },
+  "expandAbbreviations": {
+    "message": "संक्षिप्त रूप को स्निपेट में बदलें",
+    "description": "Label of the menu where the user picks when a typed abbreviation is replaced by its snippet."
+  },
+  "abbreviationsImmediate": {
+    "message": "टाइप करते ही",
+    "description": "Menu entry: an abbreviation is replaced as soon as its last character is typed."
+  },
+  "abbreviationsDelimiter": {
+    "message": "$SPACE$, $TAB$ या $ENTER$ दबाने के बाद",
+    "description": "Menu entry: an abbreviation is replaced after the user presses one of the keys Space, Tab, or Enter. The key names are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "space": {
+        "content": "Space"
+      },
+      "tab": {
+        "content": "Tab"
+      },
+      "enter": {
+        "content": "Enter"
+      }
+    }
+  },
+  "abbreviationsNote": {
+    "message": "टेक्स्ट फ़ील्ड में किसी स्निपेट का संक्षिप्त रूप टाइप करने पर वह स्निपेट में बदल जाता है, और <kbd>$CTRL$</kbd>+<kbd>$Z$</kbd> दबाने पर टाइप किया गया टेक्स्ट वापस आ जाता है. जब संक्षिप्त रूप $SPACE$, $TAB$ या $ENTER$ का इंतज़ार करते हैं, तो $SPACE$ दबाने पर स्निपेट के बाद एक स्पेस रहता है, जबकि $TAB$ और $ENTER$ सिर्फ़ उसे स्निपेट में बदलते हैं. यह $GOOGLE_DOCS$ में काम नहीं करता.",
+    "description": "Text under the abbreviations menu. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the letter Z, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "ctrl": {
+        "content": "Ctrl"
+      },
+      "z": {
+        "content": "Z"
+      },
+      "space": {
+        "content": "Space"
+      },
+      "tab": {
+        "content": "Tab"
+      },
+      "enter": {
+        "content": "Enter"
+      },
+      "google_docs": {
+        "content": "Google Docs"
+      }
+    }
+  },
+  "offSitesLabel": {
+    "message": "वे साइटें जहां दो बार दबाना और संक्षिप्त रूप बंद हैं",
+    "description": "Label of the list of sites where the extension is turned off."
+  },
+  "offSiteInputLabel": {
+    "message": "बंद करने के लिए साइट",
+    "description": "Accessible name of the box where a site is typed. Screen readers read it; it is not shown."
+  },
+  "addSite": {
+    "message": "साइट जोड़ें",
+    "description": "Button that adds the typed site to the list of sites where the extension is off."
+  },
+  "offSitesNone": {
+    "message": "अभी कोई साइट नहीं है. दो बार दबाना और संक्षिप्त रूप हर साइट पर काम करते हैं.",
+    "description": "Text under the empty list of sites where the extension is off."
+  },
+  "offSitesNote": {
+    "message": "किसी साइट में उसके सबडोमेन भी शामिल होते हैं: $EXAMPLE$ में $SUBDOMAIN$ भी आता है. इन साइटों पर भी कीबोर्ड शॉर्टकट और राइट-क्लिक मेन्यू से पैनल खुलता है. पैनल में सबसे ऊपर \"बंद करें\" के बगल वाला बटन मौजूदा साइट को बंद या फिर से चालू करता है.",
+    "description": "Text under the list of sites where the extension is off. Close is the name of a button in the panel; write it as in the message Close. The two web addresses are filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": "example.com"
+      },
+      "subdomain": {
+        "content": "mail.example.com"
+      }
+    }
+  },
+  "turnOn": {
+    "message": "चालू करें",
+    "description": "Button next to a site in the list. It turns the extension back on for that site."
+  },
+  "turnOnSite": {
+    "message": "$SITE$ को फिर से चालू करें",
+    "description": "Accessible name of the Turn on button, which names the site. Screen readers read it; it is not shown.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "usageNote": {
+    "message": "किसी टेक्स्ट बॉक्स, रिच टेक्स्ट एडिटर या $GOOGLE_DOCS$ दस्तावेज़ में क्लिक करें और कुंजी को जल्दी से दो बार दबाएं. पैनल में कोई स्निपेट माउस से, ऐरो कुंजियों और <kbd>$ENTER$</kbd> से, या <kbd>$CTRL$</kbd>+<kbd>$N2$</kbd> से <kbd>$CTRL$</kbd>+<kbd>$N9$</kbd> तक की कुंजियों से चुनें. <kbd>$CTRL$</kbd>+<kbd>$N1$</kbd> से नया स्निपेट बनता है, और अगर पैनल खुलते समय कोई टेक्स्ट चुना गया हो, तो नया स्निपेट उसी टेक्स्ट से शुरू होता है. स्निपेट की लंबाई की कोई सीमा नहीं है.",
+    "description": "Short instructions at the end of the settings. The key to tap twice is the one picked in the menu openPanelWith above. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the digits, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "google_docs": {
+        "content": "Google Docs"
+      },
+      "enter": {
+        "content": "Enter"
+      },
+      "ctrl": {
+        "content": "Ctrl"
+      },
+      "n1": {
+        "content": "1"
+      },
+      "n2": {
+        "content": "2"
+      },
+      "n9": {
+        "content": "9"
+      }
+    }
+  },
+  "languageNote": {
+    "message": "इंटरफ़ेस आपके ब्राउज़र की भाषा में है: $LANGUAGE$.",
+    "description": "Muted line in Settings and backup, shown in every language except English. It says which language the interface is in. The name of the language, written in that language, is filled in for you. At most 120 characters.",
+    "placeholders": {
+      "language": {
+        "content": "$1",
+        "example": "Deutsch"
+      }
+    }
+  },
+  "translationReport": {
+    "message": "अनुवाद में गड़बड़ी की रिपोर्ट करें",
+    "description": "Link that opens a form on GitHub, shown in every language except English, under the line that names the interface language. It is for people who find a wrong or unclear translation. At most 60 characters."
+  },
+  "backup": {
+    "message": "बैकअप",
+    "description": "Heading of the part of the settings page with the export and import buttons."
+  },
+  "exportSnippets": {
+    "message": "स्निपेट एक्सपोर्ट करें",
+    "description": "Button that saves all snippets to a file."
+  },
+  "exportNote_one": {
+    "message": "$COUNT$ स्निपेट को $FILE$ में सेव करता है.",
+    "description": "Text next to the Export snippets button. The number and the file name are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exportNote_other": {
+    "message": "सभी $COUNT$ स्निपेट को $FILE$ में सेव करता है.",
+    "description": "Text next to the Export snippets button. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exported_one": {
+    "message": "$COUNT$ स्निपेट $FILE$ में एक्सपोर्ट किया गया.",
+    "description": "Status after the export. The number and the file name are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exported_other": {
+    "message": "$COUNT$ स्निपेट $FILE$ में एक्सपोर्ट किए गए.",
+    "description": "Status after the export. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "importSnippets": {
+    "message": "स्निपेट इंपोर्ट करें",
+    "description": "Button that reads snippets from a backup file."
+  },
+  "importNote": {
+    "message": "बैकअप फ़ाइल के स्निपेट जोड़ता है. जो स्निपेट पहले से मौजूद हैं, उन्हें छोड़ दिया जाता है.",
+    "description": "Text next to the Import snippets button."
+  },
+  "support": {
+    "message": "सहयोग",
+    "description": "Heading of the part of the settings page about supporting the author."
+  },
+  "supportNote": {
+    "message": "$NAME$ मुफ़्त है, और हर सुविधा बिना पैसे दिए काम करती है. अगर आप इसके डेवलपमेंट में सहयोग करना चाहते हैं, तो $KOFI$ पर दान कर सकते हैं.",
+    "description": "Text under the Support heading. The extension name and the name of the donation site are filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "Snippet Inserter"
+      },
+      "kofi": {
+        "content": "Ko-fi"
+      }
+    }
+  },
+  "donate": {
+    "message": "$KOFI$ पर दान करें",
+    "description": "Text of the link that opens the donation page. The name of the donation site is filled in for you.",
+    "placeholders": {
+      "kofi": {
+        "content": "Ko-fi"
+      }
+    }
+  },
+  "siteEnter": {
+    "message": "$EXAMPLE$ जैसी कोई साइट लिखें.",
+    "description": "Error under the box where a site is added to the list of sites where the extension is off. The example is filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": "example.com"
+      }
+    }
+  },
+  "siteListed": {
+    "message": "$HOST$ पहले से सूची में है.",
+    "description": "Error under the box where a site is added, when the site is already in the list. The site is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteCovered": {
+    "message": "$HOST$ पहले से बंद है, क्योंकि $COVERING$ सूची में है.",
+    "description": "Error under the box where a site is added, when a shorter entry already covers it. Both sites are filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "mail.example.com"
+      },
+      "covering": {
+        "content": "$2",
+        "example": "example.com"
+      }
+    }
+  },
+  "copyOf": {
+    "message": "$TITLE$ की कॉपी",
+    "description": "The name given to a copy of a snippet that has a name. The name of the original is filled in for you.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Address"
+      }
+    }
+  },
+  "abbreviationLength": {
+    "message": "बिना स्पेस के $MIN$ से $MAX$ वर्ण इस्तेमाल करें.",
+    "description": "Error under the abbreviation box. The two numbers, always 2 and 32, are filled in for you, so write the word for characters in the form that goes with 32.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "2"
+      },
+      "max": {
+        "content": "$2",
+        "example": "32"
+      }
+    }
+  },
+  "abbreviationTaken": {
+    "message": "कोई दूसरा स्निपेट पहले से $ABBREVIATION$ इस्तेमाल करता है.",
+    "description": "Error under the abbreviation box. The abbreviation is filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";addr"
+      }
+    }
+  },
+  "abbreviationStartedBy": {
+    "message": "किसी दूसरे स्निपेट का संक्षिप्त रूप, $OTHER$, इसी से शुरू होता है.",
+    "description": "Error under the abbreviation box: the typed abbreviation is the beginning of another one, so the shorter one would always win. The other abbreviation is filled in for you.",
+    "placeholders": {
+      "other": {
+        "content": "$1",
+        "example": ";addr2"
+      }
+    }
+  },
+  "abbreviationStartsWith": {
+    "message": "यह किसी दूसरे स्निपेट के संक्षिप्त रूप, $OTHER$, से शुरू होता है.",
+    "description": "Error under the abbreviation box: another abbreviation is the beginning of the typed one, so the shorter one would always win. The other abbreviation is filled in for you.",
+    "placeholders": {
+      "other": {
+        "content": "$1",
+        "example": ";a"
+      }
+    }
+  },
+  "importNotJson": {
+    "message": "यह फ़ाइल स्निपेट का बैकअप नहीं है: यह मान्य $JSON$ नहीं है.",
+    "description": "Error after the user picked a file to import that is not JSON. JSON is a data format, and its name is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "importNewer": {
+    "message": "यह बैकअप $NAME$ के नए वर्शन से बनाया गया था. एक्सटेंशन अपडेट करें और फिर से कोशिश करें.",
+    "description": "Error after the user picked a backup file written by a later version of the extension. The extension name is filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "Snippet Inserter"
+      }
+    }
+  },
+  "importNotBackup": {
+    "message": "यह फ़ाइल स्निपेट का बैकअप नहीं है.",
+    "description": "Error after the user picked a file to import that is JSON but not a backup of snippets."
+  },
+  "importedCount_one": {
+    "message": "$COUNT$ स्निपेट इंपोर्ट किया गया.",
+    "description": "First sentence of the report after an import. The sentences of the report follow each other in one paragraph, separated by a space. The number is filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importedCount_other": {
+    "message": "$COUNT$ स्निपेट इंपोर्ट किए गए.",
+    "description": "First sentence of the report after an import. The sentences of the report follow each other in one paragraph, separated by a space. Plural form. The number is filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "importSkipped_one": {
+    "message": "पहले से मौजूद $COUNT$ स्निपेट छोड़ दिया गया.",
+    "description": "Sentence in the report after an import, for snippets that were already stored. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importSkipped_other": {
+    "message": "पहले से मौजूद $COUNT$ स्निपेट छोड़ दिए गए.",
+    "description": "Sentence in the report after an import, for snippets that were already stored. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importInvalid_one": {
+    "message": "बिना टेक्स्ट वाला $COUNT$ रिकॉर्ड छोड़ दिया गया.",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importInvalid_other": {
+    "message": "बिना टेक्स्ट वाले $COUNT$ रिकॉर्ड छोड़ दिए गए.",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importAbbrDropped_one": {
+    "message": "$COUNT$ स्निपेट का संक्षिप्त रूप हटा दिया गया, क्योंकि उसे कोई दूसरा स्निपेट पहले से इस्तेमाल करता है.",
+    "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importAbbrDropped_other": {
+    "message": "$COUNT$ स्निपेट से ऐसे संक्षिप्त रूप हटा दिए गए, जिन्हें दूसरे स्निपेट पहले से इस्तेमाल करते हैं.",
+    "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "jsonEmpty": {
+    "message": "फ़ॉर्मैट करने के लिए कोई टेक्स्ट नहीं है.",
+    "description": "Error after Format JSON was pressed on an empty text."
+  },
+  "jsonPosition": {
+    "message": "लाइन $LINE$, कॉलम $COLUMN$: $MESSAGE$",
+    "description": "Start of every JSON error: where in the text the first problem is. The two numbers are filled in for you, and $MESSAGE$ is one of the other JSON error messages in this file, already in your language.",
+    "placeholders": {
+      "line": {
+        "content": "$1",
+        "example": "3"
+      },
+      "column": {
+        "content": "$2",
+        "example": "14"
+      },
+      "message": {
+        "content": "$3",
+        "example": "Expected a digit."
+      }
+    }
+  },
+  "jsonStringNotClosed": {
+    "message": "स्ट्रिंग बंद नहीं की गई है.",
+    "description": "JSON error. A string is text in double quotes."
+  },
+  "jsonLineBreak": {
+    "message": "स्ट्रिंग के अंदर लाइन ब्रेक को $ESCAPE$ के रूप में लिखना होगा.",
+    "description": "JSON error. The code for a line break is filled in for you.",
+    "placeholders": {
+      "escape": {
+        "content": "\\n"
+      }
+    }
+  },
+  "jsonControlChar": {
+    "message": "स्ट्रिंग के अंदर कंट्रोल वर्ण को एस्केप के रूप में लिखना होगा.",
+    "description": "JSON error. A control character is an invisible character such as a tab. An escape is a backslash code."
+  },
+  "jsonHexDigits": {
+    "message": "$ESCAPE$ के बाद $COUNT$ हेक्साडेसिमल अंक होने चाहिए.",
+    "description": "JSON error. The number, always 4, and the backslash code are filled in for you, so write the word for digits in the form that goes with 4.",
+    "placeholders": {
+      "count": {
+        "content": "4"
+      },
+      "escape": {
+        "content": "\\u"
+      }
+    }
+  },
+  "jsonUnknownEscape": {
+    "message": "स्ट्रिंग में अज्ञात एस्केप है.",
+    "description": "JSON error. An escape is a backslash followed by a letter that JSON does not know."
+  },
+  "jsonExpectedDigit": {
+    "message": "यहां एक अंक होना चाहिए.",
+    "description": "JSON error in a number, for example after a minus sign or a decimal point."
+  },
+  "jsonEndWhereValue": {
+    "message": "टेक्स्ट वहां खत्म हो जाता है जहां वैल्यू होनी चाहिए.",
+    "description": "JSON error when the text ends after [, after a comma in a list, or after the colon of a property. A value is a string, number, list, or object."
+  },
+  "jsonTooDeep": {
+    "message": "ऐरे और ऑब्जेक्ट $DEPTH$ से ज़्यादा लेवल तक नेस्ट किए गए हैं.",
+    "description": "JSON error. The number, always 100, is filled in for you, so write the word for levels in the form that goes with 100.",
+    "placeholders": {
+      "depth": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "jsonExpected": {
+    "message": "यहां $WORD$ होना चाहिए.",
+    "description": "JSON error for a word that looks like true, false, or null but is misspelled. The expected word is filled in for you and is not translated.",
+    "placeholders": {
+      "word": {
+        "content": "$1",
+        "example": "true"
+      }
+    }
+  },
+  "jsonUnexpected": {
+    "message": "अनपेक्षित $WHAT$.",
+    "description": "JSON error. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonUnexpectedValue": {
+    "message": "अनपेक्षित $WHAT$, यहां वैल्यू होनी चाहिए.",
+    "description": "JSON error. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonComments": {
+    "message": "$JSON$ में कमेंट की अनुमति नहीं है.",
+    "description": "JSON error for text that starts like a comment. The name of the data format is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "jsonExpectedClose": {
+    "message": "$COMMA$ या $CLOSE$ होना चाहिए, लेकिन $WHAT$ मिला.",
+    "description": "JSON error in a list or an object. The two characters and what was found are filled in for you. What was found is one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "close": {
+        "content": "$1",
+        "example": "]"
+      },
+      "what": {
+        "content": "$2",
+        "example": "\"x\""
+      },
+      "comma": {
+        "content": ","
+      }
+    }
+  },
+  "jsonExpectedCloseEnd": {
+    "message": "टेक्स्ट वहां खत्म हो जाता है जहां $COMMA$ या $CLOSE$ होना चाहिए.",
+    "description": "JSON error when a list or an object is not closed before the end of the text. The two characters are filled in for you.",
+    "placeholders": {
+      "close": {
+        "content": "$1",
+        "example": "]"
+      },
+      "comma": {
+        "content": ","
+      }
+    }
+  },
+  "jsonExpectedName": {
+    "message": "डबल कोट में प्रॉपर्टी का नाम होना चाहिए, लेकिन $WHAT$ मिला.",
+    "description": "JSON error in an object. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonExpectedNameEnd": {
+    "message": "टेक्स्ट वहां खत्म हो जाता है जहां डबल कोट में प्रॉपर्टी का नाम होना चाहिए.",
+    "description": "JSON error when the text ends after { or after a comma in an object."
+  },
+  "jsonExpectedColon": {
+    "message": "प्रॉपर्टी के नाम के बाद $COLON$ होना चाहिए, लेकिन $WHAT$ मिला.",
+    "description": "JSON error in an object. The colon and what was found are filled in for you. What was found is one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      },
+      "colon": {
+        "content": ":"
+      }
+    }
+  },
+  "jsonExpectedColonEnd": {
+    "message": "टेक्स्ट वहां खत्म हो जाता है जहां प्रॉपर्टी के नाम के बाद $COLON$ होना चाहिए.",
+    "description": "JSON error when the text ends right after a property name of an object. The colon is filled in for you.",
+    "placeholders": {
+      "colon": {
+        "content": ":"
+      }
+    }
+  },
+  "jsonExpectedEnd": {
+    "message": "यहां टेक्स्ट खत्म होना चाहिए, लेकिन $WHAT$ मिला.",
+    "description": "JSON error when text follows a complete value. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonPlaceholder": {
+    "message": "$TOKEN$ एक प्लेसहोल्डर है, और कोट के बाहर प्लेसहोल्डर मान्य $JSON$ नहीं है. इसे कोट में रखें, या पहले इसे भरें.",
+    "description": "JSON error when the text has a placeholder in braces outside quotes. The placeholder and the name of the data format are filled in for you.",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "{date}"
+      },
+      "json": {
+        "content": "JSON"
+      }
+    }
+  }
+}

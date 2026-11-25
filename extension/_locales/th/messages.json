@@ -1,0 +1,1411 @@
+{
+  "extDescription": {
+    "message": "แทรกข้อความสำเร็จรูปที่บันทึกไว้ลงในช่องข้อความใดก็ได้ด้วยการกด $KEY$ สองครั้ง ข้อความสำเร็จรูปไม่จำกัดความยาว",
+    "description": "One sentence shown on the extension page in the browser and in the Chrome Web Store. At most 132 characters, counting the key name. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Ctrl"
+      }
+    }
+  },
+  "commandOpenPanel": {
+    "message": "เปิดแผงข้อความสำเร็จรูป",
+    "description": "The name of the keyboard shortcut on the browser page where people change extension shortcuts. At most 60 characters."
+  },
+  "localeCode": {
+    "message": "th",
+    "description": "The code of this language. Write the code of the folder this file is in, such as pt_BR. Used to choose plural forms and number formats."
+  },
+  "textDirection": {
+    "message": "ltr",
+    "description": "The direction of this language: ltr for left to right, rtl for right to left. It mirrors the panel and the manager."
+  },
+  "languageName": {
+    "message": "ไทย",
+    "description": "The name of this language, written in this language, such as Deutsch for German."
+  },
+  "menuSaveSelection": {
+    "message": "บันทึกข้อความที่เลือกเป็นข้อความสำเร็จรูป",
+    "description": "Right-click menu item shown when text on a page is selected. It opens the form for a new snippet that starts with that text. At most 50 characters."
+  },
+  "menuInsertSnippet": {
+    "message": "แทรกข้อความสำเร็จรูป...",
+    "description": "Right-click menu item shown in a text field. The three dots mean that a panel opens to pick a snippet. At most 40 characters."
+  },
+  "noticeNoField": {
+    "message": "แทรกข้อความสำเร็จรูปในช่องประเภทนี้ไม่ได้",
+    "description": "Short notice at the top of a web page after the user chose Insert snippet from the right-click menu on something that is not a text field the extension can fill."
+  },
+  "noticeFieldGone": {
+    "message": "ไม่ได้แทรกข้อความสำเร็จรูป เนื่องจากช่องนั้นหายไปแล้ว",
+    "description": "Short notice at the top of a web page. The text field closed or was removed while the panel was open."
+  },
+  "noticeFieldChanged": {
+    "message": "ข้อความในช่องเปลี่ยนไป จึงไม่ได้แทรกข้อความสำเร็จรูป",
+    "description": "Short notice at the top of a web page. The user typed an abbreviation and filled in a form, but the field changed in the meantime."
+  },
+  "noticeDocsCopied": {
+    "message": "คัดลอกข้อความสำเร็จรูปแล้ว หากข้อความไม่ปรากฏในเอกสาร ให้กด $KEYS$",
+    "description": "Short notice at the top of a Google Docs page. The text went to the clipboard because pasting into the document could not be confirmed. The key combination is filled in for you, for example Ctrl+V.",
+    "placeholders": {
+      "keys": {
+        "content": "$1",
+        "example": "Ctrl+V"
+      }
+    }
+  },
+  "noticeDocsNotInserted": {
+    "message": "แทรกข้อความสำเร็จรูปไม่สำเร็จ ให้เปิดข้อความสำเร็จรูปด้วยไอคอนดินสอในแผงข้อความสำเร็จรูป แล้วคัดลอกข้อความออกมา",
+    "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
+  },
+  "noticeFieldRoom_other": {
+    "message": "ช่องนี้รับได้อีก $FREE$ อักขระ แต่ข้อความสำเร็จรูปยาว $TOTAL$ จึงไม่มีการแทรกข้อความ",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
+    "placeholders": {
+      "free": {
+        "content": "$1",
+        "example": "12"
+      },
+      "total": {
+        "content": "$2",
+        "example": "40"
+      }
+    }
+  },
+  "noticeSiteOff": {
+    "message": "ปิดการกดสองครั้งและคำย่อบน $HOST$ แล้ว หากต้องการเปิดอีกครั้ง ให้เปิดแผงด้วยแป้นพิมพ์ลัดหรือเมนูคลิกขวา",
+    "description": "Short notice at the top of a web page after the user turned the extension off for this site. The site name is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "noticeSiteOn": {
+    "message": "เปิดการกดสองครั้งและคำย่อบน $HOST$ อีกครั้งแล้ว",
+    "description": "Short notice at the top of a web page after the user turned the extension back on for this site.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "noticeSaved": {
+    "message": "บันทึกข้อความสำเร็จรูปแล้ว",
+    "description": "Short notice at the top of a web page after the user saved a new snippet from selected text."
+  },
+  "snippets": {
+    "message": "ข้อความสำเร็จรูป",
+    "description": "The plural of snippet, a small piece of saved text. Used as the title of the panel, the name of the list of snippets, and the first section of the manager."
+  },
+  "editSnippet": {
+    "message": "แก้ไขข้อความสำเร็จรูป",
+    "description": "Heading of the form for changing a saved snippet, in the panel and in the manager."
+  },
+  "newSnippet": {
+    "message": "ข้อความสำเร็จรูปใหม่",
+    "description": "Button in the manager that starts a new snippet, and the heading of the form for it. Other messages refer to this button by name, so keep them the same."
+  },
+  "captionInsert": {
+    "message": "แทรกข้อความสำเร็จรูป",
+    "description": "Heading at the top of the panel while it shows the list of snippets. At most 36 characters."
+  },
+  "captionCreate": {
+    "message": "สร้างข้อความสำเร็จรูปใหม่",
+    "description": "Heading of the form for a new snippet in the panel. At most 36 characters."
+  },
+  "createNew": {
+    "message": "สร้างข้อความสำเร็จรูปใหม่",
+    "description": "First entry in the panel list. It opens the form for a new snippet. At most 40 characters."
+  },
+  "createFromSelection": {
+    "message": "สร้างข้อความสำเร็จรูปจากข้อความที่เลือก",
+    "description": "First entry in the panel list when text was selected on the page. The new snippet starts with that text."
+  },
+  "emptyApply": {
+    "message": "สร้าง",
+    "description": "Button at the bottom of the panel when there are no snippets yet. It opens the form for the first snippet. At most 16 characters."
+  },
+  "emptyHint": {
+    "message": "คลิกด้านล่างเพื่อเริ่มสร้างข้อความสำเร็จรูปแรก",
+    "description": "Second sentence of the text in the empty panel, after the message emptyText and a space. The button below it is the message emptyApply."
+  },
+  "emptyHeading": {
+    "message": "ยังไม่มีข้อความสำเร็จรูป",
+    "description": "Heading of the empty panel."
+  },
+  "loadError": {
+    "message": "โหลดข้อความสำเร็จรูปไม่สำเร็จ ปิดแผงแล้วเปิดใหม่อีกครั้ง",
+    "description": "Error in the panel when stored snippets could not be read."
+  },
+  "loadErrorHeading": {
+    "message": "โหลดข้อความสำเร็จรูปไม่สำเร็จ",
+    "description": "Heading above the error in the panel when stored snippets could not be read."
+  },
+  "emptyText": {
+    "message": "ข้อความสำเร็จรูปคือข้อความสั้นที่นำมาใช้ซ้ำได้ ช่วยประหยัดเวลาเมื่อต้องพิมพ์สิ่งเดิมบ่อย (เช่น ที่อยู่ อีเมล)",
+    "description": "Explanation in the empty panel of what a snippet is. The examples in brackets are things people often save."
+  },
+  "formApply": {
+    "message": "บันทึกข้อความสำเร็จรูป",
+    "description": "Button at the bottom of the panel form for a new or changed snippet. At most 24 characters."
+  },
+  "createError": {
+    "message": "สร้างข้อความสำเร็จรูปไม่สำเร็จ",
+    "description": "Error in the panel after saving a new snippet failed."
+  },
+  "editDelete": {
+    "message": "ลบข้อความสำเร็จรูป",
+    "description": "Button in the panel form for a saved snippet. It deletes the snippet and offers Undo."
+  },
+  "editDuplicate": {
+    "message": "ทำสำเนาข้อความสำเร็จรูป",
+    "description": "Button in the panel form for a saved snippet. It makes a copy of the snippet."
+  },
+  "editError": {
+    "message": "บันทึกข้อความสำเร็จรูปไม่สำเร็จ",
+    "description": "Error in the panel after saving a changed snippet failed."
+  },
+  "deleteError": {
+    "message": "ลบข้อความสำเร็จรูปไม่สำเร็จ",
+    "description": "Error in the panel after deleting a snippet failed."
+  },
+  "duplicateError": {
+    "message": "ทำสำเนาข้อความสำเร็จรูปไม่สำเร็จ",
+    "description": "Error in the panel after copying a snippet failed."
+  },
+  "moveError": {
+    "message": "ย้ายข้อความสำเร็จรูปไม่สำเร็จ",
+    "description": "Error in the panel after moving a snippet up or down in the list failed."
+  },
+  "restoreError": {
+    "message": "กู้คืนข้อความสำเร็จรูปไม่สำเร็จ",
+    "description": "Error in the panel after Undo of a deletion failed."
+  },
+  "notFound": {
+    "message": "ไม่พบข้อความสำเร็จรูป",
+    "description": "Error in the panel or the manager when the snippet to show no longer exists."
+  },
+  "placeholderContent": {
+    "message": "ป้อนข้อความ …",
+    "description": "Grey hint inside the empty text box of the panel form. The ellipsis character is part of the style. At most 38 characters."
+  },
+  "placeholderTitle": {
+    "message": "ป้อนชื่อ (ไม่บังคับ) …",
+    "description": "Grey hint inside the empty name box of the panel form. The ellipsis character is part of the style. At most 38 characters."
+  },
+  "placeholderAbbreviation": {
+    "message": "คำย่อ (ไม่บังคับ) เช่น $EXAMPLE$ …",
+    "description": "Grey hint inside the empty abbreviation box of the panel form. An abbreviation is a short code the user types to insert a snippet. The example is filled in for you. At most 60 characters, counting the example.",
+    "placeholders": {
+      "example": {
+        "content": ";addr"
+      }
+    }
+  },
+  "placeholderFolder": {
+    "message": "โฟลเดอร์ (ไม่บังคับ) เช่น งาน …",
+    "description": "Grey hint inside the empty folder box of the panel form. Work is an example of a folder name; use a common word in your language. At most 50 characters."
+  },
+  "folderAll": {
+    "message": "ทั้งหมด",
+    "description": "Label of the folder button that shows every snippet."
+  },
+  "folderNone": {
+    "message": "ไม่มีโฟลเดอร์",
+    "description": "Label of the folder button that shows the snippets that are in no folder."
+  },
+  "foldersLabel": {
+    "message": "โฟลเดอร์",
+    "description": "Accessible name of the row of folder buttons. Screen readers read it; it is not shown."
+  },
+  "validationEmpty": {
+    "message": "ช่องนี้ต้องไม่ว่าง",
+    "description": "Error under a form field that was left empty."
+  },
+  "validationTooLong_other": {
+    "message": "ข้อความต้องยาวไม่เกิน $MAX$ อักขระ",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. Plural form.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "128"
+      }
+    }
+  },
+  "characterCount_other": {
+    "message": "$COUNT$ อักขระ",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. Plural form. The number has the thousands separator of your language.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,234"
+      }
+    }
+  },
+  "labelEdited": {
+    "message": "แก้ไขแล้ว",
+    "description": "Small label next to a snippet in the panel list that was just changed. At most 12 characters."
+  },
+  "labelNew": {
+    "message": "ใหม่",
+    "description": "Small label next to a snippet in the panel list that was just added. At most 8 characters."
+  },
+  "searchPlaceholder": {
+    "message": "ค้นหาข้อความสำเร็จรูป …",
+    "description": "Grey hint inside the search box of the panel. The ellipsis character is part of the style. At most 30 characters."
+  },
+  "undoDeleted": {
+    "message": "ลบข้อความสำเร็จรูปแล้ว",
+    "description": "Message in the bar that appears after a snippet was deleted, with the Undo button next to it."
+  },
+  "undo": {
+    "message": "เลิกทำ",
+    "description": "Button in the bar that appears in the panel and the snippet manager after a snippet was deleted. It brings the snippet back. At most 12 characters."
+  },
+  "placeholders": {
+    "message": "ตัวยึดตำแหน่ง",
+    "description": "Label before the list of placeholders in a snippet text. A placeholder is a word in braces, such as {date}, that is replaced when the snippet is inserted."
+  },
+  "placeholdersUnrecognized": {
+    "message": "ไม่รู้จัก แทรกตามที่เขียนไว้",
+    "description": "Label before the list of text in braces that looks like a placeholder but is not one. It is inserted exactly as typed."
+  },
+  "includes": {
+    "message": "รวมถึง",
+    "description": "Label before the list of other snippets that a snippet includes."
+  },
+  "referenceNotFound": {
+    "message": "ไม่พบ",
+    "description": "Tooltip on an included snippet that does not exist."
+  },
+  "referenceMissing": {
+    "message": "ไม่มีข้อความสำเร็จรูปที่ใช้คำย่อ $ABBREVIATION$ จึงแทรก $TOKEN$ ตามที่เขียนไว้",
+    "description": "Warning under a snippet that includes another snippet by its abbreviation, when no snippet has that abbreviation. The abbreviation and the text in braces are filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "token": {
+        "content": "$2",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "referenceLoop": {
+    "message": "$TOKEN$ จะใส่ข้อความสำเร็จรูปไว้ในตัวมันเอง จึงแทรกตามที่เขียนไว้",
+    "description": "Warning under a snippet that includes itself, directly or through other snippets. The text in braces is filled in for you.",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "referenceLimit": {
+    "message": "การแทรกหนึ่งครั้งรวมข้อความสำเร็จรูปได้ไม่เกิน $LIMIT$ รายการ จึงแทรกการอ้างอิงที่เหลือตามที่เขียนไว้",
+    "description": "Warning under a snippet that includes more other snippets than one insert allows. The limit, always 100, is filled in for you, so write the word for snippets in the form that goes with 100.",
+    "placeholders": {
+      "limit": {
+        "content": "100"
+      }
+    }
+  },
+  "fillCount_other": {
+    "message": "กรอกข้อมูล $COUNT$ ช่อง",
+    "description": "Line at the top of the panel's fill-in form, which asks for values before a snippet is inserted. The panel's heading above it shows the snippet's name. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "preview": {
+    "message": "ตัวอย่าง",
+    "description": "Label above the text a snippet will insert, with the typed values filled in."
+  },
+  "insertApply": {
+    "message": "แทรก",
+    "description": "Button at the bottom of the panel form that fills in a snippet and inserts it. At most 16 characters."
+  },
+  "edit": {
+    "message": "แก้ไข",
+    "description": "Tooltip on the pencil button next to a snippet in the panel list."
+  },
+  "back": {
+    "message": "กลับ ($KEY$)",
+    "description": "Tooltip on the button at the top left of the panel that goes back to the list. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Esc"
+      }
+    }
+  },
+  "close": {
+    "message": "ปิด ($KEY$)",
+    "description": "Tooltip on the button at the top right of the panel that closes it. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Esc"
+      }
+    }
+  },
+  "siteOff": {
+    "message": "ปิดการกดสองครั้งและคำย่อสำหรับ $HOST$",
+    "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are on. The site name is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteOn": {
+    "message": "เปิดการกดสองครั้งและคำย่อสำหรับ $ENTRY$ อีกครั้ง",
+    "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are off. $ENTRY$ is the entry in the list of turned-off sites that covers this site: the site itself, or a shorter address that covers it, such as example.com on mail.example.com.",
+    "placeholders": {
+      "entry": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteError": {
+    "message": "เปลี่ยนการตั้งค่าสำหรับเว็บไซต์นี้ไม่สำเร็จ",
+    "description": "Error in the panel after turning the extension off or on for a site failed."
+  },
+  "formattedView": {
+    "message": "เนื้อหาของข้อความสำเร็จรูป",
+    "description": "Accessible name of the box that shows the text of a snippet with formatting. Screen readers read it; it is not shown."
+  },
+  "formattedNote": {
+    "message": "ข้อความสำเร็จรูปนี้มีการจัดรูปแบบ แก้ไขข้อความได้ในตัวจัดการข้อความสำเร็จรูป",
+    "description": "Note in the panel form for a snippet that has bold text, lists, or links. The text can only be changed in the manager page."
+  },
+  "openManager": {
+    "message": "เปิดในตัวจัดการข้อความสำเร็จรูป",
+    "description": "Link-style button next to the note about formatting. It opens the manager page with this snippet."
+  },
+  "navLabel": {
+    "message": "ส่วนต่าง ๆ",
+    "description": "Accessible name of the menu with the three sections of the manager. Screen readers read it; it is not shown."
+  },
+  "recentlyDeleted": {
+    "message": "ที่ลบล่าสุด",
+    "description": "Name of the manager section that lists deleted snippets, and its heading."
+  },
+  "settingsAndBackup": {
+    "message": "การตั้งค่าและการสำรองข้อมูล",
+    "description": "Name of the manager section with the settings and the backup buttons."
+  },
+  "searchManagerPlaceholder": {
+    "message": "ค้นหาข้อความสำเร็จรูป...",
+    "description": "Grey hint inside the search box of the manager. At most 36 characters."
+  },
+  "renameFolder": {
+    "message": "เปลี่ยนชื่อโฟลเดอร์",
+    "description": "Button in the manager that renames the selected folder."
+  },
+  "removeFolder": {
+    "message": "นำโฟลเดอร์ออก",
+    "description": "Button in the manager that removes the selected folder. The snippets in it stay."
+  },
+  "removeFolderConfirm": {
+    "message": "คลิกอีกครั้งเพื่อนำโฟลเดอร์ออก",
+    "description": "The text of the Remove folder button after the first click, which asks for a second click."
+  },
+  "folderNameLabel": {
+    "message": "ชื่อโฟลเดอร์",
+    "description": "Accessible name of the box where a folder is renamed. Screen readers read it; it is not shown."
+  },
+  "rename": {
+    "message": "เปลี่ยนชื่อ",
+    "description": "Button that applies the new folder name."
+  },
+  "cancel": {
+    "message": "ยกเลิก",
+    "description": "Button that closes a small form without changing anything."
+  },
+  "renameJoins": {
+    "message": "มีโฟลเดอร์ $NAME$ อยู่แล้ว การเปลี่ยนชื่อจะย้ายข้อความสำเร็จรูปเหล่านี้เข้าไปในโฟลเดอร์นั้น",
+    "description": "Hint under the box where a folder is renamed to the name of a folder that already exists. The folder name is filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "folderNameRequired": {
+    "message": "ป้อนชื่อโฟลเดอร์",
+    "description": "Error under the box where a folder is renamed, when it was left empty."
+  },
+  "noSnippets": {
+    "message": "ยังไม่มีข้อความสำเร็จรูป คลิก “ข้อความสำเร็จรูปใหม่” เพื่อสร้าง",
+    "description": "Text in the empty list of the manager. New snippet is the name of a button; write it as in the message New snippet."
+  },
+  "selectOrNew": {
+    "message": "เลือกข้อความสำเร็จรูป หรือคลิก “ข้อความสำเร็จรูปใหม่”",
+    "description": "Text where the form is, when no snippet is open. New snippet is the name of a button; write it as in the message New snippet."
+  },
+  "dragReorder": {
+    "message": "ลากเพื่อจัดลำดับใหม่",
+    "description": "Tooltip on the grip of a snippet row in the manager."
+  },
+  "dragReorderFolder": {
+    "message": "ลากเพื่อจัดลำดับใหม่ หรือลากไปวางบนโฟลเดอร์เพื่อย้าย",
+    "description": "Tooltip on the grip of a snippet row in the manager, when folders exist."
+  },
+  "moved": {
+    "message": "ย้าย $TITLE$ ไปที่ตำแหน่งที่ $POSITION$ จาก $TOTAL$ แล้ว",
+    "description": "Message for screen readers after a snippet was moved up or down in the list. It is not shown. The name of the snippet and the numbers are filled in for you.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Address"
+      },
+      "position": {
+        "content": "$2",
+        "example": "2"
+      },
+      "total": {
+        "content": "$3",
+        "example": "9"
+      }
+    }
+  },
+  "fieldName": {
+    "message": "ชื่อ",
+    "description": "Label of the box for the name of a snippet in the manager form."
+  },
+  "fieldAbbreviation": {
+    "message": "คำย่อ",
+    "description": "Label of the box for the abbreviation of a snippet in the manager form. An abbreviation is a short code the user types to insert a snippet."
+  },
+  "fieldFolder": {
+    "message": "โฟลเดอร์",
+    "description": "Label of the box for the folder of a snippet in the manager form."
+  },
+  "fieldText": {
+    "message": "ข้อความ",
+    "description": "Label of the box for the text of a snippet in the manager form."
+  },
+  "optionalPlaceholder": {
+    "message": "ไม่บังคับ",
+    "description": "Grey hint inside the empty name box of the manager form, which may stay empty. At most 20 characters."
+  },
+  "optionalAbbreviationPlaceholder": {
+    "message": "ไม่บังคับ เช่น $EXAMPLE$",
+    "description": "Grey hint inside the empty abbreviation box of the manager form. The example is filled in for you. At most 38 characters, counting the example.",
+    "placeholders": {
+      "example": {
+        "content": ";addr"
+      }
+    }
+  },
+  "optionalFolderPlaceholder": {
+    "message": "ไม่บังคับ เช่น งาน",
+    "description": "Grey hint inside the empty folder box of the manager form. Work is an example of a folder name; use a common word in your language. At most 38 characters."
+  },
+  "formatJson": {
+    "message": "จัดรูปแบบ $JSON$",
+    "description": "Button in the manager form that checks the text as JSON and indents it. JSON is a data format, and its name is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "formattedText": {
+    "message": "ข้อความที่จัดรูปแบบ",
+    "description": "Label of the checkbox in the manager form that turns on bold text, lists, links, and code blocks."
+  },
+  "toolbarLabel": {
+    "message": "การจัดรูปแบบ",
+    "description": "Accessible name of the row of formatting buttons. Screen readers read it; it is not shown."
+  },
+  "toolBold": {
+    "message": "ตัวหนา ($SHORTCUT$)",
+    "description": "Tooltip of the bold button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+B"
+      }
+    }
+  },
+  "toolItalic": {
+    "message": "ตัวเอียง ($SHORTCUT$)",
+    "description": "Tooltip of the italic button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+I"
+      }
+    }
+  },
+  "toolUnderline": {
+    "message": "ขีดเส้นใต้ ($SHORTCUT$)",
+    "description": "Tooltip of the underline button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+U"
+      }
+    }
+  },
+  "toolLink": {
+    "message": "ลิงก์ ($SHORTCUT$)",
+    "description": "Tooltip of the button that turns the selected text into a link. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+K"
+      }
+    }
+  },
+  "toolBulleted": {
+    "message": "รายการแบบสัญลักษณ์หัวข้อย่อย",
+    "description": "Tooltip of the button that makes a list with bullets."
+  },
+  "toolNumbered": {
+    "message": "รายการแบบลำดับเลข",
+    "description": "Tooltip of the button that makes a list with numbers."
+  },
+  "toolCode": {
+    "message": "โค้ด",
+    "description": "Tooltip of the button that marks selected text as code inside a line."
+  },
+  "toolCodeBlock": {
+    "message": "บล็อกโค้ด",
+    "description": "Tooltip of the button that makes the selected lines a block of code."
+  },
+  "toolClear": {
+    "message": "ล้างการจัดรูปแบบ",
+    "description": "Tooltip of the button that removes bold, italic, underline, code, and links from the selected text."
+  },
+  "codeLanguageLabel": {
+    "message": "ภาษาของบล็อกโค้ด",
+    "description": "Accessible name and tooltip of the menu that picks the programming language of a code block."
+  },
+  "languagePlain": {
+    "message": "ข้อความธรรมดา",
+    "description": "Entry in the menu of code block languages for a block with no language, and the label above such a block."
+  },
+  "linkAddress": {
+    "message": "ที่อยู่ลิงก์",
+    "description": "Label of the box where the address of a link is typed."
+  },
+  "apply": {
+    "message": "ใช้",
+    "description": "Button that puts the typed link address on the selected text."
+  },
+  "removeLink": {
+    "message": "นำลิงก์ออก",
+    "description": "Button that removes a link and keeps its text."
+  },
+  "linkInvalid": {
+    "message": "ใช้ที่อยู่ที่ขึ้นต้นด้วย $HTTPS$ $HTTP$ $MAILTO$ หรือ $TEL$",
+    "description": "Error under the box for a link address. The four address beginnings are filled in for you.",
+    "placeholders": {
+      "https": {
+        "content": "https://"
+      },
+      "http": {
+        "content": "http://"
+      },
+      "mailto": {
+        "content": "mailto:"
+      },
+      "tel": {
+        "content": "tel:"
+      }
+    }
+  },
+  "formatHint": {
+    "message": "เครื่องมือแก้ไขข้อความแบบมีรูปแบบ เช่น เว็บเมล จะได้รับการจัดรูปแบบนี้ ส่วนกล่องข้อความและ $GOOGLE_DOCS$ จะได้รับข้อความธรรมดา โดยสัญลักษณ์หัวข้อย่อยจะเป็นจุด และที่อยู่ของแต่ละลิงก์จะอยู่ในวงเล็บต่อท้ายลิงก์นั้น",
+    "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
+    "placeholders": {
+      "google_docs": {
+        "content": "Google Docs"
+      }
+    }
+  },
+  "duplicate": {
+    "message": "ทำสำเนา",
+    "description": "Button in the manager form that makes a copy of the snippet."
+  },
+  "delete": {
+    "message": "ลบ",
+    "description": "Button in the manager form that deletes the snippet and offers Undo."
+  },
+  "save": {
+    "message": "บันทึก",
+    "description": "Button in the manager form that saves the snippet, and in a notice that asks to save changes."
+  },
+  "unsavedChanges": {
+    "message": "มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก",
+    "description": "Notice in the manager when the user leaves a snippet that was changed but not saved. Buttons Save and Discard follow."
+  },
+  "discard": {
+    "message": "ทิ้ง",
+    "description": "Button in a notice about unsaved changes. It throws the changes away."
+  },
+  "deletedElsewhere": {
+    "message": "ข้อความสำเร็จรูปนี้ถูกลบในแท็บอื่น หากบันทึก ข้อความสำเร็จรูปนี้จะถูกสร้างขึ้นใหม่",
+    "description": "Notice in the manager when the open snippet was deleted from another browser tab."
+  },
+  "changedElsewhere": {
+    "message": "ข้อความสำเร็จรูปนี้มีการเปลี่ยนแปลงในแท็บอื่น",
+    "description": "Notice in the manager when the open snippet was changed from another browser tab. Buttons to load the other version or keep the current one follow."
+  },
+  "loadOther": {
+    "message": "โหลดเวอร์ชันจากแท็บอื่น",
+    "description": "Button in a notice. It replaces the form with the version saved from the other tab."
+  },
+  "keepMine": {
+    "message": "เก็บเวอร์ชันของฉัน",
+    "description": "Button in a notice. It keeps what the user typed."
+  },
+  "saved": {
+    "message": "บันทึกแล้ว",
+    "description": "Status after a snippet was saved."
+  },
+  "savedRenamed_other": {
+    "message": "บันทึกแล้ว ข้อความสำเร็จรูป $COUNT$ รายการที่ใช้ $OLD$ เปลี่ยนไปใช้ $NEW$ แล้ว",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "old": {
+        "content": "$2",
+        "example": ";sig"
+      },
+      "new": {
+        "content": "$3",
+        "example": ";sign"
+      }
+    }
+  },
+  "savedCleared_other": {
+    "message": "บันทึกแล้ว ตอนนี้ไม่มีข้อความสำเร็จรูปใดใช้ $ABBREVIATION$ ข้อความสำเร็จรูป $COUNT$ รายการจึงแทรก $TOKEN$ ตามที่เขียนไว้",
+    "description": "Status after saving a snippet whose abbreviation was removed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "count": {
+        "content": "$2",
+        "example": "3"
+      },
+      "token": {
+        "content": "$3",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "saveChangeFailed": {
+    "message": "บันทึกการเปลี่ยนแปลงไม่สำเร็จ: $REASON$",
+    "description": "Error after saving or changing a snippet failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "QUOTA_BYTES quota exceeded"
+      }
+    }
+  },
+  "saveSettingFailed": {
+    "message": "บันทึกการตั้งค่าไม่สำเร็จ: $REASON$",
+    "description": "Error after saving a setting failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "QUOTA_BYTES quota exceeded"
+      }
+    }
+  },
+  "loadFailed": {
+    "message": "โหลดข้อความสำเร็จรูปไม่สำเร็จ: $REASON$",
+    "description": "Error at the top of the manager when stored snippets could not be read. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "Extension context invalidated"
+      }
+    }
+  },
+  "exportFailed": {
+    "message": "ส่งออกข้อความสำเร็จรูปไม่สำเร็จ: $REASON$",
+    "description": "Error after the export of the backup file failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "Extension context invalidated"
+      }
+    }
+  },
+  "jsonFormatted": {
+    "message": "จัดรูปแบบ $JSON$ แล้ว",
+    "description": "Status after the Format JSON button indented the text. The name of the data format is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "jsonNoCodeBlock": {
+    "message": "วางเคอร์เซอร์ในบล็อกโค้ดก่อน",
+    "description": "Error after Format JSON was pressed while the text cursor is not inside a code block. The caret is the blinking text cursor."
+  },
+  "deletedOn": {
+    "message": "ลบเมื่อ $DATE$",
+    "description": "Small line under a deleted snippet. The date and time are filled in for you, in the format of your language.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "11/20/2026, 9:14:00 AM"
+      }
+    }
+  },
+  "restore": {
+    "message": "กู้คืน",
+    "description": "Button next to a deleted snippet that brings it back."
+  },
+  "deleteForever": {
+    "message": "ลบถาวร",
+    "description": "Button next to a deleted snippet that removes it for good."
+  },
+  "deleteForeverConfirm": {
+    "message": "คลิกอีกครั้งเพื่อลบถาวร",
+    "description": "The text of the Delete forever button after the first click, which asks for a second click."
+  },
+  "deletedNote": {
+    "message": "ข้อความสำเร็จรูปที่ลบล่าสุด $COUNT$ รายการจะอยู่ที่นี่จนกว่าคุณจะกู้คืนหรือลบถาวร",
+    "description": "Text under the heading of the list of deleted snippets. The number, always 20, is filled in for you, so write the word for snippets in the form that goes with 20.",
+    "placeholders": {
+      "count": {
+        "content": "20"
+      }
+    }
+  },
+  "nothingDeleted": {
+    "message": "ไม่มีข้อความสำเร็จรูปที่ลบล่าสุด",
+    "description": "Text in the empty list of deleted snippets."
+  },
+  "settings": {
+    "message": "การตั้งค่า",
+    "description": "Heading of the settings part of the settings page."
+  },
+  "openPanelWith": {
+    "message": "เปิดแผงข้อความสำเร็จรูปด้วย",
+    "description": "Label of the menu where the user picks the key that opens the panel with a double tap."
+  },
+  "hotkeyControl": {
+    "message": "กด $KEY$ สองครั้ง",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Ctrl"
+      }
+    }
+  },
+  "hotkeyShift": {
+    "message": "กด $KEY$ สองครั้ง",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Shift"
+      }
+    }
+  },
+  "hotkeyAlt": {
+    "message": "กด $KEY$ สองครั้ง",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Alt"
+      }
+    }
+  },
+  "keyCtrl": {
+    "message": "Ctrl",
+    "description": "The name of the Ctrl key. The panel shows it in the key hint of its save and insert buttons, and a notice in Google Docs uses it in Ctrl+V. Write it as keyboards in your language print it, the same way as in every other message."
+  },
+  "keyCmd": {
+    "message": "Cmd",
+    "description": "The name of the Command key of a Mac keyboard. On a Mac it takes the place of Ctrl in the shortcuts of the formatting buttons in the snippet manager, as in Cmd+B, in the key names of usageNote and abbreviationsNote, as in Cmd+1 and Cmd+Z, and in a notice in Google Docs, as in Cmd+V. Write it as Mac keyboards in your language print it."
+  },
+  "off": {
+    "message": "ปิด",
+    "description": "The last entry of 2 menus in the settings, the messages openPanelWith and expandAbbreviations. In the first it turns the double tap off, and in the second it turns abbreviations off. Write one text that fits both menus."
+  },
+  "settingSaved": {
+    "message": "บันทึกแล้ว หน้าเว็บที่เปิดอยู่จะใช้การเปลี่ยนแปลงทันที",
+    "description": "Status after the setting for the double tap key was saved."
+  },
+  "keyboardShortcut": {
+    "message": "แป้นพิมพ์ลัด",
+    "description": "Label of the setting that shows the keyboard shortcut for the panel."
+  },
+  "shortcutNotSet": {
+    "message": "ไม่ได้ตั้งค่า",
+    "description": "Shown where the keyboard shortcut would be when the browser has none for this extension."
+  },
+  "changeShortcut": {
+    "message": "เปลี่ยนในการตั้งค่าเบราว์เซอร์",
+    "description": "Button that opens the browser page where extension shortcuts are changed."
+  },
+  "shortcutNote": {
+    "message": "เปิดแผงข้อความสำเร็จรูปในช่องที่คุณกำลังพิมพ์ เช่นเดียวกับการกดสองครั้ง",
+    "description": "Text under the keyboard shortcut setting."
+  },
+  "expandAbbreviations": {
+    "message": "ขยายคำย่อ",
+    "description": "Label of the menu where the user picks when a typed abbreviation is replaced by its snippet."
+  },
+  "abbreviationsImmediate": {
+    "message": "ทันทีที่พิมพ์",
+    "description": "Menu entry: an abbreviation is replaced as soon as its last character is typed."
+  },
+  "abbreviationsDelimiter": {
+    "message": "หลังจากกด $SPACE$, $TAB$ หรือ $ENTER$",
+    "description": "Menu entry: an abbreviation is replaced after the user presses one of the keys Space, Tab, or Enter. The key names are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "space": {
+        "content": "Space"
+      },
+      "tab": {
+        "content": "Tab"
+      },
+      "enter": {
+        "content": "Enter"
+      }
+    }
+  },
+  "abbreviationsNote": {
+    "message": "เมื่อพิมพ์คำย่อของข้อความสำเร็จรูปในช่องข้อความ คำย่อจะถูกแทนที่ด้วยข้อความสำเร็จรูป และ <kbd>$CTRL$</kbd>+<kbd>$Z$</kbd> จะนำข้อความที่พิมพ์กลับมา เมื่อคำย่อรอการกด $SPACE$, $TAB$ หรือ $ENTER$ การกด $SPACE$ จะเหลือช่องว่างไว้หลังข้อความสำเร็จรูป ส่วน $TAB$ และ $ENTER$ จะขยายคำย่ออย่างเดียว คำย่อใช้ไม่ได้ใน $GOOGLE_DOCS$",
+    "description": "Text under the abbreviations menu. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the letter Z, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "ctrl": {
+        "content": "Ctrl"
+      },
+      "z": {
+        "content": "Z"
+      },
+      "space": {
+        "content": "Space"
+      },
+      "tab": {
+        "content": "Tab"
+      },
+      "enter": {
+        "content": "Enter"
+      },
+      "google_docs": {
+        "content": "Google Docs"
+      }
+    }
+  },
+  "offSitesLabel": {
+    "message": "เว็บไซต์ที่ปิดการกดสองครั้งและคำย่อ",
+    "description": "Label of the list of sites where the extension is turned off."
+  },
+  "offSiteInputLabel": {
+    "message": "เว็บไซต์ที่จะปิดการกดสองครั้งและคำย่อ",
+    "description": "Accessible name of the box where a site is typed. Screen readers read it; it is not shown."
+  },
+  "addSite": {
+    "message": "เพิ่มเว็บไซต์",
+    "description": "Button that adds the typed site to the list of sites where the extension is off."
+  },
+  "offSitesNone": {
+    "message": "ยังไม่มีเว็บไซต์ การกดสองครั้งและคำย่อใช้ได้ในทุกเว็บไซต์",
+    "description": "Text under the empty list of sites where the extension is off."
+  },
+  "offSitesNote": {
+    "message": "เว็บไซต์ในรายการรวมถึงโดเมนย่อยด้วย เช่น $EXAMPLE$ ครอบคลุม $SUBDOMAIN$ ด้วย ในเว็บไซต์เหล่านี้ แป้นพิมพ์ลัดและเมนูคลิกขวายังเปิดแผงได้ ปุ่มข้างปุ่ม “ปิด” ที่ด้านบนของแผงใช้ปิดการกดสองครั้งและคำย่อบนเว็บไซต์ปัจจุบัน หรือเปิดอีกครั้ง",
+    "description": "Text under the list of sites where the extension is off. Close is the name of a button in the panel; write it as in the message Close. The two web addresses are filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": "example.com"
+      },
+      "subdomain": {
+        "content": "mail.example.com"
+      }
+    }
+  },
+  "turnOn": {
+    "message": "เปิดใช้",
+    "description": "Button next to a site in the list. It turns the extension back on for that site."
+  },
+  "turnOnSite": {
+    "message": "เปิดใช้การกดสองครั้งและคำย่อบน $SITE$ อีกครั้ง",
+    "description": "Accessible name of the Turn on button, which names the site. Screen readers read it; it is not shown.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "usageNote": {
+    "message": "คลิกในกล่องข้อความ เครื่องมือแก้ไขข้อความแบบมีรูปแบบ หรือเอกสาร $GOOGLE_DOCS$ แล้วกดปุ่มสองครั้งอย่างรวดเร็ว ในแผง ให้เลือกข้อความสำเร็จรูปด้วยเมาส์ ด้วยปุ่มลูกศรและ <kbd>$ENTER$</kbd> หรือด้วย <kbd>$CTRL$</kbd>+<kbd>$N2$</kbd> ถึง <kbd>$CTRL$</kbd>+<kbd>$N9$</kbd> ส่วน <kbd>$CTRL$</kbd>+<kbd>$N1$</kbd> ใช้สร้างข้อความสำเร็จรูป และหากมีข้อความที่เลือกไว้ตอนเปิดแผง ข้อความสำเร็จรูปใหม่จะเริ่มต้นด้วยข้อความนั้น ข้อความสำเร็จรูปไม่จำกัดความยาว",
+    "description": "Short instructions at the end of the settings. The key to tap twice is the one picked in the menu openPanelWith above. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the digits, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "google_docs": {
+        "content": "Google Docs"
+      },
+      "enter": {
+        "content": "Enter"
+      },
+      "ctrl": {
+        "content": "Ctrl"
+      },
+      "n1": {
+        "content": "1"
+      },
+      "n2": {
+        "content": "2"
+      },
+      "n9": {
+        "content": "9"
+      }
+    }
+  },
+  "languageNote": {
+    "message": "อินเทอร์เฟซใช้ภาษาตามเบราว์เซอร์ของคุณ: $LANGUAGE$",
+    "description": "Muted line in Settings and backup, shown in every language except English. It says which language the interface is in. The name of the language, written in that language, is filled in for you. At most 120 characters.",
+    "placeholders": {
+      "language": {
+        "content": "$1",
+        "example": "Deutsch"
+      }
+    }
+  },
+  "translationReport": {
+    "message": "รายงานปัญหาการแปล",
+    "description": "Link that opens a form on GitHub, shown in every language except English, under the line that names the interface language. It is for people who find a wrong or unclear translation. At most 60 characters."
+  },
+  "backup": {
+    "message": "การสำรองข้อมูล",
+    "description": "Heading of the part of the settings page with the export and import buttons."
+  },
+  "exportSnippets": {
+    "message": "ส่งออกข้อความสำเร็จรูป",
+    "description": "Button that saves all snippets to a file."
+  },
+  "exportNote_other": {
+    "message": "บันทึกข้อความสำเร็จรูปทั้งหมด $COUNT$ รายการลงใน $FILE$",
+    "description": "Text next to the Export snippets button. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exported_other": {
+    "message": "ส่งออกข้อความสำเร็จรูป $COUNT$ รายการไปยัง $FILE$ แล้ว",
+    "description": "Status after the export. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "importSnippets": {
+    "message": "นำเข้าข้อความสำเร็จรูป",
+    "description": "Button that reads snippets from a backup file."
+  },
+  "importNote": {
+    "message": "เพิ่มข้อความสำเร็จรูปจากไฟล์สำรองข้อมูล โดยข้ามข้อความสำเร็จรูปที่มีอยู่แล้ว",
+    "description": "Text next to the Import snippets button."
+  },
+  "support": {
+    "message": "สนับสนุน",
+    "description": "Heading of the part of the settings page about supporting the author."
+  },
+  "supportNote": {
+    "message": "$NAME$ ใช้ได้ฟรี และทุกฟีเจอร์ใช้งานได้โดยไม่ต้องจ่ายเงิน หากต้องการสนับสนุนการพัฒนา คุณบริจาคได้ที่ $KOFI$",
+    "description": "Text under the Support heading. The extension name and the name of the donation site are filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "Snippet Inserter"
+      },
+      "kofi": {
+        "content": "Ko-fi"
+      }
+    }
+  },
+  "donate": {
+    "message": "บริจาคที่ $KOFI$",
+    "description": "Text of the link that opens the donation page. The name of the donation site is filled in for you.",
+    "placeholders": {
+      "kofi": {
+        "content": "Ko-fi"
+      }
+    }
+  },
+  "siteEnter": {
+    "message": "ป้อนเว็บไซต์ เช่น $EXAMPLE$",
+    "description": "Error under the box where a site is added to the list of sites where the extension is off. The example is filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": "example.com"
+      }
+    }
+  },
+  "siteListed": {
+    "message": "$HOST$ อยู่ในรายการแล้ว",
+    "description": "Error under the box where a site is added, when the site is already in the list. The site is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteCovered": {
+    "message": "$HOST$ ปิดอยู่แล้ว เพราะ $COVERING$ อยู่ในรายการ",
+    "description": "Error under the box where a site is added, when a shorter entry already covers it. Both sites are filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "mail.example.com"
+      },
+      "covering": {
+        "content": "$2",
+        "example": "example.com"
+      }
+    }
+  },
+  "copyOf": {
+    "message": "สำเนาของ $TITLE$",
+    "description": "The name given to a copy of a snippet that has a name. The name of the original is filled in for you.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Address"
+      }
+    }
+  },
+  "abbreviationLength": {
+    "message": "ใช้ $MIN$ ถึง $MAX$ อักขระโดยไม่มีช่องว่าง",
+    "description": "Error under the abbreviation box. The two numbers, always 2 and 32, are filled in for you, so write the word for characters in the form that goes with 32.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "2"
+      },
+      "max": {
+        "content": "$2",
+        "example": "32"
+      }
+    }
+  },
+  "abbreviationTaken": {
+    "message": "มีข้อความสำเร็จรูปอื่นใช้ $ABBREVIATION$ อยู่แล้ว",
+    "description": "Error under the abbreviation box. The abbreviation is filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";addr"
+      }
+    }
+  },
+  "abbreviationStartedBy": {
+    "message": "คำย่อ $OTHER$ ของข้อความสำเร็จรูปอื่นขึ้นต้นด้วยคำย่อนี้",
+    "description": "Error under the abbreviation box: the typed abbreviation is the beginning of another one, so the shorter one would always win. The other abbreviation is filled in for you.",
+    "placeholders": {
+      "other": {
+        "content": "$1",
+        "example": ";addr2"
+      }
+    }
+  },
+  "abbreviationStartsWith": {
+    "message": "คำย่อนี้ขึ้นต้นด้วยคำย่อ $OTHER$ ของข้อความสำเร็จรูปอื่น",
+    "description": "Error under the abbreviation box: another abbreviation is the beginning of the typed one, so the shorter one would always win. The other abbreviation is filled in for you.",
+    "placeholders": {
+      "other": {
+        "content": "$1",
+        "example": ";a"
+      }
+    }
+  },
+  "importNotJson": {
+    "message": "ไฟล์นี้ไม่ใช่ไฟล์สำรองข้อมูลข้อความสำเร็จรูป เพราะไม่ใช่ $JSON$ ที่ถูกต้อง",
+    "description": "Error after the user picked a file to import that is not JSON. JSON is a data format, and its name is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "importNewer": {
+    "message": "ไฟล์สำรองข้อมูลนี้สร้างด้วย $NAME$ เวอร์ชันที่ใหม่กว่า อัปเดตส่วนขยายแล้วลองอีกครั้ง",
+    "description": "Error after the user picked a backup file written by a later version of the extension. The extension name is filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "Snippet Inserter"
+      }
+    }
+  },
+  "importNotBackup": {
+    "message": "ไฟล์นี้ไม่ใช่ไฟล์สำรองข้อมูลข้อความสำเร็จรูป",
+    "description": "Error after the user picked a file to import that is JSON but not a backup of snippets."
+  },
+  "importedCount_other": {
+    "message": "นำเข้าข้อความสำเร็จรูป $COUNT$ รายการแล้ว",
+    "description": "First sentence of the report after an import. The sentences of the report follow each other in one paragraph, separated by a space. Plural form. The number is filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "importSkipped_other": {
+    "message": "ข้ามข้อความสำเร็จรูป $COUNT$ รายการที่มีอยู่แล้ว",
+    "description": "Sentence in the report after an import, for snippets that were already stored. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importInvalid_other": {
+    "message": "ข้าม $COUNT$ รายการที่ไม่มีข้อความ",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importAbbrDropped_other": {
+    "message": "ข้อความสำเร็จรูป $COUNT$ รายการถูกนำคำย่อออก เนื่องจากข้อความสำเร็จรูปอื่นใช้คำย่อนั้นอยู่แล้ว",
+    "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "jsonEmpty": {
+    "message": "ไม่มีข้อความให้จัดรูปแบบ",
+    "description": "Error after Format JSON was pressed on an empty text."
+  },
+  "jsonPosition": {
+    "message": "บรรทัด $LINE$ คอลัมน์ $COLUMN$: $MESSAGE$",
+    "description": "Start of every JSON error: where in the text the first problem is. The two numbers are filled in for you, and $MESSAGE$ is one of the other JSON error messages in this file, already in your language.",
+    "placeholders": {
+      "line": {
+        "content": "$1",
+        "example": "3"
+      },
+      "column": {
+        "content": "$2",
+        "example": "14"
+      },
+      "message": {
+        "content": "$3",
+        "example": "Expected a digit."
+      }
+    }
+  },
+  "jsonStringNotClosed": {
+    "message": "สตริงไม่ได้ปิดด้วยเครื่องหมายคำพูด",
+    "description": "JSON error. A string is text in double quotes."
+  },
+  "jsonLineBreak": {
+    "message": "การขึ้นบรรทัดใหม่ภายในสตริงต้องเขียนเป็น $ESCAPE$",
+    "description": "JSON error. The code for a line break is filled in for you.",
+    "placeholders": {
+      "escape": {
+        "content": "\\n"
+      }
+    }
+  },
+  "jsonControlChar": {
+    "message": "อักขระควบคุมภายในสตริงต้องเขียนเป็นลำดับ escape",
+    "description": "JSON error. A control character is an invisible character such as a tab. An escape is a backslash code."
+  },
+  "jsonHexDigits": {
+    "message": "ต้องมีเลขฐานสิบหก $COUNT$ หลักหลัง $ESCAPE$",
+    "description": "JSON error. The number, always 4, and the backslash code are filled in for you, so write the word for digits in the form that goes with 4.",
+    "placeholders": {
+      "count": {
+        "content": "4"
+      },
+      "escape": {
+        "content": "\\u"
+      }
+    }
+  },
+  "jsonUnknownEscape": {
+    "message": "พบลำดับ escape ที่ไม่รู้จักในสตริง",
+    "description": "JSON error. An escape is a backslash followed by a letter that JSON does not know."
+  },
+  "jsonExpectedDigit": {
+    "message": "ต้องมีตัวเลข",
+    "description": "JSON error in a number, for example after a minus sign or a decimal point."
+  },
+  "jsonEndWhereValue": {
+    "message": "ข้อความสิ้นสุดในตำแหน่งที่ควรมีค่า",
+    "description": "JSON error when the text ends after [, after a comma in a list, or after the colon of a property. A value is a string, number, list, or object."
+  },
+  "jsonTooDeep": {
+    "message": "อาร์เรย์และออบเจ็กต์ซ้อนกันลึกเกิน $DEPTH$ ระดับ",
+    "description": "JSON error. The number, always 100, is filled in for you, so write the word for levels in the form that goes with 100.",
+    "placeholders": {
+      "depth": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "jsonExpected": {
+    "message": "ต้องเป็น $WORD$",
+    "description": "JSON error for a word that looks like true, false, or null but is misspelled. The expected word is filled in for you and is not translated.",
+    "placeholders": {
+      "word": {
+        "content": "$1",
+        "example": "true"
+      }
+    }
+  },
+  "jsonUnexpected": {
+    "message": "ไม่คาดว่าจะพบ $WHAT$",
+    "description": "JSON error. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonUnexpectedValue": {
+    "message": "พบ $WHAT$ ในตำแหน่งที่ควรมีค่า",
+    "description": "JSON error. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonComments": {
+    "message": "ใช้ความคิดเห็นใน $JSON$ ไม่ได้",
+    "description": "JSON error for text that starts like a comment. The name of the data format is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "jsonExpectedClose": {
+    "message": "ต้องมี $COMMA$ หรือ $CLOSE$ แต่พบ $WHAT$",
+    "description": "JSON error in a list or an object. The two characters and what was found are filled in for you. What was found is one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "close": {
+        "content": "$1",
+        "example": "]"
+      },
+      "what": {
+        "content": "$2",
+        "example": "\"x\""
+      },
+      "comma": {
+        "content": ","
+      }
+    }
+  },
+  "jsonExpectedCloseEnd": {
+    "message": "ข้อความสิ้นสุดในตำแหน่งที่ควรมี $COMMA$ หรือ $CLOSE$",
+    "description": "JSON error when a list or an object is not closed before the end of the text. The two characters are filled in for you.",
+    "placeholders": {
+      "close": {
+        "content": "$1",
+        "example": "]"
+      },
+      "comma": {
+        "content": ","
+      }
+    }
+  },
+  "jsonExpectedName": {
+    "message": "ต้องมีชื่อพร็อพเพอร์ตีในเครื่องหมายคำพูดคู่ แต่พบ $WHAT$",
+    "description": "JSON error in an object. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonExpectedNameEnd": {
+    "message": "ข้อความสิ้นสุดในตำแหน่งที่ควรมีชื่อพร็อพเพอร์ตีในเครื่องหมายคำพูดคู่",
+    "description": "JSON error when the text ends after { or after a comma in an object."
+  },
+  "jsonExpectedColon": {
+    "message": "ต้องมี $COLON$ หลังชื่อพร็อพเพอร์ตี แต่พบ $WHAT$",
+    "description": "JSON error in an object. The colon and what was found are filled in for you. What was found is one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      },
+      "colon": {
+        "content": ":"
+      }
+    }
+  },
+  "jsonExpectedColonEnd": {
+    "message": "ข้อความสิ้นสุดในตำแหน่งที่ควรมี $COLON$ หลังชื่อพร็อพเพอร์ตี",
+    "description": "JSON error when the text ends right after a property name of an object. The colon is filled in for you.",
+    "placeholders": {
+      "colon": {
+        "content": ":"
+      }
+    }
+  },
+  "jsonExpectedEnd": {
+    "message": "ข้อความควรสิ้นสุดแล้ว แต่พบ $WHAT$",
+    "description": "JSON error when text follows a complete value. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonPlaceholder": {
+    "message": "$TOKEN$ เป็นตัวยึดตำแหน่ง และตัวยึดตำแหน่งที่อยู่นอกเครื่องหมายคำพูดไม่ใช่ $JSON$ ที่ถูกต้อง ให้ใส่ไว้ในเครื่องหมายคำพูด หรือกรอกค่าก่อน",
+    "description": "JSON error when the text has a placeholder in braces outside quotes. The placeholder and the name of the data format are filled in for you.",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "{date}"
+      },
+      "json": {
+        "content": "JSON"
+      }
+    }
+  }
+}

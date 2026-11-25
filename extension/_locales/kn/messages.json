@@ -1,0 +1,1563 @@
+{
+  "extName": {
+    "message": "Snippet Inserter",
+    "description": "The name of the extension. It is a product name and stays the same in every language."
+  },
+  "extDescription": {
+    "message": "$KEY$ ಅನ್ನು ಎರಡು ಬಾರಿ ಒತ್ತಿ, ಸೇವ್ ಮಾಡಿದ ಪಠ್ಯ ತುಣುಕುಗಳನ್ನು ಯಾವುದೇ ಪಠ್ಯ ಫೀಲ್ಡ್‌ಗೆ ಸೇರಿಸಿ. ತುಣುಕುಗಳಿಗೆ ಉದ್ದದ ಮಿತಿಯಿಲ್ಲ.",
+    "description": "One sentence shown on the extension page in the browser and in the Chrome Web Store. At most 132 characters, counting the key name. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Ctrl"
+      }
+    }
+  },
+  "commandOpenPanel": {
+    "message": "ತುಣುಕುಗಳ ಪ್ಯಾನೆಲ್ ತೆರೆಯಿರಿ",
+    "description": "The name of the keyboard shortcut on the browser page where people change extension shortcuts. At most 60 characters."
+  },
+  "localeCode": {
+    "message": "kn",
+    "description": "The code of this language. Write the code of the folder this file is in, such as pt_BR. Used to choose plural forms and number formats."
+  },
+  "textDirection": {
+    "message": "ltr",
+    "description": "The direction of this language: ltr for left to right, rtl for right to left. It mirrors the panel and the manager."
+  },
+  "languageName": {
+    "message": "ಕನ್ನಡ",
+    "description": "The name of this language, written in this language, such as Deutsch for German."
+  },
+  "menuSaveSelection": {
+    "message": "ಆಯ್ಕೆಯನ್ನು ತುಣುಕಾಗಿ ಸೇವ್ ಮಾಡಿ",
+    "description": "Right-click menu item shown when text on a page is selected. It opens the form for a new snippet that starts with that text. At most 50 characters."
+  },
+  "menuInsertSnippet": {
+    "message": "ತುಣುಕನ್ನು ಸೇರಿಸಿ...",
+    "description": "Right-click menu item shown in a text field. The three dots mean that a panel opens to pick a snippet. At most 40 characters."
+  },
+  "noticeNoField": {
+    "message": "ಈ ರೀತಿಯ ಫೀಲ್ಡ್‌ನಲ್ಲಿ ತುಣುಕುಗಳನ್ನು ಸೇರಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ.",
+    "description": "Short notice at the top of a web page after the user chose Insert snippet from the right-click menu on something that is not a text field the extension can fill."
+  },
+  "noticeFieldGone": {
+    "message": "ಫೀಲ್ಡ್ ಕಾಣೆಯಾಗಿರುವುದರಿಂದ ತುಣುಕನ್ನು ಸೇರಿಸಲಾಗಿಲ್ಲ.",
+    "description": "Short notice at the top of a web page. The text field closed or was removed while the panel was open."
+  },
+  "noticeFieldChanged": {
+    "message": "ಫೀಲ್ಡ್‌ನಲ್ಲಿನ ಪಠ್ಯ ಬದಲಾಗಿದೆ, ಆದ್ದರಿಂದ ತುಣುಕನ್ನು ಸೇರಿಸಲಾಗಿಲ್ಲ.",
+    "description": "Short notice at the top of a web page. The user typed an abbreviation and filled in a form, but the field changed in the meantime."
+  },
+  "noticeDocsCopied": {
+    "message": "ತುಣುಕನ್ನು ನಕಲಿಸಲಾಗಿದೆ. ಅದು ಡಾಕ್ಯುಮೆಂಟ್‌ನಲ್ಲಿ ಕಾಣಿಸದಿದ್ದರೆ, $KEYS$ ಒತ್ತಿರಿ.",
+    "description": "Short notice at the top of a Google Docs page. The text went to the clipboard because pasting into the document could not be confirmed. The key combination is filled in for you, for example Ctrl+V.",
+    "placeholders": {
+      "keys": {
+        "content": "$1",
+        "example": "Ctrl+V"
+      }
+    }
+  },
+  "noticeDocsNotInserted": {
+    "message": "ತುಣುಕನ್ನು ಸೇರಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ತುಣುಕುಗಳ ಪ್ಯಾನೆಲ್‌ನಲ್ಲಿರುವ ಪೆನ್ಸಿಲ್ ಬಟನ್‌ನಿಂದ ಅದನ್ನು ತೆರೆದು, ಅದರ ಪಠ್ಯವನ್ನು ನಕಲಿಸಿ.",
+    "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
+  },
+  "noticeFieldRoom_one": {
+    "message": "ಈ ಫೀಲ್ಡ್‌ನಲ್ಲಿ ಇನ್ನು $FREE$ ಅಕ್ಷರಕ್ಕೆ ಮಾತ್ರ ಸ್ಥಳವಿದೆ, ಆದರೆ ತುಣುಕಿನ ಉದ್ದ $TOTAL$. ಏನನ್ನೂ ಸೇರಿಸಲಾಗಿಲ್ಲ.",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $FREE$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "free": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "40"
+      }
+    }
+  },
+  "noticeFieldRoom_other": {
+    "message": "ಈ ಫೀಲ್ಡ್‌ನಲ್ಲಿ ಇನ್ನು $FREE$ ಅಕ್ಷರಗಳಿಗೆ ಮಾತ್ರ ಸ್ಥಳವಿದೆ, ಆದರೆ ತುಣುಕಿನ ಉದ್ದ $TOTAL$. ಏನನ್ನೂ ಸೇರಿಸಲಾಗಿಲ್ಲ.",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
+    "placeholders": {
+      "free": {
+        "content": "$1",
+        "example": "12"
+      },
+      "total": {
+        "content": "$2",
+        "example": "40"
+      }
+    }
+  },
+  "noticeSiteOff": {
+    "message": "$HOST$ ನಲ್ಲಿ ಎರಡು ಬಾರಿ ಒತ್ತುವುದು ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳು ಆಫ್ ಆಗಿವೆ. ಅವುಗಳನ್ನು ಮತ್ತೆ ಆನ್ ಮಾಡಲು, ಕೀಬೋರ್ಡ್ ಶಾರ್ಟ್‌ಕಟ್ ಅಥವಾ ರೈಟ್-ಕ್ಲಿಕ್ ಮೆನುವಿನಿಂದ ಪ್ಯಾನೆಲ್ ತೆರೆಯಿರಿ.",
+    "description": "Short notice at the top of a web page after the user turned the extension off for this site. The site name is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "noticeSiteOn": {
+    "message": "$HOST$ ನಲ್ಲಿ ಎರಡು ಬಾರಿ ಒತ್ತುವುದು ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳು ಮತ್ತೆ ಆನ್ ಆಗಿವೆ.",
+    "description": "Short notice at the top of a web page after the user turned the extension back on for this site.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "noticeSaved": {
+    "message": "ತುಣುಕನ್ನು ಸೇವ್ ಮಾಡಲಾಗಿದೆ.",
+    "description": "Short notice at the top of a web page after the user saved a new snippet from selected text."
+  },
+  "snippets": {
+    "message": "ತುಣುಕುಗಳು",
+    "description": "The plural of snippet, a small piece of saved text. Used as the title of the panel, the name of the list of snippets, and the first section of the manager."
+  },
+  "editSnippet": {
+    "message": "ತುಣುಕನ್ನು ಎಡಿಟ್ ಮಾಡಿ",
+    "description": "Heading of the form for changing a saved snippet, in the panel and in the manager."
+  },
+  "newSnippet": {
+    "message": "ಹೊಸ ತುಣುಕು",
+    "description": "Button in the manager that starts a new snippet, and the heading of the form for it. Other messages refer to this button by name, so keep them the same."
+  },
+  "captionInsert": {
+    "message": "ತುಣುಕನ್ನು ಸೇರಿಸಿ",
+    "description": "Heading at the top of the panel while it shows the list of snippets. At most 36 characters."
+  },
+  "captionCreate": {
+    "message": "ಹೊಸ ತುಣುಕನ್ನು ರಚಿಸಿ",
+    "description": "Heading of the form for a new snippet in the panel. At most 36 characters."
+  },
+  "createNew": {
+    "message": "ಹೊಸ ತುಣುಕು ರಚಿಸಿ",
+    "description": "First entry in the panel list. It opens the form for a new snippet. At most 40 characters."
+  },
+  "createFromSelection": {
+    "message": "ಆಯ್ಕೆಯಿಂದ ತುಣುಕನ್ನು ರಚಿಸಿ",
+    "description": "First entry in the panel list when text was selected on the page. The new snippet starts with that text."
+  },
+  "emptyApply": {
+    "message": "ರಚಿಸಿ",
+    "description": "Button at the bottom of the panel when there are no snippets yet. It opens the form for the first snippet. At most 16 characters."
+  },
+  "emptyHint": {
+    "message": "ನಿಮ್ಮ ಮೊದಲ ತುಣುಕನ್ನು ರಚಿಸಲು ಕೆಳಗೆ ಕ್ಲಿಕ್ ಮಾಡಿ.",
+    "description": "Second sentence of the text in the empty panel, after the message emptyText and a space. The button below it is the message emptyApply."
+  },
+  "emptyHeading": {
+    "message": "ನಿಮ್ಮ ಬಳಿ ಇನ್ನೂ ಯಾವುದೇ ತುಣುಕುಗಳಿಲ್ಲ",
+    "description": "Heading of the empty panel."
+  },
+  "loadError": {
+    "message": "ನಿಮ್ಮ ತುಣುಕುಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ಪ್ಯಾನೆಲ್ ಮುಚ್ಚಿ, ಮತ್ತೆ ತೆರೆಯಿರಿ.",
+    "description": "Error in the panel when stored snippets could not be read."
+  },
+  "loadErrorHeading": {
+    "message": "ತುಣುಕುಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ",
+    "description": "Heading above the error in the panel when stored snippets could not be read."
+  },
+  "emptyText": {
+    "message": "ತುಣುಕುಗಳು ಎಂದರೆ ಸಮಯ ಉಳಿಸಲು ಮತ್ತೆ ಮತ್ತೆ ಬಳಸಬಹುದಾದ ಚಿಕ್ಕ ಪಠ್ಯ ಭಾಗಗಳು (ಉದಾ. ವಿಳಾಸ, ಇಮೇಲ್).",
+    "description": "Explanation in the empty panel of what a snippet is. The examples in brackets are things people often save."
+  },
+  "formApply": {
+    "message": "ತುಣುಕನ್ನು ಸೇವ್ ಮಾಡಿ",
+    "description": "Button at the bottom of the panel form for a new or changed snippet. At most 24 characters."
+  },
+  "createError": {
+    "message": "ತುಣುಕನ್ನು ರಚಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+    "description": "Error in the panel after saving a new snippet failed."
+  },
+  "editDelete": {
+    "message": "ತುಣುಕನ್ನು ಅಳಿಸಿ",
+    "description": "Button in the panel form for a saved snippet. It deletes the snippet and offers Undo."
+  },
+  "editDuplicate": {
+    "message": "ತುಣುಕನ್ನು ನಕಲು ಮಾಡಿ",
+    "description": "Button in the panel form for a saved snippet. It makes a copy of the snippet."
+  },
+  "editError": {
+    "message": "ತುಣುಕನ್ನು ಸೇವ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+    "description": "Error in the panel after saving a changed snippet failed."
+  },
+  "deleteError": {
+    "message": "ತುಣುಕನ್ನು ಅಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+    "description": "Error in the panel after deleting a snippet failed."
+  },
+  "duplicateError": {
+    "message": "ತುಣುಕನ್ನು ನಕಲು ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+    "description": "Error in the panel after copying a snippet failed."
+  },
+  "moveError": {
+    "message": "ತುಣುಕನ್ನು ಸರಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+    "description": "Error in the panel after moving a snippet up or down in the list failed."
+  },
+  "restoreError": {
+    "message": "ತುಣುಕನ್ನು ಮರುಸ್ಥಾಪಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+    "description": "Error in the panel after Undo of a deletion failed."
+  },
+  "notFound": {
+    "message": "ತುಣುಕು ಸಿಗಲಿಲ್ಲ.",
+    "description": "Error in the panel or the manager when the snippet to show no longer exists."
+  },
+  "placeholderContent": {
+    "message": "ಪಠ್ಯವನ್ನು ನಮೂದಿಸಿ …",
+    "description": "Grey hint inside the empty text box of the panel form. The ellipsis character is part of the style. At most 38 characters."
+  },
+  "placeholderTitle": {
+    "message": "ಹೆಸರು ನಮೂದಿಸಿ (ಐಚ್ಛಿಕ) …",
+    "description": "Grey hint inside the empty name box of the panel form. The ellipsis character is part of the style. At most 38 characters."
+  },
+  "placeholderAbbreviation": {
+    "message": "ಸಂಕ್ಷಿಪ್ತ ರೂಪ (ಐಚ್ಛಿಕ), ಉದಾ. $EXAMPLE$ …",
+    "description": "Grey hint inside the empty abbreviation box of the panel form. An abbreviation is a short code the user types to insert a snippet. The example is filled in for you. At most 60 characters, counting the example.",
+    "placeholders": {
+      "example": {
+        "content": ";addr"
+      }
+    }
+  },
+  "placeholderFolder": {
+    "message": "ಫೋಲ್ಡರ್ (ಐಚ್ಛಿಕ), ಉದಾ. ಕೆಲಸ …",
+    "description": "Grey hint inside the empty folder box of the panel form. Work is an example of a folder name; use a common word in your language. At most 50 characters."
+  },
+  "folderAll": {
+    "message": "ಎಲ್ಲಾ",
+    "description": "Label of the folder button that shows every snippet."
+  },
+  "folderNone": {
+    "message": "ಫೋಲ್ಡರ್ ಇಲ್ಲ",
+    "description": "Label of the folder button that shows the snippets that are in no folder."
+  },
+  "foldersLabel": {
+    "message": "ಫೋಲ್ಡರ್‌ಗಳು",
+    "description": "Accessible name of the row of folder buttons. Screen readers read it; it is not shown."
+  },
+  "validationEmpty": {
+    "message": "ಈ ಫೀಲ್ಡ್ ಖಾಲಿ ಇರಬಾರದು.",
+    "description": "Error under a form field that was left empty."
+  },
+  "validationTooLong_one": {
+    "message": "ನಮೂದು $MAX$ ಅಕ್ಷರಕ್ಕಿಂತ ಉದ್ದವಿರಬಾರದು.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 128 in Filipino. Keep $MAX$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "validationTooLong_other": {
+    "message": "ನಮೂದು $MAX$ ಅಕ್ಷರಗಳಿಗಿಂತ ಉದ್ದವಿರಬಾರದು.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you: 128 for a name and 64 for a folder. Plural form.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "128"
+      }
+    }
+  },
+  "characterCount_one": {
+    "message": "$COUNT$ ಅಕ್ಷರ",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "characterCount_other": {
+    "message": "$COUNT$ ಅಕ್ಷರಗಳು",
+    "description": "Count under the text field of the snippet forms, in the panel and the snippet manager. An emoji counts as one character. Plural form. The number has the thousands separator of your language.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,234"
+      }
+    }
+  },
+  "labelEdited": {
+    "message": "ಎಡಿಟ್ ಆಗಿದೆ",
+    "description": "Small label next to a snippet in the panel list that was just changed. At most 12 characters."
+  },
+  "labelNew": {
+    "message": "ಹೊಸದು",
+    "description": "Small label next to a snippet in the panel list that was just added. At most 8 characters."
+  },
+  "searchPlaceholder": {
+    "message": "ತುಣುಕುಗಳನ್ನು ಹುಡುಕಿ …",
+    "description": "Grey hint inside the search box of the panel. The ellipsis character is part of the style. At most 30 characters."
+  },
+  "undoDeleted": {
+    "message": "ತುಣುಕನ್ನು ಅಳಿಸಲಾಗಿದೆ.",
+    "description": "Message in the bar that appears after a snippet was deleted, with the Undo button next to it."
+  },
+  "undo": {
+    "message": "ರದ್ದುಮಾಡು",
+    "description": "Button in the bar that appears in the panel and the snippet manager after a snippet was deleted. It brings the snippet back. At most 12 characters."
+  },
+  "placeholders": {
+    "message": "ಪ್ಲೇಸ್‌ಹೋಲ್ಡರ್‌ಗಳು",
+    "description": "Label before the list of placeholders in a snippet text. A placeholder is a word in braces, such as {date}, that is replaced when the snippet is inserted."
+  },
+  "placeholdersUnrecognized": {
+    "message": "ಗುರುತಿಸಲಾಗಿಲ್ಲ, ಬರೆದಂತೆಯೇ ಸೇರಿಸಲಾಗುತ್ತದೆ",
+    "description": "Label before the list of text in braces that looks like a placeholder but is not one. It is inserted exactly as typed."
+  },
+  "includes": {
+    "message": "ಒಳಗೊಂಡಿದೆ",
+    "description": "Label before the list of other snippets that a snippet includes."
+  },
+  "referenceNotFound": {
+    "message": "ಸಿಗಲಿಲ್ಲ",
+    "description": "Tooltip on an included snippet that does not exist."
+  },
+  "referenceMissing": {
+    "message": "ಯಾವ ತುಣುಕಿಗೂ $ABBREVIATION$ ಎಂಬ ಸಂಕ್ಷಿಪ್ತ ರೂಪ ಇಲ್ಲ, ಆದ್ದರಿಂದ $TOKEN$ ಅನ್ನು ಬರೆದಂತೆಯೇ ಸೇರಿಸಲಾಗುತ್ತದೆ.",
+    "description": "Warning under a snippet that includes another snippet by its abbreviation, when no snippet has that abbreviation. The abbreviation and the text in braces are filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "token": {
+        "content": "$2",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "referenceLoop": {
+    "message": "$TOKEN$ ಅನ್ನು ಬರೆದಂತೆಯೇ ಸೇರಿಸಲಾಗುತ್ತದೆ, ಇಲ್ಲವಾದರೆ ಒಂದು ತುಣುಕು ತನ್ನೊಳಗೇ ಸೇರಿಕೊಳ್ಳುತ್ತಿತ್ತು.",
+    "description": "Warning under a snippet that includes itself, directly or through other snippets. The text in braces is filled in for you.",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "referenceLimit": {
+    "message": "ಒಂದು ಬಾರಿ ಸೇರಿಸುವಾಗ ಗರಿಷ್ಠ $LIMIT$ ತುಣುಕುಗಳನ್ನು ಮಾತ್ರ ಒಳಗೊಳ್ಳಬಹುದು, ಆದ್ದರಿಂದ ಉಳಿದ ಉಲ್ಲೇಖಗಳನ್ನು ಬರೆದಂತೆಯೇ ಸೇರಿಸಲಾಗುತ್ತದೆ.",
+    "description": "Warning under a snippet that includes more other snippets than one insert allows. The limit, always 100, is filled in for you, so write the word for snippets in the form that goes with 100.",
+    "placeholders": {
+      "limit": {
+        "content": "100"
+      }
+    }
+  },
+  "fillCount_one": {
+    "message": "$COUNT$ ಫೀಲ್ಡ್ ಭರ್ತಿ ಮಾಡಿ",
+    "description": "Line at the top of the panel's fill-in form, which asks for values before a snippet is inserted. The panel's heading above it shows the snippet's name. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "fillCount_other": {
+    "message": "$COUNT$ ಫೀಲ್ಡ್‌ಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ",
+    "description": "Line at the top of the panel's fill-in form, which asks for values before a snippet is inserted. The panel's heading above it shows the snippet's name. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "preview": {
+    "message": "ಪೂರ್ವವೀಕ್ಷಣೆ",
+    "description": "Label above the text a snippet will insert, with the typed values filled in."
+  },
+  "insertApply": {
+    "message": "ಸೇರಿಸಿ",
+    "description": "Button at the bottom of the panel form that fills in a snippet and inserts it. At most 16 characters."
+  },
+  "edit": {
+    "message": "ಎಡಿಟ್ ಮಾಡಿ",
+    "description": "Tooltip on the pencil button next to a snippet in the panel list."
+  },
+  "back": {
+    "message": "ಹಿಂದೆ ($KEY$)",
+    "description": "Tooltip on the button at the top left of the panel that goes back to the list. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Esc"
+      }
+    }
+  },
+  "close": {
+    "message": "ಮುಚ್ಚಿ ($KEY$)",
+    "description": "Tooltip on the button at the top right of the panel that closes it. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Esc"
+      }
+    }
+  },
+  "siteOff": {
+    "message": "$HOST$ ನಲ್ಲಿ ಎರಡು ಬಾರಿ ಒತ್ತುವುದು ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳನ್ನು ಆಫ್ ಮಾಡಿ",
+    "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are on. The site name is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteOn": {
+    "message": "$ENTRY$ ಗಾಗಿ ಎರಡು ಬಾರಿ ಒತ್ತುವುದು ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳನ್ನು ಮತ್ತೆ ಆನ್ ಮಾಡಿ",
+    "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are off. $ENTRY$ is the entry in the list of turned-off sites that covers this site: the site itself, or a shorter address that covers it, such as example.com on mail.example.com.",
+    "placeholders": {
+      "entry": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteError": {
+    "message": "ಈ ಸೈಟ್‌ನ ಸೆಟ್ಟಿಂಗ್ ಬದಲಾಯಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+    "description": "Error in the panel after turning the extension off or on for a site failed."
+  },
+  "formattedView": {
+    "message": "ತುಣುಕಿನ ಪಠ್ಯ",
+    "description": "Accessible name of the box that shows the text of a snippet with formatting. Screen readers read it; it is not shown."
+  },
+  "formattedNote": {
+    "message": "ಈ ತುಣುಕಿನಲ್ಲಿ ಫಾರ್ಮ್ಯಾಟಿಂಗ್ ಇದೆ. ಅದರ ಪಠ್ಯವನ್ನು ತುಣುಕುಗಳ ನಿರ್ವಾಹಕದಲ್ಲಿ ಬದಲಾಯಿಸಿ.",
+    "description": "Note in the panel form for a snippet that has bold text, lists, or links. The text can only be changed in the manager page."
+  },
+  "openManager": {
+    "message": "ತುಣುಕುಗಳ ನಿರ್ವಾಹಕದಲ್ಲಿ ತೆರೆಯಿರಿ",
+    "description": "Link-style button next to the note about formatting. It opens the manager page with this snippet."
+  },
+  "navLabel": {
+    "message": "ವಿಭಾಗಗಳು",
+    "description": "Accessible name of the menu with the three sections of the manager. Screen readers read it; it is not shown."
+  },
+  "recentlyDeleted": {
+    "message": "ಇತ್ತೀಚೆಗೆ ಅಳಿಸಲಾದವು",
+    "description": "Name of the manager section that lists deleted snippets, and its heading."
+  },
+  "settingsAndBackup": {
+    "message": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು ಮತ್ತು ಬ್ಯಾಕಪ್",
+    "description": "Name of the manager section with the settings and the backup buttons."
+  },
+  "searchManagerPlaceholder": {
+    "message": "ತುಣುಕುಗಳನ್ನು ಹುಡುಕಿ...",
+    "description": "Grey hint inside the search box of the manager. At most 36 characters."
+  },
+  "renameFolder": {
+    "message": "ಫೋಲ್ಡರ್ ಮರುಹೆಸರಿಸಿ",
+    "description": "Button in the manager that renames the selected folder."
+  },
+  "removeFolder": {
+    "message": "ಫೋಲ್ಡರ್ ತೆಗೆದುಹಾಕಿ",
+    "description": "Button in the manager that removes the selected folder. The snippets in it stay."
+  },
+  "removeFolderConfirm": {
+    "message": "ಫೋಲ್ಡರ್ ತೆಗೆದುಹಾಕಲು ಮತ್ತೊಮ್ಮೆ ಕ್ಲಿಕ್ ಮಾಡಿ",
+    "description": "The text of the Remove folder button after the first click, which asks for a second click."
+  },
+  "folderNameLabel": {
+    "message": "ಫೋಲ್ಡರ್ ಹೆಸರು",
+    "description": "Accessible name of the box where a folder is renamed. Screen readers read it; it is not shown."
+  },
+  "rename": {
+    "message": "ಮರುಹೆಸರಿಸಿ",
+    "description": "Button that applies the new folder name."
+  },
+  "cancel": {
+    "message": "ರದ್ದುಮಾಡಿ",
+    "description": "Button that closes a small form without changing anything."
+  },
+  "renameJoins": {
+    "message": "$NAME$ ಈಗಾಗಲೇ ಇದೆ. ಮರುಹೆಸರಿಸಿದರೆ ಈ ತುಣುಕುಗಳು ಅದರೊಳಗೆ ಸರಿಯುತ್ತವೆ.",
+    "description": "Hint under the box where a folder is renamed to the name of a folder that already exists. The folder name is filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "folderNameRequired": {
+    "message": "ಫೋಲ್ಡರ್ ಹೆಸರನ್ನು ನಮೂದಿಸಿ.",
+    "description": "Error under the box where a folder is renamed, when it was left empty."
+  },
+  "noSnippets": {
+    "message": "ಇನ್ನೂ ಯಾವುದೇ ತುಣುಕುಗಳಿಲ್ಲ. ಒಂದನ್ನು ರಚಿಸಲು “ಹೊಸ ತುಣುಕು” ಕ್ಲಿಕ್ ಮಾಡಿ.",
+    "description": "Text in the empty list of the manager. New snippet is the name of a button; write it as in the message New snippet."
+  },
+  "selectOrNew": {
+    "message": "ತುಣುಕನ್ನು ಆಯ್ಕೆಮಾಡಿ, ಅಥವಾ “ಹೊಸ ತುಣುಕು” ಕ್ಲಿಕ್ ಮಾಡಿ.",
+    "description": "Text where the form is, when no snippet is open. New snippet is the name of a button; write it as in the message New snippet."
+  },
+  "dragReorder": {
+    "message": "ಕ್ರಮ ಬದಲಿಸಲು ಎಳೆಯಿರಿ",
+    "description": "Tooltip on the grip of a snippet row in the manager."
+  },
+  "dragReorderFolder": {
+    "message": "ಕ್ರಮ ಬದಲಿಸಲು ಎಳೆಯಿರಿ, ಅಥವಾ ಫೋಲ್ಡರ್‌ಗೆ ಸರಿಸಲು ಅದರ ಮೇಲೆ ಎಳೆಯಿರಿ",
+    "description": "Tooltip on the grip of a snippet row in the manager, when folders exist."
+  },
+  "moved": {
+    "message": "$TITLE$ ಅನ್ನು ಸರಿಸಲಾಗಿದೆ: ಸ್ಥಾನ $POSITION$, ಒಟ್ಟು $TOTAL$.",
+    "description": "Message for screen readers after a snippet was moved up or down in the list. It is not shown. The name of the snippet and the numbers are filled in for you.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Address"
+      },
+      "position": {
+        "content": "$2",
+        "example": "2"
+      },
+      "total": {
+        "content": "$3",
+        "example": "9"
+      }
+    }
+  },
+  "fieldName": {
+    "message": "ಹೆಸರು",
+    "description": "Label of the box for the name of a snippet in the manager form."
+  },
+  "fieldAbbreviation": {
+    "message": "ಸಂಕ್ಷಿಪ್ತ ರೂಪ",
+    "description": "Label of the box for the abbreviation of a snippet in the manager form. An abbreviation is a short code the user types to insert a snippet."
+  },
+  "fieldFolder": {
+    "message": "ಫೋಲ್ಡರ್",
+    "description": "Label of the box for the folder of a snippet in the manager form."
+  },
+  "fieldText": {
+    "message": "ಪಠ್ಯ",
+    "description": "Label of the box for the text of a snippet in the manager form."
+  },
+  "optionalPlaceholder": {
+    "message": "ಐಚ್ಛಿಕ",
+    "description": "Grey hint inside the empty name box of the manager form, which may stay empty. At most 20 characters."
+  },
+  "optionalAbbreviationPlaceholder": {
+    "message": "ಐಚ್ಛಿಕ, ಉದಾ. $EXAMPLE$",
+    "description": "Grey hint inside the empty abbreviation box of the manager form. The example is filled in for you. At most 38 characters, counting the example.",
+    "placeholders": {
+      "example": {
+        "content": ";addr"
+      }
+    }
+  },
+  "optionalFolderPlaceholder": {
+    "message": "ಐಚ್ಛಿಕ, ಉದಾ. ಕೆಲಸ",
+    "description": "Grey hint inside the empty folder box of the manager form. Work is an example of a folder name; use a common word in your language. At most 38 characters."
+  },
+  "formatJson": {
+    "message": "$JSON$ ಫಾರ್ಮ್ಯಾಟ್ ಮಾಡಿ",
+    "description": "Button in the manager form that checks the text as JSON and indents it. JSON is a data format, and its name is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "formattedText": {
+    "message": "ಫಾರ್ಮ್ಯಾಟ್ ಮಾಡಿದ ಪಠ್ಯ",
+    "description": "Label of the checkbox in the manager form that turns on bold text, lists, links, and code blocks."
+  },
+  "toolbarLabel": {
+    "message": "ಫಾರ್ಮ್ಯಾಟಿಂಗ್",
+    "description": "Accessible name of the row of formatting buttons. Screen readers read it; it is not shown."
+  },
+  "toolBold": {
+    "message": "ದಪ್ಪ ($SHORTCUT$)",
+    "description": "Tooltip of the bold button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+B"
+      }
+    }
+  },
+  "toolItalic": {
+    "message": "ಇಟಾಲಿಕ್ ($SHORTCUT$)",
+    "description": "Tooltip of the italic button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+I"
+      }
+    }
+  },
+  "toolUnderline": {
+    "message": "ಅಡಿಗೆರೆ ($SHORTCUT$)",
+    "description": "Tooltip of the underline button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+U"
+      }
+    }
+  },
+  "toolLink": {
+    "message": "ಲಿಂಕ್ ($SHORTCUT$)",
+    "description": "Tooltip of the button that turns the selected text into a link. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+K"
+      }
+    }
+  },
+  "toolBulleted": {
+    "message": "ಬುಲೆಟ್ ಪಟ್ಟಿ",
+    "description": "Tooltip of the button that makes a list with bullets."
+  },
+  "toolNumbered": {
+    "message": "ಸಂಖ್ಯೆಯ ಪಟ್ಟಿ",
+    "description": "Tooltip of the button that makes a list with numbers."
+  },
+  "toolCode": {
+    "message": "ಕೋಡ್",
+    "description": "Tooltip of the button that marks selected text as code inside a line."
+  },
+  "toolCodeBlock": {
+    "message": "ಕೋಡ್ ಬ್ಲಾಕ್",
+    "description": "Tooltip of the button that makes the selected lines a block of code."
+  },
+  "toolClear": {
+    "message": "ಫಾರ್ಮ್ಯಾಟಿಂಗ್ ತೆರವುಗೊಳಿಸಿ",
+    "description": "Tooltip of the button that removes bold, italic, underline, code, and links from the selected text."
+  },
+  "codeLanguageLabel": {
+    "message": "ಕೋಡ್ ಬ್ಲಾಕ್‌ನ ಭಾಷೆ",
+    "description": "Accessible name and tooltip of the menu that picks the programming language of a code block."
+  },
+  "languagePlain": {
+    "message": "ಸರಳ ಪಠ್ಯ",
+    "description": "Entry in the menu of code block languages for a block with no language, and the label above such a block."
+  },
+  "linkAddress": {
+    "message": "ಲಿಂಕ್ ವಿಳಾಸ",
+    "description": "Label of the box where the address of a link is typed."
+  },
+  "apply": {
+    "message": "ಅನ್ವಯಿಸಿ",
+    "description": "Button that puts the typed link address on the selected text."
+  },
+  "removeLink": {
+    "message": "ಲಿಂಕ್ ತೆಗೆದುಹಾಕಿ",
+    "description": "Button that removes a link and keeps its text."
+  },
+  "linkInvalid": {
+    "message": "$HTTPS$, $HTTP$, $MAILTO$ ಅಥವಾ $TEL$ ನಿಂದ ಪ್ರಾರಂಭವಾಗುವ ವಿಳಾಸವನ್ನು ಬಳಸಿ.",
+    "description": "Error under the box for a link address. The four address beginnings are filled in for you.",
+    "placeholders": {
+      "https": {
+        "content": "https://"
+      },
+      "http": {
+        "content": "http://"
+      },
+      "mailto": {
+        "content": "mailto:"
+      },
+      "tel": {
+        "content": "tel:"
+      }
+    }
+  },
+  "formatHint": {
+    "message": "ವೆಬ್‌ಮೇಲ್‌ನಂತಹ ರಿಚ್ ಟೆಕ್ಸ್ಟ್ ಎಡಿಟರ್‌ಗಳಲ್ಲಿ ಈ ಫಾರ್ಮ್ಯಾಟಿಂಗ್ ಉಳಿಯುತ್ತದೆ. ಪಠ್ಯ ಬಾಕ್ಸ್‌ಗಳಲ್ಲಿ ಮತ್ತು $GOOGLE_DOCS$ ನಲ್ಲಿ ಸರಳ ಪಠ್ಯ ಸೇರುತ್ತದೆ: ಬುಲೆಟ್‌ಗಳು ಚುಕ್ಕೆಗಳಾಗುತ್ತವೆ, ಮತ್ತು ಪ್ರತಿ ಲಿಂಕ್‌ನ ವಿಳಾಸ ಅದರ ನಂತರ ಆವರಣದಲ್ಲಿ ಬರುತ್ತದೆ.",
+    "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
+    "placeholders": {
+      "google_docs": {
+        "content": "Google Docs"
+      }
+    }
+  },
+  "duplicate": {
+    "message": "ನಕಲು ಮಾಡಿ",
+    "description": "Button in the manager form that makes a copy of the snippet."
+  },
+  "delete": {
+    "message": "ಅಳಿಸಿ",
+    "description": "Button in the manager form that deletes the snippet and offers Undo."
+  },
+  "save": {
+    "message": "ಸೇವ್ ಮಾಡಿ",
+    "description": "Button in the manager form that saves the snippet, and in a notice that asks to save changes."
+  },
+  "unsavedChanges": {
+    "message": "ಸೇವ್ ಮಾಡದ ಬದಲಾವಣೆಗಳಿವೆ.",
+    "description": "Notice in the manager when the user leaves a snippet that was changed but not saved. Buttons Save and Discard follow."
+  },
+  "discard": {
+    "message": "ತ್ಯಜಿಸಿ",
+    "description": "Button in a notice about unsaved changes. It throws the changes away."
+  },
+  "deletedElsewhere": {
+    "message": "ಈ ತುಣುಕನ್ನು ಬೇರೊಂದು ಟ್ಯಾಬ್‌ನಲ್ಲಿ ಅಳಿಸಲಾಗಿದೆ. ಸೇವ್ ಮಾಡಿದರೆ ಅದು ಮತ್ತೆ ರಚನೆಯಾಗುತ್ತದೆ.",
+    "description": "Notice in the manager when the open snippet was deleted from another browser tab."
+  },
+  "changedElsewhere": {
+    "message": "ಈ ತುಣುಕು ಬೇರೊಂದು ಟ್ಯಾಬ್‌ನಲ್ಲಿ ಬದಲಾಗಿದೆ.",
+    "description": "Notice in the manager when the open snippet was changed from another browser tab. Buttons to load the other version or keep the current one follow."
+  },
+  "loadOther": {
+    "message": "ಇನ್ನೊಂದು ಆವೃತ್ತಿಯನ್ನು ಲೋಡ್ ಮಾಡಿ",
+    "description": "Button in a notice. It replaces the form with the version saved from the other tab."
+  },
+  "keepMine": {
+    "message": "ನನ್ನದನ್ನೇ ಇರಿಸಿ",
+    "description": "Button in a notice. It keeps what the user typed."
+  },
+  "saved": {
+    "message": "ಸೇವ್ ಮಾಡಲಾಗಿದೆ.",
+    "description": "Status after a snippet was saved."
+  },
+  "savedRenamed_one": {
+    "message": "ಸೇವ್ ಮಾಡಲಾಗಿದೆ. $OLD$ ಬಳಸುತ್ತಿದ್ದ $COUNT$ ತುಣುಕು ಈಗ $NEW$ ಬಳಸುತ್ತದೆ.",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. The number and the two abbreviations are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "old": {
+        "content": "$2",
+        "example": ";sig"
+      },
+      "new": {
+        "content": "$3",
+        "example": ";sign"
+      }
+    }
+  },
+  "savedRenamed_other": {
+    "message": "ಸೇವ್ ಮಾಡಲಾಗಿದೆ. $OLD$ ಬಳಸುತ್ತಿದ್ದ $COUNT$ ತುಣುಕುಗಳು ಈಗ $NEW$ ಬಳಸುತ್ತವೆ.",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "old": {
+        "content": "$2",
+        "example": ";sig"
+      },
+      "new": {
+        "content": "$3",
+        "example": ";sign"
+      }
+    }
+  },
+  "savedCleared_one": {
+    "message": "ಸೇವ್ ಮಾಡಲಾಗಿದೆ. ಈಗ ಯಾವ ತುಣುಕಿಗೂ $ABBREVIATION$ ಇಲ್ಲ, ಆದ್ದರಿಂದ $COUNT$ ತುಣುಕು $TOKEN$ ಅನ್ನು ಬರೆದಂತೆಯೇ ಸೇರಿಸುತ್ತದೆ.",
+    "description": "Status after saving a snippet whose abbreviation was removed, when another snippet includes it. The abbreviation, the number, and the text in braces are filled in for you, and the number, $COUNT$, chooses the plural form. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "count": {
+        "content": "$2",
+        "example": "1"
+      },
+      "token": {
+        "content": "$3",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "savedCleared_other": {
+    "message": "ಸೇವ್ ಮಾಡಲಾಗಿದೆ. ಈಗ ಯಾವ ತುಣುಕಿಗೂ $ABBREVIATION$ ಇಲ್ಲ, ಆದ್ದರಿಂದ $COUNT$ ತುಣುಕುಗಳು $TOKEN$ ಅನ್ನು ಬರೆದಂತೆಯೇ ಸೇರಿಸುತ್ತವೆ.",
+    "description": "Status after saving a snippet whose abbreviation was removed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "count": {
+        "content": "$2",
+        "example": "3"
+      },
+      "token": {
+        "content": "$3",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "saveChangeFailed": {
+    "message": "ಬದಲಾವಣೆಯನ್ನು ಸೇವ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ: $REASON$",
+    "description": "Error after saving or changing a snippet failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "QUOTA_BYTES quota exceeded"
+      }
+    }
+  },
+  "saveSettingFailed": {
+    "message": "ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ಸೇವ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ: $REASON$",
+    "description": "Error after saving a setting failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "QUOTA_BYTES quota exceeded"
+      }
+    }
+  },
+  "loadFailed": {
+    "message": "ನಿಮ್ಮ ತುಣುಕುಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ: $REASON$",
+    "description": "Error at the top of the manager when stored snippets could not be read. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "Extension context invalidated"
+      }
+    }
+  },
+  "exportFailed": {
+    "message": "ತುಣುಕುಗಳನ್ನು ರಫ್ತು ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ: $REASON$",
+    "description": "Error after the export of the backup file failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "Extension context invalidated"
+      }
+    }
+  },
+  "jsonFormatted": {
+    "message": "$JSON$ ಫಾರ್ಮ್ಯಾಟ್ ಮಾಡಲಾಗಿದೆ.",
+    "description": "Status after the Format JSON button indented the text. The name of the data format is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "jsonNoCodeBlock": {
+    "message": "ಮೊದಲು ಕರ್ಸರ್ ಅನ್ನು ಕೋಡ್ ಬ್ಲಾಕ್‌ನಲ್ಲಿ ಇರಿಸಿ.",
+    "description": "Error after Format JSON was pressed while the text cursor is not inside a code block. The caret is the blinking text cursor."
+  },
+  "deletedOn": {
+    "message": "$DATE$ ರಂದು ಅಳಿಸಲಾಗಿದೆ",
+    "description": "Small line under a deleted snippet. The date and time are filled in for you, in the format of your language.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "11/20/2026, 9:14:00 AM"
+      }
+    }
+  },
+  "restore": {
+    "message": "ಮರುಸ್ಥಾಪಿಸಿ",
+    "description": "Button next to a deleted snippet that brings it back."
+  },
+  "deleteForever": {
+    "message": "ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಿ",
+    "description": "Button next to a deleted snippet that removes it for good."
+  },
+  "deleteForeverConfirm": {
+    "message": "ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಲು ಮತ್ತೊಮ್ಮೆ ಕ್ಲಿಕ್ ಮಾಡಿ",
+    "description": "The text of the Delete forever button after the first click, which asks for a second click."
+  },
+  "deletedNote": {
+    "message": "ಕೊನೆಯದಾಗಿ ಅಳಿಸಿದ $COUNT$ ತುಣುಕುಗಳು, ನೀವು ಅವುಗಳನ್ನು ಮರುಸ್ಥಾಪಿಸುವವರೆಗೆ ಅಥವಾ ಶಾಶ್ವತವಾಗಿ ಅಳಿಸುವವರೆಗೆ ಇಲ್ಲಿರುತ್ತವೆ.",
+    "description": "Text under the heading of the list of deleted snippets. The number, always 20, is filled in for you, so write the word for snippets in the form that goes with 20.",
+    "placeholders": {
+      "count": {
+        "content": "20"
+      }
+    }
+  },
+  "nothingDeleted": {
+    "message": "ಇತ್ತೀಚೆಗೆ ಏನನ್ನೂ ಅಳಿಸಲಾಗಿಲ್ಲ.",
+    "description": "Text in the empty list of deleted snippets."
+  },
+  "settings": {
+    "message": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
+    "description": "Heading of the settings part of the settings page."
+  },
+  "openPanelWith": {
+    "message": "ತುಣುಕುಗಳ ಪ್ಯಾನೆಲ್ ತೆರೆಯಲು",
+    "description": "Label of the menu where the user picks the key that opens the panel with a double tap."
+  },
+  "hotkeyControl": {
+    "message": "$KEY$ ಅನ್ನು ಎರಡು ಬಾರಿ ಒತ್ತಿರಿ",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Ctrl"
+      }
+    }
+  },
+  "hotkeyShift": {
+    "message": "$KEY$ ಅನ್ನು ಎರಡು ಬಾರಿ ಒತ್ತಿರಿ",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Shift"
+      }
+    }
+  },
+  "hotkeyAlt": {
+    "message": "$KEY$ ಅನ್ನು ಎರಡು ಬಾರಿ ಒತ್ತಿರಿ",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "key": {
+        "content": "Alt"
+      }
+    }
+  },
+  "keyCtrl": {
+    "message": "Ctrl",
+    "description": "The name of the Ctrl key. The panel shows it in the key hint of its save and insert buttons, and a notice in Google Docs uses it in Ctrl+V. Write it as keyboards in your language print it, the same way as in every other message."
+  },
+  "keyCmd": {
+    "message": "Cmd",
+    "description": "The name of the Command key of a Mac keyboard. On a Mac it takes the place of Ctrl in the shortcuts of the formatting buttons in the snippet manager, as in Cmd+B, in the key names of usageNote and abbreviationsNote, as in Cmd+1 and Cmd+Z, and in a notice in Google Docs, as in Cmd+V. Write it as Mac keyboards in your language print it."
+  },
+  "off": {
+    "message": "ಆಫ್",
+    "description": "The last entry of 2 menus in the settings, the messages openPanelWith and expandAbbreviations. In the first it turns the double tap off, and in the second it turns abbreviations off. Write one text that fits both menus."
+  },
+  "settingSaved": {
+    "message": "ಸೇವ್ ಮಾಡಲಾಗಿದೆ. ತೆರೆದಿರುವ ಪುಟಗಳಿಗೆ ಬದಲಾವಣೆ ತಕ್ಷಣ ಅನ್ವಯವಾಗುತ್ತದೆ.",
+    "description": "Status after the setting for the double tap key was saved."
+  },
+  "keyboardShortcut": {
+    "message": "ಕೀಬೋರ್ಡ್ ಶಾರ್ಟ್‌ಕಟ್",
+    "description": "Label of the setting that shows the keyboard shortcut for the panel."
+  },
+  "shortcutNotSet": {
+    "message": "ಹೊಂದಿಸಿಲ್ಲ",
+    "description": "Shown where the keyboard shortcut would be when the browser has none for this extension."
+  },
+  "changeShortcut": {
+    "message": "ಬ್ರೌಸರ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ಬದಲಾಯಿಸಿ",
+    "description": "Button that opens the browser page where extension shortcuts are changed."
+  },
+  "shortcutNote": {
+    "message": "ಎರಡು ಬಾರಿ ಒತ್ತಿದಂತೆಯೇ, ನೀವು ಟೈಪ್ ಮಾಡುತ್ತಿರುವ ಫೀಲ್ಡ್‌ನಲ್ಲಿ ತುಣುಕುಗಳ ಪ್ಯಾನೆಲ್ ಅನ್ನು ತೆರೆಯುತ್ತದೆ.",
+    "description": "Text under the keyboard shortcut setting."
+  },
+  "expandAbbreviations": {
+    "message": "ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳ ವಿಸ್ತರಣೆ",
+    "description": "Label of the menu where the user picks when a typed abbreviation is replaced by its snippet."
+  },
+  "abbreviationsImmediate": {
+    "message": "ನಾನು ಟೈಪ್ ಮಾಡಿದ ತಕ್ಷಣ",
+    "description": "Menu entry: an abbreviation is replaced as soon as its last character is typed."
+  },
+  "abbreviationsDelimiter": {
+    "message": "ನಾನು $SPACE$, $TAB$ ಅಥವಾ $ENTER$ ಒತ್ತಿದ ನಂತರ",
+    "description": "Menu entry: an abbreviation is replaced after the user presses one of the keys Space, Tab, or Enter. The key names are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "space": {
+        "content": "ಸ್ಪೇಸ್"
+      },
+      "tab": {
+        "content": "Tab"
+      },
+      "enter": {
+        "content": "Enter"
+      }
+    }
+  },
+  "abbreviationsNote": {
+    "message": "ಪಠ್ಯ ಫೀಲ್ಡ್‌ನಲ್ಲಿ ತುಣುಕಿನ ಸಂಕ್ಷಿಪ್ತ ರೂಪವನ್ನು ಟೈಪ್ ಮಾಡಿದರೆ ಅದರ ಜಾಗದಲ್ಲಿ ತುಣುಕು ಬರುತ್ತದೆ, ಮತ್ತು <kbd>$CTRL$</kbd>+<kbd>$Z$</kbd> ಟೈಪ್ ಮಾಡಿದ ಪಠ್ಯವನ್ನು ಮರಳಿ ತರುತ್ತದೆ. ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳು $SPACE$, $TAB$ ಅಥವಾ $ENTER$ ಗಾಗಿ ಕಾಯುವಾಗ, $SPACE$ ತುಣುಕಿನ ನಂತರ ಒಂದು ಖಾಲಿ ಜಾಗವನ್ನು ಉಳಿಸುತ್ತದೆ, ಆದರೆ $TAB$ ಮತ್ತು $ENTER$ ಸಂಕ್ಷಿಪ್ತ ರೂಪವನ್ನು ಕೇವಲ ವಿಸ್ತರಿಸುತ್ತವೆ. ಇದು $GOOGLE_DOCS$ ನಲ್ಲಿ ಕೆಲಸ ಮಾಡುವುದಿಲ್ಲ.",
+    "description": "Text under the abbreviations menu. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the letter Z, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "ctrl": {
+        "content": "Ctrl"
+      },
+      "z": {
+        "content": "Z"
+      },
+      "space": {
+        "content": "ಸ್ಪೇಸ್"
+      },
+      "tab": {
+        "content": "Tab"
+      },
+      "enter": {
+        "content": "Enter"
+      },
+      "google_docs": {
+        "content": "Google Docs"
+      }
+    }
+  },
+  "offSitesLabel": {
+    "message": "ಎರಡು ಬಾರಿ ಒತ್ತುವುದು ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳು ಆಫ್ ಆಗಿರುವ ಸೈಟ್‌ಗಳು",
+    "description": "Label of the list of sites where the extension is turned off."
+  },
+  "offSiteInputLabel": {
+    "message": "ಆಫ್ ಮಾಡಬೇಕಾದ ಸೈಟ್",
+    "description": "Accessible name of the box where a site is typed. Screen readers read it; it is not shown."
+  },
+  "addSite": {
+    "message": "ಸೈಟ್ ಸೇರಿಸಿ",
+    "description": "Button that adds the typed site to the list of sites where the extension is off."
+  },
+  "offSitesNone": {
+    "message": "ಇನ್ನೂ ಯಾವುದೇ ಸೈಟ್‌ಗಳಿಲ್ಲ. ಎರಡು ಬಾರಿ ಒತ್ತುವುದು ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳು ಎಲ್ಲಾ ಸೈಟ್‌ಗಳಲ್ಲಿ ಕೆಲಸ ಮಾಡುತ್ತವೆ.",
+    "description": "Text under the empty list of sites where the extension is off."
+  },
+  "offSitesNote": {
+    "message": "ಒಂದು ಸೈಟ್ ಅದರ ಸಬ್‌ಡೊಮೇನ್‌ಗಳನ್ನೂ ಒಳಗೊಂಡಿರುತ್ತದೆ: $EXAMPLE$, $SUBDOMAIN$ ಅನ್ನೂ ಒಳಗೊಳ್ಳುತ್ತದೆ. ಈ ಸೈಟ್‌ಗಳಲ್ಲಿ ಕೀಬೋರ್ಡ್ ಶಾರ್ಟ್‌ಕಟ್ ಮತ್ತು ರೈಟ್-ಕ್ಲಿಕ್ ಮೆನು ಈಗಲೂ ಪ್ಯಾನೆಲ್ ಅನ್ನು ತೆರೆಯುತ್ತವೆ. ಪ್ಯಾನೆಲ್‌ನ ಮೇಲ್ಭಾಗದಲ್ಲಿ “ಮುಚ್ಚಿ” ಬಟನ್‌ನ ಪಕ್ಕದಲ್ಲಿರುವ ಬಟನ್, ಪ್ರಸ್ತುತ ಸೈಟ್ ಅನ್ನು ಆಫ್ ಅಥವಾ ಮತ್ತೆ ಆನ್ ಮಾಡುತ್ತದೆ.",
+    "description": "Text under the list of sites where the extension is off. Close is the name of a button in the panel; write it as in the message Close. The two web addresses are filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": "example.com"
+      },
+      "subdomain": {
+        "content": "mail.example.com"
+      }
+    }
+  },
+  "turnOn": {
+    "message": "ಆನ್ ಮಾಡಿ",
+    "description": "Button next to a site in the list. It turns the extension back on for that site."
+  },
+  "turnOnSite": {
+    "message": "$SITE$ ಅನ್ನು ಮತ್ತೆ ಆನ್ ಮಾಡಿ",
+    "description": "Accessible name of the Turn on button, which names the site. Screen readers read it; it is not shown.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "usageNote": {
+    "message": "ಪಠ್ಯ ಬಾಕ್ಸ್, ರಿಚ್ ಟೆಕ್ಸ್ಟ್ ಎಡಿಟರ್ ಅಥವಾ $GOOGLE_DOCS$ ಡಾಕ್ಯುಮೆಂಟ್‌ನಲ್ಲಿ ಕ್ಲಿಕ್ ಮಾಡಿ, ನಂತರ ಕೀಯನ್ನು ವೇಗವಾಗಿ ಎರಡು ಬಾರಿ ಒತ್ತಿರಿ. ಪ್ಯಾನೆಲ್‌ನಲ್ಲಿ ಮೌಸ್‌ನಿಂದ, ಬಾಣದ ಕೀಗಳು ಮತ್ತು <kbd>$ENTER$</kbd> ನಿಂದ, ಅಥವಾ <kbd>$CTRL$</kbd>+<kbd>$N2$</kbd> ನಿಂದ <kbd>$CTRL$</kbd>+<kbd>$N9$</kbd> ವರೆಗಿನ ಕೀಗಳಿಂದ ತುಣುಕನ್ನು ಆಯ್ಕೆಮಾಡಿ. <kbd>$CTRL$</kbd>+<kbd>$N1$</kbd> ಹೊಸ ತುಣುಕನ್ನು ರಚಿಸುತ್ತದೆ, ಮತ್ತು ಪ್ಯಾನೆಲ್ ತೆರೆಯುವಾಗ ಪಠ್ಯ ಆಯ್ಕೆಯಾಗಿದ್ದರೆ, ಹೊಸ ತುಣುಕು ಆ ಪಠ್ಯದಿಂದ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ. ತುಣುಕುಗಳಿಗೆ ಉದ್ದದ ಮಿತಿಯಿಲ್ಲ.",
+    "description": "Short instructions at the end of the settings. The key to tap twice is the one picked in the menu openPanelWith above. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the digits, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
+    "placeholders": {
+      "google_docs": {
+        "content": "Google Docs"
+      },
+      "enter": {
+        "content": "Enter"
+      },
+      "ctrl": {
+        "content": "Ctrl"
+      },
+      "n1": {
+        "content": "1"
+      },
+      "n2": {
+        "content": "2"
+      },
+      "n9": {
+        "content": "9"
+      }
+    }
+  },
+  "languageNote": {
+    "message": "ಇಂಟರ್‌ಫೇಸ್ ನಿಮ್ಮ ಬ್ರೌಸರ್‌ನ ಭಾಷೆಯನ್ನು ಅನುಸರಿಸುತ್ತದೆ: $LANGUAGE$.",
+    "description": "Muted line in Settings and backup, shown in every language except English. It says which language the interface is in. The name of the language, written in that language, is filled in for you. At most 120 characters.",
+    "placeholders": {
+      "language": {
+        "content": "$1",
+        "example": "Deutsch"
+      }
+    }
+  },
+  "translationReport": {
+    "message": "ಅನುವಾದದ ಸಮಸ್ಯೆಯನ್ನು ವರದಿ ಮಾಡಿ",
+    "description": "Link that opens a form on GitHub, shown in every language except English, under the line that names the interface language. It is for people who find a wrong or unclear translation. At most 60 characters."
+  },
+  "backup": {
+    "message": "ಬ್ಯಾಕಪ್",
+    "description": "Heading of the part of the settings page with the export and import buttons."
+  },
+  "exportSnippets": {
+    "message": "ತುಣುಕುಗಳನ್ನು ರಫ್ತು ಮಾಡಿ",
+    "description": "Button that saves all snippets to a file."
+  },
+  "exportNote_one": {
+    "message": "$COUNT$ ತುಣುಕನ್ನು $FILE$ ಗೆ ಸೇವ್ ಮಾಡುತ್ತದೆ.",
+    "description": "Text next to the Export snippets button. The number and the file name are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exportNote_other": {
+    "message": "ಎಲ್ಲಾ $COUNT$ ತುಣುಕುಗಳನ್ನು $FILE$ ಗೆ ಸೇವ್ ಮಾಡುತ್ತದೆ.",
+    "description": "Text next to the Export snippets button. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exported_one": {
+    "message": "$COUNT$ ತುಣುಕನ್ನು $FILE$ ಗೆ ರಫ್ತು ಮಾಡಲಾಗಿದೆ.",
+    "description": "Status after the export. The number and the file name are filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exported_other": {
+    "message": "$COUNT$ ತುಣುಕುಗಳನ್ನು $FILE$ ಗೆ ರಫ್ತು ಮಾಡಲಾಗಿದೆ.",
+    "description": "Status after the export. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "importSnippets": {
+    "message": "ತುಣುಕುಗಳನ್ನು ಆಮದು ಮಾಡಿ",
+    "description": "Button that reads snippets from a backup file."
+  },
+  "importNote": {
+    "message": "ಬ್ಯಾಕಪ್ ಫೈಲ್‌ನಲ್ಲಿರುವ ತುಣುಕುಗಳನ್ನು ಸೇರಿಸುತ್ತದೆ. ನಿಮ್ಮ ಬಳಿ ಈಗಾಗಲೇ ಇರುವ ತುಣುಕುಗಳನ್ನು ಬಿಟ್ಟುಬಿಡಲಾಗುತ್ತದೆ.",
+    "description": "Text next to the Import snippets button."
+  },
+  "support": {
+    "message": "ಬೆಂಬಲ",
+    "description": "Heading of the part of the settings page about supporting the author."
+  },
+  "supportNote": {
+    "message": "$NAME$ ಉಚಿತವಾಗಿದೆ, ಮತ್ತು ಪ್ರತಿಯೊಂದು ವೈಶಿಷ್ಟ್ಯವೂ ಹಣ ಪಾವತಿಸದೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ. ಇದರ ಅಭಿವೃದ್ಧಿಗೆ ಬೆಂಬಲ ನೀಡಲು ಬಯಸಿದರೆ, ನೀವು $KOFI$ ನಲ್ಲಿ ದೇಣಿಗೆ ನೀಡಬಹುದು.",
+    "description": "Text under the Support heading. The extension name and the name of the donation site are filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "Snippet Inserter"
+      },
+      "kofi": {
+        "content": "Ko-fi"
+      }
+    }
+  },
+  "donate": {
+    "message": "$KOFI$ ನಲ್ಲಿ ದೇಣಿಗೆ ನೀಡಿ",
+    "description": "Text of the link that opens the donation page. The name of the donation site is filled in for you.",
+    "placeholders": {
+      "kofi": {
+        "content": "Ko-fi"
+      }
+    }
+  },
+  "siteEnter": {
+    "message": "$EXAMPLE$ ನಂತಹ ಸೈಟ್ ಅನ್ನು ನಮೂದಿಸಿ.",
+    "description": "Error under the box where a site is added to the list of sites where the extension is off. The example is filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": "example.com"
+      }
+    }
+  },
+  "siteListed": {
+    "message": "$HOST$ ಈಗಾಗಲೇ ಪಟ್ಟಿಯಲ್ಲಿದೆ.",
+    "description": "Error under the box where a site is added, when the site is already in the list. The site is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteCovered": {
+    "message": "$COVERING$ ಪಟ್ಟಿಯಲ್ಲಿರುವುದರಿಂದ $HOST$ ಈಗಾಗಲೇ ಆಫ್ ಆಗಿದೆ.",
+    "description": "Error under the box where a site is added, when a shorter entry already covers it. Both sites are filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "mail.example.com"
+      },
+      "covering": {
+        "content": "$2",
+        "example": "example.com"
+      }
+    }
+  },
+  "copyOf": {
+    "message": "$TITLE$ ನ ನಕಲು",
+    "description": "The name given to a copy of a snippet that has a name. The name of the original is filled in for you.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Address"
+      }
+    }
+  },
+  "abbreviationLength": {
+    "message": "ಖಾಲಿ ಜಾಗವಿಲ್ಲದೆ $MIN$ ರಿಂದ $MAX$ ಅಕ್ಷರಗಳನ್ನು ಬಳಸಿ.",
+    "description": "Error under the abbreviation box. The two numbers, always 2 and 32, are filled in for you, so write the word for characters in the form that goes with 32.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "2"
+      },
+      "max": {
+        "content": "$2",
+        "example": "32"
+      }
+    }
+  },
+  "abbreviationTaken": {
+    "message": "ಇನ್ನೊಂದು ತುಣುಕು ಈಗಾಗಲೇ $ABBREVIATION$ ಬಳಸುತ್ತಿದೆ.",
+    "description": "Error under the abbreviation box. The abbreviation is filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";addr"
+      }
+    }
+  },
+  "abbreviationStartedBy": {
+    "message": "ಇನ್ನೊಂದು ತುಣುಕಿನ ಸಂಕ್ಷಿಪ್ತ ರೂಪ $OTHER$, ಇದರಿಂದಲೇ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ.",
+    "description": "Error under the abbreviation box: the typed abbreviation is the beginning of another one, so the shorter one would always win. The other abbreviation is filled in for you.",
+    "placeholders": {
+      "other": {
+        "content": "$1",
+        "example": ";addr2"
+      }
+    }
+  },
+  "abbreviationStartsWith": {
+    "message": "ಇದು ಇನ್ನೊಂದು ತುಣುಕಿನ ಸಂಕ್ಷಿಪ್ತ ರೂಪ $OTHER$ ನಿಂದ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ.",
+    "description": "Error under the abbreviation box: another abbreviation is the beginning of the typed one, so the shorter one would always win. The other abbreviation is filled in for you.",
+    "placeholders": {
+      "other": {
+        "content": "$1",
+        "example": ";a"
+      }
+    }
+  },
+  "importNotJson": {
+    "message": "ಈ ಫೈಲ್ ತುಣುಕುಗಳ ಬ್ಯಾಕಪ್ ಅಲ್ಲ: ಇದು ಮಾನ್ಯ $JSON$ ಅಲ್ಲ.",
+    "description": "Error after the user picked a file to import that is not JSON. JSON is a data format, and its name is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "importNewer": {
+    "message": "ಈ ಬ್ಯಾಕಪ್ ಅನ್ನು $NAME$ ನ ಹೊಸ ಆವೃತ್ತಿಯಲ್ಲಿ ಮಾಡಲಾಗಿದೆ. ವಿಸ್ತರಣೆಯನ್ನು ಅಪ್‌ಡೇಟ್ ಮಾಡಿ, ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+    "description": "Error after the user picked a backup file written by a later version of the extension. The extension name is filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "Snippet Inserter"
+      }
+    }
+  },
+  "importNotBackup": {
+    "message": "ಈ ಫೈಲ್ ತುಣುಕುಗಳ ಬ್ಯಾಕಪ್ ಅಲ್ಲ.",
+    "description": "Error after the user picked a file to import that is JSON but not a backup of snippets."
+  },
+  "importedCount_one": {
+    "message": "$COUNT$ ತುಣುಕನ್ನು ಆಮದು ಮಾಡಲಾಗಿದೆ.",
+    "description": "First sentence of the report after an import. The sentences of the report follow each other in one paragraph, separated by a space. The number is filled in for you. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 0 in French. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importedCount_other": {
+    "message": "$COUNT$ ತುಣುಕುಗಳನ್ನು ಆಮದು ಮಾಡಲಾಗಿದೆ.",
+    "description": "First sentence of the report after an import. The sentences of the report follow each other in one paragraph, separated by a space. Plural form. The number is filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "importSkipped_one": {
+    "message": "ಈಗಾಗಲೇ ಇಲ್ಲಿದ್ದ $COUNT$ ತುಣುಕನ್ನು ಬಿಟ್ಟುಬಿಡಲಾಗಿದೆ.",
+    "description": "Sentence in the report after an import, for snippets that were already stored. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importSkipped_other": {
+    "message": "ಈಗಾಗಲೇ ಇಲ್ಲಿದ್ದ $COUNT$ ತುಣುಕುಗಳನ್ನು ಬಿಟ್ಟುಬಿಡಲಾಗಿದೆ.",
+    "description": "Sentence in the report after an import, for snippets that were already stored. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importInvalid_one": {
+    "message": "ಪಠ್ಯವಿಲ್ಲದ $COUNT$ ದಾಖಲೆಯನ್ನು ಬಿಟ್ಟುಬಿಡಲಾಗಿದೆ.",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importInvalid_other": {
+    "message": "ಪಠ್ಯವಿಲ್ಲದ $COUNT$ ದಾಖಲೆಗಳನ್ನು ಬಿಟ್ಟುಬಿಡಲಾಗಿದೆ.",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importAbbrDropped_one": {
+    "message": "$COUNT$ ತುಣುಕು, ಇನ್ನೊಂದು ತುಣುಕು ಈಗಾಗಲೇ ಬಳಸುತ್ತಿರುವ ಸಂಕ್ಷಿಪ್ತ ರೂಪವನ್ನು ಕಳೆದುಕೊಂಡಿದೆ.",
+    "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importAbbrDropped_other": {
+    "message": "$COUNT$ ತುಣುಕುಗಳು, ಇನ್ನೊಂದು ತುಣುಕು ಈಗಾಗಲೇ ಬಳಸುತ್ತಿರುವ ಸಂಕ್ಷಿಪ್ತ ರೂಪವನ್ನು ಕಳೆದುಕೊಂಡಿವೆ.",
+    "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "jsonEmpty": {
+    "message": "ಫಾರ್ಮ್ಯಾಟ್ ಮಾಡಲು ಯಾವುದೇ ಪಠ್ಯವಿಲ್ಲ.",
+    "description": "Error after Format JSON was pressed on an empty text."
+  },
+  "jsonPosition": {
+    "message": "ಸಾಲು $LINE$, ಕಾಲಮ್ $COLUMN$: $MESSAGE$",
+    "description": "Start of every JSON error: where in the text the first problem is. The two numbers are filled in for you, and $MESSAGE$ is one of the other JSON error messages in this file, already in your language.",
+    "placeholders": {
+      "line": {
+        "content": "$1",
+        "example": "3"
+      },
+      "column": {
+        "content": "$2",
+        "example": "14"
+      },
+      "message": {
+        "content": "$3",
+        "example": "Expected a digit."
+      }
+    }
+  },
+  "jsonStringNotClosed": {
+    "message": "ಸ್ಟ್ರಿಂಗ್ ಮುಚ್ಚಿಲ್ಲ.",
+    "description": "JSON error. A string is text in double quotes."
+  },
+  "jsonLineBreak": {
+    "message": "ಸ್ಟ್ರಿಂಗ್‌ನೊಳಗಿನ ಲೈನ್ ಬ್ರೇಕ್ ಅನ್ನು $ESCAPE$ ಎಂದು ಬರೆಯಬೇಕು.",
+    "description": "JSON error. The code for a line break is filled in for you.",
+    "placeholders": {
+      "escape": {
+        "content": "\\n"
+      }
+    }
+  },
+  "jsonControlChar": {
+    "message": "ಸ್ಟ್ರಿಂಗ್‌ನೊಳಗಿನ ಕಂಟ್ರೋಲ್ ಅಕ್ಷರವನ್ನು ಎಸ್ಕೇಪ್ ಆಗಿ ಬರೆಯಬೇಕು.",
+    "description": "JSON error. A control character is an invisible character such as a tab. An escape is a backslash code."
+  },
+  "jsonHexDigits": {
+    "message": "$ESCAPE$ ನಂತರ $COUNT$ ಹೆಕ್ಸಾಡೆಸಿಮಲ್ ಅಂಕೆಗಳನ್ನು ನಿರೀಕ್ಷಿಸಲಾಗಿತ್ತು.",
+    "description": "JSON error. The number, always 4, and the backslash code are filled in for you, so write the word for digits in the form that goes with 4.",
+    "placeholders": {
+      "count": {
+        "content": "4"
+      },
+      "escape": {
+        "content": "\\u"
+      }
+    }
+  },
+  "jsonUnknownEscape": {
+    "message": "ಸ್ಟ್ರಿಂಗ್‌ನಲ್ಲಿ ಅಪರಿಚಿತ ಎಸ್ಕೇಪ್.",
+    "description": "JSON error. An escape is a backslash followed by a letter that JSON does not know."
+  },
+  "jsonExpectedDigit": {
+    "message": "ಒಂದು ಅಂಕೆಯನ್ನು ನಿರೀಕ್ಷಿಸಲಾಗಿತ್ತು.",
+    "description": "JSON error in a number, for example after a minus sign or a decimal point."
+  },
+  "jsonEndWhereValue": {
+    "message": "ಮೌಲ್ಯ ಬರಬೇಕಾದ ಸ್ಥಳದಲ್ಲಿ ಪಠ್ಯ ಕೊನೆಗೊಳ್ಳುತ್ತದೆ.",
+    "description": "JSON error when the text ends after [, after a comma in a list, or after the colon of a property. A value is a string, number, list, or object."
+  },
+  "jsonTooDeep": {
+    "message": "ಅರೇಗಳು ಮತ್ತು ಆಬ್ಜೆಕ್ಟ್‌ಗಳು $DEPTH$ ಹಂತಗಳಿಗಿಂತ ಹೆಚ್ಚು ಆಳವಾಗಿ ನೆಸ್ಟ್ ಆಗಿವೆ.",
+    "description": "JSON error. The number, always 100, is filled in for you, so write the word for levels in the form that goes with 100.",
+    "placeholders": {
+      "depth": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "jsonExpected": {
+    "message": "$WORD$ ನಿರೀಕ್ಷಿಸಲಾಗಿತ್ತು.",
+    "description": "JSON error for a word that looks like true, false, or null but is misspelled. The expected word is filled in for you and is not translated.",
+    "placeholders": {
+      "word": {
+        "content": "$1",
+        "example": "true"
+      }
+    }
+  },
+  "jsonUnexpected": {
+    "message": "ಅನಿರೀಕ್ಷಿತ $WHAT$.",
+    "description": "JSON error. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonUnexpectedValue": {
+    "message": "ಮೌಲ್ಯ ಬರಬೇಕಾದ ಸ್ಥಳದಲ್ಲಿ ಅನಿರೀಕ್ಷಿತ $WHAT$.",
+    "description": "JSON error. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonComments": {
+    "message": "$JSON$ ನಲ್ಲಿ ಕಾಮೆಂಟ್‌ಗಳಿಗೆ ಅನುಮತಿ ಇಲ್ಲ.",
+    "description": "JSON error for text that starts like a comment. The name of the data format is filled in for you.",
+    "placeholders": {
+      "json": {
+        "content": "JSON"
+      }
+    }
+  },
+  "jsonExpectedClose": {
+    "message": "$COMMA$ ಅಥವಾ $CLOSE$ ನಿರೀಕ್ಷಿಸಲಾಗಿತ್ತು, ಆದರೆ $WHAT$ ಸಿಕ್ಕಿದೆ.",
+    "description": "JSON error in a list or an object. The two characters and what was found are filled in for you. What was found is one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "close": {
+        "content": "$1",
+        "example": "]"
+      },
+      "what": {
+        "content": "$2",
+        "example": "\"x\""
+      },
+      "comma": {
+        "content": ","
+      }
+    }
+  },
+  "jsonExpectedCloseEnd": {
+    "message": "$COMMA$ ಅಥವಾ $CLOSE$ ಬರಬೇಕಾದ ಸ್ಥಳದಲ್ಲಿ ಪಠ್ಯ ಕೊನೆಗೊಳ್ಳುತ್ತದೆ.",
+    "description": "JSON error when a list or an object is not closed before the end of the text. The two characters are filled in for you.",
+    "placeholders": {
+      "close": {
+        "content": "$1",
+        "example": "]"
+      },
+      "comma": {
+        "content": ","
+      }
+    }
+  },
+  "jsonExpectedName": {
+    "message": "ಡಬಲ್ ಕೋಟ್‌ಗಳಲ್ಲಿ ಪ್ರಾಪರ್ಟಿ ಹೆಸರನ್ನು ನಿರೀಕ್ಷಿಸಲಾಗಿತ್ತು, ಆದರೆ $WHAT$ ಸಿಕ್ಕಿದೆ.",
+    "description": "JSON error in an object. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonExpectedNameEnd": {
+    "message": "ಡಬಲ್ ಕೋಟ್‌ಗಳಲ್ಲಿ ಪ್ರಾಪರ್ಟಿ ಹೆಸರು ಬರಬೇಕಾದ ಸ್ಥಳದಲ್ಲಿ ಪಠ್ಯ ಕೊನೆಗೊಳ್ಳುತ್ತದೆ.",
+    "description": "JSON error when the text ends after { or after a comma in an object."
+  },
+  "jsonExpectedColon": {
+    "message": "ಪ್ರಾಪರ್ಟಿ ಹೆಸರಿನ ನಂತರ $COLON$ ನಿರೀಕ್ಷಿಸಲಾಗಿತ್ತು, ಆದರೆ $WHAT$ ಸಿಕ್ಕಿದೆ.",
+    "description": "JSON error in an object. The colon and what was found are filled in for you. What was found is one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      },
+      "colon": {
+        "content": ":"
+      }
+    }
+  },
+  "jsonExpectedColonEnd": {
+    "message": "ಪ್ರಾಪರ್ಟಿ ಹೆಸರಿನ ನಂತರ $COLON$ ಬರಬೇಕಾದ ಸ್ಥಳದಲ್ಲಿ ಪಠ್ಯ ಕೊನೆಗೊಳ್ಳುತ್ತದೆ.",
+    "description": "JSON error when the text ends right after a property name of an object. The colon is filled in for you.",
+    "placeholders": {
+      "colon": {
+        "content": ":"
+      }
+    }
+  },
+  "jsonExpectedEnd": {
+    "message": "ಪಠ್ಯದ ಅಂತ್ಯವನ್ನು ನಿರೀಕ್ಷಿಸಲಾಗಿತ್ತು, ಆದರೆ $WHAT$ ಸಿಕ್ಕಿದೆ.",
+    "description": "JSON error when text follows a complete value. What was found is filled in for you: one character, already in double quotes, so add no quotation marks around it.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonPlaceholder": {
+    "message": "$TOKEN$ ಒಂದು ಪ್ಲೇಸ್‌ಹೋಲ್ಡರ್, ಮತ್ತು ಕೋಟ್‌ಗಳ ಹೊರಗಿರುವ ಪ್ಲೇಸ್‌ಹೋಲ್ಡರ್ ಮಾನ್ಯ $JSON$ ಅಲ್ಲ. ಅದನ್ನು ಕೋಟ್‌ಗಳಲ್ಲಿ ಇರಿಸಿ, ಅಥವಾ ಮೊದಲು ಅದನ್ನು ಭರ್ತಿ ಮಾಡಿ.",
+    "description": "JSON error when the text has a placeholder in braces outside quotes. The placeholder and the name of the data format are filled in for you.",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "{date}"
+      },
+      "json": {
+        "content": "JSON"
+      }
+    }
+  }
+}

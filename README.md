@@ -268,7 +268,40 @@ otherwise. Chrome makes that choice, so the extension has no language setting. T
 language, change the browser's. The name stays "Snippet Inserter" in every language, and
 placeholders such as `{date}` and `{input:Label}` are written the same way in every language.
 
-Snippet Inserter has these languages besides English: TODO-LANGUAGE-LIST.
+Snippet Inserter has these 29 languages besides English. In Arabic and Persian, the panel and the
+manager are mirrored to read from right to left.
+
+| Language | Name shown in Settings and backup | Folder in `extension/_locales` |
+| --- | --- | --- |
+| Amharic | አማርኛ | `am` |
+| Arabic | العربية | `ar` |
+| Bengali | বাংলা | `bn` |
+| Chinese, simplified | 中文（简体） | `zh_CN` |
+| Chinese, traditional | 中文（繁體） | `zh_TW` |
+| Filipino | Filipino | `fil` |
+| French | français | `fr` |
+| German | Deutsch | `de` |
+| Gujarati | ગુજરાતી | `gu` |
+| Hindi | हिन्दी | `hi` |
+| Indonesian | Indonesia | `id` |
+| Italian | italiano | `it` |
+| Japanese | 日本語 | `ja` |
+| Kannada | ಕನ್ನಡ | `kn` |
+| Korean | 한국어 | `ko` |
+| Malayalam | മലയാളം | `ml` |
+| Marathi | मराठी | `mr` |
+| Persian | فارسی | `fa` |
+| Polish | polski | `pl` |
+| Portuguese, Brazil | português (Brasil) | `pt_BR` |
+| Portuguese, Portugal | português (Portugal) | `pt_PT` |
+| Russian | русский | `ru` |
+| Spanish | español | `es` |
+| Swahili | Kiswahili | `sw` |
+| Tamil | தமிழ் | `ta` |
+| Telugu | తెలుగు | `te` |
+| Thai | ไทย | `th` |
+| Turkish | Türkçe | `tr` |
+| Vietnamese | Tiếng Việt | `vi` |
 
 A language model drafted every translation, and automatic checks (`npm run test:locales`) test
 that each one has every message, the same placeholders as English, the plural forms its language
@@ -393,8 +426,9 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
 ```
 extension/            The extension itself; this is the folder to load.
   manifest.json
-  _locales/en/        The English interface text, one message per string with a note for
-                      translators. The manifest names it as the default language.
+  _locales/           The interface text, one folder per language. en/ is the English text,
+                      with a note for translators on each message, and the manifest names it
+                      as the default language.
   content.js          Runs in every frame: the double tap, the shortcut and menu messages, and
                       typed abbreviations.
   content-main.js     Loaded when a frame needs it: places the panel and inserts the snippet.
