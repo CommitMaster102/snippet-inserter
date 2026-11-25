@@ -460,6 +460,10 @@ svg {
   background: transparent;
   color: var(--text-default);
   font: inherit;
+  /* A translated hint that is wider than its box on another system's font ends in an ellipsis
+     instead of being cut in the middle of a word. The Tamil abbreviation hint fits by about 1 px
+     with the Windows font. */
+  text-overflow: ellipsis;
 }
 
 .input-content {
