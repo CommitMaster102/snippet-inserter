@@ -209,6 +209,19 @@ test('every budget names a message and holds the English text', () => {
   }
 });
 
+// The glossary tells translators that the budgets in the table are repeated in the descriptions. A
+// budget stated only in a description is not checked, so a longer translation would pass.
+test('every budget stated in an English description is in the table with the same number, and the reverse', () => {
+  const budgets = check.readBudgets();
+  const stated = (key) => /At most (\d+) characters/.exec(english[key]?.description ?? '')?.[1];
+  for (const key of Object.keys(english)) {
+    if (stated(key)) assert.equal(budgets[key], Number(stated(key)), `${key} states a budget of ${stated(key)} characters`);
+  }
+  for (const [key, limit] of Object.entries(budgets)) {
+    assert.equal(Number(stated(key)), limit, `${key} has a budget of ${limit}, but its description does not state it`);
+  }
+});
+
 test('an entry without a text is reported', () => {
   const catalog = german();
   catalog.undo.message = '';

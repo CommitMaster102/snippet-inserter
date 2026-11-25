@@ -21,5 +21,7 @@
   "placeholderFolder": 50,
   "optionalPlaceholder": 20,
   "optionalAbbreviationPlaceholder": 38,
-  "optionalFolderPlaceholder": 38
+  "optionalFolderPlaceholder": 38,
+  "languageNote": 120,
+  "translationReport": 60
 }
