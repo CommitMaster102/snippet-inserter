@@ -578,7 +578,7 @@
   },
   "toolBold": {
     "message": "Bold ($SHORTCUT$)",
-    "description": "Tooltip of the bold button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter.",
+    "description": "Tooltip of the bold button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
     "placeholders": {
       "shortcut": {
         "content": "Ctrl+B"
@@ -587,7 +587,7 @@
   },
   "toolItalic": {
     "message": "Italic ($SHORTCUT$)",
-    "description": "Tooltip of the italic button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter.",
+    "description": "Tooltip of the italic button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
     "placeholders": {
       "shortcut": {
         "content": "Ctrl+I"
@@ -596,7 +596,7 @@
   },
   "toolUnderline": {
     "message": "Underline ($SHORTCUT$)",
-    "description": "Tooltip of the underline button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter.",
+    "description": "Tooltip of the underline button. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
     "placeholders": {
       "shortcut": {
         "content": "Ctrl+U"
@@ -605,7 +605,7 @@
   },
   "toolLink": {
     "message": "Link ($SHORTCUT$)",
-    "description": "Tooltip of the button that turns the selected text into a link. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter.",
+    "description": "Tooltip of the button that turns the selected text into a link. The keyboard shortcut is filled in for you. You may change its key name to the one keyboards in your language print, the same way in every message, but keep the letter, and write no space around the plus sign.",
     "placeholders": {
       "shortcut": {
         "content": "Ctrl+K"

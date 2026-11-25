@@ -10,8 +10,8 @@
  * folder present the check passes.
  *
  * A placeholder keeps its English content, with two exceptions. A key name, such as Ctrl, may be
- * written as keyboards in the language print it, the same way in every message of the catalog.
- * A fixed number may be written in the digits of the language.
+ * written as keyboards in the language print it, the same way in every message of the catalog and
+ * with no space around a plus sign. A fixed number may be written in the digits of the language.
  *
  * The pseudo-languages for the layout tests are not checked here, because they are never put in
  * _locales.
@@ -80,16 +80,18 @@ function keyParts(text) {
 }
 
 // Whether `translated` names the keys of the English key name `parts`. Each named key it writes is
-// added to `names`, so that a key written two ways in one catalog can be reported.
+// added to `names`, so that a key written two ways in one catalog can be reported. A space before or
+// after a key is reported, because the code joins the keyCtrl text and a letter with a bare plus
+// sign, as in Ctrl+V, and looks for that text with a plus sign to put Cmd in its place on a Mac.
 function sameKeys(parts, translated, names) {
   const written = String(translated ?? '').split('+');
   if (written.length !== parts.length) return false;
   for (const [index, part] of parts.entries()) {
-    const own = written[index].trim();
+    const own = written[index];
     if (!KEY_NAMES.has(part)) {
       if (own !== part) return false;
     } else {
-      if (!own || own.includes('$')) return false;
+      if (!own || own !== own.trim() || own.includes('$')) return false;
       if (!names.has(part)) names.set(part, new Set());
       names.get(part).add(own);
     }

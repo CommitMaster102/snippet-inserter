@@ -425,9 +425,9 @@ editor. In the longer one, every text that is not snippet text must carry its ma
 code builds itself, outside the catalog, fails the test. The right-to-left one also runs with
 Persian digits, to check that every count and position on the pages and in a notice is written in
 the digits of the interface language. `npm run test:locales` checks the real language folders and
-passes while only English is present. It lets a translation write a fixed number, such
-as the 20 of Recently deleted, in the digits of its language, and a key name, such as Ctrl, as
-keyboards in its language print it, the same way in every message.
+passes while only English is present. It lets a translation write a fixed number, such as the 20
+of Recently deleted, in the digits of its language, and a key name, such as Ctrl, as keyboards in
+its language print it, the same way in every message and with no space around a plus sign.
 
 `extension/lib/richtext.js` parses HTML with the browser's own parser, so its unit tests,
 `tests/e2e/richtext.spec.js`, run in Playwright's Chromium with `npm test` instead of in Node.

@@ -96,6 +96,25 @@ test('a key name may be translated, the same way in every message, and nothing e
   assert.match(problems('de', name).join('\n'), /formatHint: .*placeholder/);
 });
 
+test('a key name is written without spaces around the plus sign, as the code joins it', () => {
+  // The manager turns Strg+B into Cmd+B on a Mac by replacing the keyCtrl text and a plus sign,
+  // which does not find Strg + B.
+  const spaced = german();
+  spaced.keyCtrl.message = 'Strg';
+  for (const entry of Object.values(spaced)) {
+    for (const definition of Object.values(entry.placeholders || {})) {
+      definition.content = definition.content.replace(/^Ctrl\+/, 'Strg + ').replace(/^Ctrl$/, 'Strg');
+    }
+  }
+  const text = problems('de', spaced).join('\n');
+  assert.match(text, /toolBold: .*placeholder/);
+  assert.match(text, /toolLink: .*placeholder/);
+
+  const padded = german();
+  padded.keyCtrl.message = 'Ctrl ';
+  assert.match(problems('de', padded).join('\n'), /keyCtrl: does not name the key Ctrl/);
+});
+
 test('a fixed number may be written in the digits of the language, but stays the same number', () => {
   const persian = copy(english);
   persian.localeCode.message = 'fa';
