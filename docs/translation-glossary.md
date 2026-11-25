@@ -57,8 +57,8 @@ writes each key one way in every message and puts no space around a plus sign. `
 test:locales` fails a catalog that breaks either rule. Each language section below fixes the names.
 They are the names Chrome shows for these keys in that language, with these exceptions:
 
-- Where Chrome's name for the Tab key is also its word for a browser tab (am, bn, gu, hi, ja, kn, ml,
-  mr, sw, tr), the key is written Tab, because the messages `deletedElsewhere` and
+- Where Chrome's name for the Tab key is also its word for a browser tab (am, bn, gu, hi, ja, kn,
+  ml, mr, sw, tr), the key is written Tab, because the messages `deletedElsewhere` and
   `changedElsewhere` mention a browser tab. In am, Enter stays Enter for the same reason: Chrome's
   name for that key, አስገባ, also means insert.
 - Where Chrome writes a key in capitals, as an abbreviation, or with a word for another action, the
@@ -502,11 +502,11 @@ that opens at the cursor, so this file uses Panel.
 | Failed to; Could not | Nie udało się | |
 | JSON terms: string; value; property name | ciąg; wartość; nazwa właściwości | |
 
-A keyboard shortcut is always "skrót klawiszowy", never a bare "skrót", which this file keeps for
-an abbreviation. Where an abbreviation and a keyboard shortcut are listed together as ways to
-insert, write "skrót tekstowy" for the abbreviation, as the store description does: "skrótem
-klawiszowym albo skrótem tekstowym". Chrome's word for a name, "Imię i nazwisko", is a person's name; a snippet's name is
-"nazwa".
+A keyboard shortcut is always "skrót klawiszowy", never a bare "skrót", which this file keeps for an
+abbreviation. Where an abbreviation and a keyboard shortcut are listed together as ways to insert,
+write "skrót tekstowy" for the abbreviation, as the store description does: "skrótem klawiszowym
+albo skrótem tekstowym". Chrome's word for a name, "Imię i nazwisko", is a person's name; a
+snippet's name is "nazwa".
 
 ### ru: Russian
 
@@ -1169,9 +1169,9 @@ twice, so it keeps its digit.
   writes "هل تريد الاتصال بهذا الرقم من هاتفك؟" and "يُرجى إعادة المحاولة لاحقًا."
 - **Keys:** Ctrl, Shift, Alt, Enter, Esc, مفتاح Tab, مسافة, Cmd
 - **Plural forms:** `zero` for 0, `one` for 1, and `two` for 2. Each covers a single number, so it
-  may leave the number out ("مقتطف واحد", "مقتطفان"). `few` is for 3 to 10 and for numbers whose last
-  2 digits are 03 to 10 (103, 205, ...). `many` is for 11 to 99 and for numbers whose last 2 digits
-  are 11 to 99. `other` is for 100, 101, 102, 200, and the like.
+  may leave the number out ("مقتطف واحد", "مقتطفان"). `few` is for 3 to 10 and for numbers whose
+  last 2 digits are 03 to 10 (103, 205, ...). `many` is for 11 to 99 and for numbers whose last 2
+  digits are 11 to 99. `other` is for 100, 101, 102, 200, and the like.
 
 | English | Term | Source |
 | --- | --- | --- |

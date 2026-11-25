@@ -195,27 +195,27 @@ manager, and the name, abbreviation, and folder can still be changed in the pane
 ### Plain text
 
 A rich-text editor, such as webmail, and a Google Docs document get the formatting, and each keeps
-as much of it as it supports. A text box and a single-line field get the plain text: a bullet
-before each item of a bulleted list, its number before each item of a numbered list, 2 more spaces
-for each level of a nested list, and each link's address in parentheses after its text, unless the
-text is the address. A code block keeps every space, tab, and line break there too, except that a
+as much of it as it supports. A text box and a single-line field get the plain text: a bullet before
+each item of a bulleted list, its number before each item of a numbered list, 2 more spaces for each
+level of a nested list, and each link's address in parentheses after its text, unless the text is
+the address. A code block keeps every space, tab, and line break there too, except that a
 single-line field joins the lines as it does for any snippet. Placeholder and fill-in values go in
-as text, even when they look like HTML. In a rich editor or in Docs, a formatted snippet included with
-`{snippet:...}` keeps its formatting, whether the snippet that includes it is formatted or not.
+as text, even when they look like HTML. In a rich editor or in Docs, a formatted snippet included
+with `{snippet:...}` keeps its formatting, whether the snippet that includes it is formatted or not.
 Included through a plain snippet, it loses its formatting: when A includes the plain snippet B and B
 includes the formatted snippet C, inserting A gives C as plain text, while inserting B keeps C's
 formatting. In a text box or a single-line field, every included snippet goes in as plain text.
 
 ### Code blocks and colors
 
-Each code block has a language menu in the toolbar: Plain text, JSON, JavaScript, TypeScript, Python,
-HTML, CSS, SQL, and Shell. Put the caret in a block to change its menu. When you save, a bundled
-copy of [Prism](https://prismjs.com/) 1.30.0 colors the keywords, strings, numbers, and comments of
-a block that names a language, and the colors are stored with the snippet. Only the manager page
-loads Prism, so no other page grows. The colors are 4 fixed ones, chosen to read on a white and on a
-near-black background (contrast of at least 4.0:1 on both): keywords `#2f7fc0`, strings `#2f8f4e`,
-numbers `#c0602a`, and comments `#7a7f87`. A snippet that never uses a code block language stores
-nothing new.
+Each code block has a language menu in the toolbar: Plain text, JSON, JavaScript, TypeScript,
+Python, HTML, CSS, SQL, and Shell. Put the caret in a block to change its menu. When you save, a
+bundled copy of [Prism](https://prismjs.com/) 1.30.0 colors the keywords, strings, numbers, and
+comments of a block that names a language, and the colors are stored with the snippet. Only the
+manager page loads Prism, so no other page grows. The colors are 4 fixed ones, chosen to read on a
+white and on a near-black background (contrast of at least 4.0:1 on both): keywords `#2f7fc0`,
+strings `#2f8f4e`, numbers `#c0602a`, and comments `#7a7f87`. A snippet that never uses a code block
+language stores nothing new.
 
 ### Which editors keep colors
 
