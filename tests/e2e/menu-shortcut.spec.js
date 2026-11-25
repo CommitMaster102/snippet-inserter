@@ -78,7 +78,7 @@ test.describe('Save selection as snippet', () => {
     expect(box.y).toBeGreaterThan(para.y);
 
     await panel.locator('input.input-title').fill('Note');
-    await page.keyboard.press('Control+Enter');
+    await pressInPanel(page, 'Enter', { ctrl: true });
     await expectPanelClosed(page);
     await expect(page.getByRole('status')).toHaveText('Snippet saved.');
     expect(await readSnippets(serviceWorker)).toMatchObject([
@@ -95,7 +95,7 @@ test.describe('Save selection as snippet', () => {
 
     const panel = page.frameLocator('#inner').frameLocator(PANEL);
     await expect(panel.locator('textarea.input-content')).toHaveValue('Inner first\nInner second');
-    await page.keyboard.press('Control+Enter');
+    await pressInPanel(page, 'Enter', { ctrl: true, iframe: page.frameLocator('#inner').locator(PANEL) });
     await expect(page.frameLocator('#inner').locator(PANEL)).toHaveCount(0);
     expect(await readSnippets(serviceWorker)).toMatchObject([{ content: 'Inner first\nInner second' }]);
   });

@@ -2,7 +2,7 @@
 'use strict';
 
 const { test, expect } = require('./fixtures');
-const { seedSnippets, readSnippets, selectInTextarea, openPanel, waitForPanelFit, openManager, expectPanelClosed, doubleTap, longText } = require('./helpers');
+const { seedSnippets, readSnippets, selectInTextarea, openPanel, waitForPanelFit, pressInPanel, openManager, expectPanelClosed, doubleTap, longText } = require('./helpers');
 
 test('the panel opens above a modal dialog and inserts on a click', async ({ page, pagesUrl, serviceWorker }) => {
   await page.goto(`${pagesUrl}/dialog.html`);
@@ -271,7 +271,7 @@ test('a field replaced while the panel is open gets a notice instead of a silent
   await seedSnippets(serviceWorker, [{ title: 'Tea time', content: 'Tea time' }]);
   await selectInTextarea(page, '#t', 5);
   const panel = await openPanel(page);
-  await panel.locator('#search').press('Control+2');
+  await pressInPanel(page, '2', { ctrl: true });
   await expectPanelClosed(page);
   await expect(page.locator('html > div').first()).toBeAttached();
   const text = await page.evaluate(() =>

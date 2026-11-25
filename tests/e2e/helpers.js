@@ -148,10 +148,11 @@ async function waitForStablePanel(page) {
  *
  * Use this for keys that close the panel (Escape, Enter or a hotkey that inserts). The panel
  * iframe is removed on keydown, and Playwright's real key presses wait for the keyup to reach a
- * frame that no longer exists.
+ * frame that no longer exists. Pass the iframe locator as `iframe` when the panel is inside another
+ * frame.
  */
-async function pressInPanel(page, key, { ctrl = false } = {}) {
-  const handle = await page.locator(PANEL).elementHandle();
+async function pressInPanel(page, key, { ctrl = false, iframe = page.locator(PANEL) } = {}) {
+  const handle = await iframe.elementHandle();
   const frame = await handle.contentFrame();
   await frame.evaluate(
     ([name, withCtrl]) => {
