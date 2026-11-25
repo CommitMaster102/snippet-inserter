@@ -1486,10 +1486,11 @@ els.folder.addEventListener('keydown', (event) => {
 
 document.addEventListener('keydown', (event) => {
   const modifier = navigator.userAgent.includes('Mac OS') ? event.metaKey : event.ctrlKey;
-  if (modifier && event.key.toLowerCase() === 's' && !els.editor.hidden && currentView() === 'snippets') {
+  const shortcut = lib.keyboard.shortcutKey(event);
+  if (modifier && shortcut === 's' && !els.editor.hidden && currentView() === 'snippets') {
     event.preventDefault();
     save();
-  } else if (modifier && event.key.toLowerCase() === 'k' && els.richContent.contains(document.activeElement)) {
+  } else if (modifier && shortcut === 'k' && els.richContent.contains(document.activeElement)) {
     event.preventDefault();
     openLinkBar();
   }

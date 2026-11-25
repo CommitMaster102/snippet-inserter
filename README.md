@@ -31,7 +31,9 @@ off, Chromium disables extensions loaded this way.
 To open the snippet panel, click in a text field and tap Ctrl twice quickly, or press
 Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...".
 
-- With snippets saved, the panel lists them. Pick one with the mouse, with the arrow keys and
+  Enter, or with Ctrl+2 to Ctrl+9 (Ctrl+1 is "Create new snippet"). The Ctrl shortcuts in the
+  panel and the manager (Ctrl+1 to Ctrl+9, Ctrl+Z, Ctrl+S, Ctrl+K) work on any keyboard layout, such
+  as French AZERTY or Russian, because they follow the physical key.
   Enter, or with Ctrl+2 to Ctrl+9 (Ctrl+1 is "Create new snippet").
 - Type in the search box to filter. The list keeps the snippets whose name, text, or folder has a
   word that starts with what you type, or whose abbreviation starts with it. A word starts after a
@@ -372,6 +374,7 @@ extension/            The extension itself; this is the folder to load.
     placeholders.js   {date}, {time}, {cursor}, {input:Label}, and
                       {snippet:;abbreviation}.
     richtext.js       The cleaner for formatted snippets, and their plain text.
+    keyboard.js       Names the key of a Ctrl shortcut the same on every keyboard layout.
     json-format.js    The Format JSON button: the check and the 2-space indent.
     highlight.js      Syntax colors for code blocks; loaded by the manager only.
     prism-setup.js    Stops Prism from highlighting the manager page by itself.

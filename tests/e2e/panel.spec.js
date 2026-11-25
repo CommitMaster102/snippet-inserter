@@ -182,3 +182,20 @@ test('a form opens at its own height, without the frame first shrinking to the h
   await expect(panel.locator('.fill-input')).toBeFocused();
   expect(await heightsBelowView()).toEqual([]);
 });
+
+test('Ctrl+3 picks the second snippet on a French layout, where the key reads a quote', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'First', content: 'one' },
+    { title: 'Second', content: 'two' },
+  ]);
+  await selectInTextarea(page, '#plain', 0);
+  const panel = await openPanel(page);
+  await expect(panel.locator('.list .item-caption').first()).toBeVisible();
+
+  await panel.locator('body').evaluate(() => {
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: '"', code: 'Digit3', ctrlKey: true, bubbles: true, cancelable: true })
+    );
+  });
+  await expect(page.locator('#plain')).toHaveValue(/^two/);
+});

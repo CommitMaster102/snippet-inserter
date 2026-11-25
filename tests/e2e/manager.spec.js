@@ -210,3 +210,17 @@ test('links to the Ko-fi page in a new tab, and the snippet panel has no such li
   await expect(panel.locator('a[href*="ko-fi"]')).toHaveCount(0);
   expect(await panel.locator('body').innerHTML()).not.toContain('ko-fi');
 });
+
+test('Ctrl+S saves on a Russian layout, where the key reads ы', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Address', content: '14 Elm Street' }]);
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#snippetList .row').first().click();
+  await manager.locator('#content').fill('15 Elm Street');
+  await manager.locator('#content').evaluate((element) => {
+    element.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ы', code: 'KeyS', ctrlKey: true, bubbles: true, cancelable: true })
+    );
+  });
+  await expect(manager.locator('#editorStatus')).toHaveText('Saved.');
+  expect((await readSnippets(serviceWorker))[0]).toMatchObject({ content: '15 Elm Street' });
+});

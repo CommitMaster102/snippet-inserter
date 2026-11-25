@@ -1149,6 +1149,7 @@ document.addEventListener(
   (event) => {
     if (event.isComposing || !state.initialized) return;
     const modifier = IS_MAC ? event.metaKey : event.ctrlKey;
+    const shortcut = lib.keyboard.shortcutKey(event);
 
     if (event.key === 'Escape') {
       event.preventDefault();
@@ -1158,9 +1159,9 @@ document.addEventListener(
 
     // Ctrl+1 to Ctrl+9 are always kept from the browser, which would switch tabs, but they act
     // only in the list.
-    if (modifier && !event.shiftKey && !event.altKey && HOTKEYS.includes(event.key)) {
+    if (modifier && !event.shiftKey && !event.altKey && HOTKEYS.includes(shortcut)) {
       event.preventDefault();
-      const target = state.view === 'insert' && els.body.querySelector(`[data-hotkey="${event.key}"]`);
+      const target = state.view === 'insert' && els.body.querySelector(`[data-hotkey="${shortcut}"]`);
       if (target && !state.busy) target.click();
       return;
     }
@@ -1180,7 +1181,7 @@ document.addEventListener(
         setFocus(state.focusIndex + (event.key === 'ArrowDown' ? 1 : -1));
       } else if (
         modifier &&
-        event.key.toLowerCase() === 'z' &&
+        shortcut === 'z' &&
         state.undoEntry &&
         !els.search.value
       ) {

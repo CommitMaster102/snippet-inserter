@@ -92,3 +92,21 @@ test('the recently deleted list keeps the newest 20 snippets', async ({ context,
   expect(deleted[0].title).toBe('Snippet 21');
   expect(deleted[19].title).toBe('Snippet 2');
 });
+
+test('Ctrl+Z undoes a delete on a Russian layout, where the key reads я', async ({ page, serviceWorker }) => {
+  const [seeded] = await seedSnippets(serviceWorker, [{ title: 'Only', content: 'Alone' }]);
+  await selectInTextarea(page, '#plain', 5);
+  const panel = await openPanel(page);
+
+  await openEditForm(page, panel, 'Only');
+  await panel.locator('.item-danger').click();
+  await expect(panel.locator('#undoBar')).toBeVisible();
+
+  await panel.locator('body').evaluate(() => {
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'я', code: 'KeyZ', ctrlKey: true, bubbles: true, cancelable: true })
+    );
+  });
+  await expect(panel.locator('.list .item-caption')).toHaveText(['Only']);
+  expect(await readSnippets(serviceWorker)).toEqual([seeded]);
+});
