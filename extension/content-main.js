@@ -136,7 +136,8 @@ export function create(shared) {
     // The formatted text is read here, before the abbreviation is selected, so no key typed while
     // the cleaner loads can replace the selection. The fill-in form reads its own.
     let html = null;
-    if (snippet.html && !fillIn && takesFormatting(target)) {
+    const mayBeFormatted = snippet.html || (String(snippet.content).includes('{snippet:') && list.some((s) => s.html));
+    if (mayBeFormatted && !fillIn && takesFormatting(target)) {
       try {
         html = (await loadRichText()).resolve(snippet, list);
       } catch {

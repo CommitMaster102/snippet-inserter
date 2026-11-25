@@ -202,8 +202,9 @@ bulleted list, its number before each item of a numbered list, 2 more spaces for
 nested list, and each link's address in parentheses after its text, unless the text is the
 address. A code block keeps every space, tab, and line break there too, except that a single-line
 field joins the lines as it does for any snippet. Placeholder and fill-in values go in as text, even
-when they look like HTML. A snippet included with `{snippet:...}` keeps its formatting inside a
-formatted snippet, and goes into a plain snippet as plain text.
+when they look like HTML. A snippet included with `{snippet:...}` keeps its formatting in a rich
+editor, whether the snippet that includes it is formatted or not, and goes in as plain text
+everywhere else.
 
 Whether the colors of a code block arrive depends on the editor that receives the paste. Gmail,
 Outlook, and Google Docs keep pasted text colors, so a colored block shows its colors there (Docs

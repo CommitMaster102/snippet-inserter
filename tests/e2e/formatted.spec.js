@@ -386,7 +386,23 @@ test('an abbreviation inserts the formatting in a rich editor', async ({ page, s
   await expect(page.locator('#rich p').last()).toHaveText('Thanks Hello there');
 });
 
-test('an included snippet keeps its formatting in a formatted snippet, and goes into a plain one as text', async ({ page, serviceWorker }) => {
+test('an abbreviation of a plain snippet that includes a formatted one inserts the formatting', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Bye', content: 'Bye {snippet:;sig}', abbreviation: ';bye' },
+    { title: 'Signature', content: 'Ana', html: '<b>Ana</b>', abbreviation: ';sig' },
+  ]);
+  const place = () => caretAtEndOf(page, '#rich', 'p:last-child');
+  await place();
+  await openPanel(page);
+  await pressInPanel(page, 'Escape');
+  await expectPanelClosed(page);
+  await place();
+  await page.keyboard.type(' ;bye');
+  await expect(page.locator('#rich b')).toHaveText('Ana');
+  await expect(page.locator('#rich p').last()).toHaveText('Thanks Bye Ana');
+});
+
+test('an included snippet keeps its formatting in a formatted snippet, and a plain snippet that includes one goes into a rich editor as formatted text', async ({ page, serviceWorker }) => {
   await seedSnippets(serviceWorker, [
     { title: 'Formatted', content: 'Hi {snippet:;sig}', html: '<i>Hi {snippet:;sig}</i>' },
     { title: 'Plain', content: 'Bye {snippet:;sig}' },
@@ -408,7 +424,7 @@ test('an included snippet keeps its formatting in a formatted snippet, and goes 
   await expect.poll(() => page.evaluate(() => window.pasteSeen)).not.toBeNull();
   expect(await page.evaluate(() => window.pasteSeen)).toEqual({
     plain: ' Bye Ana (https://example.com/)',
-    html: '&nbsp;Bye Ana (https://example.com/)',
+    html: '&nbsp;Bye <a href="https://example.com/"><b>Ana</b></a>',
   });
 });
 

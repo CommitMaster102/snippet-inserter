@@ -857,11 +857,17 @@
   // it, and one without goes in as its lines. Either takes on the formatting around the reference,
   // such as bold. A reference with no target, one that would include a snippet in itself, and any
   // after 100 included snippets stay as written. When the snippet has its own {cursor}, the cursors
-  // of included snippets are dropped.
+  // of included snippets are dropped. A snippet with no formatting of its own is taken as its text,
+  // and the result is null when no snippet it includes has formatting either, because then the
+  // plain text is all there is to send.
   function resolve(snippet, snippets) {
-    const tree = parse(snippet.html);
     const P = placeholders();
-    if (!String(snippet.content).includes('{snippet:')) return serialize(tree);
+    const own = Boolean(snippet.html);
+    const referenced = String(snippet.content).includes('{snippet:');
+    if (!own && !referenced) return null;
+    const tree = own ? parse(snippet.html) : textTree(String(snippet.content));
+    if (!referenced) return serialize(tree);
+    let formatted = own;
     const byAbbreviation = new Map();
     for (const other of snippets) if (other.abbreviation) byAbbreviation.set(other.abbreviation, other);
     const pattern = new RegExp(P.REFERENCE.source, 'g');
@@ -873,11 +879,6 @@
       included += 1;
       return found;
     };
-    const plainWalk = (text, stack) =>
-      text.replace(pattern, (token, abbreviation) => {
-        const found = target(abbreviation, stack);
-        return found ? plainWalk(String(found.content), [...stack, found.id]) : token;
-      });
     const htmlWalk = (current, stack) =>
       transform(current, finder(pattern), (match, marks, b) => {
         const found = target(match[1], stack);
@@ -885,12 +886,14 @@
           b.text(match[0], marks);
           return;
         }
+        if (found.html) formatted = true;
         const inner = [...stack, found.id];
-        let child = found.html ? htmlWalk(parse(found.html), inner) : textTree(plainWalk(String(found.content), inner));
+        let child = htmlWalk(found.html ? parse(found.html) : textTree(String(found.content)), inner);
         if (ownCursor) child = transform(child, finder(/\{cursor\}/), () => {});
         emit(child.segments, b, { extra: marks, fragment: true });
       });
-    return serialize(htmlWalk(tree, [snippet.id]));
+    const html = serialize(htmlWalk(tree, [snippet.id]));
+    return formatted ? html : null;
   }
 
   // The text of all lines in order, one line break between them, without list markers or link

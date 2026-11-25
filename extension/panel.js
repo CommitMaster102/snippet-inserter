@@ -1101,10 +1101,11 @@ function insertSnippet(snippet) {
   else post({ type: 'insert', content, values: {}, ...formattedText(snippet) });
 }
 
-// The formatted text of a formatted snippet, with its included snippets in place, to send along
+// The formatted text of a snippet that has formatting or includes one that does, with its included snippets in place, to send along
 // with the plain text of an insert. The page decides which of the two its field takes.
 function formattedText(snippet) {
-  return snippet.html ? { html: lib.richText.resolve(snippet, state.snippets) } : {};
+  const html = lib.richText.resolve(snippet, state.snippets);
+  return html === null ? {} : { html };
 }
 
 // Escape leaves a form for the list, and closes the panel from the list. A panel opened for one
