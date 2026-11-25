@@ -1245,11 +1245,15 @@ function setToolStop(stop) {
   for (const button of toolButtons()) button.tabIndex = button === stop ? 0 : -1;
 }
 
-// On a Mac the shortcuts use the Command key, so the tooltips name it, as the catalog writes it, in
-// place of Ctrl.
+// On a Mac the shortcuts use the Command key, so the tooltips and the notes in the settings name
+// it, as the catalog writes it, in place of Ctrl. The notes name Ctrl only in shortcuts, and
+// npm run test:locales makes a catalog write Ctrl the same way there as in keyCtrl.
 if (IS_MAC) {
   for (const button of toolButtons()) {
     for (const name of ['aria-label', 'title']) button.setAttribute(name, button.getAttribute(name).replace(`${t('keyCtrl')}+`, `${t('keyCmd')}+`));
+  }
+  for (const key of document.querySelectorAll('[data-i18n-rich="usageNote"] kbd, [data-i18n-rich="abbreviationsNote"] kbd')) {
+    if (key.textContent === t('keyCtrl')) key.textContent = t('keyCmd');
   }
 }
 setToolStop(toolButtons()[0]);

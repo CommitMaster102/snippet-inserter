@@ -368,13 +368,16 @@ const macKeys = base.extend({
   },
 });
 
-macKeys('on a Mac, the toolbar shortcuts name the Cmd key as the catalog writes it', async ({ context, extensionId }) => {
+macKeys('on a Mac, the toolbar shortcuts and the notes in the settings name the Cmd key as the catalog writes it', async ({ context, extensionId }) => {
   const manager = await openManager(context, extensionId);
   for (const [tool, name] of [['bold', 'Bold (Befehl+B)'], ['link', 'Link (Befehl+K)']]) {
     const button = manager.locator(`#toolbar [data-tool="${tool}"]`);
     await expect(button).toHaveAttribute('title', name);
     await expect(button).toHaveAttribute('aria-label', name);
   }
+  // The panel's Cmd+1 to Cmd+9, and Cmd+Z after an abbreviation.
+  await expect(manager.locator('[data-i18n-rich="usageNote"] kbd')).toHaveText(['Enter', 'Befehl', '2', 'Befehl', '9', 'Befehl', '1']);
+  await expect(manager.locator('[data-i18n-rich="abbreviationsNote"] kbd')).toHaveText(['Befehl', 'Z']);
 });
 
 base('the layout check reports text that is cut off, and accepts an ellipsis', async ({ page }) => {

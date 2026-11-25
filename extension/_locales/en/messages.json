@@ -920,7 +920,7 @@
   },
   "keyCmd": {
     "message": "Cmd",
-    "description": "The name of the Command key of a Mac keyboard. On a Mac it takes the place of Ctrl in the shortcuts of the formatting buttons in the snippet manager, as in Cmd+B, and in a notice in Google Docs, as in Cmd+V. Write it as Mac keyboards in your language print it."
+    "description": "The name of the Command key of a Mac keyboard. On a Mac it takes the place of Ctrl in the shortcuts of the formatting buttons in the snippet manager, as in Cmd+B, in the key names of usageNote and abbreviationsNote, as in Cmd+1 and Cmd+Z, and in a notice in Google Docs, as in Cmd+V. Write it as Mac keyboards in your language print it."
   },
   "off": {
     "message": "Off",

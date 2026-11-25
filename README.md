@@ -29,7 +29,9 @@ off, Chromium disables extensions loaded this way.
 ## Use
 
 To open the snippet panel, click in a text field and tap Ctrl twice quickly, or press
-Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...".
+Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...". On a Mac, press
+Cmd wherever this README names Ctrl in a shortcut, as in Cmd+Shift+Space or Cmd+2; the double tap
+uses the Control key.
 
 - With snippets saved, the panel lists them. Pick one with the mouse, with the arrow keys and
   Enter, or with Ctrl+2 to Ctrl+9 (Ctrl+1 is "Create new snippet"). The Ctrl shortcuts in the
@@ -425,11 +427,12 @@ editor. In the longer one, every text that is not snippet text must carry its ma
 code builds itself, outside the catalog, fails the test. The right-to-left one also runs with
 Persian digits, to check that every count and position on the pages and in a notice is written in
 the digits of the interface language. Another test gives Ctrl and the Mac Command key other names in
-the catalog, in a browser that reports a Mac, and checks that the formatting toolbar's shortcuts
-use them. `npm run test:locales` checks the real language folders and passes while only English is
-present. It lets a translation write a fixed number, such as the 20 of Recently deleted, in the
-digits of its language, and a key name, such as Ctrl or Cmd, as keyboards in its language print
-it, the same way in every message and with no space around a plus sign.
+the catalog, in a browser that reports a Mac, and checks that the formatting toolbar's shortcuts and
+the notes in the settings use the catalog's name for the Command key. `npm run test:locales` checks
+the real language folders and passes while only English is present. It lets a translation write a
+fixed number, such as the 20 of Recently deleted, in the digits of its language, and a key name,
+such as Ctrl or Cmd, as keyboards in its language print it, the same way in every message and with
+no space around a plus sign.
 
 `extension/lib/richtext.js` parses HTML with the browser's own parser, so its unit tests,
 `tests/e2e/richtext.spec.js`, run in Playwright's Chromium with `npm test` instead of in Node.
