@@ -180,6 +180,28 @@ async function commitInRichEditor(page, selector, abbreviation, delay) {
   );
 }
 
+// Like commitInRichEditor, but the space arrives 5 ms after the expansion has selected the
+// committed `abbreviation`, as a cancelable "beforeinput" event. Unless a listener cancels that
+// event, the page then inserts the space in place of the selection, as the browser does.
+async function commitInRichEditorAfterSelection(page, selector, abbreviation) {
+  await page.locator(selector).evaluate((el, typed) => {
+    el.focus();
+    el.textContent = `Hi ${typed}`;
+    getSelection().collapse(el.firstChild, el.firstChild.data.length);
+    const onSelectionChange = () => {
+      const selection = getSelection();
+      if (!selection.rangeCount || !el.contains(selection.anchorNode) || selection.toString() !== typed) return;
+      document.removeEventListener('selectionchange', onSelectionChange);
+      setTimeout(() => {
+        const init = { inputType: 'insertText', data: ' ', bubbles: true, cancelable: true, composed: true };
+        if (el.dispatchEvent(new InputEvent('beforeinput', init))) document.execCommand('insertText', false, ' ');
+      }, 5);
+    };
+    document.addEventListener('selectionchange', onSelectionChange);
+    el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: typed }));
+  }, abbreviation);
+}
+
 // In a rich editor the abbreviation is selected before the snippet is pasted. A space from the
 // input method that arrives while the selection settles must not replace the abbreviation. The
 // tracking editor pastes at the selection it last saw in a "selectionchange" event, so it also
@@ -196,6 +218,19 @@ for (const [where, editor] of RICH_EDITORS) {
     await seedSnippets(serviceWorker, [{ content: '감사합니다.', abbreviation: '감사' }]);
     await ready(page, () => caretAtEndOf(page, editor));
     await commitInRichEditor(page, editor, '감사', 5);
+    await expect.poll(() => text(page)).toBe('Hi 감사합니다. ');
+    await page.waitForTimeout(100);
+    expect(await text(page)).toBe('Hi 감사합니다. ');
+  });
+
+  // A space that arrives after the committed text is selected, 20 ms or more after the commit, is
+  // held while the insert runs and goes in after the snippet. Only a space that comes with a
+  // cancelable "beforeinput" can be held: a space inserted without one, as execCommand inserts
+  // it, replaces the selected text, and the insert then gives up.
+  test(`in ${where}, a space that arrives after the committed text is selected is kept after the snippet`, async ({ page, serviceWorker }) => {
+    await seedSnippets(serviceWorker, [{ content: '감사합니다.', abbreviation: '감사' }]);
+    await ready(page, () => caretAtEndOf(page, editor));
+    await commitInRichEditorAfterSelection(page, editor, '감사');
     await expect.poll(() => text(page)).toBe('Hi 감사합니다. ');
     await page.waitForTimeout(100);
     expect(await text(page)).toBe('Hi 감사합니다. ');
