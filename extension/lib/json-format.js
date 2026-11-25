@@ -87,7 +87,7 @@
       const c = text[i];
       if (c === undefined) fail(i, i18n().t('jsonEndWhereValue'));
       if (c === '{' || c === '[') {
-        if (depth >= MAX_DEPTH) fail(i, i18n().t('jsonTooDeep', [MAX_DEPTH]));
+        if (depth >= MAX_DEPTH) fail(i, i18n().t('jsonTooDeep', [i18n().number(MAX_DEPTH)]));
         return c === '{' ? object(depth, level) : array(depth, level);
       }
       if (c === '"') return string();
@@ -198,7 +198,8 @@
       const message = found
         ? i18n().t('jsonPlaceholder', [found[0]])
         : error.message;
-      return { ok: false, line: at.line, column: at.column, message: i18n().t('jsonPosition', [at.line, at.column, message]) };
+      const where = [i18n().number(at.line), i18n().number(at.column)];
+      return { ok: false, line: at.line, column: at.column, message: i18n().t('jsonPosition', [...where, message]) };
     }
   }
 

@@ -110,14 +110,17 @@ function mirrored(english) {
 const KINDS = { stretched, mirrored };
 
 // Copies the extension into a new temporary folder, with the English catalog replaced by the
-// pseudo-language `kind` ('stretched' or 'mirrored'). Returns the folder.
-function build(kind) {
+// pseudo-language `kind` ('stretched' or 'mirrored'). Returns the folder. `localeCode` gives the
+// language whose plural rules and digits the copy uses, such as fa for Persian digits.
+function build(kind, { localeCode } = {}) {
   const make = KINDS[kind];
   if (!make) throw new Error(`Unknown pseudo-language: ${kind}`);
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), `snippet-inserter-${kind}-`));
   fs.cpSync(EXTENSION, directory, { recursive: true });
   const file = path.join(directory, '_locales', 'en', 'messages.json');
-  fs.writeFileSync(file, JSON.stringify(make(JSON.parse(fs.readFileSync(file, 'utf8'))), null, 2));
+  const catalog = make(JSON.parse(fs.readFileSync(file, 'utf8')));
+  if (localeCode) catalog.localeCode.message = localeCode;
+  fs.writeFileSync(file, JSON.stringify(catalog, null, 2));
   return directory;
 }
 

@@ -70,6 +70,18 @@ test('a changed or dropped $placeholder$ is reported', () => {
   assert.match(problems('de', content).join('\n'), /exportNote_other: .*placeholder/);
 });
 
+test('a fixed number may be written in the digits of the language, but stays the same number', () => {
+  const persian = copy(english);
+  persian.localeCode.message = 'fa';
+  persian.textDirection.message = 'rtl';
+  delete persian.extName;
+  persian.deletedNote.placeholders.count.content = '۲۰';
+  persian.referenceLimit.placeholders.limit.content = '۱۰۰';
+  assert.deepEqual(problems('fa', persian), []);
+  persian.deletedNote.placeholders.count.content = '۲۱';
+  assert.match(problems('fa', persian).join('\n'), /deletedNote: .*placeholder/);
+});
+
 test('the number of <kbd> pairs must match', () => {
   const key = Object.keys(english).find((name) => english[name].message.includes('<kbd>'));
   assert.ok(key, 'the English catalog has a message with <kbd>');

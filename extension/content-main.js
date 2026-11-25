@@ -46,12 +46,15 @@ export function create(shared) {
   const NOTICE_MS = 6000;
   const PASTE_KEYS = navigator.userAgent.includes('Mac OS') ? 'Cmd+V' : 'Ctrl+V';
 
-  // Text from the message catalog. The keys of a plural family end in the plural category.
+  // Text from the message catalog. The keys of a plural family end in the plural category. A
+  // count is written in the digits and with the thousands separator of the catalog's language.
   const msg = (key, ...substitutions) => chrome.i18n.getMessage(key, substitutions.map(String));
+  const catalogTag = () => msg('localeCode').replace('_', '-') || 'en';
   const msgPlural = (key, count, ...substitutions) => {
-    const category = new Intl.PluralRules(msg('localeCode').replace('_', '-')).select(count);
+    const category = new Intl.PluralRules(catalogTag()).select(count);
     return msg(`${key}_${category}`, ...substitutions) || msg(`${key}_other`, ...substitutions);
   };
+  const countText = (n) => new Intl.NumberFormat(catalogTag()).format(n);
 
   let panel = null;
   let notice = null;
@@ -751,7 +754,7 @@ export function create(shared) {
     }
     const total = characters.length;
     showNotice(
-      msgPlural('noticeFieldRoom', free, free, total),
+      msgPlural('noticeFieldRoom', free, countText(free), countText(total)),
       ctx
     );
     return false;

@@ -474,7 +474,7 @@
       abbreviation.length > ABBREVIATION_MAX ||
       /\s/.test(abbreviation)
     ) {
-      return i18n().t('abbreviationLength', [ABBREVIATION_MIN, ABBREVIATION_MAX]);
+      return i18n().t('abbreviationLength', [i18n().number(ABBREVIATION_MIN), i18n().number(ABBREVIATION_MAX)]);
     }
     for (const other of snippets) {
       if (other.id === ownId || !other.abbreviation) continue;
@@ -594,7 +594,7 @@
   // The sentence shown after an import.
   function importReport(result) {
     const messages = i18n();
-    const sentence = (key, n) => messages.plural(key, n, [messages.number(n)]);
+    const sentence = (key, n) => messages.plural(key, n, [messages.number(n, { grouping: true })]);
     const parts = [sentence('importedCount', result.add.length)];
     if (result.skipped) parts.push(sentence('importSkipped', result.skipped));
     if (result.invalid) parts.push(sentence('importInvalid', result.invalid));

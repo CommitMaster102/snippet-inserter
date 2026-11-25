@@ -64,6 +64,18 @@ function count(text, part) {
   return text.split(part).length - 1;
 }
 
+// Whether a translated placeholder holds what the English one holds. A fixed number, such as the 20
+// of deletedNote, may be written in the digits of the language, as the pages write every number.
+function sameContent(english, translated, code) {
+  if (translated === english) return true;
+  if (!/^\d+$/.test(english)) return false;
+  try {
+    return new Intl.NumberFormat(code.replace('_', '-'), { useGrouping: false }).format(Number(english)) === translated;
+  } catch {
+    return false;
+  }
+}
+
 function pluralCategories(code) {
   return new Intl.PluralRules(code.replace('_', '-')).resolvedOptions().pluralCategories;
 }
@@ -128,7 +140,7 @@ function checkCatalog(code, catalog, english, budgets) {
     const actual = definitions(entry);
     const same =
       Object.keys(expected).length === Object.keys(actual).length &&
-      Object.entries(expected).every(([name, content]) => actual[name] === content);
+      Object.entries(expected).every(([name, content]) => sameContent(content, actual[name], code));
     if (!same) {
       problems.push(`${key}: the placeholders differ from English (${Object.keys(expected).join(', ') || 'none'} expected)`);
     } else {

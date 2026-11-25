@@ -8,11 +8,11 @@ const { test: base, expect, launchContext } = require('./fixtures');
 const pseudo = require('../../scripts/pseudo-locales.js');
 const { seedSnippets, selectInTextarea, openPanel, pressInPanel, openManager } = require('./helpers');
 
-// A test that runs in the browser with the pseudo-language `kind`.
-function testWith(kind) {
+// A test that runs in the browser with the pseudo-language `kind`, built with `options`.
+function testWith(kind, options) {
   return base.extend({
     context: async ({}, use) => {
-      const directory = pseudo.build(kind);
+      const directory = pseudo.build(kind, options);
       const context = await launchContext(directory, ['--lang=en-US']);
       await use(context);
       await context.close();
@@ -222,6 +222,53 @@ mirrored.describe('mirrored pseudo-language layout', () => {
     const nav = await manager.locator('nav').first().boundingBox();
     const list = await manager.locator('#snippetList').boundingBox();
     expect(nav.x).toBeGreaterThan(list.x);
+  });
+});
+
+// The mirrored language with the plural rules and digits of Persian, whose digits differ from the
+// Latin ones that String() and an English toLocaleString() write.
+const persian = testWith('mirrored', { localeCode: 'fa' });
+const LATIN_DIGIT = /[0-9]/;
+
+persian.describe('mirrored pseudo-language with Persian digits', () => {
+  persian('the manager writes its counts and positions in the digits of the language', async ({ context, extensionId, serviceWorker }) => {
+    await seedSnippets(serviceWorker, SNIPPETS);
+    await serviceWorker.evaluate(() =>
+      chrome.storage.local.set({
+        'snippet_manager.deleted': [
+          { id: 'gone00000000', title: 'Gone', content: 'x', createdAt: '2026-01-01T00:00:00.000Z', deletedAt: '2026-11-20T09:14:00.000Z', index: 0 },
+        ],
+      })
+    );
+    const manager = await openManager(context, extensionId);
+    await expect(manager.locator('#snippetCount')).toHaveText('۳');
+    await expect(manager.locator('#deletedCount')).toHaveText('۱');
+    // All, Home, and No folder.
+    await expect(manager.locator('.folder-count')).toHaveText(['۳', '۱', '۲']);
+
+    await manager.locator('#snippetList .row').first().click();
+    await expect(manager.locator('#count')).toContainText('۲۵');
+    expect(await manager.locator('#count').textContent()).not.toMatch(LATIN_DIGIT);
+
+    await manager.locator('#content').fill('[1,\n  x]');
+    await manager.locator('#formatJson').click();
+    await expect(manager.locator('#contentError')).toContainText('۲');
+    expect(await manager.locator('#contentError').textContent()).not.toMatch(LATIN_DIGIT);
+
+    await manager.locator('#abbreviation').fill('x');
+    await manager.locator('#save').click();
+    await expect(manager.locator('#abbreviationError')).toContainText('۳۲');
+    expect(await manager.locator('#abbreviationError').textContent()).not.toMatch(LATIN_DIGIT);
+  });
+
+  persian('a page notice gives its counts in the digits of the language', async ({ page, serviceWorker }) => {
+    await seedSnippets(serviceWorker, [{ content: 'This is too long' }]);
+    await selectInTextarea(page, '#limited', 2);
+    await openPanel(page);
+    await pressInPanel(page, '2', { ctrl: true });
+    await expect(page.getByRole('status')).toContainText('۱۰');
+    await expect(page.getByRole('status')).toContainText('۱۷');
+    expect(await page.getByRole('status').textContent()).not.toMatch(LATIN_DIGIT);
   });
 });
 

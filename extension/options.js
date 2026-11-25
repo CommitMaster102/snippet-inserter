@@ -12,6 +12,9 @@
 const lib = window.SnippetInserter;
 const i18n = lib.i18n;
 const t = i18n.t;
+// A count that can pass 999, in the digits and with the thousands separator of the catalog's
+// language.
+const countText = (n) => i18n.number(n, { grouping: true });
 // The static text, language, and direction of the page come from the message catalog before
 // anything below reads the page.
 i18n.apply();
@@ -197,10 +200,10 @@ async function route() {
 }
 
 function renderCounts() {
-  els.snippetCount.textContent = String(state.snippets.length);
-  els.deletedCount.textContent = state.deleted.length ? String(state.deleted.length) : '';
+  els.snippetCount.textContent = countText(state.snippets.length);
+  els.deletedCount.textContent = state.deleted.length ? countText(state.deleted.length) : '';
   const n = state.snippets.length;
-  els.exportNote.textContent = i18n.plural('exportNote', n, [i18n.number(n), lib.exportFileName()]);
+  els.exportNote.textContent = i18n.plural('exportNote', n, [countText(n), lib.exportFileName()]);
 }
 
 function renderAll() {
@@ -252,7 +255,7 @@ function renderFolders() {
     chip.setAttribute('aria-selected', String(isSelected));
     chip.tabIndex = isSelected ? 0 : -1;
     // The button takes its direction from the name, so the name has no direction of its own.
-    chip.append(el('span', 'folder-name', label), ' ', el('span', 'folder-count', count.toLocaleString()));
+    chip.append(el('span', 'folder-name', label), ' ', el('span', 'folder-count', countText(count)));
     chip.addEventListener('click', () => selectFolder(folder));
     chip.addEventListener('keydown', onFolderKey);
     chip.addEventListener('dragover', (event) => {
@@ -566,7 +569,7 @@ async function move(id, to) {
   renderList(id);
   const moved = list.find((s) => s.id === id);
   const shown = lib.inFolder(list, state.folder);
-  els.moveStatus.textContent = t('moved', [lib.displayTitle(moved), i18n.number(shown.indexOf(moved) + 1), i18n.number(shown.length)]);
+  els.moveStatus.textContent = t('moved', [lib.displayTitle(moved), countText(shown.indexOf(moved) + 1), countText(shown.length)]);
 }
 
 function onRowKey(event, snippet) {
@@ -910,10 +913,10 @@ function validate() {
 function savedSentence(existing, result, cleared) {
   const n = result.referencesRenamed || 0;
   if (n > 0) {
-    return i18n.plural('savedRenamed', n, [i18n.number(n), existing.abbreviation, result.snippet.abbreviation]);
+    return i18n.plural('savedRenamed', n, [countText(n), existing.abbreviation, result.snippet.abbreviation]);
   }
   if (cleared > 0) {
-    return i18n.plural('savedCleared', cleared, [existing.abbreviation, i18n.number(cleared), `{snippet:${existing.abbreviation}}`]);
+    return i18n.plural('savedCleared', cleared, [existing.abbreviation, countText(cleared), `{snippet:${existing.abbreviation}}`]);
   }
   return t('saved');
 }
@@ -1694,7 +1697,7 @@ els.exportButton.addEventListener('click', async () => {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
   els.importResult.className = 'status';
-  els.importResult.textContent = i18n.plural('exported', snippets.length, [i18n.number(snippets.length), name]);
+  els.importResult.textContent = i18n.plural('exported', snippets.length, [countText(snippets.length), name]);
 });
 
 els.importButton.addEventListener('click', () => els.importFile.click());
