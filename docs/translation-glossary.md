@@ -163,7 +163,9 @@ language, the key names, the plural categories, and the table of terms.
 - **Keys:** Ctrl, Shift, Alt, Enter, Esc, Tab, Espaço, Cmd. Chrome writes Entrar for Enter, a verb
   for signing in, so Enter stays English, as Chrome's pt_PT writes it.
 - **Plural forms:** `one` for 0 and 1; `many` for exact millions, written as `other` with "de"
-  before the noun; `other` for every other number.
+  before the noun; `other` for every other number. These are the Unicode plural rules that Chrome
+  uses, so an empty box shows "0 caractere". A native speaker who prefers "0 caracteres" can say
+  so through the Translation problem form.
 
 | English | Term | Source |
 | --- | --- | --- |
@@ -421,7 +423,7 @@ Chrome uses Annulla both for Undo and for Cancel; this file does the same.
 | Undo | Rückgängig | Chrome: Rückgängig |
 | insert | einfügen | |
 | inserted as written | wird unverändert eingefügt | |
-| include; Includes | enthalten; Enthält | |
+| include (put one snippet into another); include; Includes | einbinden; enthalten; Enthält | |
 | save | speichern | Chrome: Speichern |
 | delete; Delete forever | löschen; Endgültig löschen | Chrome: Löschen |
 | restore | wiederherstellen | Chrome: Wiederherstellen |
@@ -870,6 +872,8 @@ phrases and sentences.
   browser tab, for the Tab key; write Tab.
 - **Plural forms:** `one` for 1; `other` for every other number, 0 included. Agree each word with
   the noun class: kijisehemu 1, vijisehemu 3.
+- **Edited label:** `labelEdited` uses kimebadiliwa, the passive of badili, because
+  kimebadilishwa, from the glossary verb badilisha, does not fit the label's 12 characters.
 
 | English | Term | Source |
 | --- | --- | --- |
