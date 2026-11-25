@@ -60,3 +60,18 @@ test('a pseudo-language is built as a copy of the extension, with only the Engli
     pseudo.remove(directory);
   }
 });
+
+test('a copy can be built with a catalog that a function makes from the English one', () => {
+  const directory = pseudo.build((catalog) => ({ ...catalog, keyCtrl: { ...catalog.keyCtrl, message: 'Strg' } }));
+  try {
+    const written = JSON.parse(fs.readFileSync(path.join(directory, '_locales', 'en', 'messages.json'), 'utf8'));
+    assert.equal(written.keyCtrl.message, 'Strg');
+    assert.equal(written.keyCmd.message, english.keyCmd.message);
+  } finally {
+    pseudo.remove(directory);
+  }
+});
+
+test('remove() refuses a folder that build() could not have made', () => {
+  assert.throws(() => pseudo.remove(path.join(__dirname, '..', '..', 'extension')), /Not a folder that build\(\) made/);
+});

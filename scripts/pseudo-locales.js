@@ -113,12 +113,14 @@ function mirrored(english) {
 const KINDS = { stretched, mirrored };
 
 // Copies the extension into a new temporary folder, with the English catalog replaced by the
-// pseudo-language `kind` ('stretched' or 'mirrored'). Returns the folder. `localeCode` gives the
-// language whose plural rules and digits the copy uses, such as fa for Persian digits.
+// pseudo-language `kind` ('stretched' or 'mirrored'), or by what `kind` returns when it is a
+// function that takes the English catalog. Returns the folder. `localeCode` gives the language
+// whose plural rules and digits the copy uses, such as fa for Persian digits.
 function build(kind, { localeCode } = {}) {
-  const make = KINDS[kind];
+  const custom = typeof kind === 'function';
+  const make = custom ? kind : KINDS[kind];
   if (!make) throw new Error(`Unknown pseudo-language: ${kind}`);
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), `snippet-inserter-${kind}-`));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), `snippet-inserter-${custom ? 'custom' : kind}-`));
   fs.cpSync(EXTENSION, directory, { recursive: true });
   const file = path.join(directory, '_locales', 'en', 'messages.json');
   const catalog = make(JSON.parse(fs.readFileSync(file, 'utf8')));
@@ -127,10 +129,11 @@ function build(kind, { localeCode } = {}) {
   return directory;
 }
 
-// Removes a folder that build() made, and nothing else.
+// Removes a folder that build() made. It refuses a folder outside the temporary folder, or one whose
+// name does not start with snippet-inserter-, as the name of every folder that build() makes does.
 function remove(directory) {
   if (path.dirname(directory) !== os.tmpdir() || !path.basename(directory).startsWith('snippet-inserter-')) {
-    throw new Error(`Not a pseudo-language folder: ${directory}`);
+    throw new Error(`Not a folder that build() made: ${directory}`);
   }
   fs.rmSync(directory, { recursive: true, force: true });
 }

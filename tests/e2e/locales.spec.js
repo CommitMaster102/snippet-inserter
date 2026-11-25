@@ -5,9 +5,6 @@
 // browser that reports a Mac.
 'use strict';
 
-const fs = require('node:fs');
-const os = require('node:os');
-const path = require('node:path');
 const { test: base, expect, launchContext } = require('./fixtures');
 const pseudo = require('../../scripts/pseudo-locales.js');
 const { seedSnippets, selectInTextarea, openPanel, pressInPanel, openManager } = require('./helpers');
@@ -348,21 +345,22 @@ persian.describe('mirrored pseudo-language with Persian digits', () => {
   });
 });
 
-// A copy of the extension whose catalog writes Ctrl as Strg and the Mac Cmd key as Befehl, as a
-// translation may, in a browser that reports a Mac.
 const MAC_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
+
+// The catalog with Ctrl written as Strg and the Mac Cmd key as Befehl, as a translation may.
+function germanKeys(catalog) {
+  catalog.keyCtrl.message = 'Strg';
+  catalog.keyCmd.message = 'Befehl';
+  for (const entry of Object.values(catalog)) {
+    for (const definition of Object.values(entry.placeholders || {})) definition.content = definition.content.replace(/^Ctrl\b/, 'Strg');
+  }
+  return catalog;
+}
+
+// A copy of the extension with that catalog, in a browser that reports a Mac.
 const macKeys = base.extend({
   context: async ({}, use) => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'snippet-inserter-keys-'));
-    fs.cpSync(path.resolve(__dirname, '..', '..', 'extension'), directory, { recursive: true });
-    const file = path.join(directory, '_locales', 'en', 'messages.json');
-    const catalog = JSON.parse(fs.readFileSync(file, 'utf8'));
-    catalog.keyCtrl.message = 'Strg';
-    catalog.keyCmd = { ...catalog.keyCmd, message: 'Befehl' };
-    for (const entry of Object.values(catalog)) {
-      for (const definition of Object.values(entry.placeholders || {})) definition.content = definition.content.replace(/^Ctrl\b/, 'Strg');
-    }
-    fs.writeFileSync(file, JSON.stringify(catalog, null, 2));
+    const directory = pseudo.build(germanKeys);
     const context = await launchContext(directory, ['--lang=en-US', `--user-agent=${MAC_AGENT}`]);
     await use(context);
     await context.close();
