@@ -1,0 +1,12 @@
+{
+  "files": {
+    "CHANGELOG.md": "1.2.0",
+    "CODE_OF_CONDUCT.md": "1.2.0",
+    "CONTRIBUTING.md": "1.2.0",
+    "README.md": "1.2.0",
+    "SECURITY.md": "1.2.0",
+    "docs/development.md": "1.2.0",
+    "docs/translation-glossary.md": "1.2.0",
+    "docs/user-guide.md": "1.2.0"
+  }
+}

@@ -29,3 +29,16 @@ To fix the text yourself:
 7. Open a pull request that says what changed and why.
 
 Contributions are licensed under the MIT license in [LICENSE](LICENSE).
+
+## Release a version
+
+A pre-push hook stops a push that raises `version` in `package.json` while the docs are stale. `npm install` turns it on by setting `core.hooksPath` to `.githooks`. The hook does nothing when the version is the same as on the remote. When the version changed, it checks that:
+
+- `CHANGELOG.md` has a heading for the new version.
+- `extension/manifest.json` has the same version as `package.json`.
+- `docs/doc-review.json` lists every tracked Markdown file at the new version, and lists no file that is gone.
+- `docs/doc-review.json` was last changed after the last change under `extension/` in the pushed range.
+- Every relative link and `#anchor` in the Markdown files resolves.
+- The file sizes in `docs/development.md` and the number of languages in the README match `extension/`.
+
+To release, change the code first. Then read each Markdown file against the code, fix what is out of date, and set each file's version in `docs/doc-review.json` to the new version. Add the changelog entry and commit both after the last code change. `scripts/check-release-docs.js <local-sha> <remote-sha>` runs the check by hand, and `git push --no-verify` skips it.
