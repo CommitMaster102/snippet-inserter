@@ -351,6 +351,12 @@ test('a code block keeps every space, tab, and line break in each kind of field'
   await selectInTextarea(page, '#plain', 0);
   await insertWith(page);
   await expect(page.locator('#plain')).toHaveValue('Run:\n  if (a) {\n\treturn  1;\n  }');
+
+  // A single-line field joins the lines and drops the indent of each, but keeps the spaces inside a line.
+  await page.locator('#single').fill('');
+  await selectInTextarea(page, '#single', 0);
+  await insertWith(page);
+  await expect(page.locator('#single')).toHaveValue('Run: if (a) { return  1; }');
 });
 
 test('values fill formatted text as text, also where formatting splits a placeholder, and {cursor} places the caret', async ({ page, serviceWorker }) => {
@@ -431,6 +437,81 @@ test('an included snippet keeps its formatting in a formatted snippet, and a pla
     plain: ' Bye Ana (https://example.com/)',
     html: '&nbsp;Bye <a href="https://example.com/"><b>Ana</b></a>',
   });
+});
+
+// Lists what the root contains that the cleaner would never let through: an element or attribute outside
+// the allowlist, a style that loads something, and a link that is not a web, mail, or phone address.
+const AUDIT = (root) => {
+  const tags = new Set(['B', 'I', 'U', 'S', 'A', 'BR', 'UL', 'OL', 'LI', 'PRE', 'CODE', 'SPAN', 'P', 'DIV']);
+  const attributes = new Set(['href', 'title', 'class', 'style', 'data-language', 'dir', 'tabindex', 'role', 'aria-label']);
+  const found = [];
+  for (const element of root.querySelectorAll('*')) {
+    if (!tags.has(element.tagName)) found.push(`element ${element.tagName}`);
+    for (const { name, value } of element.attributes) {
+      if (!attributes.has(name)) found.push(`attribute ${name}`);
+      if (name === 'style' && /url\s*\(|expression|@import/i.test(value)) found.push(`style ${value}`);
+      if (name === 'href' && !/^(https?:|mailto:|tel:)/i.test(value)) found.push(`href ${value}`);
+    }
+  }
+  return found;
+};
+
+// An html field written straight into storage skips the cleaner, so every place that shows or
+// inserts it has to clean it again.
+test('stored html with scripts, a style url(), and a javascript: link reaches no page, view, or editor', async ({ context, extensionId, page, pagesUrl, serviceWorker }) => {
+  const hostile =
+    `<b>Hi {input:Name}</b><img src="${pagesUrl}/ping.png" onerror="document.title = 'ran'">` +
+    `<span style="color:red;background:url(${pagesUrl}/ping-style.png)" onclick="document.title = 'ran'">styled</span>` +
+    `<a href="javascript:document.title = 'ran'" onmouseover="document.title = 'ran'">bad link</a> ` +
+    `<a href="https://example.com/">good link</a><script>document.title = 'ran'</script>` +
+    `<iframe src="${pagesUrl}/ping-frame.html"></iframe><svg onload="document.title = 'ran'"></svg>`;
+  await seedSnippets(serviceWorker, [
+    { title: 'Hostile', content: 'Hi styled bad link good link', html: hostile.replace(' {input:Name}', '') },
+    { title: 'Fill', content: 'Hi {input:Name} styled bad link good link', html: hostile },
+  ]);
+  const requests = [];
+  context.on('request', (request) => {
+    if (request.url().includes('/ping')) requests.push(request.url());
+  });
+
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#snippetList .row').filter({ hasText: 'Hostile' }).first().click();
+  await expect(manager.locator('#richContent')).toContainText('good link');
+  expect(await manager.locator('#richContent').evaluate(AUDIT)).toEqual([]);
+  expect(await manager.title()).toBe('Snippet Inserter');
+
+  await selectInTextarea(page, '#plain', 11);
+  const panel = await openPanel(page);
+  const item = panel.locator('.list .item', { hasText: 'Hostile' }).first();
+  await item.hover();
+  await item.locator('.edit-button').click();
+  const view = panel.getByRole('document', { name: 'Snippet text' });
+  await expect(view).toContainText('good link');
+  expect(await view.evaluate(AUDIT)).toEqual([]);
+  await pressInPanel(page, 'Escape');
+  await pressInPanel(page, 'Escape');
+  await expectPanelClosed(page);
+
+  await caretAtEndOf(page, '#rich', 'p:last-child');
+  const fill = await openPanel(page);
+  await pressInPanel(page, '3', { ctrl: true });
+  await fill.locator('.fill-input').fill('Ana');
+  const preview = fill.locator('.fill-preview');
+  await expect(preview).toContainText('Hi Ana');
+  expect(await preview.evaluate(AUDIT)).toEqual([]);
+  await pressInPanel(page, 'Enter', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect(page.locator('#rich')).toContainText('Hi Ana');
+  expect(await page.locator('#rich').evaluate((el) => [...el.querySelectorAll(':scope > p:last-child *')].map((n) => n.tagName))).not.toContain('IMG');
+  expect(await page.locator('#rich p').last().evaluate(AUDIT)).toEqual([]);
+
+  await caretAtEndOf(page, '#rich', 'p:last-child');
+  await insertWith(page, '2');
+  await expect(page.locator('#rich')).toContainText('good link');
+  expect(await page.locator('#rich p').last().evaluate(AUDIT)).toEqual([]);
+  expect(await page.title()).not.toBe('ran');
+  await manager.waitForTimeout(300);
+  expect(requests).toEqual([]);
 });
 
 // HTML that got past the cleaner into the manager or the panel could still try to load something.
