@@ -12,14 +12,19 @@ const COMMAND_OPEN = 'open-panel';
 // The manager reads this from session storage when it opens at #new.
 const PENDING_KEY = 'pendingSnippet';
 
-// Chromium keeps menu items across service worker restarts, so they are created once per
-// install or update. Removing them first avoids a duplicate-id error on update.
-chrome.runtime.onInstalled.addListener(() => {
+// Chromium keeps menu items across service worker restarts and browser restarts, with their
+// titles in the language they were created in. So they are created at each install or update,
+// and again at each browser start, which is when a new browser language takes effect. Removing
+// them first avoids a duplicate-id error.
+function createMenus() {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({ id: MENU_SAVE, title: chrome.i18n.getMessage('menuSaveSelection'), contexts: ['selection'] });
     chrome.contextMenus.create({ id: MENU_INSERT, title: chrome.i18n.getMessage('menuInsertSnippet'), contexts: ['editable'] });
   });
-});
+}
+
+chrome.runtime.onInstalled.addListener(createMenus);
+chrome.runtime.onStartup.addListener(createMenus);
 
 // Opens the manager with a new snippet that holds `text`. Used where no content script runs,
 // such as browser pages, the Chrome Web Store, and the PDF viewer.

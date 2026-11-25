@@ -418,8 +418,9 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
   and a space reads at most 34 characters. These two cases were not timed. On a site in the
   list of turned-off sites, no typing listener is attached, so a typed character costs nothing,
   and a key press costs one test of a stored yes-or-no value in the double tap check.
-- **The panel** exists only while it is open, and the service worker runs only for the toolbar
-  icon, the menu items, and the shortcut.
+- **The panel** exists only while it is open. The service worker runs for the toolbar icon, the
+  menu items, and the shortcut, and once at each browser start, to give the menu items their
+  titles in the browser's language.
 
 ## Project layout
 
