@@ -171,10 +171,11 @@ and keeps lists and code blocks. Lists nest up to 3 levels.
 A link needs an address that starts with `https://`, `http://`, `mailto:`, or `tel:`. A typed
 address such as `example.com` becomes `https://example.com/`, and an email address becomes a
 `mailto:` link. Text pasted into the editor keeps only this formatting: images, tables, text colors
-(except the code colors below), fonts, headings, and anything else a snippet cannot hold are left out, and their text stays.
-Placeholders and `{snippet:...}` references work in formatted text, and the Placeholders and
-Includes rows list them as for plain text. The snippet manager and the panel run only the
-extension's own scripts and load nothing from the network, whatever a snippet's HTML holds.
+(except the code colors below), fonts, headings, and anything else a snippet cannot hold are left
+out, and their text stays. Placeholders and `{snippet:...}` references work in formatted text, and
+the Placeholders and Includes rows list them as for plain text. The snippet manager and the panel
+run only the extension's own scripts and load nothing from the network, whatever a snippet's HTML
+holds.
 
 Turning the box off asks nothing. The text box gets the text without its formatting, with a bullet
 or a number before each list item and each link's address in parentheses after its text, and Save
@@ -211,7 +212,8 @@ everywhere else.
 Whether the colors of a code block arrive depends on the editor that receives the paste. Gmail,
 Outlook, and Google Docs keep pasted text colors, so a colored block shows its colors there (Docs
 gets a formatted snippet as plain text for now, as the next paragraph says). Slack and many other
-editors drop colors and show plain code; the code and its line breaks still arrive. A text box gets the exact text of the block with no colors.
+editors drop colors and show plain code; the code and its line breaks still arrive. A text box gets
+the exact text of the block with no colors.
 
 Google Docs gets the plain text of a formatted snippet. Formatting reaches Docs only through a paste
 whose handling Google does not document, so it waits until the formatted step of
@@ -287,19 +289,19 @@ documents get this support, not Slides or Sheets.
 
 ## Storage
 
-Snippets are kept in `chrome.storage.local` under `snippet_manager.snippets`, as an array of
-`{ createdAt, content, title, id }` records, plus `abbreviation`, `folder`, and `html` when a snippet
+Snippets are kept in `chrome.storage.local` under `snippet_manager.snippets`, as an array of `{
+createdAt, content, title, id }` records, plus `abbreviation`, `folder`, and `html` when a snippet
 has them. `html` holds the formatting of a formatted snippet, and `content` then holds the same text
-without formatting, which is what text boxes and search use. A folder name has up to 64 characters. There is no list of folders: the folders are the names
-that snippets carry, so a folder exists while a snippet is in it. The array order is the order of
-the list, and moving a snippet to another folder does not change its place. Deleted snippets go to
-`snippet_manager.deleted`, newest first, at most 20, each with `deletedAt` and its old position.
-`snippet_manager.abbreviations` holds a small `{ abbreviation: id }` copy written with every change
-to the list, so pages read only that. The settings are in `settings`. `abbreviationTiming` is stored
-only once someone picks "After I press Space, Tab, or Enter", and `offSites`, the host names of the
-turned-off sites, only once someone adds one. Settings are not part of an export. The extension has
-the `unlimitedStorage` permission, so the browser's 10 MB local-storage quota does not apply.
-Nothing is synced to other devices.
+without formatting, which is what text boxes and search use. A folder name has up to 64 characters.
+There is no list of folders: the folders are the names that snippets carry, so a folder exists while
+a snippet is in it. The array order is the order of the list, and moving a snippet to another folder
+does not change its place. Deleted snippets go to `snippet_manager.deleted`, newest first, at most
+20, each with `deletedAt` and its old position. `snippet_manager.abbreviations` holds a small `{
+abbreviation: id }` copy written with every change to the list, so pages read only that. The
+settings are in `settings`. `abbreviationTiming` is stored only once someone picks "After I press
+Space, Tab, or Enter", and `offSites`, the host names of the turned-off sites, only once someone
+adds one. Settings are not part of an export. The extension has the `unlimitedStorage` permission,
+so the browser's 10 MB local-storage quota does not apply. Nothing is synced to other devices.
 
 Export in the manager saves every snippet to `snippets-YYYY-MM-DD.json`:
 
@@ -312,12 +314,12 @@ Export in the manager saves every snippet to `snippets-YYYY-MM-DD.json`:
 }
 ```
 
-Import accepts that file, or a bare array of records. It never changes or removes a stored
-snippet. It skips a record whose name and text match a stored snippet, gives a new id to a record
-whose id is in use, and drops an abbreviation that is already taken. A folder that differs from
-one already known only in capitals joins it, so "work" goes into "Work". The `html` of a record goes
-through the same cleaner as a saved snippet, and the record's text is taken from it, so a file
-cannot show one text and insert another. A file with a higher `version` is refused with a message to update the
+Import accepts that file, or a bare array of records. It never changes or removes a stored snippet.
+It skips a record whose name and text match a stored snippet, gives a new id to a record whose id is
+in use, and drops an abbreviation that is already taken. A folder that differs from one already
+known only in capitals joins it, so "work" goes into "Work". The `html` of a record goes through the
+same cleaner as a saved snippet, and the record's text is taken from it, so a file cannot show one
+text and insert another. A file with a higher `version` is refused with a message to update the
 extension. Version 1.2.0 imports a file with formatted snippets and keeps their text without the
 formatting.
 
@@ -330,10 +332,12 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
   script. This extension's own code adds about 25 to 40 KB of memory and 0.2 to 0.6 ms of
   script time when the frame loads. These two figures were measured on version 1.2.0 and are
   measured again at each release.
-- **What loads where**: every frame gets `content.js`, about 21 KB, which only watches for the
-  double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 52 KB,
-  loads only in a frame where the panel opens or an abbreviation matches. `lib/richtext.js`, about
-  39 KB, loads only in a frame where a formatted snippet goes into a rich-text editor.
+- **What loads where**: every frame gets `content.js`, 21,828 bytes (about 21.8 KB), which only
+  watches for the double tap, the shortcut, the menu items, and abbreviations. `content-main.js`,
+  52,195 bytes (about 52.2 KB), loads only in a frame where the panel opens or an abbreviation
+  matches. `lib/richtext.js`, 38,860 bytes (about 38.9 KB), loads only in a frame where a formatted
+  snippet goes into a rich-text editor. Prism loads only on the snippet manager page, never in a
+  page you visit. The sizes are file sizes from `wc -c` and are measured again at each release.
 - **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
   press, so frames nobody types in, such as ads, never read storage. The snippet text is read
   only when the panel opens or an abbreviation matches.
@@ -453,8 +457,8 @@ follows the [code of conduct](CODE_OF_CONDUCT.md). Report a security problem pri
 ## Support the project
 
 Snippet Inserter is free, and every feature works without paying. If you want to support its
-development, you can donate on [Ko-fi](https://ko-fi.com/commitmaster102). The snippet manager has the same link
-under Settings and backup.
+development, you can donate on [Ko-fi](https://ko-fi.com/commitmaster102). The snippet manager has
+the same link under Settings and backup.
 
 ## License
 
