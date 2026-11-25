@@ -32,7 +32,7 @@ Contributions are licensed under the MIT license in [LICENSE](LICENSE).
 
 ## Release a version
 
-A pre-push hook stops a push that changes the version while the docs are stale. The version is `version` in `package.json` and in `extension/manifest.json`. `npm install` turns the hook on by setting `core.hooksPath` to `.githooks`.
+A pre-push hook stops a push that changes the version while the docs are stale. The version is `version` in `package.json` and in `extension/manifest.json`. `npm install` turns the hook on by setting `core.hooksPath` to `.githooks`. If `core.hooksPath` is already set, `npm install` leaves it and prints the command that turns the hook on. Outside a git checkout, such as in an unpacked source archive, it does nothing.
 
 The hook compares each pushed branch with that branch on the remote. A new branch has no commit there, so the hook compares it with the commit where it leaves the remote's default branch, such as `origin/HEAD`. If the remote has no default branch in your clone, the hook uses the nearest commit that the new branch shares with a remote-tracking branch, and if there is none, the repository's first commit. When neither version differs from the compared commit, the hook does nothing. When one differs, it checks that:
 
