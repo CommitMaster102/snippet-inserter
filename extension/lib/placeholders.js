@@ -204,7 +204,21 @@
     return expand(token, { locale, now }).text;
   }
 
-  const api = { inputLabels, listPlaceholders, expand, unrecognized, currentValue, references, resolveReferences };
+  // lib/richtext.js finds and fills the same placeholders and references in formatted text, so it
+  // uses scan, valueFor, REFERENCE, and REFERENCE_MAX from here.
+  const api = {
+    inputLabels,
+    listPlaceholders,
+    expand,
+    unrecognized,
+    currentValue,
+    references,
+    resolveReferences,
+    scan: matches,
+    valueFor,
+    REFERENCE,
+    REFERENCE_MAX,
+  };
 
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.SnippetInserter = Object.assign(root.SnippetInserter || {}, { placeholders: api });

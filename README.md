@@ -294,6 +294,7 @@ extension/            The extension itself; this is the folder to load.
     snippets.js       Storage, import and export, abbreviation rules.
     placeholders.js   {date}, {time}, {cursor}, {input:Label}, and
                       {snippet:;abbreviation}.
+    richtext.js       The cleaner for formatted snippets, and their plain text.
   icons/
 tests/
   e2e/                Playwright end-to-end tests and their fixtures.
@@ -320,6 +321,9 @@ npm run test:headed   # watch the browser
 npm run test:report   # open the HTML report of the last run
 npm run test:unit     # Node unit tests for extension/lib, no browser
 ```
+
+`extension/lib/richtext.js` parses HTML with the browser's own parser, so its unit tests,
+`tests/e2e/richtext.spec.js`, run in Playwright's Chromium with `npm test` instead of in Node.
 
 Playwright cannot open the browser's own right-click menu or press an extension command, so the
 menu and shortcut tests call the service worker's handlers, which it exposes as
