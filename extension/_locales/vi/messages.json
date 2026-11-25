@@ -63,7 +63,7 @@
     "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
   },
   "noticeFieldRoom_other": {
-    "message": "Trường này chỉ nhận thêm $FREE$ ký tự, còn đoạn văn bản dài $TOTAL$ ký tự. Không có gì được chèn.",
+    "message": "Trường này chỉ nhận thêm $FREE$ ký tự, còn số ký tự của đoạn văn bản là $TOTAL$. Không có gì được chèn.",
     "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
     "placeholders": {
       "free": {

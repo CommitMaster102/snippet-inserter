@@ -403,7 +403,7 @@
     }
   },
   "siteOff": {
-    "message": "$HOST$ ನಲ್ಲಿ ಎರಡು ಬಾರಿ ಒತ್ತುವುದು ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳನ್ನು ಆಫ್ ಮಾಡಿ",
+    "message": "$HOST$ ನಲ್ಲಿ ಎರಡು ಬಾರಿ ಒತ್ತುವುದನ್ನು ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳನ್ನು ಆಫ್ ಮಾಡಿ",
     "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are on. The site name is filled in for you.",
     "placeholders": {
       "host": {
@@ -413,7 +413,7 @@
     }
   },
   "siteOn": {
-    "message": "$ENTRY$ ಗಾಗಿ ಎರಡು ಬಾರಿ ಒತ್ತುವುದು ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳನ್ನು ಮತ್ತೆ ಆನ್ ಮಾಡಿ",
+    "message": "$ENTRY$ ಗಾಗಿ ಎರಡು ಬಾರಿ ಒತ್ತುವುದನ್ನು ಮತ್ತು ಸಂಕ್ಷಿಪ್ತ ರೂಪಗಳನ್ನು ಮತ್ತೆ ಆನ್ ಮಾಡಿ",
     "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are off. $ENTRY$ is the entry in the list of turned-off sites that covers this site: the site itself, or a shorter address that covers it, such as example.com on mail.example.com.",
     "placeholders": {
       "entry": {

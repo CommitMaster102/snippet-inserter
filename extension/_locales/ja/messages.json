@@ -63,7 +63,7 @@
     "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
   },
   "noticeFieldRoom_other": {
-    "message": "このテキスト ボックスに入力できるのはあと $FREE$ 文字ですが、スニペットは $TOTAL$ 文字です。何も挿入されていません。",
+    "message": "このテキスト ボックスに入力できるのはあと $FREE$ 文字ですが、スニペットの文字数は $TOTAL$ です。何も挿入されていません。",
     "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
     "placeholders": {
       "free": {

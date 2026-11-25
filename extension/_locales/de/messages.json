@@ -344,7 +344,7 @@
     }
   },
   "referenceLimit": {
-    "message": "Pro Einfügen werden höchstens $LIMIT$ Snippets eingebunden, daher werden die übrigen Verweise unverändert eingefügt.",
+    "message": "Ein Einfügevorgang enthält höchstens $LIMIT$ Snippets, daher werden die übrigen Verweise unverändert eingefügt.",
     "description": "Warning under a snippet that includes more other snippets than one insert allows. The limit, always 100, is filled in for you, so write the word for snippets in the form that goes with 100.",
     "placeholders": {
       "limit": {

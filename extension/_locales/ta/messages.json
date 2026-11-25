@@ -224,7 +224,7 @@
     }
   },
   "placeholderFolder": {
-    "message": "ஃபோல்டர் (விரும்பினால்): வேலை …",
+    "message": "ஃபோல்டர் (விரும்பினால்), எ.கா. வேலை …",
     "description": "Grey hint inside the empty folder box of the panel form. Work is an example of a folder name; use a common word in your language. At most 50 characters."
   },
   "folderAll": {

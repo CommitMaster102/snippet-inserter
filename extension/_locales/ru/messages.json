@@ -1616,7 +1616,7 @@
     }
   },
   "importAbbrDropped_one": {
-    "message": "Фрагментов без сокращения, занятого другим фрагментом: $COUNT$.",
+    "message": "Фрагментов, потерявших сокращение, которое уже использует другой фрагмент: $COUNT$.",
     "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. Plural form.",
     "placeholders": {
       "count": {
@@ -1626,7 +1626,7 @@
     }
   },
   "importAbbrDropped_few": {
-    "message": "Фрагментов без сокращения, занятого другим фрагментом: $COUNT$.",
+    "message": "Фрагментов, потерявших сокращение, которое уже использует другой фрагмент: $COUNT$.",
     "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. Plural form.",
     "placeholders": {
       "count": {
@@ -1636,7 +1636,7 @@
     }
   },
   "importAbbrDropped_many": {
-    "message": "Фрагментов без сокращения, занятого другим фрагментом: $COUNT$.",
+    "message": "Фрагментов, потерявших сокращение, которое уже использует другой фрагмент: $COUNT$.",
     "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. Plural form.",
     "placeholders": {
       "count": {
@@ -1646,7 +1646,7 @@
     }
   },
   "importAbbrDropped_other": {
-    "message": "Фрагментов без сокращения, занятого другим фрагментом: $COUNT$.",
+    "message": "Фрагментов, потерявших сокращение, которое уже использует другой фрагмент: $COUNT$.",
     "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. Plural form.",
     "placeholders": {
       "count": {
