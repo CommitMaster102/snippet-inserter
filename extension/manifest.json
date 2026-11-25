@@ -49,7 +49,8 @@
         "panel.js",
         "content-main.js",
         "lib/snippets.js",
-        "lib/placeholders.js"
+        "lib/placeholders.js",
+        "lib/richtext.js"
       ],
       "matches": ["<all_urls>"]
     }

@@ -110,6 +110,22 @@ test('inserts the snippet as a paste, with no spaces added and no notice', async
   await expectNoNotice(page);
 });
 
+test('a formatted snippet goes into Docs as its plain text only', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { content: 'Bold and site (https://example.com/)\nLine two', html: '<b>Bold</b> and <a href="https://example.com/">site</a><br>Line two' },
+  ]);
+  await openDocs(page);
+  await focusDocument(page, 5);
+  await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect
+    .poll(() => page.evaluate(() => window.docState.pastes))
+    .toEqual(['Bold and site (https://example.com/)\nLine two']);
+  expect(await page.evaluate(() => window.docState.pasteTypes)).toEqual([['text/plain']]);
+  await expectNoNotice(page);
+});
+
 test('offers the Docs selection as a new snippet and replaces it on insert', async ({
   context,
   page,

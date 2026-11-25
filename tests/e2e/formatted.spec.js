@@ -8,11 +8,26 @@ const {
   readSnippets,
   openManager,
   selectInTextarea,
+  caretAtEndOf,
   openPanel,
+  pressInPanel,
   waitForPanelFit,
   waitForStablePanel,
   expectPanelClosed,
 } = require('./helpers');
+
+/** Opens the panel from the focused field and inserts the snippet with the given Ctrl+number. */
+async function insertWith(page, key = '2') {
+  await openPanel(page);
+  await pressInPanel(page, key, { ctrl: true });
+  await expectPanelClosed(page);
+}
+
+const LETTER = {
+  title: 'Letter',
+  content: 'Hello friend and our site (https://example.com/)\n• one\n• two',
+  html: '<b>Hello</b> <i>friend</i> and <a href="https://example.com/">our site</a><ul><li>one</li><li>two</li></ul>',
+};
 
 const ORDER = {
   title: 'Order',
@@ -282,4 +297,117 @@ test('Open in snippet manager opens that snippet in the manager and closes the p
   await expect(manager.getByLabel('Formatted text')).toBeChecked();
   expect(new URL(manager.url()).hash).toBe('#snippets');
   await expectPanelClosed(page);
+});
+
+test('a rich editor gets the formatting, and text boxes get the plain text', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [LETTER]);
+
+  // An editor that handles the paste itself gets the HTML and the plain text.
+  await caretAtEndOf(page, '#pasteEditor');
+  await insertWith(page);
+  await expect.poll(() => page.evaluate(() => window.pasteSeen)).not.toBeNull();
+  const seen = await page.evaluate(() => window.pasteSeen);
+  expect(seen.plain).toBe(` ${LETTER.content}`);
+  expect(seen.html).toBe(`&nbsp;${LETTER.html}`);
+
+  // An editor that leaves the paste to the browser gets the elements, and one Ctrl+Z removes them.
+  await caretAtEndOf(page, '#rich', 'p:last-child');
+  await insertWith(page);
+  await expect(page.locator('#rich b')).toHaveText('Hello');
+  await expect(page.locator('#rich a')).toHaveAttribute('href', 'https://example.com/');
+  await expect(page.locator('#rich li')).toHaveText(['one', 'two']);
+  await page.keyboard.press('Control+z');
+  await expect.poll(() => page.locator('#rich').evaluate((el) => el.innerHTML)).toBe('<p>Dear team,</p><p>Thanks</p>');
+
+  await page.locator('#plain').fill('');
+  await selectInTextarea(page, '#plain', 0);
+  await insertWith(page);
+  await expect(page.locator('#plain')).toHaveValue(LETTER.content);
+
+  await selectInTextarea(page, '#single', 11);
+  await insertWith(page);
+  await expect(page.locator('#single')).toHaveValue('Single line Hello friend and our site (https://example.com/) • one • two');
+});
+
+test('a code block keeps every space, tab, and line break in each kind of field', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Code', content: 'Run:\n  if (a) {\n\treturn  1;\n  }', html: 'Run:<pre><code class="language-javascript">  if (a) {<br>\treturn  1;<br>  }</code></pre>' }]);
+  await caretAtEndOf(page, '#pasteEditor');
+  await insertWith(page);
+  await expect.poll(() => page.evaluate(() => window.pasteSeen)).not.toBeNull();
+  const seen = await page.evaluate(() => window.pasteSeen);
+  expect(seen.html).toBe('&nbsp;Run:<pre><code class="language-javascript">  if (a) {<br>\treturn  1;<br>  }</code></pre>');
+  expect(seen.plain).toBe(' Run:\n  if (a) {\n\treturn  1;\n  }');
+
+  await caretAtEndOf(page, '#rich', 'p:last-child');
+  await insertWith(page);
+  await expect.poll(() => page.locator('#rich pre').evaluate((el) => el.innerText)).toBe('  if (a) {\n\treturn  1;\n  }');
+
+  await page.locator('#plain').fill('');
+  await selectInTextarea(page, '#plain', 0);
+  await insertWith(page);
+  await expect(page.locator('#plain')).toHaveValue('Run:\n  if (a) {\n\treturn  1;\n  }');
+});
+
+test('values fill formatted text as text, also where formatting splits a placeholder, and {cursor} places the caret', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Dear', content: 'Dear {input:Name}, on {date:iso}.', html: '<b>Dear {input:Name}</b>, on {da<i>te:iso}</i>.' },
+    { title: 'Cursor', content: 'Hello {cursor}world', html: '<b>Hello {cursor}world</b>' },
+  ]);
+  await caretAtEndOf(page, '#pasteEditor');
+  const panel = await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expect(panel.locator('.fill-count')).toHaveText('Fill in 1 field');
+  await panel.locator('.fill-input').fill('<i>x</i>');
+  await expect(panel.locator('.fill-preview b')).toHaveText('Dear <i>x</i>');
+  await pressInPanel(page, 'Enter', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect.poll(() => page.evaluate(() => window.pasteSeen)).not.toBeNull();
+  const seen = await page.evaluate(() => window.pasteSeen);
+  expect(seen.html).toMatch(/^&nbsp;<b>Dear &lt;i&gt;x&lt;\/i&gt;<\/b>, on \d{4}-\d{2}-\d{2}\.$/);
+  expect(seen.plain).toMatch(/^ Dear <i>x<\/i>, on \d{4}-\d{2}-\d{2}\.$/);
+
+  await caretAtEndOf(page, '#rich', 'p:last-child');
+  await insertWith(page, '3');
+  await expect(page.locator('#rich b')).toHaveText('Hello world');
+  await page.keyboard.type('X');
+  await expect(page.locator('#rich p').last()).toHaveText('Thanks Hello Xworld');
+});
+
+test('an abbreviation inserts the formatting in a rich editor', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Hi', content: 'Hello there', html: '<b>Hello</b> there', abbreviation: ';hi' }]);
+  const place = () => caretAtEndOf(page, '#rich', 'p:last-child');
+  await place();
+  await openPanel(page);
+  await pressInPanel(page, 'Escape');
+  await expectPanelClosed(page);
+  await place();
+  await page.keyboard.type(' ;hi');
+  await expect(page.locator('#rich b')).toHaveText('Hello');
+  await expect(page.locator('#rich p').last()).toHaveText('Thanks Hello there');
+});
+
+test('an included snippet keeps its formatting in a formatted snippet, and goes into a plain one as text', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Formatted', content: 'Hi {snippet:;sig}', html: '<i>Hi {snippet:;sig}</i>' },
+    { title: 'Plain', content: 'Bye {snippet:;sig}' },
+    { title: 'Signature', content: 'Ana (https://example.com/)', html: '<a href="https://example.com/"><b>Ana</b></a>', abbreviation: ';sig' },
+  ]);
+  await caretAtEndOf(page, '#pasteEditor');
+  await insertWith(page, '2');
+  await expect.poll(() => page.evaluate(() => window.pasteSeen)).not.toBeNull();
+  expect(await page.evaluate(() => window.pasteSeen)).toEqual({
+    plain: ' Hi Ana (https://example.com/)',
+    html: '&nbsp;<i>Hi </i><a href="https://example.com/"><b><i>Ana</i></b></a>',
+  });
+
+  await page.evaluate(() => {
+    window.pasteSeen = null;
+  });
+  await caretAtEndOf(page, '#pasteEditor');
+  await insertWith(page, '3');
+  await expect.poll(() => page.evaluate(() => window.pasteSeen)).not.toBeNull();
+  expect(await page.evaluate(() => window.pasteSeen)).toEqual({
+    plain: ' Bye Ana (https://example.com/)',
+    html: '&nbsp;Bye Ana (https://example.com/)',
+  });
 });

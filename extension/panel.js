@@ -925,19 +925,31 @@ function renderFill() {
 
   form.append(el('div', 'fill-label', TEXT.preview));
   const preview = el('div', 'fill-preview');
+  preview.dir = 'auto';
   form.append(preview);
+  const formatted = formattedText(snippet);
   const values = () => Object.fromEntries(inputs.map((input) => [input.dataset.label, input.value]));
+  // A formatted snippet's preview shows the formatting, with the typed values as text.
   const updatePreview = () => {
-    preview.textContent = placeholders.expand(content, { values: values(), locale: state.locale }).text;
+    const options = { values: values(), locale: state.locale };
+    if (formatted.html) {
+      const html = lib.richText.expand(formatted.html, options).html;
+      preview.replaceChildren(lib.richText.toFragment(html, document, { titles: true }));
+    } else {
+      preview.textContent = placeholders.expand(content, options).text;
+    }
     reportSize();
   };
+  preview.addEventListener('click', (event) => {
+    if (event.target.closest('a')) event.preventDefault();
+  });
   inputs.forEach((input) => input.addEventListener('input', updatePreview));
   updatePreview();
   els.body.append(form);
 
   currentForm = {
     inputs,
-    submit: () => post({ type: 'insert', content, values: values() }),
+    submit: () => post({ type: 'insert', content, values: values(), ...formatted }),
   };
   setPrimary(TEXT.insertApply, currentForm.submit, IS_MAC ? COMMAND_KEY + RETURN_KEY : `Ctrl ${RETURN_KEY}`);
   if (inputs.length) inputs[0].focus(NO_SCROLL);
@@ -1086,7 +1098,13 @@ async function moveFocused(step) {
 function insertSnippet(snippet) {
   const { content } = placeholders.resolveReferences(snippet, state.snippets);
   if (placeholders.inputLabels(content).length) openFill(snippet.id);
-  else post({ type: 'insert', content, values: {} });
+  else post({ type: 'insert', content, values: {}, ...formattedText(snippet) });
+}
+
+// The formatted text of a formatted snippet, with its included snippets in place, to send along
+// with the plain text of an insert. The page decides which of the two its field takes.
+function formattedText(snippet) {
+  return snippet.html ? { html: lib.richText.resolve(snippet, state.snippets) } : {};
 }
 
 // Escape leaves a form for the list, and closes the panel from the list. A panel opened for one

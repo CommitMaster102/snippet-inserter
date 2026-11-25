@@ -49,6 +49,25 @@ export function create(shared) {
   let panel = null;
   let notice = null;
   let positionQueued = false;
+  let richTextLoading = null;
+
+  // lib/richtext.js, the cleaner for formatted snippets. It is imported the first time this frame
+  // inserts a formatted snippet into a rich editor, so a frame that inserts only plain text never
+  // loads it. A failed import can be tried again.
+  function loadRichText() {
+    if (!richTextLoading) {
+      richTextLoading = import('./lib/richtext.js').then(() => globalThis.SnippetInserter.richText);
+      richTextLoading.catch(() => {
+        richTextLoading = null;
+      });
+    }
+    return richTextLoading;
+  }
+
+  // Only a rich editor takes formatting. Text fields and Google Docs get the plain text.
+  function takesFormatting(target) {
+    return target.kind === 'rich';
+  }
 
   // The characters an input method may insert after the text it commits, with the same keystroke:
   // a space, a no-break space, which is how a rich editor may store a space, or a line break.
@@ -114,6 +133,17 @@ export function create(shared) {
     if (!snippet || panel || !extensionAlive()) return;
     const { content } = placeholders.resolveReferences(snippet, list);
     const fillIn = placeholders.inputLabels(content).length > 0;
+    // The formatted text is read here, before the abbreviation is selected, so no key typed while
+    // the cleaner loads can replace the selection. The fill-in form reads its own.
+    let html = null;
+    if (snippet.html && !fillIn && takesFormatting(target)) {
+      try {
+        html = (await loadRichText()).resolve(snippet, list);
+      } catch {
+        // Without the cleaner the snippet goes in as plain text.
+      }
+      if (panel || !extensionAlive()) return;
+    }
     // A rich editor waits for the selection to settle before the paste, and a fill-in form keeps
     // the abbreviation selected while it is open. A space from an input method that arrives in
     // that time would replace the selected text, so committed text is selected only after one
@@ -132,7 +162,7 @@ export function create(shared) {
     if (fillIn) {
       openPanel(null, { ctx, mode: 'fill-only', snippetId: snippet.id });
     } else {
-      insertSnippet(ctx, content);
+      insertSnippet(ctx, content, {}, html);
     }
   }
 
@@ -521,14 +551,26 @@ export function create(shared) {
 
   // Placeholders are filled in first, with `values` from the panel's fill-in form. In a
   // single-line field the lines are joined next, and the spacing rule runs last. `caret`, the
-  // {cursor} position inside the text, is carried through each step.
-  async function insertSnippet(ctx, content, values = {}) {
+  // {cursor} position inside the text, is carried through each step. `html` is the formatted text
+  // of a formatted snippet, with its included snippets in place. A rich editor gets it, cleaned
+  // again and with the same values and the same moment filled in, and every other field gets the
+  // plain `content`.
+  async function insertSnippet(ctx, content, values = {}, html = null) {
+    let richText = null;
+    if (html && takesFormatting(ctx)) {
+      try {
+        richText = await loadRichText();
+      } catch {
+        // Without the cleaner the snippet goes in as plain text.
+      }
+    }
     if (!restoreSelection(ctx)) {
       // Only a field that was in the page when the panel opened can have gone away.
       if (ctx.kind !== 'none') showNotice('The snippet was not inserted, because the field is gone.', ctx);
       return;
     }
-    const expanded = placeholders.expand(content, { values, locale: ctx.locale, now: new Date() });
+    const now = new Date();
+    const expanded = placeholders.expand(content, { values, locale: ctx.locale, now });
     if (ctx.kind === 'docs') {
       // The extension cannot move the Docs caret, so {cursor} has no effect in Docs.
       const text = expanded.text;
@@ -553,6 +595,15 @@ export function create(shared) {
       if (caret !== null) ctx.el.setSelectionRange(ctx.start + caret, ctx.start + caret);
       return;
     }
+    // The characters from {cursor} to the end of what is pasted, or null without {cursor}.
+    let back = caret === null ? null : text.length - caret;
+    let markup = null;
+    if (richText) {
+      const formatted = richText.expand(html, { values, locale: ctx.locale, now });
+      const suffix = ctx.suffix || '';
+      markup = richText.forPaste(formatted.html, { left, right, suffix });
+      back = formatted.cursorFromEnd === null ? null : formatted.cursorFromEnd + (right ? 1 : 0) + suffix.length;
+    }
     const hold = holdTyping(ctx);
     try {
       await wait(SELECTION_SETTLE_MS);
@@ -560,11 +611,11 @@ export function create(shared) {
         noticeIfFilledIn(ctx, values);
         return;
       }
-      pasteIntoRichEditor(ctx, text);
+      pasteIntoRichEditor(ctx, text, markup);
       // Editors that handle the paste themselves may update the page a moment later, so the caret
       // moves to {cursor}, and held keys are typed, only after that.
-      if (caret !== null || hold.typed()) await wait(SELECTION_SETTLE_MS);
-      if (caret !== null) moveCaretBack(ctx, text.length - caret);
+      if (back !== null || hold.typed()) await wait(SELECTION_SETTLE_MS);
+      if (back !== null) moveCaretBack(ctx, back);
     } finally {
       hold.release();
     }
@@ -712,12 +763,13 @@ export function create(shared) {
   // A rich editor gets the text as a simulated paste. The editor first sees a "paste" event and
   // then a "beforeinput" event of type "insertFromPaste". Editors that handle paste themselves
   // (Gmail, Slack, ProseMirror, Lexical and others) cancel one of them and insert the text on
-  // their own. When neither is cancelled, the browser inserts the HTML directly.
-  function pasteIntoRichEditor(ctx, text) {
+  // their own. When neither is cancelled, the browser inserts the HTML directly. `markup` is the
+  // HTML of a formatted snippet; a plain snippet's HTML is made from its text.
+  function pasteIntoRichEditor(ctx, text, markup = null) {
     const doc = ctx.el.ownerDocument;
     const win = doc.defaultView;
     const target = deepActiveElement(doc) || ctx.el;
-    const html = textToHtml(text);
+    const html = markup === null ? textToHtml(text) : markup;
     const transfer = () => {
       const data = new win.DataTransfer();
       data.setData('text/plain', text);
@@ -1108,7 +1160,12 @@ export function create(shared) {
       case 'insert': {
         const ctx = panel.ctx;
         closePanel(false);
-        insertSnippet(ctx, String(message.content), fillInValues(message.values));
+        insertSnippet(
+          ctx,
+          String(message.content),
+          fillInValues(message.values),
+          typeof message.html === 'string' ? message.html : null
+        );
         break;
       }
       case 'close':

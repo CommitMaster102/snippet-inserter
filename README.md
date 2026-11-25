@@ -179,6 +179,19 @@ Turning the box off asks nothing. The text box gets the text without its formatt
 or a number before each list item and each link's address in parentheses after its text, and Save
 then removes the formatting.
 
+A rich-text editor, such as webmail, gets the formatting, and keeps as much of it as that editor
+supports. A text box and a single-line field get the plain text: a bullet before each item of a
+bulleted list, its number before each item of a numbered list, 2 more spaces for each level of a
+nested list, and each link's address in parentheses after its text, unless the text is the
+address. A code block keeps every space, tab, and line break there too, except that a single-line
+field joins the lines as it does for any snippet. Placeholder and fill-in values go in as text, even
+when they look like HTML. A snippet included with `{snippet:...}` keeps its formatting inside a
+formatted snippet, and goes into a plain snippet as plain text.
+
+Google Docs gets the plain text of a formatted snippet. Formatting reaches Docs only through a paste
+whose handling Google does not document, so it waits until the formatted step of
+`npm run test:docs-live` passes against a real document.
+
 Snippets made in the snippet panel are plain. The panel's edit form shows a formatted snippet's text
 with its formatting but does not change it: "Open in snippet manager" opens the snippet in the
 manager, and the name, abbreviation, and folder can still be changed in the panel.
@@ -222,6 +235,7 @@ panel opens at your own cursor. These things differ from other editors:
   the cursor.
 - Docs drops spaces at the start and end of a pasted snippet.
 - Each line break in the snippet starts a new paragraph.
+- A formatted snippet goes in as its plain text.
 - Abbreviations do not expand, and `{cursor}` has no effect, because the text and the cursor
   position are not in the page.
 
@@ -292,8 +306,9 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
   script time when the frame loads. These two figures were measured on version 1.2.0 and are
   measured again at each release.
 - **What loads where**: every frame gets `content.js`, about 21 KB, which only watches for the
-  double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 41 KB,
-  loads only in a frame where the panel opens or an abbreviation matches.
+  double tap, the shortcut, the menu items, and abbreviations. `content-main.js`, about 52 KB,
+  loads only in a frame where the panel opens or an abbreviation matches. `lib/richtext.js`, about
+  34 KB, loads only in a frame where a formatted snippet goes into a rich-text editor.
 - **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
   press, so frames nobody types in, such as ads, never read storage. The snippet text is read
   only when the panel opens or an abbreviation matches.
@@ -363,7 +378,11 @@ parameters imitate changes Google could make, such as a renamed input frame or a
 To check the real editor, set `DOCS_TEST_URL` to a Google Doc that anyone with the link can edit
 and run `npm run test:docs-live`. The check replaces the document's text, so use a scratch
 document. If it fails while `npm test` passes, the failure message says which part of the live
-editor no longer matches the stand-in.
+editor no longer matches the stand-in. Its second test, the formatted step, pastes HTML into the
+document the way a formatted insert would and checks that Docs keeps the bold text, the link, and
+the paragraphs. Until that test has passed and the Docs path in `extension/content-main.js` pastes
+HTML the same way, formatted snippets go into Docs as plain text, and a failure of that test alone
+changes nothing that ships.
 
 `playwright.config.js` runs the tests fully in parallel on 4 worker processes (2 when the `CI`
 environment variable is set) and retries a failed test up to 2 times. Retries use Playwright's
