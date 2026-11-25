@@ -6,6 +6,9 @@ Google Docs document, pick a snippet, and it is inserted at the cursor. Snippets
 limit and can hold the date, the time, and fill-in fields. A snippet can also have an
 abbreviation that turns into the snippet when you type it.
 
+Snippets stay in your browser on this device. The extension sends nothing over the network and
+syncs nothing ([how snippets are stored](docs/development.md#storage)).
+
 The panel is modeled on the snippet manager in QuillBot's browser extension, without its
 1,024-character limit. This project is not affiliated with QuillBot.
 
@@ -30,10 +33,10 @@ off, Chromium disables extensions loaded this way.
 
 To open the snippet panel, click in a text field and tap Ctrl twice quickly, or press
 Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...". Pick a snippet
-with the mouse, with the arrow keys and Enter, or with Ctrl+2 to Ctrl+9, and it is inserted at the
-cursor. To save text from any page as a snippet, select it, right-click, and choose "Save
-selection as snippet". On a Mac, press Cmd wherever this README names Ctrl in a shortcut; the
-double tap uses the Control key.
+with the mouse, with the arrow keys and Enter, or with Ctrl+2 to Ctrl+9 (Ctrl+1 creates a new
+snippet), and it is inserted at the cursor. To save text from any page as a snippet, select it,
+right-click, and choose "Save selection as snippet". On a Mac, press Cmd wherever this README names
+Ctrl in a shortcut; the double tap uses the Control key.
 
 Click the extension's toolbar icon to open the snippet manager. It shows every snippet with a large
 editor and drag-and-drop ordering. Its Settings and backup section changes the trigger key and when
@@ -43,28 +46,31 @@ describes search, folders, the forms, and every shortcut.
 ## Features
 
 - [Placeholders](docs/user-guide.md#placeholders) for the date, the time, and fill-in fields.
-- [Abbreviations](docs/user-guide.md#abbreviations): type `;addr` and it turns into the snippet.
+- [Abbreviations](docs/user-guide.md#abbreviations), such as `;addr`, that turn into their
+  snippet when you type them.
 - [Snippets inside snippets](docs/user-guide.md#snippets-inside-snippets), with `{snippet:;sig}`.
 - [Folders and search](docs/user-guide.md#use) in the panel and the snippet manager.
 - [Formatting](docs/user-guide.md#formatting): bold, italic, underline, links, lists, and code.
 - [Colored code blocks](docs/user-guide.md#code-blocks-and-colors) in 8 languages, such as JSON.
-- [Format JSON](docs/user-guide.md#format-json) checks JSON and indents it with 2 spaces.
-- [Turning sites off](docs/user-guide.md#turning-sites-off) stops the double tap and abbreviations.
+- A [Format JSON](docs/user-guide.md#format-json) button that checks JSON and indents it with 2
+  spaces.
+- A [list of sites](docs/user-guide.md#turning-sites-off) where the double tap and abbreviations
+  are off.
 - [Undo](docs/user-guide.md#use) after a delete, and the last 20 deleted snippets in the manager.
-- [Export and import](docs/development.md#storage) of every snippet in a JSON file.
-- [Google Docs](docs/user-guide.md#google-docs) documents, but not Slides or Sheets.
+- [Export and import](docs/user-guide.md#backup) of every snippet in a JSON file.
+- Support for [Google Docs](docs/user-guide.md#google-docs) documents, but not Slides or Sheets.
 - [No length limit](docs/user-guide.md#limits) on a snippet's text.
 
 ## Formatting
 
 In the snippet manager, a snippet can have bold, italic, underlined, and code text, links,
 bulleted and numbered lists, and code blocks. A code block that names a language has its keywords,
-strings, numbers, and comments colored. A rich-text editor, such as webmail, gets the formatting and keeps as much of it as that
-editor supports. A text box and a single-line field get the plain text, with a bullet or a number
-before each list item and each link's address in parentheses after its text. Google Docs gets the
-plain text for now, and snippets made in the snippet panel are plain. The
-[user guide](docs/user-guide.md#formatting) describes the toolbar, the plain text, and which
-editors keep the colors.
+strings, numbers, and comments colored. A rich-text editor, such as webmail, gets the formatting
+and keeps as much of it as that editor supports. A text box and a single-line field get the plain
+text, with a bullet or a number before each list item and each link's address in parentheses after
+its text. Google Docs gets the plain text for now, and snippets made in the snippet panel are
+plain. The [user guide](docs/user-guide.md#formatting) describes the toolbar, the plain text, and
+which editors keep the colors.
 
 ## Languages
 

@@ -1,5 +1,8 @@
 # User guide
 
+This guide describes every feature of Snippet Inserter. To install it, see the
+[README](../README.md#install).
+
 ## Use
 
 To open the snippet panel, click in a text field and tap Ctrl twice quickly, or press
@@ -241,6 +244,21 @@ in the `{snippet:...}` references of your other snippets, in the same save, and 
 says how many it changed. Clearing an abbreviation leaves the references as they are, and they are
 then inserted as written. Deleting an included snippet gives no warning; Undo or Recently deleted
 brings it back and the references work again.
+
+## Backup
+
+"Export snippets", in the manager's Settings and backup section, saves every snippet to a file
+named `snippets-YYYY-MM-DD.json`. The file holds no settings. "Import snippets" reads that file, or
+a JSON array of snippets in the form that [docs/development.md](development.md#storage) describes.
+
+Import adds snippets to your list and never changes or removes one you have. It skips a snippet
+whose name and text match one you have. A snippet whose abbreviation clashes with one in use is
+added without the abbreviation. A folder that differs from one you have only in capitals joins it,
+so "work" goes into "Work". An imported snippet keeps only the formatting that a saved snippet can
+hold, and its plain text is taken from that formatting, so a file cannot show one text and insert
+another. A file from a newer version of the extension, in a format this version cannot read, is
+refused with a message to update the extension. Version 1.2.0 imports a file with formatted snippets
+and keeps their text without the formatting.
 
 ## Languages
 

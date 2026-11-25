@@ -154,14 +154,9 @@ Export in the manager saves every snippet to `snippets-YYYY-MM-DD.json`:
 }
 ```
 
-Import accepts that file, or a bare array of records. It never changes or removes a stored snippet.
-It skips a record whose name and text match a stored snippet, gives a new id to a record whose id is
-in use, and drops an abbreviation that is already taken. A folder that differs from one already
-known only in capitals joins it, so "work" goes into "Work". The `html` of a record goes through the
-same cleaner as a saved snippet, and the record's text is taken from it, so a file cannot show one
-text and insert another. A file with a higher `version` is refused with a message to update the
-extension. Version 1.2.0 imports a file with formatted snippets and keeps their text without the
-formatting.
+Import accepts that file, or a bare array of records, and gives a new id to a record whose id is in
+use. The [Backup section of the user guide](user-guide.md#backup) says which records an import
+skips or changes and which files it refuses.
 
 ## Resource use
 
