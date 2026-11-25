@@ -38,6 +38,12 @@
     offSites: [],
   };
 
+  // The messages of lib/i18n.js. The pages load it before they call anything here that builds a
+  // message. The content script never builds one, so it does not load it.
+  function i18n() {
+    return typeof module === 'object' && module.exports ? require('./i18n.js') : root.SnippetInserter.i18n;
+  }
+
   // Splits text into the characters a person sees. An emoji built from several code points, such
   // as a flag, a skin-tone emoji, or a family, is one piece.
   const GRAPHEME_SEGMENTER = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
@@ -174,11 +180,11 @@
   // Adds a site to the list, which stays sorted and free of entries inside other entries.
   async function addOffSite(input) {
     const host = siteHost(input);
-    if (!host) throw siteProblem('Enter a site such as example.com.');
+    if (!host) throw siteProblem(i18n().t('siteEnter'));
     const entries = (await readSettings()).offSites;
     const covering = offSiteEntry(host, entries);
-    if (covering === host) throw siteProblem(`${host} is already on the list.`);
-    if (covering) throw siteProblem(`${host} is already off, because ${covering} is on the list.`);
+    if (covering === host) throw siteProblem(i18n().t('siteListed', [host]));
+    if (covering) throw siteProblem(i18n().t('siteCovered', [host, covering]));
     const offSites = [...entries.filter((entry) => !entry.endsWith(`.${host}`)), host].sort();
     await writeSettings({ offSites });
     return { host, offSites };
@@ -378,7 +384,7 @@
       createdAt: new Date().toISOString(),
       content: original.content,
       html: original.html,
-      title: original.title ? cutTitle(`Copy of ${original.title}`) : '',
+      title: original.title ? cutTitle(i18n().t('copyOf', [original.title])) : '',
       id: freshId(new Set(list.map((s) => s.id))),
       folder: original.folder,
     });
@@ -468,16 +474,16 @@
       abbreviation.length > ABBREVIATION_MAX ||
       /\s/.test(abbreviation)
     ) {
-      return `Use ${ABBREVIATION_MIN} to ${ABBREVIATION_MAX} characters without spaces.`;
+      return i18n().t('abbreviationLength', [ABBREVIATION_MIN, ABBREVIATION_MAX]);
     }
     for (const other of snippets) {
       if (other.id === ownId || !other.abbreviation) continue;
-      if (other.abbreviation === abbreviation) return `Another snippet already uses ${abbreviation}.`;
+      if (other.abbreviation === abbreviation) return i18n().t('abbreviationTaken', [abbreviation]);
       if (other.abbreviation.startsWith(abbreviation)) {
-        return `Another snippet's abbreviation, ${other.abbreviation}, starts with this one.`;
+        return i18n().t('abbreviationStartedBy', [other.abbreviation]);
       }
       if (abbreviation.startsWith(other.abbreviation)) {
-        return `This starts with another snippet's abbreviation, ${other.abbreviation}.`;
+        return i18n().t('abbreviationStartsWith', [other.abbreviation]);
       }
     }
     return null;
@@ -525,18 +531,18 @@
     try {
       data = JSON.parse(text);
     } catch {
-      throw new Error('This file is not a snippet backup: it is not valid JSON.');
+      throw new Error(i18n().t('importNotJson'));
     }
     let records;
     if (Array.isArray(data)) {
       records = data;
     } else if (data && data.format === EXPORT_FORMAT && Array.isArray(data.snippets)) {
       if (typeof data.version === 'number' && data.version > EXPORT_VERSION) {
-        throw new Error('This backup was made by a newer version of Snippet Inserter. Update the extension and try again.');
+        throw new Error(i18n().t('importNewer'));
       }
       records = data.snippets;
     } else {
-      throw new Error('This file is not a snippet backup.');
+      throw new Error(i18n().t('importNotBackup'));
     }
 
     const known = existing.slice();
@@ -587,19 +593,12 @@
 
   // The sentence shown after an import.
   function importReport(result) {
-    const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
-    const parts = [`Imported ${plural(result.add.length, 'snippet', 'snippets')}.`];
-    if (result.skipped) {
-      parts.push(`Skipped ${plural(result.skipped, 'snippet that was', 'snippets that were')} already here.`);
-    }
-    if (result.invalid) {
-      parts.push(`Skipped ${plural(result.invalid, 'record', 'records')} without text.`);
-    }
-    if (result.abbreviationsDropped) {
-      parts.push(
-        `${plural(result.abbreviationsDropped, 'snippet', 'snippets')} lost an abbreviation that another snippet already uses.`
-      );
-    }
+    const messages = i18n();
+    const sentence = (key, n) => messages.plural(key, n, [messages.number(n)]);
+    const parts = [sentence('importedCount', result.add.length)];
+    if (result.skipped) parts.push(sentence('importSkipped', result.skipped));
+    if (result.invalid) parts.push(sentence('importInvalid', result.invalid));
+    if (result.abbreviationsDropped) parts.push(sentence('importAbbrDropped', result.abbreviationsDropped));
     return parts.join(' ');
   }
 

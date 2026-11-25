@@ -1,0 +1,1446 @@
+{
+  "extName": {
+    "message": "Snippet Inserter",
+    "description": "The name of the extension. It is a product name and stays the same in every language."
+  },
+  "extDescription": {
+    "message": "Insert saved text snippets into any text field with a double tap of $KEY$. Snippets have no length limit.",
+    "description": "One sentence shown on the extension page in the browser and in the Chrome Web Store. Keep it under 132 characters. The key name is filled in for you.",
+    "placeholders": {
+      "key": {
+        "content": "Ctrl"
+      }
+    }
+  },
+  "commandOpenPanel": {
+    "message": "Open the snippet panel",
+    "description": "The name of the keyboard shortcut on the browser page where people change extension shortcuts."
+  },
+  "localeCode": {
+    "message": "en",
+    "description": "The code of this language. Write the code of the folder this file is in, such as pt_BR. Used to choose plural forms and number formats."
+  },
+  "textDirection": {
+    "message": "ltr",
+    "description": "The direction of this language: ltr for left to right, rtl for right to left. It mirrors the panel and the manager."
+  },
+  "languageName": {
+    "message": "English",
+    "description": "The name of this language, written in this language."
+  },
+  "menuSaveSelection": {
+    "message": "Save selection as snippet",
+    "description": "Right-click menu item shown when text on a page is selected. It opens the form for a new snippet that starts with that text."
+  },
+  "menuInsertSnippet": {
+    "message": "Insert snippet...",
+    "description": "Right-click menu item shown in a text field. The three dots mean that a panel opens to pick a snippet."
+  },
+  "noticeNoField": {
+    "message": "Snippets cannot be inserted in this kind of field.",
+    "description": "Short notice at the top of a web page after the user chose Insert snippet from the right-click menu on something that is not a text field the extension can fill."
+  },
+  "noticeFieldGone": {
+    "message": "The snippet was not inserted, because the field is gone.",
+    "description": "Short notice at the top of a web page. The text field closed or was removed while the panel was open."
+  },
+  "noticeFieldChanged": {
+    "message": "The text in the field changed, so the snippet was not inserted.",
+    "description": "Short notice at the top of a web page. The user typed an abbreviation and filled in a form, but the field changed in the meantime."
+  },
+  "noticeDocsCopied": {
+    "message": "Snippet copied. If it did not appear in the document, press $KEYS$.",
+    "description": "Short notice at the top of a Google Docs page. The text went to the clipboard because pasting into the document could not be confirmed. The key combination is filled in for you, for example Ctrl+V.",
+    "placeholders": {
+      "keys": {
+        "content": "$1",
+        "example": "Ctrl+V"
+      }
+    }
+  },
+  "noticeDocsNotInserted": {
+    "message": "The snippet could not be inserted. Open it with the pencil in the snippet panel and copy its text.",
+    "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
+  },
+  "noticeFieldRoom_one": {
+    "message": "This field takes $FREE$ more character, and the snippet has $TOTAL$. Nothing was inserted.",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. Singular form: the number of characters that still fit is one (or the form for one in your language). The total is the length of the snippet.",
+    "placeholders": {
+      "free": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "40"
+      }
+    }
+  },
+  "noticeFieldRoom_other": {
+    "message": "This field takes $FREE$ more characters, and the snippet has $TOTAL$. Nothing was inserted.",
+    "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. Plural form: the number of characters that still fit. The total is the length of the snippet.",
+    "placeholders": {
+      "free": {
+        "content": "$1",
+        "example": "12"
+      },
+      "total": {
+        "content": "$2",
+        "example": "40"
+      }
+    }
+  },
+  "noticeSiteOff": {
+    "message": "The double tap and abbreviations are off on $HOST$. To turn them back on, open the panel with the keyboard shortcut or the right-click menu.",
+    "description": "Short notice at the top of a web page after the user turned the extension off for this site. The site name is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "noticeSiteOn": {
+    "message": "The double tap and abbreviations are on again on $HOST$.",
+    "description": "Short notice at the top of a web page after the user turned the extension back on for this site.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "noticeSaved": {
+    "message": "Snippet saved.",
+    "description": "Short notice at the top of a web page after the user saved a new snippet from selected text."
+  },
+  "snippets": {
+    "message": "Snippets",
+    "description": "The plural of snippet, a small piece of saved text. Used as the title of the panel, the name of the list of snippets, and the first section of the manager."
+  },
+  "editSnippet": {
+    "message": "Edit snippet",
+    "description": "Heading of the form for changing a saved snippet, in the panel and in the manager."
+  },
+  "newSnippet": {
+    "message": "New snippet",
+    "description": "Button in the manager that starts a new snippet, and the heading of the form for it. Other messages refer to this button by name, so keep them the same."
+  },
+  "captionInsert": {
+    "message": "Insert snippet",
+    "description": "Heading above the list of snippets in the panel, which the screen reader reads as the name of the list."
+  },
+  "captionCreate": {
+    "message": "Create a new snippet",
+    "description": "Heading of the form for a new snippet in the panel."
+  },
+  "createNew": {
+    "message": "Create new snippet",
+    "description": "First entry in the panel list. It opens the form for a new snippet."
+  },
+  "createFromSelection": {
+    "message": "Create snippet from selection",
+    "description": "First entry in the panel list when text was selected on the page. The new snippet starts with that text."
+  },
+  "emptyApply": {
+    "message": "Create",
+    "description": "Button at the bottom of the panel when there are no snippets yet. It opens the form for the first snippet."
+  },
+  "emptyHint": {
+    "message": "Click below to start creating your first snippet.",
+    "description": "Hint under the explanation of snippets in the empty panel. The button is below it."
+  },
+  "emptyHeading": {
+    "message": "You have no snippets yet",
+    "description": "Heading of the empty panel."
+  },
+  "loadError": {
+    "message": "Your snippets could not be loaded. Close the panel and open it again.",
+    "description": "Error in the panel when stored snippets could not be read."
+  },
+  "loadErrorHeading": {
+    "message": "Snippets could not be loaded",
+    "description": "Heading above the error in the panel when stored snippets could not be read."
+  },
+  "emptyText": {
+    "message": "Snippets are small, reusable pieces of text designed for repetitive use to save time (e.g. address, email).",
+    "description": "Explanation in the empty panel of what a snippet is. The examples in brackets are things people often save."
+  },
+  "formApply": {
+    "message": "Save snippet",
+    "description": "Button at the bottom of the panel form for a new or changed snippet."
+  },
+  "createError": {
+    "message": "Failed to create the snippet.",
+    "description": "Error in the panel after saving a new snippet failed."
+  },
+  "editDelete": {
+    "message": "Delete snippet",
+    "description": "Button in the panel form for a saved snippet. It deletes the snippet and offers Undo."
+  },
+  "editDuplicate": {
+    "message": "Duplicate snippet",
+    "description": "Button in the panel form for a saved snippet. It makes a copy of the snippet."
+  },
+  "editError": {
+    "message": "Failed to save the snippet.",
+    "description": "Error in the panel after saving a changed snippet failed."
+  },
+  "deleteError": {
+    "message": "Failed to delete the snippet.",
+    "description": "Error in the panel after deleting a snippet failed."
+  },
+  "duplicateError": {
+    "message": "Failed to duplicate the snippet.",
+    "description": "Error in the panel after copying a snippet failed."
+  },
+  "moveError": {
+    "message": "Failed to move the snippet.",
+    "description": "Error in the panel after moving a snippet up or down in the list failed."
+  },
+  "restoreError": {
+    "message": "Failed to restore the snippet.",
+    "description": "Error in the panel after Undo of a deletion failed."
+  },
+  "notFound": {
+    "message": "Could not find the snippet.",
+    "description": "Error in the panel or the manager when the snippet to show no longer exists."
+  },
+  "placeholderContent": {
+    "message": "Enter some text …",
+    "description": "Grey hint inside the empty text box of the panel form. The ellipsis character is part of the style."
+  },
+  "placeholderTitle": {
+    "message": "Enter name (optional) …",
+    "description": "Grey hint inside the empty name box of the panel form. The ellipsis character is part of the style."
+  },
+  "placeholderAbbreviation": {
+    "message": "Abbreviation (optional), such as $EXAMPLE$ …",
+    "description": "Grey hint inside the empty abbreviation box of the panel form. An abbreviation is a short code the user types to insert a snippet. The example is filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": ";addr"
+      }
+    }
+  },
+  "placeholderFolder": {
+    "message": "Folder (optional), such as Work …",
+    "description": "Grey hint inside the empty folder box of the panel form. Work is an example of a folder name; use a common word in your language."
+  },
+  "folderAll": {
+    "message": "All",
+    "description": "Label of the folder button that shows every snippet."
+  },
+  "folderNone": {
+    "message": "No folder",
+    "description": "Label of the folder button that shows the snippets that are in no folder."
+  },
+  "foldersLabel": {
+    "message": "Folders",
+    "description": "Accessible name of the row of folder buttons. Screen readers read it; it is not shown."
+  },
+  "validationEmpty": {
+    "message": "This field must not be empty.",
+    "description": "Error under a form field that was left empty."
+  },
+  "validationTooLong": {
+    "message": "The input must not be longer than $MAX$ characters.",
+    "description": "Error under a form field whose text is too long. The maximum is filled in for you.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "128"
+      }
+    }
+  },
+  "labelEdited": {
+    "message": "edited",
+    "description": "Small label next to a snippet in the panel list that was just changed."
+  },
+  "labelNew": {
+    "message": "new",
+    "description": "Small label next to a snippet in the panel list that was just added."
+  },
+  "searchPlaceholder": {
+    "message": "Search snippets …",
+    "description": "Grey hint inside the search box of the panel. The ellipsis character is part of the style."
+  },
+  "undoDeleted": {
+    "message": "Snippet deleted.",
+    "description": "Message in the bar that appears after a snippet was deleted, with the Undo button next to it."
+  },
+  "undo": {
+    "message": "Undo",
+    "description": "Button in the bar that appears after a snippet was deleted. It brings the snippet back."
+  },
+  "placeholders": {
+    "message": "Placeholders",
+    "description": "Label before the list of placeholders in a snippet text. A placeholder is a word in braces, such as {date}, that is replaced when the snippet is inserted."
+  },
+  "placeholdersUnrecognized": {
+    "message": "Not recognized, inserted as written",
+    "description": "Label before the list of text in braces that looks like a placeholder but is not one. It is inserted exactly as typed."
+  },
+  "includes": {
+    "message": "Includes",
+    "description": "Label before the list of other snippets that a snippet includes."
+  },
+  "referenceNotFound": {
+    "message": "Not found",
+    "description": "Tooltip on an included snippet that does not exist."
+  },
+  "referenceMissing": {
+    "message": "No snippet has the abbreviation $ABBREVIATION$, so $TOKEN$ is inserted as written.",
+    "description": "Warning under a snippet that includes another snippet by its abbreviation, when no snippet has that abbreviation. The abbreviation and the text in braces are filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "token": {
+        "content": "$2",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "referenceLoop": {
+    "message": "$TOKEN$ would put a snippet inside itself, so it is inserted as written.",
+    "description": "Warning under a snippet that includes itself, directly or through other snippets. The text in braces is filled in for you.",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "referenceLimit": {
+    "message": "One insert includes at most $LIMIT$ snippets, so the other references are inserted as written.",
+    "description": "Warning under a snippet that includes more other snippets than one insert allows. The limit is filled in for you.",
+    "placeholders": {
+      "limit": {
+        "content": "100"
+      }
+    }
+  },
+  "fillCount_one": {
+    "message": "Fill in $COUNT$ field",
+    "description": "Heading of the panel form that asks for values before a snippet is inserted. Singular form: the number of fields is one (or the form for one in your language).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "fillCount_other": {
+    "message": "Fill in $COUNT$ fields",
+    "description": "Heading of the panel form that asks for values before a snippet is inserted. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "preview": {
+    "message": "Preview",
+    "description": "Label above the text a snippet will insert, with the typed values filled in."
+  },
+  "insertApply": {
+    "message": "Insert",
+    "description": "Button at the bottom of the panel form that fills in a snippet and inserts it."
+  },
+  "edit": {
+    "message": "Edit",
+    "description": "Tooltip on the pencil button next to a snippet in the panel list."
+  },
+  "back": {
+    "message": "Back ($KEY$)",
+    "description": "Tooltip on the button at the top left of the panel that goes back to the list. The key name is filled in for you.",
+    "placeholders": {
+      "key": {
+        "content": "Esc"
+      }
+    }
+  },
+  "close": {
+    "message": "Close ($KEY$)",
+    "description": "Tooltip on the button at the top right of the panel that closes it. The key name is filled in for you.",
+    "placeholders": {
+      "key": {
+        "content": "Esc"
+      }
+    }
+  },
+  "siteOff": {
+    "message": "Turn off the double tap and abbreviations for $HOST$",
+    "description": "Tooltip on a button at the top of the panel. The site name is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteOn": {
+    "message": "Turn the double tap and abbreviations back on for $ENTRY$",
+    "description": "Tooltip on a button at the top of the panel. The site name is filled in for you.",
+    "placeholders": {
+      "entry": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteError": {
+    "message": "Failed to change the setting for this site.",
+    "description": "Error in the panel after turning the extension off or on for a site failed."
+  },
+  "formattedView": {
+    "message": "Snippet text",
+    "description": "Accessible name of the box that shows the text of a snippet with formatting. Screen readers read it; it is not shown."
+  },
+  "formattedNote": {
+    "message": "This snippet has formatting. Change its text in the snippet manager.",
+    "description": "Note in the panel form for a snippet that has bold text, lists, or links. The text can only be changed in the manager page."
+  },
+  "openManager": {
+    "message": "Open in snippet manager",
+    "description": "Link-style button next to the note about formatting. It opens the manager page with this snippet."
+  },
+  "navLabel": {
+    "message": "Sections",
+    "description": "Accessible name of the menu with the three sections of the manager. Screen readers read it; it is not shown."
+  },
+  "recentlyDeleted": {
+    "message": "Recently deleted",
+    "description": "Name of the manager section that lists deleted snippets, and its heading."
+  },
+  "settingsAndBackup": {
+    "message": "Settings and backup",
+    "description": "Name of the manager section with the settings and the backup buttons."
+  },
+  "searchManagerPlaceholder": {
+    "message": "Search snippets...",
+    "description": "Grey hint inside the search box of the manager."
+  },
+  "renameFolder": {
+    "message": "Rename folder",
+    "description": "Button in the manager that renames the selected folder."
+  },
+  "removeFolder": {
+    "message": "Remove folder",
+    "description": "Button in the manager that removes the selected folder. The snippets in it stay."
+  },
+  "removeFolderConfirm": {
+    "message": "Click again to remove the folder",
+    "description": "The text of the Remove folder button after the first click, which asks for a second click."
+  },
+  "folderNameLabel": {
+    "message": "Folder name",
+    "description": "Accessible name of the box where a folder is renamed. Screen readers read it; it is not shown."
+  },
+  "rename": {
+    "message": "Rename",
+    "description": "Button that applies the new folder name."
+  },
+  "cancel": {
+    "message": "Cancel",
+    "description": "Button that closes a small form without changing anything."
+  },
+  "renameJoins": {
+    "message": "$NAME$ already exists. Renaming moves these snippets into it.",
+    "description": "Hint under the box where a folder is renamed to the name of a folder that already exists. The folder name is filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "folderNameRequired": {
+    "message": "Enter a folder name.",
+    "description": "Error under the box where a folder is renamed, when it was left empty."
+  },
+  "noSnippets": {
+    "message": "No snippets yet. Click New snippet to create one.",
+    "description": "Text in the empty list of the manager. New snippet is the name of a button; write it as in the message New snippet."
+  },
+  "selectOrNew": {
+    "message": "Select a snippet, or click New snippet.",
+    "description": "Text where the form is, when no snippet is open. New snippet is the name of a button; write it as in the message New snippet."
+  },
+  "dragReorder": {
+    "message": "Drag to reorder",
+    "description": "Tooltip on the grip of a snippet row in the manager."
+  },
+  "dragReorderFolder": {
+    "message": "Drag to reorder, or onto a folder to move it",
+    "description": "Tooltip on the grip of a snippet row in the manager, when folders exist."
+  },
+  "moved": {
+    "message": "$TITLE$ moved to position $POSITION$ of $TOTAL$.",
+    "description": "Message for screen readers after a snippet was moved up or down in the list. It is not shown. The name of the snippet and the numbers are filled in for you.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Address"
+      },
+      "position": {
+        "content": "$2",
+        "example": "2"
+      },
+      "total": {
+        "content": "$3",
+        "example": "9"
+      }
+    }
+  },
+  "fieldName": {
+    "message": "Name",
+    "description": "Label of the box for the name of a snippet in the manager form."
+  },
+  "fieldAbbreviation": {
+    "message": "Abbreviation",
+    "description": "Label of the box for the abbreviation of a snippet in the manager form. An abbreviation is a short code the user types to insert a snippet."
+  },
+  "fieldFolder": {
+    "message": "Folder",
+    "description": "Label of the box for the folder of a snippet in the manager form."
+  },
+  "fieldText": {
+    "message": "Text",
+    "description": "Label of the box for the text of a snippet in the manager form."
+  },
+  "optionalPlaceholder": {
+    "message": "Optional",
+    "description": "Grey hint inside an empty box that may stay empty."
+  },
+  "optionalAbbreviationPlaceholder": {
+    "message": "Optional, such as $EXAMPLE$",
+    "description": "Grey hint inside the empty abbreviation box of the manager form. The example is filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": ";addr"
+      }
+    }
+  },
+  "optionalFolderPlaceholder": {
+    "message": "Optional, such as Work",
+    "description": "Grey hint inside the empty folder box of the manager form. Work is an example of a folder name; use a common word in your language."
+  },
+  "formatJson": {
+    "message": "Format JSON",
+    "description": "Button in the manager form that checks the text as JSON and indents it. JSON is a data format and keeps its name."
+  },
+  "formattedText": {
+    "message": "Formatted text",
+    "description": "Label of the checkbox in the manager form that turns on bold text, lists, links, and code blocks."
+  },
+  "toolbarLabel": {
+    "message": "Formatting",
+    "description": "Accessible name of the row of formatting buttons. Screen readers read it; it is not shown."
+  },
+  "toolBold": {
+    "message": "Bold ($SHORTCUT$)",
+    "description": "Tooltip of the bold button. The keyboard shortcut is filled in for you.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+B"
+      }
+    }
+  },
+  "toolItalic": {
+    "message": "Italic ($SHORTCUT$)",
+    "description": "Tooltip of the italic button. The keyboard shortcut is filled in for you.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+I"
+      }
+    }
+  },
+  "toolUnderline": {
+    "message": "Underline ($SHORTCUT$)",
+    "description": "Tooltip of the underline button. The keyboard shortcut is filled in for you.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+U"
+      }
+    }
+  },
+  "toolLink": {
+    "message": "Link ($SHORTCUT$)",
+    "description": "Tooltip of the button that turns the selected text into a link. The keyboard shortcut is filled in for you.",
+    "placeholders": {
+      "shortcut": {
+        "content": "Ctrl+K"
+      }
+    }
+  },
+  "toolBulleted": {
+    "message": "Bulleted list",
+    "description": "Tooltip of the button that makes a list with bullets."
+  },
+  "toolNumbered": {
+    "message": "Numbered list",
+    "description": "Tooltip of the button that makes a list with numbers."
+  },
+  "toolCode": {
+    "message": "Code",
+    "description": "Tooltip of the button that marks selected text as code inside a line."
+  },
+  "toolCodeBlock": {
+    "message": "Code block",
+    "description": "Tooltip of the button that makes the selected lines a block of code."
+  },
+  "toolClear": {
+    "message": "Clear formatting",
+    "description": "Tooltip of the button that removes bold, italic, underline, code, and links from the selected text."
+  },
+  "codeLanguageLabel": {
+    "message": "Code block language",
+    "description": "Accessible name and tooltip of the menu that picks the programming language of a code block."
+  },
+  "languagePlain": {
+    "message": "Plain text",
+    "description": "Entry in the menu of code block languages for a block with no language, and the label above such a block."
+  },
+  "linkAddress": {
+    "message": "Link address",
+    "description": "Label of the box where the address of a link is typed."
+  },
+  "apply": {
+    "message": "Apply",
+    "description": "Button that puts the typed link address on the selected text."
+  },
+  "removeLink": {
+    "message": "Remove link",
+    "description": "Button that removes a link and keeps its text."
+  },
+  "linkInvalid": {
+    "message": "Use an address that starts with $HTTPS$, $HTTP$, $MAILTO$, or $TEL$.",
+    "description": "Error under the box for a link address. The four address beginnings are filled in for you.",
+    "placeholders": {
+      "https": {
+        "content": "https://"
+      },
+      "http": {
+        "content": "http://"
+      },
+      "mailto": {
+        "content": "mailto:"
+      },
+      "tel": {
+        "content": "tel:"
+      }
+    }
+  },
+  "formatHint": {
+    "message": "Rich-text editors, such as webmail, get this formatting. Text boxes and $GOOGLE_DOCS$ get the plain text, with bullets as dots and each link's address in parentheses after it.",
+    "description": "Hint under the text box of a snippet that has formatting. A rich-text editor is a box where text can be bold, such as an email writing window. The product name is filled in for you.",
+    "placeholders": {
+      "google_docs": {
+        "content": "Google Docs"
+      }
+    }
+  },
+  "duplicate": {
+    "message": "Duplicate",
+    "description": "Button in the manager form that makes a copy of the snippet."
+  },
+  "delete": {
+    "message": "Delete",
+    "description": "Button in the manager form that deletes the snippet and offers Undo."
+  },
+  "save": {
+    "message": "Save",
+    "description": "Button in the manager form that saves the snippet, and in a notice that asks to save changes."
+  },
+  "unsavedChanges": {
+    "message": "You have unsaved changes.",
+    "description": "Notice in the manager when the user leaves a snippet that was changed but not saved. Buttons Save and Discard follow."
+  },
+  "discard": {
+    "message": "Discard",
+    "description": "Button in a notice about unsaved changes. It throws the changes away."
+  },
+  "deletedElsewhere": {
+    "message": "This snippet was deleted in another tab. Saving creates it again.",
+    "description": "Notice in the manager when the open snippet was deleted from another browser tab."
+  },
+  "changedElsewhere": {
+    "message": "This snippet changed in another tab.",
+    "description": "Notice in the manager when the open snippet was changed from another browser tab. Buttons to load the other version or keep the current one follow."
+  },
+  "loadOther": {
+    "message": "Load the other version",
+    "description": "Button in a notice. It replaces the form with the version saved from the other tab."
+  },
+  "keepMine": {
+    "message": "Keep mine",
+    "description": "Button in a notice. It keeps what the user typed."
+  },
+  "saved": {
+    "message": "Saved.",
+    "description": "Status after a snippet was saved."
+  },
+  "savedRenamed_one": {
+    "message": "Saved. $COUNT$ snippet that used $OLD$ now uses $NEW$.",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. Singular form: one snippet was updated. The number and the two abbreviations are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "old": {
+        "content": "$2",
+        "example": ";sig"
+      },
+      "new": {
+        "content": "$3",
+        "example": ";sign"
+      }
+    }
+  },
+  "savedRenamed_other": {
+    "message": "Saved. $COUNT$ snippets that used $OLD$ now use $NEW$.",
+    "description": "Status after saving a snippet whose abbreviation changed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "old": {
+        "content": "$2",
+        "example": ";sig"
+      },
+      "new": {
+        "content": "$3",
+        "example": ";sign"
+      }
+    }
+  },
+  "savedCleared_one": {
+    "message": "Saved. No snippet has $ABBREVIATION$ now, so $COUNT$ snippet inserts $TOKEN$ as written.",
+    "description": "Status after saving a snippet whose abbreviation was removed, when another snippet includes it. Singular form: one snippet is affected. The abbreviation, the number, and the text in braces are filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "count": {
+        "content": "$2",
+        "example": "1"
+      },
+      "token": {
+        "content": "$3",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "savedCleared_other": {
+    "message": "Saved. No snippet has $ABBREVIATION$ now, so $COUNT$ snippets insert $TOKEN$ as written.",
+    "description": "Status after saving a snippet whose abbreviation was removed, when other snippets include it. Plural form.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";sig"
+      },
+      "count": {
+        "content": "$2",
+        "example": "3"
+      },
+      "token": {
+        "content": "$3",
+        "example": "{snippet:;sig}"
+      }
+    }
+  },
+  "saveChangeFailed": {
+    "message": "Could not save the change: $REASON$",
+    "description": "Error after saving or changing a snippet failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "QUOTA_BYTES quota exceeded"
+      }
+    }
+  },
+  "saveSettingFailed": {
+    "message": "Could not save the setting: $REASON$",
+    "description": "Error after saving a setting failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "QUOTA_BYTES quota exceeded"
+      }
+    }
+  },
+  "loadFailed": {
+    "message": "Could not load your snippets: $REASON$",
+    "description": "Error at the top of the manager when stored snippets could not be read. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "Extension context invalidated"
+      }
+    }
+  },
+  "exportFailed": {
+    "message": "Could not export the snippets: $REASON$",
+    "description": "Error after the export of the backup file failed. The reason comes from the browser, in English.",
+    "placeholders": {
+      "reason": {
+        "content": "$1",
+        "example": "Extension context invalidated"
+      }
+    }
+  },
+  "jsonFormatted": {
+    "message": "JSON formatted.",
+    "description": "Status after the Format JSON button indented the text."
+  },
+  "jsonNoCodeBlock": {
+    "message": "Put the caret in a code block first.",
+    "description": "Error after Format JSON was pressed while the text cursor is not inside a code block. The caret is the blinking text cursor."
+  },
+  "deletedOn": {
+    "message": "Deleted $DATE$",
+    "description": "Small line under a deleted snippet. The date and time are filled in for you, in the format of your language.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "11/20/2026, 9:14:00 AM"
+      }
+    }
+  },
+  "restore": {
+    "message": "Restore",
+    "description": "Button next to a deleted snippet that brings it back."
+  },
+  "deleteForever": {
+    "message": "Delete forever",
+    "description": "Button next to a deleted snippet that removes it for good."
+  },
+  "deleteForeverConfirm": {
+    "message": "Click again to delete forever",
+    "description": "The text of the Delete forever button after the first click, which asks for a second click."
+  },
+  "deletedNote": {
+    "message": "The last $COUNT$ deleted snippets stay here until you restore them or delete them for good.",
+    "description": "Text under the heading of the list of deleted snippets. The number is filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "20"
+      }
+    }
+  },
+  "nothingDeleted": {
+    "message": "Nothing was deleted recently.",
+    "description": "Text in the empty list of deleted snippets."
+  },
+  "settings": {
+    "message": "Settings",
+    "description": "Heading of the settings part of the settings page."
+  },
+  "openPanelWith": {
+    "message": "Open the snippet panel with",
+    "description": "Label of the menu where the user picks the key that opens the panel with a double tap."
+  },
+  "hotkeyControl": {
+    "message": "Double tap $KEY$",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you.",
+    "placeholders": {
+      "key": {
+        "content": "Ctrl"
+      }
+    }
+  },
+  "hotkeyShift": {
+    "message": "Double tap $KEY$",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you.",
+    "placeholders": {
+      "key": {
+        "content": "Shift"
+      }
+    }
+  },
+  "hotkeyAlt": {
+    "message": "Double tap $KEY$",
+    "description": "Menu entry: pressing the key twice quickly opens the panel. The key name is filled in for you.",
+    "placeholders": {
+      "key": {
+        "content": "Alt"
+      }
+    }
+  },
+  "off": {
+    "message": "Off",
+    "description": "Menu entry that turns a setting off."
+  },
+  "settingSaved": {
+    "message": "Saved. Open pages pick up the change right away.",
+    "description": "Status after the setting for the double tap key was saved."
+  },
+  "keyboardShortcut": {
+    "message": "Keyboard shortcut",
+    "description": "Label of the setting that shows the keyboard shortcut for the panel."
+  },
+  "shortcutNotSet": {
+    "message": "Not set",
+    "description": "Shown where the keyboard shortcut would be when the browser has none for this extension."
+  },
+  "changeShortcut": {
+    "message": "Change in browser settings",
+    "description": "Button that opens the browser page where extension shortcuts are changed."
+  },
+  "shortcutNote": {
+    "message": "Opens the snippet panel in the field you are typing in, like the double tap.",
+    "description": "Text under the keyboard shortcut setting."
+  },
+  "expandAbbreviations": {
+    "message": "Expand abbreviations",
+    "description": "Label of the menu where the user picks when a typed abbreviation is replaced by its snippet."
+  },
+  "abbreviationsImmediate": {
+    "message": "As soon as I type them",
+    "description": "Menu entry: an abbreviation is replaced as soon as its last character is typed."
+  },
+  "abbreviationsDelimiter": {
+    "message": "After I press Space, Tab, or Enter",
+    "description": "Menu entry: an abbreviation is replaced after the user presses one of the keys Space, Tab, or Enter. Use the names that appear on keyboards in your language."
+  },
+  "abbreviationsNote": {
+    "message": "Typing a snippet's abbreviation in a text field replaces it with the snippet, and <kbd>$CTRL$</kbd>+<kbd>$Z$</kbd> brings the typed text back. When abbreviations wait for Space, Tab, or Enter, a space stays after the snippet, while Tab and Enter only expand it. This does not work in $GOOGLE_DOCS$.",
+    "description": "Text under the abbreviations menu. Keep each <kbd>...</kbd> pair around the name of a key. The two key names, and the product name, are filled in for you. The names Space, Tab, and Enter in the running text are not.",
+    "placeholders": {
+      "ctrl": {
+        "content": "Ctrl"
+      },
+      "z": {
+        "content": "Z"
+      },
+      "google_docs": {
+        "content": "Google Docs"
+      }
+    }
+  },
+  "offSitesLabel": {
+    "message": "Sites where the double tap and abbreviations are off",
+    "description": "Label of the list of sites where the extension is turned off."
+  },
+  "offSiteInputLabel": {
+    "message": "Site to turn off",
+    "description": "Accessible name of the box where a site is typed. Screen readers read it; it is not shown."
+  },
+  "addSite": {
+    "message": "Add site",
+    "description": "Button that adds the typed site to the list of sites where the extension is off."
+  },
+  "offSitesNone": {
+    "message": "No sites yet. The double tap and abbreviations work on every site.",
+    "description": "Text under the empty list of sites where the extension is off."
+  },
+  "offSitesNote": {
+    "message": "A site includes its subdomains: $EXAMPLE$ also covers $SUBDOMAIN$. On these sites the keyboard shortcut and the right-click menu still open the panel. The button next to Close at the top of the panel turns the current site off or back on.",
+    "description": "Text under the list of sites where the extension is off. Close is the name of a button in the panel; write it as in the message Close. The two web addresses are filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": "example.com"
+      },
+      "subdomain": {
+        "content": "mail.example.com"
+      }
+    }
+  },
+  "turnOn": {
+    "message": "Turn on",
+    "description": "Button next to a site in the list. It turns the extension back on for that site."
+  },
+  "turnOnSite": {
+    "message": "Turn on $SITE$ again",
+    "description": "Accessible name of the Turn on button, which names the site. Screen readers read it; it is not shown.",
+    "placeholders": {
+      "site": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "usageNote": {
+    "message": "Click in a text box, a rich-text editor, or a $GOOGLE_DOCS$ document and tap the key twice quickly. In the panel, pick a snippet with the mouse, the arrow keys and <kbd>$ENTER$</kbd>, or <kbd>$CTRL$</kbd>+<kbd>$N2$</kbd> to <kbd>$CTRL$</kbd>+<kbd>$N9$</kbd>. <kbd>$CTRL$</kbd>+<kbd>$N1$</kbd> creates a snippet, and if text is selected when the panel opens, the new snippet starts with that text. Snippets have no length limit.",
+    "description": "Short instructions at the end of the settings. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the digits, and the product name are filled in for you.",
+    "placeholders": {
+      "google_docs": {
+        "content": "Google Docs"
+      },
+      "enter": {
+        "content": "Enter"
+      },
+      "ctrl": {
+        "content": "Ctrl"
+      },
+      "n1": {
+        "content": "1"
+      },
+      "n2": {
+        "content": "2"
+      },
+      "n9": {
+        "content": "9"
+      }
+    }
+  },
+  "backup": {
+    "message": "Backup",
+    "description": "Heading of the part of the settings page with the export and import buttons."
+  },
+  "exportSnippets": {
+    "message": "Export snippets",
+    "description": "Button that saves all snippets to a file."
+  },
+  "exportNote_one": {
+    "message": "Saves the $COUNT$ snippet to $FILE$.",
+    "description": "Text next to the Export snippets button. Singular form: there is one snippet. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exportNote_other": {
+    "message": "Saves all $COUNT$ snippets to $FILE$.",
+    "description": "Text next to the Export snippets button. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exported_one": {
+    "message": "Exported $COUNT$ snippet to $FILE$.",
+    "description": "Status after the export. Singular form: one snippet. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "exported_other": {
+    "message": "Exported $COUNT$ snippets to $FILE$.",
+    "description": "Status after the export. Plural form. The number and the file name are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "file": {
+        "content": "$2",
+        "example": "snippets.json"
+      }
+    }
+  },
+  "importSnippets": {
+    "message": "Import snippets",
+    "description": "Button that reads snippets from a backup file."
+  },
+  "importNote": {
+    "message": "Adds the snippets in a backup file. Snippets you already have are skipped.",
+    "description": "Text next to the Import snippets button."
+  },
+  "support": {
+    "message": "Support",
+    "description": "Heading of the part of the settings page about supporting the author."
+  },
+  "supportNote": {
+    "message": "$NAME$ is free, and every feature works without paying. If you want to support its development, you can donate on $KOFI$.",
+    "description": "Text under the Support heading. The extension name and the name of the donation site are filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "Snippet Inserter"
+      },
+      "kofi": {
+        "content": "Ko-fi"
+      }
+    }
+  },
+  "donate": {
+    "message": "Donate on $KOFI$",
+    "description": "Text of the link that opens the donation page. The name of the donation site is filled in for you.",
+    "placeholders": {
+      "kofi": {
+        "content": "Ko-fi"
+      }
+    }
+  },
+  "siteEnter": {
+    "message": "Enter a site such as $EXAMPLE$.",
+    "description": "Error under the box where a site is added to the list of sites where the extension is off. The example is filled in for you.",
+    "placeholders": {
+      "example": {
+        "content": "example.com"
+      }
+    }
+  },
+  "siteListed": {
+    "message": "$HOST$ is already on the list.",
+    "description": "Error under the box where a site is added, when the site is already in the list. The site is filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "siteCovered": {
+    "message": "$HOST$ is already off, because $COVERING$ is on the list.",
+    "description": "Error under the box where a site is added, when a shorter entry already covers it. Both sites are filled in for you.",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "mail.example.com"
+      },
+      "covering": {
+        "content": "$2",
+        "example": "example.com"
+      }
+    }
+  },
+  "copyOf": {
+    "message": "Copy of $TITLE$",
+    "description": "The name given to a copy of a snippet that has a name. The name of the original is filled in for you.",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Address"
+      }
+    }
+  },
+  "abbreviationLength": {
+    "message": "Use $MIN$ to $MAX$ characters without spaces.",
+    "description": "Error under the abbreviation box. The two numbers are filled in for you.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "2"
+      },
+      "max": {
+        "content": "$2",
+        "example": "32"
+      }
+    }
+  },
+  "abbreviationTaken": {
+    "message": "Another snippet already uses $ABBREVIATION$.",
+    "description": "Error under the abbreviation box. The abbreviation is filled in for you.",
+    "placeholders": {
+      "abbreviation": {
+        "content": "$1",
+        "example": ";addr"
+      }
+    }
+  },
+  "abbreviationStartedBy": {
+    "message": "Another snippet's abbreviation, $OTHER$, starts with this one.",
+    "description": "Error under the abbreviation box: the typed abbreviation is the beginning of another one, so the shorter one would always win. The other abbreviation is filled in for you.",
+    "placeholders": {
+      "other": {
+        "content": "$1",
+        "example": ";addr2"
+      }
+    }
+  },
+  "abbreviationStartsWith": {
+    "message": "This starts with another snippet's abbreviation, $OTHER$.",
+    "description": "Error under the abbreviation box: another abbreviation is the beginning of the typed one, so the shorter one would always win. The other abbreviation is filled in for you.",
+    "placeholders": {
+      "other": {
+        "content": "$1",
+        "example": ";a"
+      }
+    }
+  },
+  "importNotJson": {
+    "message": "This file is not a snippet backup: it is not valid JSON.",
+    "description": "Error after the user picked a file to import that is not JSON. JSON is a data format and keeps its name."
+  },
+  "importNewer": {
+    "message": "This backup was made by a newer version of $NAME$. Update the extension and try again.",
+    "description": "Error after the user picked a backup file written by a later version of the extension. The extension name is filled in for you.",
+    "placeholders": {
+      "name": {
+        "content": "Snippet Inserter"
+      }
+    }
+  },
+  "importNotBackup": {
+    "message": "This file is not a snippet backup.",
+    "description": "Error after the user picked a file to import that is JSON but not a backup of snippets."
+  },
+  "importedCount_one": {
+    "message": "Imported $COUNT$ snippet.",
+    "description": "First sentence of the report after an import. Singular form: one snippet. The number is filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importedCount_other": {
+    "message": "Imported $COUNT$ snippets.",
+    "description": "First sentence of the report after an import. Plural form. The number is filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "importSkipped_one": {
+    "message": "Skipped $COUNT$ snippet that was already here.",
+    "description": "Sentence in the report after an import, for snippets that were already stored. Singular form: one snippet.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importSkipped_other": {
+    "message": "Skipped $COUNT$ snippets that were already here.",
+    "description": "Sentence in the report after an import, for snippets that were already stored. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importInvalid_one": {
+    "message": "Skipped $COUNT$ record without text.",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. Singular form: one entry.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importInvalid_other": {
+    "message": "Skipped $COUNT$ records without text.",
+    "description": "Sentence in the report after an import, for entries in the file that have no text. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importAbbrDropped_one": {
+    "message": "$COUNT$ snippet lost an abbreviation that another snippet already uses.",
+    "description": "Sentence in the report after an import. Singular form: one snippet was imported without its abbreviation, because another snippet has it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importAbbrDropped_other": {
+    "message": "$COUNT$ snippets lost an abbreviation that another snippet already uses.",
+    "description": "Sentence in the report after an import. Plural form.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "jsonEmpty": {
+    "message": "There is no text to format.",
+    "description": "Error after Format JSON was pressed on an empty text."
+  },
+  "jsonPosition": {
+    "message": "Line $LINE$, column $COLUMN$: $MESSAGE$",
+    "description": "Start of every JSON error: where in the text the first problem is. The two numbers and the error message are filled in for you.",
+    "placeholders": {
+      "line": {
+        "content": "$1",
+        "example": "3"
+      },
+      "column": {
+        "content": "$2",
+        "example": "14"
+      },
+      "message": {
+        "content": "$3",
+        "example": "Expected a digit."
+      }
+    }
+  },
+  "jsonEndOfText": {
+    "message": "the end of the text",
+    "description": "A phrase used inside JSON errors, as in Unexpected the end of the text. It stands for the place after the last character."
+  },
+  "jsonStringNotClosed": {
+    "message": "The string is not closed.",
+    "description": "JSON error. A string is text in double quotes."
+  },
+  "jsonLineBreak": {
+    "message": "A line break inside a string must be written as $ESCAPE$.",
+    "description": "JSON error. The code for a line break is filled in for you.",
+    "placeholders": {
+      "escape": {
+        "content": "\\n"
+      }
+    }
+  },
+  "jsonControlChar": {
+    "message": "A control character inside a string must be written as an escape.",
+    "description": "JSON error. A control character is an invisible character such as a tab. An escape is a backslash code."
+  },
+  "jsonHexDigits": {
+    "message": "Expected $COUNT$ hexadecimal digits after $ESCAPE$.",
+    "description": "JSON error. The number and the backslash code are filled in for you.",
+    "placeholders": {
+      "count": {
+        "content": "4"
+      },
+      "escape": {
+        "content": "\\u"
+      }
+    }
+  },
+  "jsonUnknownEscape": {
+    "message": "Unknown escape in a string.",
+    "description": "JSON error. An escape is a backslash followed by a letter that JSON does not know."
+  },
+  "jsonExpectedDigit": {
+    "message": "Expected a digit.",
+    "description": "JSON error in a number, for example after a minus sign or a decimal point."
+  },
+  "jsonEndWhereValue": {
+    "message": "Unexpected end of the text, where a value is expected.",
+    "description": "JSON error. A value is a string, number, list, or object."
+  },
+  "jsonTooDeep": {
+    "message": "Arrays and objects are nested more than $DEPTH$ levels deep.",
+    "description": "JSON error. The number is filled in for you.",
+    "placeholders": {
+      "depth": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "jsonExpected": {
+    "message": "Expected $WORD$.",
+    "description": "JSON error for a word that looks like true, false, or null but is misspelled. The expected word is filled in for you and is not translated.",
+    "placeholders": {
+      "word": {
+        "content": "$1",
+        "example": "true"
+      }
+    }
+  },
+  "jsonUnexpected": {
+    "message": "Unexpected $WHAT$.",
+    "description": "JSON error. What was found is filled in for you, as a character in quotes or the phrase for the end of the text.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonUnexpectedValue": {
+    "message": "Unexpected $WHAT$, where a value is expected.",
+    "description": "JSON error. What was found is filled in for you.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonComments": {
+    "message": "Comments are not allowed in JSON.",
+    "description": "JSON error for text that starts like a comment."
+  },
+  "jsonExpectedClose": {
+    "message": "Expected $COMMA$ or $CLOSE$ but found $WHAT$.",
+    "description": "JSON error in a list or an object. The two characters and what was found are filled in for you.",
+    "placeholders": {
+      "close": {
+        "content": "$1",
+        "example": "]"
+      },
+      "what": {
+        "content": "$2",
+        "example": "\"x\""
+      },
+      "comma": {
+        "content": ","
+      }
+    }
+  },
+  "jsonExpectedName": {
+    "message": "Expected a property name in double quotes but found $WHAT$.",
+    "description": "JSON error in an object. What was found is filled in for you.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonExpectedColon": {
+    "message": "Expected $COLON$ after the property name but found $WHAT$.",
+    "description": "JSON error in an object. The colon and what was found are filled in for you.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      },
+      "colon": {
+        "content": ":"
+      }
+    }
+  },
+  "jsonExpectedEnd": {
+    "message": "Expected the end of the text but found $WHAT$.",
+    "description": "JSON error when text follows a complete value. What was found is filled in for you.",
+    "placeholders": {
+      "what": {
+        "content": "$1",
+        "example": "\"x\""
+      }
+    }
+  },
+  "jsonPlaceholder": {
+    "message": "$TOKEN$ is a placeholder, and a placeholder outside quotes is not valid JSON. Put it in quotes, or fill it in first.",
+    "description": "JSON error when the text has a placeholder in braces outside quotes. The placeholder is filled in for you.",
+    "placeholders": {
+      "token": {
+        "content": "$1",
+        "example": "{date}"
+      }
+    }
+  }
+}

@@ -332,10 +332,10 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
   script. This extension's own code adds about 25 to 40 KB of memory and 0.2 to 0.6 ms of
   script time when the frame loads. These two figures were measured on version 1.2.0 and are
   measured again at each release.
-- **What loads where**: every frame gets `content.js`, 21,828 bytes (about 21.8 KB), which only
+- **What loads where**: every frame gets `content.js`, 21,815 bytes (about 21.8 KB), which only
   watches for the double tap, the shortcut, the menu items, and abbreviations. `content-main.js`,
-  52,195 bytes (about 52.2 KB), loads only in a frame where the panel opens or an abbreviation
-  matches. `lib/richtext.js`, 38,860 bytes (about 38.9 KB), loads only in a frame where a formatted
+  52,201 bytes (about 52.2 KB), loads only in a frame where the panel opens or an abbreviation
+  matches. `lib/richtext.js`, 39,120 bytes (about 39.1 KB), loads only in a frame where a formatted
   snippet goes into a rich-text editor. Prism loads only on the snippet manager page, never in a
   page you visit. The sizes are file sizes from `wc -c` and are measured again at each release.
 - **Storage**: a frame reads the settings and the abbreviation list at its first focus or key
@@ -356,6 +356,8 @@ idle. Measured in Playwright's Chromium 159 on Windows, as the median of 15 page
 ```
 extension/            The extension itself; this is the folder to load.
   manifest.json
+  _locales/en/        The English interface text, one message per string with a note for
+                      translators. The manifest names it as the default language.
   content.js          Runs in every frame: the double tap, the shortcut and menu messages, and
                       typed abbreviations.
   content-main.js     Loaded when a frame needs it: places the panel and inserts the snippet.
@@ -364,6 +366,8 @@ extension/            The extension itself; this is the folder to load.
                       The snippet manager, opened from the toolbar icon.
   background.js       The right-click menu items and the keyboard shortcut.
   lib/
+    i18n.js           Reads the message catalog for the pages: fills in text, picks plural
+                      forms, and sets the language and direction of a page.
     snippets.js       Storage, import and export, abbreviation rules.
     placeholders.js   {date}, {time}, {cursor}, {input:Label}, and
                       {snippet:;abbreviation}.

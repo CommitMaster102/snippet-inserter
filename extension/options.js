@@ -10,6 +10,11 @@
 'use strict';
 
 const lib = window.SnippetInserter;
+const i18n = lib.i18n;
+const t = i18n.t;
+// The static text, language, and direction of the page come from the message catalog before
+// anything below reads the page.
+i18n.apply();
 const richText = lib.richText;
 const IS_MAC = navigator.userAgent.includes('Mac OS');
 const VIEWS = ['snippets', 'deleted', 'settings'];
@@ -171,7 +176,7 @@ async function route() {
       // A malformed address names no snippet.
     }
     if (state.snippets.some((s) => s.id === id)) requestSelect(id);
-    else reportError('Could not find the snippet.');
+    else reportError(t('notFound'));
     return;
   }
   if (location.hash !== '#new') {
@@ -195,7 +200,7 @@ function renderCounts() {
   els.snippetCount.textContent = String(state.snippets.length);
   els.deletedCount.textContent = state.deleted.length ? String(state.deleted.length) : '';
   const n = state.snippets.length;
-  els.exportNote.textContent = `Saves ${n === 1 ? 'the 1 snippet' : `all ${n} snippets`} to ${lib.exportFileName()}.`;
+  els.exportNote.textContent = i18n.plural('exportNote', n, [i18n.number(n), lib.exportFileName()]);
 }
 
 function renderAll() {
@@ -233,8 +238,8 @@ function renderFolders() {
   if (!actionsShown) closeRename();
   if (!names.length) return;
 
-  const choices = [['All', null, state.snippets.length], ...names.map((name) => [name, name, counts.get(name)])];
-  if (loose) choices.push(['No folder', '', loose]);
+  const choices = [[t('folderAll'), null, state.snippets.length], ...names.map((name) => [name, name, counts.get(name)])];
+  if (loose) choices.push([t('folderNone'), '', loose]);
   let selected = null;
   for (const [label, folder, count] of choices) {
     const chip = el('button', 'folder-chip');
@@ -376,16 +381,16 @@ els.renameInput.addEventListener('input', () => {
   els.renameError.hidden = true;
   const { target, joins } = renameTarget(els.renameInput.value);
   els.renameHint.hidden = !joins;
-  els.renameHint.textContent = `${target} already exists. Renaming moves these snippets into it.`;
+  els.renameHint.textContent = t('renameJoins', [target]);
 });
 els.renameForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const from = state.folder;
   const typed = els.renameInput.value;
   const problem = !lib.cleanFolder(typed)
-    ? 'Enter a folder name.'
+    ? t('folderNameRequired')
     : lib.folderLength(typed) > lib.FOLDER_MAX_LENGTH
-      ? `The input must not be longer than ${lib.FOLDER_MAX_LENGTH} characters.`
+      ? t('validationTooLong', [i18n.number(lib.FOLDER_MAX_LENGTH)])
       : '';
   els.renameError.hidden = !problem;
   els.renameError.textContent = problem;
@@ -412,7 +417,7 @@ let removeArmed = { folder: null, until: 0 };
 
 function disarmRemove() {
   removeArmed = { folder: null, until: 0 };
-  els.removeFolder.textContent = 'Remove folder';
+  els.removeFolder.textContent = t('removeFolder');
 }
 
 els.removeFolder.addEventListener('click', async () => {
@@ -420,7 +425,7 @@ els.removeFolder.addEventListener('click', async () => {
   if (!from) return;
   if (removeArmed.folder !== from || Date.now() > removeArmed.until) {
     removeArmed = { folder: from, until: Date.now() + PURGE_CONFIRM_MS };
-    els.removeFolder.textContent = 'Click again to remove the folder';
+    els.removeFolder.textContent = t('removeFolderConfirm');
     setTimeout(() => {
       if (removeArmed.folder === from && Date.now() > removeArmed.until) disarmRemove();
     }, PURGE_CONFIRM_MS + 50);
@@ -481,8 +486,8 @@ function snippetRow(snippet) {
   const handle = el('span', 'handle');
   handle.innerHTML = HANDLE_ICON;
   handle.title = lib.folderNames(state.snippets).length
-    ? 'Drag to reorder, or onto a folder to move it'
-    : 'Drag to reorder';
+    ? t('dragReorderFolder')
+    : t('dragReorder');
 
   const main = el('div', 'row-main');
   main.append(autoDirEl('span', 'row-name', lib.displayTitle(snippet)));
@@ -561,7 +566,7 @@ async function move(id, to) {
   renderList(id);
   const moved = list.find((s) => s.id === id);
   const shown = lib.inFolder(list, state.folder);
-  els.moveStatus.textContent = `${lib.displayTitle(moved)} moved to position ${shown.indexOf(moved) + 1} of ${shown.length}.`;
+  els.moveStatus.textContent = t('moved', [lib.displayTitle(moved), i18n.number(shown.indexOf(moved) + 1), i18n.number(shown.length)]);
 }
 
 function onRowKey(event, snippet) {
@@ -637,7 +642,7 @@ function renderUnrecognized(found) {
   els.unrecognizedList.hidden = !found.length;
   els.unrecognizedList.replaceChildren();
   if (!found.length) return;
-  els.unrecognizedList.append(el('span', 'muted', 'Not recognized, inserted as written'));
+  els.unrecognizedList.append(el('span', 'muted', t('placeholdersUnrecognized')));
   for (const token of found) {
     const pill = el('span', 'placeholder-pill placeholder-pill-literal', token);
     pill.dir = 'ltr';
@@ -659,14 +664,14 @@ function renderReferences() {
   const found = lib.placeholders.references(own.content);
   els.referenceList.hidden = !found.length;
   els.referenceList.replaceChildren();
-  if (found.length) els.referenceList.append(el('span', 'muted', 'Includes'));
+  if (found.length) els.referenceList.append(el('span', 'muted', t('includes')));
   for (const abbreviation of found) {
     const target = all.find((s) => s.abbreviation === abbreviation);
     const pill = el('span', 'placeholder-pill reference-pill', target ? `${lib.displayTitle(target)} (${abbreviation})` : abbreviation);
     pill.dir = 'auto';
     if (!target) {
       pill.classList.add('reference-missing');
-      pill.title = 'Not found';
+      pill.title = t('referenceNotFound');
     }
     els.referenceList.append(pill);
   }
@@ -676,10 +681,10 @@ function renderReferences() {
   for (const { kind, abbreviation, token } of problems) {
     const text =
       kind === 'missing'
-        ? `No snippet has the abbreviation ${abbreviation}, so ${token} is inserted as written.`
+        ? t('referenceMissing', [abbreviation, token])
         : kind === 'loop'
-          ? `${token} would put a snippet inside itself, so it is inserted as written.`
-          : 'One insert includes at most 100 snippets, so the other references are inserted as written.';
+          ? t('referenceLoop', [token])
+          : t('referenceLimit');
     const line = el('p', 'field-error', text);
     line.dir = 'auto';
     els.referenceProblems.append(line);
@@ -696,7 +701,7 @@ function updateCount() {
   els.placeholderList.hidden = !found.length;
   els.placeholderList.replaceChildren();
   if (!found.length) return;
-  els.placeholderList.append(el('span', 'muted', 'Placeholders'));
+  els.placeholderList.append(el('span', 'muted', t('placeholders')));
   const now = new Date();
   for (const token of found) {
     const pill = el('span', 'placeholder-pill');
@@ -720,7 +725,7 @@ function updateCount() {
 function loadEditor(snippet, initialContent = '', initialFolder = '') {
   els.editorEmpty.hidden = true;
   els.editor.hidden = false;
-  els.editorHeading.textContent = snippet ? 'Edit snippet' : 'New snippet';
+  els.editorHeading.textContent = snippet ? t('editSnippet') : t('newSnippet');
   els.title.value = snippet ? snippet.title || '' : '';
   els.content.value = snippet ? snippet.content : initialContent;
   const html = snippet && snippet.html ? snippet.html : '';
@@ -780,15 +785,15 @@ function whenSaved(next) {
     return;
   }
   showNotice(
-    'You have unsaved changes.',
+    t('unsavedChanges'),
     {
-      label: 'Save',
+      label: t('save'),
       run: async () => {
         if (await save()) next();
       },
     },
     {
-      label: 'Discard',
+      label: t('discard'),
       run: () => {
         state.snapshot = fields();
         next();
@@ -844,7 +849,7 @@ async function run(work, { fromEditor = false } = {}) {
   try {
     return await work();
   } catch (error) {
-    const message = `Could not save the change: ${error.message}`;
+    const message = t('saveChangeFailed', [error.message]);
     // A failure of the editor's own Save, Duplicate, or Delete shows next to Save, where the
     // user was looking. Every other failure shows in the message area at the top. Each failure
     // goes to one place only, so a screen reader announces it once.
@@ -865,17 +870,17 @@ function validate() {
   let valid = true;
   els.contentError.hidden = textFields().content.trim() !== '';
   if (!els.contentError.hidden) {
-    els.contentError.textContent = 'This field must not be empty.';
+    els.contentError.textContent = t('validationEmpty');
     valid = false;
   }
   els.titleError.hidden = lib.titleLength(els.title.value) <= lib.TITLE_MAX_LENGTH;
   if (!els.titleError.hidden) {
-    els.titleError.textContent = `The input must not be longer than ${lib.TITLE_MAX_LENGTH} characters.`;
+    els.titleError.textContent = t('validationTooLong', [i18n.number(lib.TITLE_MAX_LENGTH)]);
     valid = false;
   }
   els.folderError.hidden = lib.folderLength(els.folder.value) <= lib.FOLDER_MAX_LENGTH;
   if (!els.folderError.hidden) {
-    els.folderError.textContent = `The input must not be longer than ${lib.FOLDER_MAX_LENGTH} characters.`;
+    els.folderError.textContent = t('validationTooLong', [i18n.number(lib.FOLDER_MAX_LENGTH)]);
     valid = false;
   }
   const ownId = state.creating ? null : state.selectedId;
@@ -892,15 +897,14 @@ function validate() {
 // new abbreviation, or are left as written because the abbreviation was cleared or can no longer
 // be referenced.
 function savedSentence(existing, result, cleared) {
-  const count = (n) => `${n} snippet${n === 1 ? '' : 's'}`;
   const n = result.referencesRenamed || 0;
   if (n > 0) {
-    return `Saved. ${count(n)} that used ${existing.abbreviation} now use${n === 1 ? 's' : ''} ${result.snippet.abbreviation}.`;
+    return i18n.plural('savedRenamed', n, [i18n.number(n), existing.abbreviation, result.snippet.abbreviation]);
   }
   if (cleared > 0) {
-    return `Saved. No snippet has ${existing.abbreviation} now, so ${count(cleared)} insert${cleared === 1 ? 's' : ''} {snippet:${existing.abbreviation}} as written.`;
+    return i18n.plural('savedCleared', cleared, [existing.abbreviation, i18n.number(cleared), `{snippet:${existing.abbreviation}}`]);
   }
-  return 'Saved.';
+  return t('saved');
 }
 
 // Saves the editor. Returns true when the snippet was saved.
@@ -927,7 +931,7 @@ async function save() {
   state.snapshot = { ...values, folder: result.snippet.folder || '' };
   // The saved colors show in the editor. A snippet with no formatting is left as typed.
   if (els.formatted.checked && values.html && richText.clean(els.richContent).html !== values.html) showFormatted(true, values.html);
-  els.editorHeading.textContent = 'Edit snippet';
+  els.editorHeading.textContent = t('editSnippet');
   els.duplicate.hidden = false;
   els.delete.hidden = false;
   els.editorStatus.textContent = savedSentence(existing, result, cleared);
@@ -1017,7 +1021,7 @@ function labelBlocks() {
     const language = blockLanguage(pre);
     if (language) pre.setAttribute('data-language', language);
     else pre.removeAttribute('data-language');
-    pre.setAttribute('data-label', LANGUAGE_LABELS[language] || 'Plain text');
+    pre.setAttribute('data-label', LANGUAGE_LABELS[language] || t('languagePlain'));
   }
 }
 
@@ -1279,13 +1283,13 @@ function formatJson() {
     }
     els.content.value = result.text;
     els.content.dispatchEvent(new Event('input'));
-    els.editorStatus.textContent = 'JSON formatted.';
+    els.editorStatus.textContent = t('jsonFormatted');
     return;
   }
   captureEditorRange();
   const pre = enclosing('PRE');
   if (!pre) {
-    showJsonError('Put the caret in a code block first.');
+    showJsonError(t('jsonNoCodeBlock'));
     return;
   }
   const result = lib.jsonFormat.format(richText.toText(pre.outerHTML));
@@ -1299,14 +1303,14 @@ function formatJson() {
   getSelection().collapseToStart();
   captureEditorRange();
   els.richContent.dispatchEvent(new Event('input'));
-  els.editorStatus.textContent = 'JSON formatted.';
+  els.editorStatus.textContent = t('jsonFormatted');
 }
 
 els.formatJson.addEventListener('click', formatJson);
 
 // The link bar.
 
-const LINK_ERROR = 'Use an address that starts with https://, http://, mailto:, or tel:.';
+const LINK_ERROR = t('linkInvalid');
 
 // The address for what the user typed: an address with a scheme as typed, an email address as a
 // mailto: link, and a host name such as example.com as an https address. Null when the result is
@@ -1510,9 +1514,9 @@ function deletedRow(entry) {
   const preview = lib.previewLine(entry);
   if (preview) main.append(autoDirEl('span', 'row-preview', preview));
   const when = new Date(entry.deletedAt);
-  main.append(el('span', 'row-preview', `Deleted ${when.toLocaleString()}`));
+  main.append(el('span', 'row-preview', t('deletedOn', [when.toLocaleString()])));
 
-  const restore = el('button', 'secondary', 'Restore');
+  const restore = el('button', 'secondary', t('restore'));
   restore.type = 'button';
   restore.addEventListener('click', async () => {
     const result = await run(() => lib.restoreSnippet(entry.id));
@@ -1526,15 +1530,15 @@ function deletedRow(entry) {
     renderAll();
   });
 
-  const purge = el('button', 'secondary danger', 'Delete forever');
+  const purge = el('button', 'secondary danger', t('deleteForever'));
   purge.type = 'button';
   let armedUntil = 0;
   purge.addEventListener('click', async () => {
     if (Date.now() > armedUntil) {
       armedUntil = Date.now() + PURGE_CONFIRM_MS;
-      purge.textContent = 'Click again to delete forever';
+      purge.textContent = t('deleteForeverConfirm');
       setTimeout(() => {
-        if (purge.isConnected) purge.textContent = 'Delete forever';
+        if (purge.isConnected) purge.textContent = t('deleteForever');
       }, PURGE_CONFIRM_MS);
       return;
     }
@@ -1564,7 +1568,7 @@ async function saveSetting(patch, revert) {
   } catch (error) {
     revert(await lib.readSettings().catch(() => lib.DEFAULT_SETTINGS));
     els.status.textContent = '';
-    reportError(`Could not save the setting: ${error.message}`);
+    reportError(t('saveSettingFailed', [error.message]));
     return false;
   }
 }
@@ -1573,7 +1577,7 @@ els.hotkey.addEventListener('change', async () => {
   const saved = await saveSetting({ hotkey: els.hotkey.value }, (settings) => {
     els.hotkey.value = settings.hotkey;
   });
-  if (saved) els.status.textContent = 'Saved. Open pages pick up the change right away.';
+  if (saved) els.status.textContent = t('settingSaved');
 });
 
 els.abbreviations.addEventListener('change', async () => {
@@ -1583,7 +1587,7 @@ els.abbreviations.addEventListener('change', async () => {
   } catch (error) {
     els.abbreviations.value = lib.abbreviationMode(await lib.readSettings().catch(() => lib.DEFAULT_SETTINGS));
     els.status.textContent = '';
-    reportError(`Could not save the setting: ${error.message}`);
+    reportError(t('saveSettingFailed', [error.message]));
   }
 });
 
@@ -1598,9 +1602,9 @@ function offSiteRow(entry) {
   const row = el('li', 'site-row');
   const name = el('span', 'site-name', entry);
   name.dir = 'ltr';
-  const turnOn = el('button', 'secondary', 'Turn on');
+  const turnOn = el('button', 'secondary', t('turnOn'));
   turnOn.type = 'button';
-  turnOn.setAttribute('aria-label', `Turn on ${entry} again`);
+  turnOn.setAttribute('aria-label', t('turnOnSite', [entry]));
   turnOn.addEventListener('click', async () => {
     // The row after this one moves up when the list is drawn again, so its place decides where
     // the focus goes.
@@ -1630,7 +1634,7 @@ els.offSiteForm.addEventListener('submit', async (event) => {
       els.offSiteError.textContent = error.message;
       els.offSiteError.hidden = false;
     } else {
-      reportError(`Could not save the change: ${error.message}`);
+      reportError(t('saveChangeFailed', [error.message]));
     }
   }
   els.offSiteInput.focus();
@@ -1651,7 +1655,7 @@ async function renderShortcut() {
   } catch {
     // Leave it as not set.
   }
-  els.shortcut.textContent = shortcut || 'Not set';
+  els.shortcut.textContent = shortcut || t('shortcutNotSet');
 }
 
 els.shortcutButton.addEventListener('click', () => {
@@ -1665,7 +1669,7 @@ els.exportButton.addEventListener('click', async () => {
   try {
     snippets = await lib.readSnippets();
   } catch (error) {
-    reportError(`Could not export the snippets: ${error.message}`);
+    reportError(t('exportFailed', [error.message]));
     return;
   }
   reportError('');
@@ -1679,7 +1683,7 @@ els.exportButton.addEventListener('click', async () => {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
   els.importResult.className = 'status';
-  els.importResult.textContent = `Exported ${snippets.length === 1 ? '1 snippet' : `${snippets.length} snippets`} to ${name}.`;
+  els.importResult.textContent = i18n.plural('exported', snippets.length, [i18n.number(snippets.length), name]);
 });
 
 els.importButton.addEventListener('click', () => els.importFile.click());
@@ -1713,10 +1717,10 @@ async function onStorageChanged() {
       // Keep the edits as a new snippet, so saving brings the text back instead of failing.
       state.selectedId = null;
       state.creating = true;
-      els.editorHeading.textContent = 'New snippet';
+      els.editorHeading.textContent = t('newSnippet');
       els.duplicate.hidden = true;
       els.delete.hidden = true;
-      showNotice('This snippet was deleted in another tab. Saving creates it again.');
+      showNotice(t('deletedElsewhere'));
     } else {
       closeEditor();
       renderList();
@@ -1733,10 +1737,10 @@ async function onStorageChanged() {
     return;
   }
   showNotice(
-    'This snippet changed in another tab.',
-    { label: 'Load the other version', run: () => loadEditor(stored) },
+    t('changedElsewhere'),
+    { label: t('loadOther'), run: () => loadEditor(stored) },
     {
-      label: 'Keep mine',
+      label: t('keepMine'),
       run: () => {
         state.snapshot = snippetFields(stored);
       },
@@ -1762,7 +1766,7 @@ async function start() {
   try {
     loaded = await Promise.all([lib.readState(), lib.readSettings()]);
   } catch (error) {
-    reportError(`Could not load your snippets: ${error.message}`);
+    reportError(t('loadFailed', [error.message]));
     return;
   }
   const [{ snippets, deleted }, settings] = loaded;

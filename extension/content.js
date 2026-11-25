@@ -254,7 +254,7 @@
       const active = deepActiveElement(document);
       // Focus inside a child frame belongs to that frame's own copy of this script.
       if (!(active && active.tagName === 'IFRAME') && !requestPanel() && message.source === 'menu') {
-        withMain((loaded) => loaded.showNotice('Snippets cannot be inserted in this kind of field.'));
+        withMain((loaded) => loaded.showNotice(chrome.i18n.getMessage('noticeNoField')));
       }
     } else if (message && message.type === 'save-selection' && !panelOpen() && extensionAlive()) {
       withMain((loaded) => loaded.openPanelForPageSelection());

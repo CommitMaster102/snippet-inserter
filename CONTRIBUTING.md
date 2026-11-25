@@ -12,7 +12,8 @@ Open an issue and pick the bug report or feature request form. Issues are public
 2. Run `npm install`, then `npm run browsers` to download the browser the tests use.
 3. Load the `extension` folder as the README's "Install from source" section describes, and try the change.
 4. Run `npm run test:unit` and `npm test`. A change in behavior needs a test that covers it. The README's Tests section describes the suite.
-5. Leave `version` in `extension/manifest.json` unchanged. The version goes up when a release is uploaded to the Chrome Web Store.
-6. Open a pull request that says what changed and why.
+5. Write any text a person reads in `extension/_locales/en/messages.json`, with a note for translators in its `description`, and ask for it with `chrome.i18n` or a `data-i18n` attribute. Put numbers, names, and syntax such as `{date}` in `$placeholders$`.
+6. Leave `version` in `extension/manifest.json` unchanged. The version goes up when a release is uploaded to the Chrome Web Store.
+7. Open a pull request that says what changed and why.
 
 Contributions are licensed under the MIT license in [LICENSE](LICENSE).

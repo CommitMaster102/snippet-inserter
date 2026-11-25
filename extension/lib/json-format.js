@@ -23,6 +23,11 @@
     return typeof module === 'object' && module.exports ? require('./placeholders.js') : root.SnippetInserter.placeholders;
   }
 
+  // The messages of lib/i18n.js, which the manager page loads before this file.
+  function i18n() {
+    return typeof module === 'object' && module.exports ? require('./i18n.js') : root.SnippetInserter.i18n;
+  }
+
   class JsonError extends Error {
     constructor(index, message) {
       super(message);
@@ -40,25 +45,25 @@
     const skip = () => {
       while (i < text.length && ' \t\n\r'.includes(text[i])) i++;
     };
-    const describe = (at) => (at >= text.length ? 'the end of the text' : `"${[...text.slice(at, at + 2)][0]}"`);
+    const describe = (at) => (at >= text.length ? i18n().t('jsonEndOfText') : `"${[...text.slice(at, at + 2)][0]}"`);
 
     function string() {
       const start = i++;
       for (;;) {
-        if (i >= text.length) fail(start, 'The string is not closed.');
+        if (i >= text.length) fail(start, i18n().t('jsonStringNotClosed'));
         const c = text[i];
         if (c === '"') return text.slice(start, ++i);
-        if (c === '\n' || c === '\r') fail(i, 'A line break inside a string must be written as \\n.');
-        if (c < ' ') fail(i, 'A control character inside a string must be written as an escape.');
+        if (c === '\n' || c === '\r') fail(i, i18n().t('jsonLineBreak'));
+        if (c < ' ') fail(i, i18n().t('jsonControlChar'));
         if (c === '\\') {
           const next = text[i + 1];
           if (next === 'u') {
-            if (!/^[0-9a-fA-F]{4}$/.test(text.slice(i + 2, i + 6))) fail(i, 'Expected 4 hexadecimal digits after \\u.');
+            if (!/^[0-9a-fA-F]{4}$/.test(text.slice(i + 2, i + 6))) fail(i, i18n().t('jsonHexDigits'));
             i += 6;
           } else if (next !== undefined && ESCAPES.has(next)) {
             i += 2;
           } else {
-            fail(i, 'Unknown escape in a string.');
+            fail(i, i18n().t('jsonUnknownEscape'));
           }
         } else {
           i++;
@@ -70,9 +75,9 @@
       NUMBER.lastIndex = i;
       const match = NUMBER.exec(text);
       // A minus sign needs digits after it, and so do a decimal point and an exponent.
-      if (!match) fail(text[i] === '-' ? i + 1 : i, 'Expected a digit.');
+      if (!match) fail(text[i] === '-' ? i + 1 : i, i18n().t('jsonExpectedDigit'));
       const end = i + match[0].length;
-      if (/^(?:\.|[eE][+-]?)(?!\d)/.test(text.slice(end, end + 3))) fail(end + 1, 'Expected a digit.');
+      if (/^(?:\.|[eE][+-]?)(?!\d)/.test(text.slice(end, end + 3))) fail(end + 1, i18n().t('jsonExpectedDigit'));
       i = end;
       return match[0];
     }
@@ -80,9 +85,9 @@
     function value(depth, level) {
       skip();
       const c = text[i];
-      if (c === undefined) fail(i, 'Unexpected end of the text, where a value is expected.');
+      if (c === undefined) fail(i, i18n().t('jsonEndWhereValue'));
       if (c === '{' || c === '[') {
-        if (depth >= MAX_DEPTH) fail(i, `Arrays and objects are nested more than ${MAX_DEPTH} levels deep.`);
+        if (depth >= MAX_DEPTH) fail(i, i18n().t('jsonTooDeep', [MAX_DEPTH]));
         return c === '{' ? object(depth, level) : array(depth, level);
       }
       if (c === '"') return string();
@@ -95,10 +100,10 @@
       }
       if (/[a-z]/i.test(c)) {
         const guess = LITERALS.find((word) => word[0] === c);
-        fail(i, guess ? `Expected ${guess}.` : `Unexpected ${describe(i)}.`);
+        fail(i, guess ? i18n().t('jsonExpected', [guess]) : i18n().t('jsonUnexpected', [describe(i)]));
       }
-      if (c === '/' && (text[i + 1] === '/' || text[i + 1] === '*')) fail(i, 'Comments are not allowed in JSON.');
-      fail(i, `Unexpected ${describe(i)}, where a value is expected.`);
+      if (c === '/' && (text[i + 1] === '/' || text[i + 1] === '*')) fail(i, i18n().t('jsonComments'));
+      fail(i, i18n().t('jsonUnexpectedValue', [describe(i)]));
     }
 
     function array(depth, level) {
@@ -119,7 +124,7 @@
           i++;
           return `[\n${items.join(',\n')}\n${INDENT.repeat(level)}]`;
         } else {
-          fail(i, `Expected , or ] but found ${describe(i)}.`);
+          fail(i, i18n().t('jsonExpectedClose', [']', describe(i)]));
         }
       }
     }
@@ -135,10 +140,10 @@
       const members = [];
       for (;;) {
         skip();
-        if (text[i] !== '"') fail(i, `Expected a property name in double quotes but found ${describe(i)}.`);
+        if (text[i] !== '"') fail(i, i18n().t('jsonExpectedName', [describe(i)]));
         const key = string();
         skip();
-        if (text[i] !== ':') fail(i, `Expected : after the property name but found ${describe(i)}.`);
+        if (text[i] !== ':') fail(i, i18n().t('jsonExpectedColon', [describe(i)]));
         i++;
         members.push(`${pad}${key}: ${value(depth + 1, level + 1)}`);
         skip();
@@ -148,7 +153,7 @@
           i++;
           return `{\n${members.join(',\n')}\n${INDENT.repeat(level)}}`;
         } else {
-          fail(i, `Expected , or } but found ${describe(i)}.`);
+          fail(i, i18n().t('jsonExpectedClose', ['}', describe(i)]));
         }
       }
     }
@@ -157,7 +162,7 @@
       run() {
         const out = value(0, 0);
         skip();
-        if (i < text.length) fail(i, `Expected the end of the text but found ${describe(i)}.`);
+        if (i < text.length) fail(i, i18n().t('jsonExpectedEnd', [describe(i)]));
         return out;
       },
     };
@@ -183,7 +188,7 @@
   // error. A text with only white space has no position.
   function format(input) {
     const text = String(input);
-    if (!text.trim()) return { ok: false, message: 'There is no text to format.' };
+    if (!text.trim()) return { ok: false, message: i18n().t('jsonEmpty') };
     try {
       return { ok: true, text: parser(text).run() };
     } catch (error) {
@@ -191,9 +196,9 @@
       const found = placeholderAt(text, error.index);
       const at = position(text, found ? found.index : error.index);
       const message = found
-        ? `${found[0]} is a placeholder, and a placeholder outside quotes is not valid JSON. Put it in quotes, or fill it in first.`
+        ? i18n().t('jsonPlaceholder', [found[0]])
         : error.message;
-      return { ok: false, line: at.line, column: at.column, message: `Line ${at.line}, column ${at.column}: ${message}` };
+      return { ok: false, line: at.line, column: at.column, message: i18n().t('jsonPosition', [at.line, at.column, message]) };
     }
   }
 

@@ -16,8 +16,8 @@ const PENDING_KEY = 'pendingSnippet';
 // install or update. Removing them first avoids a duplicate-id error on update.
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({ id: MENU_SAVE, title: 'Save selection as snippet', contexts: ['selection'] });
-    chrome.contextMenus.create({ id: MENU_INSERT, title: 'Insert snippet...', contexts: ['editable'] });
+    chrome.contextMenus.create({ id: MENU_SAVE, title: chrome.i18n.getMessage('menuSaveSelection'), contexts: ['selection'] });
+    chrome.contextMenus.create({ id: MENU_INSERT, title: chrome.i18n.getMessage('menuInsertSnippet'), contexts: ['editable'] });
   });
 });
 

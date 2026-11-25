@@ -11,6 +11,8 @@
 'use strict';
 
 const lib = window.SnippetInserter;
+const i18n = lib.i18n;
+const t = i18n.t;
 const placeholders = lib.placeholders;
 
 const SEARCH_DEBOUNCE_MS = 100;
@@ -21,68 +23,66 @@ const MESSAGE_FLAG = '__snippetInserter';
 // scroll made while it was still smaller would shift the content when it grows.
 const NO_SCROLL = { preventScroll: true };
 // Non-ASCII symbols are built from code points so the source stays plain ASCII.
-const ELLIPSIS = String.fromCharCode(0x2026);
 const RETURN_KEY = String.fromCharCode(0x21b5);
 const COMMAND_KEY = String.fromCharCode(0x2318);
 
-// Interface text.
+// Interface text, read from the message catalog in _locales. The catalog holds the English wording and
+// a note for translators on each message.
 const TEXT = {
-  captionInsert: 'Insert snippet',
-  captionCreate: 'Create a new snippet',
-  captionEdit: 'Edit snippet',
-  createNew: 'Create new snippet',
-  createFromSelection: 'Create snippet from selection',
-  emptyApply: 'Create',
-  emptyHint: 'Click below to start creating your first snippet.',
-  emptyHeading: 'You have no snippets yet',
-  loadError: 'Your snippets could not be loaded. Close the panel and open it again.',
-  loadErrorHeading: 'Snippets could not be loaded',
-  emptyText:
-    'Snippets are small, reusable pieces of text designed for repetitive use to save time (e.g. address, email).',
-  formApply: 'Save snippet',
-  createError: 'Failed to create the snippet.',
-  editDelete: 'Delete snippet',
-  editDuplicate: 'Duplicate snippet',
-  editError: 'Failed to save the snippet.',
-  deleteError: 'Failed to delete the snippet.',
-  duplicateError: 'Failed to duplicate the snippet.',
-  moveError: 'Failed to move the snippet.',
-  restoreError: 'Failed to restore the snippet.',
-  notFound: 'Could not find the snippet.',
-  placeholderContent: `Enter some text ${ELLIPSIS}`,
-  placeholderTitle: `Enter name (optional) ${ELLIPSIS}`,
-  placeholderAbbreviation: `Abbreviation (optional), such as ;addr ${ELLIPSIS}`,
-  placeholderFolder: `Folder (optional), such as Work ${ELLIPSIS}`,
-  folderAll: 'All',
-  folderNone: 'No folder',
-  foldersLabel: 'Folders',
-  validationEmpty: 'This field must not be empty.',
-  validationTooLong: (max) => `The input must not be longer than ${max} characters.`,
-  labelEdited: 'edited',
-  labelNew: 'new',
-  searchPlaceholder: `Search snippets ${ELLIPSIS}`,
-  undoDeleted: 'Snippet deleted.',
-  undo: 'Undo',
-  placeholders: 'Placeholders',
-  placeholdersUnrecognized: 'Not recognized, inserted as written',
-  includes: 'Includes',
-  referenceNotFound: 'Not found',
-  referenceMissing: (abbreviation, token) =>
-    `No snippet has the abbreviation ${abbreviation}, so ${token} is inserted as written.`,
-  referenceLoop: (token) => `${token} would put a snippet inside itself, so it is inserted as written.`,
-  referenceLimit: 'One insert includes at most 100 snippets, so the other references are inserted as written.',
-  fillCount: (n) => `Fill in ${n} ${n === 1 ? 'field' : 'fields'}`,
-  preview: 'Preview',
-  insertApply: 'Insert',
-  edit: 'Edit',
-  back: 'Back (Esc)',
-  close: 'Close (Esc)',
-  siteOff: (host) => `Turn off the double tap and abbreviations for ${host}`,
-  siteOn: (entry) => `Turn the double tap and abbreviations back on for ${entry}`,
-  siteError: 'Failed to change the setting for this site.',
-  formattedView: 'Snippet text',
-  formattedNote: 'This snippet has formatting. Change its text in the snippet manager.',
-  openManager: 'Open in snippet manager',
+  captionInsert: t('captionInsert'),
+  captionCreate: t('captionCreate'),
+  captionEdit: t('editSnippet'),
+  createNew: t('createNew'),
+  createFromSelection: t('createFromSelection'),
+  emptyApply: t('emptyApply'),
+  emptyHint: t('emptyHint'),
+  emptyHeading: t('emptyHeading'),
+  loadError: t('loadError'),
+  loadErrorHeading: t('loadErrorHeading'),
+  emptyText: t('emptyText'),
+  formApply: t('formApply'),
+  createError: t('createError'),
+  editDelete: t('editDelete'),
+  editDuplicate: t('editDuplicate'),
+  editError: t('editError'),
+  deleteError: t('deleteError'),
+  duplicateError: t('duplicateError'),
+  moveError: t('moveError'),
+  restoreError: t('restoreError'),
+  notFound: t('notFound'),
+  placeholderContent: t('placeholderContent'),
+  placeholderTitle: t('placeholderTitle'),
+  placeholderAbbreviation: t('placeholderAbbreviation'),
+  placeholderFolder: t('placeholderFolder'),
+  folderAll: t('folderAll'),
+  folderNone: t('folderNone'),
+  foldersLabel: t('foldersLabel'),
+  validationEmpty: t('validationEmpty'),
+  validationTooLong: (max) => t('validationTooLong', [i18n.number(max)]),
+  labelEdited: t('labelEdited'),
+  labelNew: t('labelNew'),
+  searchPlaceholder: t('searchPlaceholder'),
+  undoDeleted: t('undoDeleted'),
+  undo: t('undo'),
+  placeholders: t('placeholders'),
+  placeholdersUnrecognized: t('placeholdersUnrecognized'),
+  includes: t('includes'),
+  referenceNotFound: t('referenceNotFound'),
+  referenceMissing: (abbreviation, token) => t('referenceMissing', [abbreviation, token]),
+  referenceLoop: (token) => t('referenceLoop', [token]),
+  referenceLimit: t('referenceLimit'),
+  fillCount: (n) => i18n.plural('fillCount', n, [i18n.number(n)]),
+  preview: t('preview'),
+  insertApply: t('insertApply'),
+  edit: t('edit'),
+  back: t('back'),
+  close: t('close'),
+  siteOff: (host) => t('siteOff', [host]),
+  siteOn: (entry) => t('siteOn', [entry]),
+  siteError: t('siteError'),
+  formattedView: t('formattedView'),
+  formattedNote: t('formattedNote'),
+  openManager: t('openManager'),
 };
 
 const ICONS = {
@@ -312,6 +312,7 @@ function pageHost() {
 }
 
 async function start() {
+  i18n.apply();
   els.search.placeholder = TEXT.searchPlaceholder;
   els.searchIcon.replaceWith(icon('search'));
   els.back.append(icon('back'));
@@ -503,7 +504,7 @@ function renderInsert() {
   const list = el('div', 'list');
   list.id = 'snippetList';
   list.setAttribute('role', 'listbox');
-  list.setAttribute('aria-label', 'Snippets');
+  list.setAttribute('aria-label', t('snippets'));
   const createLabel = state.selectedText.length > 1 ? TEXT.createFromSelection : TEXT.createNew;
   list.append(actionItem({ iconName: 'create', label: createLabel, hotkey: 1, onActivate: openCreate }));
   renderFolders();

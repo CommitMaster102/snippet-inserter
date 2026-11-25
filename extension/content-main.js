@@ -46,6 +46,13 @@ export function create(shared) {
   const NOTICE_MS = 6000;
   const PASTE_KEYS = navigator.userAgent.includes('Mac OS') ? 'Cmd+V' : 'Ctrl+V';
 
+  // Text from the message catalog. The keys of a plural family end in the plural category.
+  const msg = (key, ...substitutions) => chrome.i18n.getMessage(key, substitutions.map(String));
+  const msgPlural = (key, count, ...substitutions) => {
+    const category = new Intl.PluralRules(msg('localeCode').replace('_', '-')).select(count);
+    return msg(`${key}_${category}`, ...substitutions) || msg(`${key}_other`, ...substitutions);
+  };
+
   let panel = null;
   let notice = null;
   let positionQueued = false;
@@ -294,8 +301,8 @@ export function create(shared) {
     }
     showNotice(
       copied
-        ? `Snippet copied. If it did not appear in the document, press ${PASTE_KEYS}.`
-        : 'The snippet could not be inserted. Open it with the pencil in the snippet panel and copy its text.'
+        ? msg('noticeDocsCopied', PASTE_KEYS)
+        : msg('noticeDocsNotInserted')
     );
   }
 
@@ -567,7 +574,7 @@ export function create(shared) {
     }
     if (!restoreSelection(ctx)) {
       // Only a field that was in the page when the panel opened can have gone away.
-      if (ctx.kind !== 'none') showNotice('The snippet was not inserted, because the field is gone.', ctx);
+      if (ctx.kind !== 'none') showNotice(msg('noticeFieldGone'), ctx);
       return;
     }
     const now = new Date();
@@ -715,7 +722,7 @@ export function create(shared) {
   // and the insert gives up without a notice.
   function noticeIfFilledIn(ctx, values) {
     if (Object.keys(values).length) {
-      showNotice('The text in the field changed, so the snippet was not inserted.', ctx);
+      showNotice(msg('noticeFieldChanged'), ctx);
     }
   }
 
@@ -742,7 +749,7 @@ export function create(shared) {
     }
     const total = characters.length;
     showNotice(
-      `This field takes ${free} more ${free === 1 ? 'character' : 'characters'}, and the snippet has ${total}. Nothing was inserted.`,
+      msgPlural('noticeFieldRoom', free, free, total),
       ctx
     );
     return false;
@@ -1050,8 +1057,8 @@ export function create(shared) {
     const ctx = options.ctx || captureContext(target);
     const frame = document.createElement('iframe');
     frame.src = chrome.runtime.getURL('panel.html');
-    frame.setAttribute('title', 'Snippets');
-    frame.setAttribute('aria-label', 'Snippets');
+    frame.setAttribute('title', msg('snippets'));
+    frame.setAttribute('aria-label', msg('snippets'));
     setStyle(frame, {
       position: 'fixed',
       'z-index': '2147483647',
@@ -1178,9 +1185,7 @@ export function create(shared) {
         closePanel(true);
         if (typeof message.host === 'string' && message.host) {
           showNotice(
-            message.off
-              ? `The double tap and abbreviations are off on ${message.host}. To turn them back on, open the panel with the keyboard shortcut or the right-click menu.`
-              : `The double tap and abbreviations are on again on ${message.host}.`,
+            message.off ? msg('noticeSiteOff', message.host) : msg('noticeSiteOn', message.host),
             siteCtx
           );
         }
@@ -1189,7 +1194,7 @@ export function create(shared) {
       case 'saved': {
         const savedCtx = panel && panel.ctx;
         closePanel(true);
-        showNotice('Snippet saved.', savedCtx);
+        showNotice(msg('noticeSaved'), savedCtx);
         break;
       }
       default:
