@@ -54,10 +54,58 @@ test('counting characters gives the same number on the fast path and the segment
   for (const text of samples) assert.equal(lib.countCharacters(text), characterCount(text), JSON.stringify(text));
 });
 
-test('counting the characters of 1 MB of plain text takes under 15 ms', () => {
-  const text = 'The quick brown fox jumps over the lazy dog. '.repeat(Math.ceil(1048576 / 45)).slice(0, 1048576);
-  lib.countCharacters(text);
+test('counting characters around a cluster matches the segmenter wherever a cluster sits', () => {
+  const plain = 'The quick brown fox. ';
+  const clusters = [
+    '\u{1F44D}\u{1F3FD}',
+    '❤️',
+    'é',
+    '\r\n',
+    '\r',
+    '한ᆨ',
+    'क्षि',
+    '\u{1F468}‍\u{1F469}‍\u{1F467}',
+    '\u{1F1EF}\u{1F1F5}',
+  ];
+  const parts = [...Object.values(PARTS), TEXT, TEXT_CRLF, ...clusters];
+  const afters = ['', plain, plain.repeat(40), '́', '‍\u{1F44D}', '\u{1F1EF}', '\n'];
+  for (const part of parts) {
+    for (const before of ['', plain, plain.repeat(40)]) {
+      for (const after of afters) {
+        const text = before + part + after;
+        assert.equal(lib.countCharacters(text), characterCount(text), JSON.stringify(text.slice(-60)));
+      }
+    }
+  }
+  // Clusters side by side, and at each end of the text.
+  const joined = clusters.join('') + plain + clusters.join(plain) + clusters.join('');
+  assert.equal(lib.countCharacters(joined), characterCount(joined));
+});
+
+const MEGABYTE = 1048576;
+const PLAIN_MEGABYTE = 'The quick brown fox jumps over the lazy dog. '.repeat(Math.ceil(MEGABYTE / 45)).slice(0, MEGABYTE);
+
+// Times lib.characterCount, the function the panel and the manager call, after one warm-up call.
+function timeCount(text) {
+  lib.characterCount(text, 'en');
   const start = performance.now();
-  assert.equal(lib.countCharacters(text), 1048576);
-  assert.ok(performance.now() - start < 15, `took ${performance.now() - start} ms`);
+  const result = lib.characterCount(text, 'en');
+  return { result, took: performance.now() - start };
+}
+
+test('the character count of 1 MB of plain text takes under 15 ms', () => {
+  const { result, took } = timeCount(PLAIN_MEGABYTE);
+  assert.equal(result, '1,048,576 characters');
+  assert.ok(took < 15, `took ${took} ms`);
+});
+
+test('the character count of 1 MB with one clustering character takes under 15 ms', () => {
+  const middle = MEGABYTE / 2;
+  for (const cluster of ['❤️', '\r\n', 'é', '\u{1F468}‍\u{1F469}‍\u{1F467}']) {
+    const text = PLAIN_MEGABYTE.slice(0, middle) + cluster + PLAIN_MEGABYTE.slice(middle);
+    const { result, took } = timeCount(text);
+    assert.equal(result, `${(MEGABYTE + 1).toLocaleString('en')} characters`, JSON.stringify(cluster));
+    assert.equal(lib.countCharacters(text), characterCount(text), JSON.stringify(cluster));
+    assert.ok(took < 15, `${JSON.stringify(cluster)} took ${took} ms`);
+  }
 });

@@ -638,11 +638,14 @@
   const CLUSTER_JOINER =
     /[\r\p{Grapheme_Extend}\p{Mc}\u200D\p{Regional_Indicator}\p{Emoji_Modifier}\u1100-\u11FF\uA960-\uA97F\uD7B0-\uD7FF\u0600-\u0605\u06DD\u070F\u0890\u0891\u08E2\u0D4E\u0E33\u0EB3\u{110BD}\u{110CD}\u{111C2}\u{111C3}\u{1193F}\u{11941}\u{11A3A}\u{11A84}-\u{11A89}\u{11D46}\u{11F02}\u{113D1}\u{16D63}\u{16D67}-\u{16D6A}]/u;
 
-  // The number of characters a person sees in the text. Counting with Intl.Segmenter takes about
-  // 70 ms per megabyte, so text with no character that can join a cluster is counted by code
-  // points instead, which gives the same number.
-  function countCharacters(text) {
-    if (CLUSTER_JOINER.test(text)) return graphemes(text).length;
+  // The same set, scanned from one match to the next.
+  const CLUSTER_JOINERS = new RegExp(CLUSTER_JOINER.source, 'gu');
+
+  // More clusters than this, and cutting the text into windows costs more than segmenting it all.
+  const MAX_CLUSTER_WINDOWS = 500;
+
+  // The number of code points in the text.
+  function countCodePoints(text) {
     let count = text.length;
     for (let i = 0; i < text.length; i++) {
       const unit = text.charCodeAt(i);
@@ -652,6 +655,48 @@
       }
     }
     return count;
+  }
+  // Where the code point in front of `end` starts: 2 units back for a surrogate pair, else 1, and
+  // 0 at the start of the text.
+  function previousPointStart(text, end) {
+    if (end >= 2) {
+      const low = text.charCodeAt(end - 1);
+      const high = text.charCodeAt(end - 2);
+      if (low >= 0xdc00 && low <= 0xdfff && high >= 0xd800 && high <= 0xdbff) return end - 2;
+    }
+    return Math.max(0, end - 1);
+  }
+
+  // The number of characters a person sees in the text. Counting with Intl.Segmenter takes about
+  // 70 ms per megabyte, so the text is counted by code points, and only a short window around
+  // each character that can join a cluster is segmented. Two code points that cannot join are
+  // always a boundary of the segmenter, so a window starts at the code point before a joining
+  // character and ends after the first code point that follows a joining character and is not
+  // itself followed by one. Every code point that joins makes the count one lower, so the window's
+  // code points minus its characters are taken off.
+  function countCharacters(text) {
+    let count = countCodePoints(text);
+    let windows = 0;
+    CLUSTER_JOINERS.lastIndex = 0;
+    for (let match = CLUSTER_JOINERS.exec(text); match; match = CLUSTER_JOINERS.exec(text)) {
+      if (++windows > MAX_CLUSTER_WINDOWS) return graphemes(text).length;
+      const start = previousPointStart(text, match.index);
+      let end = match.index + match[0].length;
+      while (end < text.length) {
+        const point = text.codePointAt(end);
+        end += point > 0xffff ? 2 : 1;
+        if (!CLUSTER_JOINER.test(String.fromCodePoint(point)) && !joinsAt(text, end)) break;
+      }
+      const window = text.slice(start, end);
+      count -= countCodePoints(window) - graphemes(window).length;
+      CLUSTER_JOINERS.lastIndex = end;
+    }
+    return count;
+  }
+
+  // Whether the code point at `index` can join a cluster. The end of the text does not.
+  function joinsAt(text, index) {
+    return index < text.length && CLUSTER_JOINER.test(String.fromCodePoint(text.codePointAt(index)));
   }
 
   function characterCount(text, locale) {
