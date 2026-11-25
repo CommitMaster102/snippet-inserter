@@ -231,3 +231,21 @@ test('includes other snippets in formatted text and renames references across fo
     '<b>{snippet:;sign}</b> and {snippet:;sign}'
   );
 });
+
+test('a plain snippet is formatted only when a snippet it includes directly has formatting', async ({ page }) => {
+  await loadCleaner(page);
+  const snippets = [
+    { id: 's', abbreviation: ';s', content: 'Sam', html: '<u>Sam</u>' },
+    { id: 'q', abbreviation: ';q', content: 'Q {snippet:;s}' },
+    { id: 'r', abbreviation: ';r', content: 'R' },
+  ];
+  // Plain text with no reference, or with references to plain snippets only, has nothing to format.
+  expect(await call(page, 'resolve', { id: 'a', content: 'Just <text>' }, snippets)).toBeNull();
+  expect(await call(page, 'resolve', { id: 'b', content: 'Hi {snippet:;r} {snippet:;none}' }, snippets)).toBeNull();
+  // A formatted snippet included directly keeps its formatting, and the plain text around it is
+  // written as text.
+  expect(await call(page, 'resolve', { id: 'c', content: 'a < b\n{snippet:;s}' }, snippets)).toBe('a &lt; b<br><u>Sam</u>');
+  // A formatted snippet included through a plain one goes in as its text.
+  expect(await call(page, 'resolve', { id: 'd', content: 'Nested {snippet:;q}' }, snippets)).toBeNull();
+  expect(await call(page, 'resolve', { id: 'e', content: '{snippet:;q} and {snippet:;s}' }, snippets)).toBe('Q Sam and <u>Sam</u>');
+});

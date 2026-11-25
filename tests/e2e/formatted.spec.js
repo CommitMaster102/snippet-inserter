@@ -439,6 +439,28 @@ test('an included snippet keeps its formatting in a formatted snippet, and a pla
   });
 });
 
+test('the fill-in form of a plain snippet that includes a formatted one previews and inserts the formatting', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Reply', content: 'Hello {input:Name}, {snippet:;sig}' },
+    { title: 'Signature', content: 'Ana', html: '<b>Ana</b>', abbreviation: ';sig' },
+  ]);
+  await caretAtEndOf(page, '#rich', 'p:last-child');
+  const panel = await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expect(panel.locator('.fill-count')).toHaveText('Fill in 1 field');
+  await panel.locator('.fill-input').fill('<i>x</i>');
+  const preview = panel.locator('.fill-preview');
+  await expect(preview).toHaveText('Hello <i>x</i>, Ana');
+  await expect(preview.locator('b')).toHaveText('Ana');
+  await expect(preview.locator('i')).toHaveCount(0);
+
+  await pressInPanel(page, 'Enter', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect(page.locator('#rich b')).toHaveText('Ana');
+  await expect(page.locator('#rich p').last()).toHaveText('Thanks Hello <i>x</i>, Ana');
+  await expect(page.locator('#rich i')).toHaveCount(0);
+});
+
 // Lists what the root contains that the cleaner would never let through: an element or attribute outside
 // the allowlist, a style that loads something, and a link that is not a web, mail, or phone address.
 const AUDIT = (root) => {
