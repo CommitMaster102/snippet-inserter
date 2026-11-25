@@ -411,3 +411,38 @@ test('an included snippet keeps its formatting in a formatted snippet, and goes 
     html: '&nbsp;Bye Ana (https://example.com/)',
   });
 });
+
+// HTML that got past the cleaner into the manager or the panel could still try to load something.
+// The extension pages' Content-Security-Policy allows scripts from the extension only and no loads
+// from the network.
+test('the manager and the panel load nothing from the network', async ({ context, extensionId, pagesUrl }) => {
+  for (const name of ['options.html', 'panel.html']) {
+    const page = await context.newPage();
+    await page.goto(`chrome-extension://${extensionId}/${name}`);
+    const result = await page.evaluate(async (base) => {
+      const violations = new Set();
+      window.addEventListener('securitypolicyviolation', (event) => violations.add(event.effectiveDirective), true);
+      let fetched = true;
+      try {
+        await fetch(`${base}/editors.html`, { mode: 'no-cors' });
+      } catch {
+        fetched = false;
+      }
+      await new Promise((resolve) => {
+        const image = new Image();
+        image.onload = image.onerror = resolve;
+        image.src = `${base}/ping.png`;
+      });
+      await new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.onload = script.onerror = resolve;
+        script.src = `${base}/editors.html`;
+        document.head.append(script);
+      });
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return { fetched, violations: [...violations].sort() };
+    }, pagesUrl);
+    expect(result, name).toEqual({ fetched: false, violations: ['connect-src', 'img-src', 'script-src-elem'] });
+    await page.close();
+  }
+});

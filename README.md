@@ -173,7 +173,8 @@ address such as `example.com` becomes `https://example.com/`, and an email addre
 `mailto:` link. Text pasted into the editor keeps only this formatting: images, tables, colors,
 fonts, headings, and anything else a snippet cannot hold are left out, and their text stays.
 Placeholders and `{snippet:...}` references work in formatted text, and the Placeholders and
-Includes rows list them as for plain text.
+Includes rows list them as for plain text. The snippet manager and the panel run only the
+extension's own scripts and load nothing from the network, whatever a snippet's HTML holds.
 
 Turning the box off asks nothing. The text box gets the text without its formatting, with a bullet
 or a number before each list item and each link's address in parentheses after its text, and Save

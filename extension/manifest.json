@@ -27,6 +27,9 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self'; object-src 'none'; img-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'"
+  },
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
