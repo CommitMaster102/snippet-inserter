@@ -96,6 +96,14 @@ button {
   background: var(--bg-neutral);
 }
 
+.donate {
+  color: var(--brand-default);
+}
+
+.donate:hover {
+  text-decoration: underline;
+}
+
 .danger {
   color: var(--text-error);
 }

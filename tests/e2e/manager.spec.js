@@ -187,3 +187,26 @@ test('the manager editor shows the date a weekday placeholder gives', async ({ c
   await expect(manager.locator('#placeholderList .placeholder-value')).toHaveText([expected]);
   await expect(manager.locator('#unrecognizedList .placeholder-pill')).toHaveText(['{date+1xyz}']);
 });
+
+test('links to the Ko-fi page in a new tab, and the snippet panel has no such link', async ({ context, extensionId, page }) => {
+  const url = 'https://ko-fi.com/commitmaster102';
+  // A stub answers for ko-fi.com, so the test sends no request to Ko-fi.
+  await context.route('https://ko-fi.com/**', (route) => route.fulfill({ contentType: 'text/html', body: '<title>stub</title>' }));
+
+  const manager = await openManager(context, extensionId, 'settings');
+  const link = manager.locator('#donate');
+  await expect(link).toHaveAttribute('href', url);
+  await expect(link).toHaveAttribute('target', '_blank');
+  await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  const [tab] = await Promise.all([context.waitForEvent('page'), link.click()]);
+  await expect(tab).toHaveURL(url);
+  await expect(manager).toHaveURL(/options\.html#settings$/);
+  await tab.close();
+
+  // The panel on a web page carries no donation link.
+  await selectInTextarea(page, '#plain', 0);
+  const panel = await openPanel(page);
+  await expect(panel.locator('body')).toBeVisible();
+  await expect(panel.locator('a[href*="ko-fi"]')).toHaveCount(0);
+  expect(await panel.locator('body').innerHTML()).not.toContain('ko-fi');
+});

@@ -450,7 +450,8 @@ follows the [code of conduct](CODE_OF_CONDUCT.md). Report a security problem pri
 ## Support the project
 
 Snippet Inserter is free, and every feature works without paying. If you want to support its
-development, you can donate on [Ko-fi](https://ko-fi.com/commitmaster102).
+development, you can donate on [Ko-fi](https://ko-fi.com/commitmaster102). The snippet manager has the same link
+under Settings and backup.
 
 ## License
 
