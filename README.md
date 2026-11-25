@@ -189,8 +189,8 @@ snippet it works on the code block that holds the caret. When the text is not va
 changes nothing and says the line and column of the first error. A placeholder outside quotes,
 such as `{input:Count}` where a number goes, makes the text invalid JSON, and the message says so.
 A placeholder inside quotes is ordinary text. A screen reader announces that error and the link
-address error of the link bar as they appear, and the link field is marked invalid while its error
-shows.
+address error of the link bar as they appear. While the JSON error shows, it is the description of
+the Format JSON button, and while the address error shows, the link field is marked invalid.
 
 Each code block has a language menu in the toolbar: Plain text, JSON, JavaScript, TypeScript, Python,
 HTML, CSS, SQL, and Shell. Put the caret in a block to change its menu. When you save, a bundled

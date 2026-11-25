@@ -74,6 +74,38 @@ test('Format JSON names the line and column of the first error and changes nothi
   await expect(manager.locator('#content')).toHaveValue('[\n  1,\n  2\n]');
 });
 
+test('the Format JSON button is described by an error only while the error shows', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ title: 'Other', content: 'x' }]);
+  const manager = await openManager(context, extensionId);
+  await manager.locator('#newSnippet').click();
+  const button = manager.getByRole('button', { name: 'Format JSON' });
+
+  await manager.locator('#content').fill('{"a": x}');
+  await button.click();
+  await expect(button).toHaveAccessibleDescription(/^Line 1, column 7: /);
+  await manager.locator('#content').fill('{"a": 1}');
+  await expect(manager.locator('#contentError')).toBeHidden();
+  await expect(button).toHaveAccessibleDescription('');
+
+  // The check of an empty text on Save shares the error line with Format JSON.
+  await manager.locator('#content').fill('');
+  await manager.locator('#save').click();
+  await expect(manager.locator('#contentError')).toHaveText('This field must not be empty.');
+  await manager.locator('#content').fill('a');
+  await expect(manager.locator('#contentError')).toBeHidden();
+  await expect(button).toHaveAccessibleDescription('');
+
+  // Opening another snippet clears the error too.
+  await manager.locator('#content').fill('[');
+  await button.click();
+  await expect(manager.locator('#contentError')).toBeVisible();
+  await manager.locator('#snippetList .row').filter({ hasText: 'Other' }).click();
+  await manager.getByRole('button', { name: 'Discard' }).click();
+  await expect(manager.locator('#title')).toHaveValue('Other');
+  await expect(manager.locator('#contentError')).toBeHidden();
+  await expect(button).toHaveAccessibleDescription('');
+});
+
 test('a placeholder outside quotes makes the JSON invalid, and the message says so', async ({ context, extensionId }) => {
   const manager = await openManager(context, extensionId);
   await manager.locator('#newSnippet').click();

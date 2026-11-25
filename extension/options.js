@@ -742,7 +742,7 @@ function loadEditor(snippet, initialContent = '', initialFolder = '') {
   els.titleError.hidden = true;
   els.abbreviationError.hidden = true;
   els.folderError.hidden = true;
-  els.contentError.hidden = true;
+  showContentError('');
   els.editorStatus.textContent = '';
   hideNotice();
   updateCount();
@@ -864,15 +864,21 @@ async function run(work, { fromEditor = false } = {}) {
   }
 }
 
+// Shows the error line under the text, or hides it when the message is empty. The Format JSON
+// button names this line as its description, and a hidden element named that way still describes
+// it, so hiding the line also clears its text.
+function showContentError(message) {
+  els.contentError.textContent = message;
+  els.contentError.hidden = !message;
+}
+
 // Form rules, the same as in the panel: the text must not be blank, the name must not be longer
 // than 128 characters, and the folder must not be longer than 64.
 function validate() {
   let valid = true;
-  els.contentError.hidden = textFields().content.trim() !== '';
-  if (!els.contentError.hidden) {
-    els.contentError.textContent = t('validationEmpty');
-    valid = false;
-  }
+  const empty = textFields().content.trim() === '';
+  showContentError(empty ? t('validationEmpty') : '');
+  if (empty) valid = false;
   els.titleError.hidden = lib.titleLength(els.title.value) <= lib.TITLE_MAX_LENGTH;
   if (!els.titleError.hidden) {
     els.titleError.textContent = t('validationTooLong', [i18n.number(lib.TITLE_MAX_LENGTH)]);
@@ -946,7 +952,7 @@ els.editor.addEventListener('submit', (event) => {
   save();
 });
 els.content.addEventListener('input', () => {
-  els.contentError.hidden = true;
+  showContentError('');
   els.editorStatus.textContent = '';
   updateCount();
 });
@@ -1034,7 +1040,7 @@ els.codeLanguage.addEventListener('change', () => {
   if (language) pre.setAttribute('data-language', language);
   else pre.removeAttribute('data-language');
   labelBlocks();
-  els.contentError.hidden = true;
+  showContentError('');
   els.editorStatus.textContent = '';
   updateCount();
 });
@@ -1042,7 +1048,7 @@ els.codeLanguage.addEventListener('change', () => {
 let richTimer = null;
 els.richContent.addEventListener('input', () => {
   labelBlocks();
-  els.contentError.hidden = true;
+  showContentError('');
   els.editorStatus.textContent = '';
   refreshTools();
   clearTimeout(richTimer);
@@ -1268,13 +1274,12 @@ els.toolbar.addEventListener('keydown', (event) => {
 // where the first error is.
 
 function showJsonError(message) {
-  els.contentError.textContent = message;
-  els.contentError.hidden = false;
+  showContentError(message);
   els.editorStatus.textContent = '';
 }
 
 function formatJson() {
-  els.contentError.hidden = true;
+  showContentError('');
   if (!els.formatted.checked) {
     const result = lib.jsonFormat.format(els.content.value);
     if (!result.ok) {
