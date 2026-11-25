@@ -361,22 +361,48 @@ mirrored.describe('mirrored pseudo-language layout', () => {
     expect(Math.abs(replyName.right - (folder.x + folder.width)), 'manager: right edges of the name and the folder').toBeLessThanOrEqual(1);
   });
 
-  mirrored('the edited label of a left to right name sits at its left, the end of a right to left row', async ({ page, serviceWorker }) => {
+  // Only English capitalizes each word of the caption and of the label. The mirrored language
+  // stands in for the others, which keep the case their translation has.
+  mirrored('the edited label of a left to right name sits at its left, the end of a right to left row, and it and the caption keep the case of the translation', async ({ page, serviceWorker }) => {
     await seedSnippets(serviceWorker, [{ title: 'Address', content: '14 Elm Street' }]);
     await selectInTextarea(page, '#plain', 0, 5);
     const panel = await openPanel(page);
-    const place = await labelPlace(await markEdited(panel, 'Address'));
+    const item = await markEdited(panel, 'Address');
+    const place = await labelPlace(item);
     expect(place.shown, 'the label shows in full').toBe(true);
     expect(place.labelRight, 'the label is at the left of the name').toBeLessThanOrEqual(place.nameLeft + 1);
+    await expect(item.locator('.item-label')).toHaveCSS('text-transform', 'none');
+    await expect(panel.locator('#caption')).toHaveCSS('text-transform', 'none');
   });
 
-  mirrored('the manager mirrors: its navigation sits at the right and the page is right to left', async ({ context, extensionId, serviceWorker }) => {
+  // The character count ends its line, and a right to left line ends at the left.
+  mirrored('the character count of the create form sits at the left', async ({ page, serviceWorker }) => {
+    await seedSnippets(serviceWorker, SNIPPETS);
+    await selectInTextarea(page, '#plain', 0, 5);
+    const panel = await openPanel(page);
+    await pressInPanel(page, '1', { ctrl: true });
+    const count = panel.locator('.count');
+    await expect(count).not.toBeEmpty();
+    const gap = await count.evaluate((element) => {
+      const range = element.ownerDocument.createRange();
+      range.selectNodeContents(element);
+      return range.getBoundingClientRect().left - element.getBoundingClientRect().left;
+    });
+    expect(gap, 'the distance from the left edge of the count to its text').toBeLessThanOrEqual(1);
+  });
+
+  mirrored('the manager mirrors: its navigation sits at the right, the lines between its columns follow, and the page is right to left', async ({ context, extensionId, serviceWorker }) => {
     await seedSnippets(serviceWorker, SNIPPETS);
     const manager = await openManager(context, extensionId);
     await expect(manager.locator('html')).toHaveAttribute('dir', 'rtl');
     const nav = await manager.locator('nav').first().boundingBox();
     const list = await manager.locator('#snippetList').boundingBox();
     expect(nav.x).toBeGreaterThan(list.x);
+    // The navigation and the list each draw their line at the left, where the next column starts.
+    for (const pane of ['.nav', '.list-pane']) {
+      await expect(manager.locator(pane), pane).toHaveCSS('border-left-width', '1px');
+      await expect(manager.locator(pane), pane).toHaveCSS('border-right-width', '0px');
+    }
     const abbreviation = manager.locator('#snippetList .row', { hasText: 'Address' }).locator('.pill');
     expect(await abbreviation.evaluate((element) => getComputedStyle(element).direction)).toBe('ltr');
   });
@@ -543,7 +569,7 @@ base('a right to left name and its preview line up at the left edge in English, 
   expect(Math.abs(replyName.left - folder.x), 'manager: left edges of the name and the folder').toBeLessThanOrEqual(1);
 });
 
-base('the edited label shows in full after a long name, and sits at the right of a right to left name in English', async ({ page, serviceWorker }) => {
+base('in English the edited label shows in full after a long name, sits at the right of a right to left name, and is capitalized as the caption is', async ({ page, serviceWorker }) => {
   const long = 'A snippet with a rather long name that cannot fit in one line of the panel';
   await seedSnippets(serviceWorker, [
     { title: long, content: 'Kind regards' },
@@ -554,9 +580,12 @@ base('the edited label shows in full after a long name, and sits at the right of
   const cut = await labelPlace(await markEdited(panel, long));
   expect(cut.shown, 'the label after a long name shows in full').toBe(true);
 
-  const arabic = await labelPlace(await markEdited(panel, ARABIC_NAME));
+  const arabicItem = await markEdited(panel, ARABIC_NAME);
+  const arabic = await labelPlace(arabicItem);
   expect(arabic.shown, 'the label after an Arabic name shows in full').toBe(true);
   expect(arabic.labelLeft, 'the label is at the right of the Arabic name').toBeGreaterThanOrEqual(arabic.nameRight - 1);
+  await expect(arabicItem.locator('.item-label')).toHaveCSS('text-transform', 'capitalize');
+  await expect(panel.locator('#caption')).toHaveCSS('text-transform', 'capitalize');
 });
 
 // A catalog whose No folder button has a name wider than the 140 pixels a folder button may take.
