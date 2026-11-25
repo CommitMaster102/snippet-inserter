@@ -36,6 +36,7 @@
     <form id="sendForm"><input id="formField" type="text" value="Note:" /></form>
     <div id="rich" contenteditable="true"><p>Dear team,</p><p>Thanks</p></div>
     <div id="pasteEditor" contenteditable="true">Editor:</div>
+    <div id="trackingEditor" contenteditable="true">Editor:</div>
     <script>
       // The send form counts how often it is submitted, for the Enter key tests.
       window.submits = 0;
@@ -53,6 +54,25 @@
           html: event.clipboardData.getData('text/html'),
         };
         document.execCommand('insertText', false, window.pasteSeen.plain);
+      });
+      // The tracking editor stands in for editors such as ProseMirror and Lexical, which learn the
+      // selection only from "selectionchange" events and paste at the selection they stored. A
+      // selection made in the same task as the paste has not reached it yet.
+      const tracking = document.getElementById('trackingEditor');
+      let trackedRange = null;
+      document.addEventListener('selectionchange', () => {
+        const selection = getSelection();
+        if (!selection.rangeCount) return;
+        const range = selection.getRangeAt(0);
+        if (tracking.contains(range.commonAncestorContainer)) trackedRange = range.cloneRange();
+      });
+      tracking.addEventListener('paste', (event) => {
+        event.preventDefault();
+        if (trackedRange) {
+          getSelection().removeAllRanges();
+          getSelection().addRange(trackedRange);
+        }
+        document.execCommand('insertText', false, event.clipboardData.getData('text/plain'));
       });
     </script>
   </body>

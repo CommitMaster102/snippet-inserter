@@ -2,7 +2,7 @@
 'use strict';
 
 const { test, expect } = require('./fixtures');
-const { seedSnippets, selectInTextarea, caretAtEndOf, openPanel, pressInPanel, expectPanelClosed } = require('./helpers');
+const { PANEL, seedSnippets, selectInTextarea, caretAtEndOf, openPanel, pressInPanel, expectPanelClosed } = require('./helpers');
 
 // Opening and closing the panel once shows that the content script has loaded, and with it the
 // abbreviations it read from storage.
@@ -147,26 +147,54 @@ test('a tab or an ideographic space after the commit does not expand the abbrevi
   await expect(page.locator('#plain')).toHaveValue('Hello world 감사합니다. ');
 });
 
-// In a rich editor the abbreviation is selected before the snippet is pasted. A space from the
-// input method that arrives while the selection settles must not replace the abbreviation.
-test('in a rich editor, a space that arrives 5 ms after the commit is kept after the snippet', async ({ page, serviceWorker }) => {
-  await seedSnippets(serviceWorker, [{ content: '감사합니다.', abbreviation: '감사' }]);
-  await ready(page, () => caretAtEndOf(page, '#pasteEditor'));
-  await page.locator('#pasteEditor').evaluate(
-    (el) =>
+// Writes "Hi " and `abbreviation` into the rich editor `selector` and commits the abbreviation as
+// an input method does. The space of the committing keystroke arrives `delay` ms later.
+async function commitInRichEditor(page, selector, abbreviation, delay) {
+  await page.locator(selector).evaluate(
+    (el, [typed, ms]) =>
       new Promise((resolve) => {
         el.focus();
-        el.textContent = 'Hi 감사';
+        el.textContent = `Hi ${typed}`;
         getSelection().collapse(el.firstChild, el.firstChild.data.length);
-        el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '감사' }));
+        el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: typed }));
         setTimeout(() => {
           document.execCommand('insertText', false, ' ');
           resolve();
-        }, 5);
-      })
+        }, ms);
+      }),
+    [abbreviation, delay]
   );
-  const text = () => page.locator('#pasteEditor').evaluate((el) => el.textContent.replace(/ /g, ' '));
-  await expect.poll(text).toBe('Hi 감사합니다. ');
-  await page.waitForTimeout(100);
-  expect(await text()).toBe('Hi 감사합니다. ');
-});
+}
+
+// In a rich editor the abbreviation is selected before the snippet is pasted. A space from the
+// input method that arrives while the selection settles must not replace the abbreviation. The
+// tracking editor pastes at the selection it last saw in a "selectionchange" event, so it also
+// needs time to see the selection before the paste.
+const RICH_EDITORS = [
+  ['a rich editor', '#pasteEditor'],
+  ['an editor that reads the selection from selectionchange', '#trackingEditor'],
+];
+
+for (const [where, editor] of RICH_EDITORS) {
+  const text = (page) => page.locator(editor).evaluate((el) => el.textContent.replace(/\u00a0/g, ' '));
+
+  test(`in ${where}, a space that arrives 5 ms after the commit is kept after the snippet`, async ({ page, serviceWorker }) => {
+    await seedSnippets(serviceWorker, [{ content: '감사합니다.', abbreviation: '감사' }]);
+    await ready(page, () => caretAtEndOf(page, editor));
+    await commitInRichEditor(page, editor, '감사', 5);
+    await expect.poll(() => text(page)).toBe('Hi 감사합니다. ');
+    await page.waitForTimeout(100);
+    expect(await text(page)).toBe('Hi 감사합니다. ');
+  });
+
+  test(`in ${where}, a snippet with a fill-in field keeps a space that arrives 5 ms after the commit`, async ({ page, serviceWorker }) => {
+    await seedSnippets(serviceWorker, [{ content: '감사합니다, {input:Name}.', abbreviation: '감사' }]);
+    await ready(page, () => caretAtEndOf(page, editor));
+    await commitInRichEditor(page, editor, '감사', 5);
+    await expect(page.frameLocator(PANEL).locator('.fill-input')).toBeFocused();
+    await page.keyboard.type('Ana');
+    await pressInPanel(page, 'Enter');
+    await expectPanelClosed(page);
+    await expect.poll(() => text(page)).toBe('Hi 감사합니다, Ana. ');
+  });
+}

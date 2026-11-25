@@ -67,6 +67,15 @@ test('expands in rich-text editors', async ({ page, serviceWorker }) => {
   await expect(page.locator('#pasteEditor')).toHaveText('Editor: Tea time');
 });
 
+// The tracking editor pastes at the selection it last saw in a "selectionchange" event, as
+// ProseMirror does, so the selected abbreviation must reach it before the paste.
+test('expands in an editor that reads the selection from selectionchange', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: 'Tea time', abbreviation: ';tt' }]);
+  await ready(page, () => caretAtEndOf(page, '#trackingEditor'));
+  await page.keyboard.type(' ;tt');
+  await expect(page.locator('#trackingEditor')).toHaveText('Editor: Tea time');
+});
+
 test('a snippet with fill-in fields opens its fill-in form', async ({ page, serviceWorker }) => {
   await seedSnippets(serviceWorker, SNIPPETS);
   await ready(page, () => selectInTextarea(page, '#plain', 11));
@@ -283,6 +292,15 @@ test('with the delimiter timing, Space expands in rich-text editors', async ({ p
   await caretAtEndOf(page, '#pasteEditor');
   await page.keyboard.type(' ;tt ');
   await expect.poll(() => text('#pasteEditor')).toBe('Editor: Tea time ');
+});
+
+test('with the delimiter timing, Space expands in an editor that reads the selection from selectionchange', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: 'Tea time', abbreviation: ';tt' }]);
+  await seedSettings(serviceWorker, DELIMITER);
+  const text = () => page.locator('#trackingEditor').evaluate((el) => el.textContent.replace(/\u00a0/g, ' '));
+  await ready(page, () => caretAtEndOf(page, '#trackingEditor'));
+  await page.keyboard.type(' ;tt ');
+  await expect.poll(text).toBe('Editor: Tea time ');
 });
 
 test('with the delimiter timing, a snippet with a fill-in field ends with the space', async ({ page, serviceWorker }) => {

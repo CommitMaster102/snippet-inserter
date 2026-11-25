@@ -110,26 +110,22 @@ export function create(shared) {
     }
     if (!snippet || panel || !extensionAlive()) return;
     const { content } = placeholders.resolveReferences(snippet, list);
-    const typed = abbreviation + delimiter;
-    // A rich editor is given time to register a selection before the paste. The text is selected
-    // only after that wait, because a space from an input method that arrives during it would
-    // replace a selected abbreviation.
-    if (!isValueField(target) && target.kind !== 'docs' && !placeholders.inputLabels(content).length) {
-      const ctx = {
-        ...captureContext(target),
-        noSpacing: true,
-        suffix: !committed && delimiter ? ' ' : '',
-        reselect: { text: typed, committed },
-      };
-      insertSnippet(ctx, content);
-      return;
+    const fillIn = placeholders.inputLabels(content).length > 0;
+    // A rich editor waits for the selection to settle before the paste. A space from an input
+    // method that arrives in that time would replace the selected text, so committed text is
+    // selected only after one settle wait, together with that space if it has come by then.
+    if (committed && !isValueField(target) && target.kind !== 'docs') {
+      await wait(SELECTION_SETTLE_MS);
+      if (panel || !extensionAlive()) return;
     }
+    const typed = abbreviation + delimiter;
     const follower = selectTypedText(target, typed, committed);
     if (follower === null) return;
-    // The user typed the abbreviation where the text belongs, so no spaces are added.
+    // The user typed the abbreviation where the text belongs, so no spaces are added. In a rich
+    // editor the insert checks that `replaces` is still selected before it pastes over it.
     const suffix = committed ? follower : delimiter ? ' ' : '';
-    const ctx = { ...captureContext(target), noSpacing: true, suffix };
-    if (placeholders.inputLabels(content).length) {
+    const ctx = { ...captureContext(target), noSpacing: true, suffix, replaces: typed + follower };
+    if (fillIn) {
       openPanel(null, { ctx, mode: 'fill-only', snippetId: snippet.id });
     } else {
       insertSnippet(ctx, content);
@@ -523,9 +519,7 @@ export function create(shared) {
   // single-line field the lines are joined next, and the spacing rule runs last. `caret`, the
   // {cursor} position inside the text, is carried through each step.
   async function insertSnippet(ctx, content, values = {}) {
-    // With `reselect`, the typed abbreviation is selected after the wait below, so the caret is
-    // left where the user has it until then.
-    if (ctx.reselect ? !ctx.el.isConnected : !restoreSelection(ctx)) {
+    if (!restoreSelection(ctx)) {
       // Only a field that was in the page when the panel opened can have gone away.
       if (ctx.kind !== 'none') showNotice('The snippet was not inserted, because the field is gone.', ctx);
       return;
@@ -552,20 +546,25 @@ export function create(shared) {
       return;
     }
     await wait(SELECTION_SETTLE_MS);
-    let pasted = text;
-    if (ctx.reselect) {
-      // An input method's space or line break after a commit is replaced and put back, as in
-      // expandAbbreviation.
-      const follower = selectTypedText(ctx, ctx.reselect.text, ctx.reselect.committed);
-      if (follower === null) return;
-      pasted = text + follower;
-    }
-    pasteIntoRichEditor(ctx, pasted);
+    if (!stillReplaces(ctx)) return;
+    pasteIntoRichEditor(ctx, text);
     if (caret !== null) {
       // Editors that handle the paste themselves may update the page a moment later.
       await wait(SELECTION_SETTLE_MS);
-      moveCaretBack(ctx, pasted.length - caret);
+      moveCaretBack(ctx, text.length - caret);
     }
+  }
+
+  // Whether the selection in a rich editor still covers exactly `ctx.replaces`, the typed text
+  // that an abbreviation's insert replaces. The page may have changed that text while a fill-in
+  // form was open or while the selection settled, for example with a late space from an input
+  // method. Without `ctx.replaces` there is nothing to check.
+  function stillReplaces(ctx) {
+    if (ctx.replaces === undefined) return true;
+    const selection = selectionFor(ctx.el);
+    if (!selection || !selection.rangeCount) return false;
+    const range = selection.getRangeAt(0);
+    return ctx.el.contains(range.commonAncestorContainer) && range.toString() === ctx.replaces;
   }
 
   // A field with a maxlength attribute would cut the snippet short, so nothing is inserted and a
