@@ -879,6 +879,11 @@
       included += 1;
       return found;
     };
+    const plainWalk = (text, stack) =>
+      text.replace(pattern, (token, abbreviation) => {
+        const found = target(abbreviation, stack);
+        return found ? plainWalk(String(found.content), [...stack, found.id]) : token;
+      });
     const htmlWalk = (current, stack) =>
       transform(current, finder(pattern), (match, marks, b) => {
         const found = target(match[1], stack);
@@ -888,7 +893,7 @@
         }
         if (found.html) formatted = true;
         const inner = [...stack, found.id];
-        let child = htmlWalk(found.html ? parse(found.html) : textTree(String(found.content)), inner);
+        let child = found.html ? htmlWalk(parse(found.html), inner) : textTree(plainWalk(String(found.content), inner));
         if (ownCursor) child = transform(child, finder(/\{cursor\}/), () => {});
         emit(child.segments, b, { extra: marks, fragment: true });
       });
