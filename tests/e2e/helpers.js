@@ -111,8 +111,9 @@ async function openPanel(page, key = 'Control') {
  * into its lower part. Pass the iframe locator when the panel is inside another frame.
  *
  * This checks the layout only. The browser picks the process that gets a click from its own
- * record of where the panel's frame is, which can lag a few frames behind the panel's viewport,
- * so a panel that has just opened also needs waitForStablePanel first, as openPanel does.
+ * record of where the panel's frame is, which can lag a few frames behind the panel's viewport
+ * after the panel opens or grows, so a click then also needs waitForStablePanel, as openPanel
+ * does.
  */
 async function waitForPanelFit(page, panel, iframe = page.locator(PANEL)) {
   await expect

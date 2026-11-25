@@ -352,10 +352,10 @@ apply, and a click computed in that time lands on the page underneath and is los
 clicks into a form or the header after the panel opens or changes view, call
 `waitForPanelFit(page, panel)` from `tests/e2e/helpers.js`. It waits until the panel's viewport
 and its frame match the height of its content. That does not yet mean the browser sends clicks
-there to the panel: for a few frames after the panel opens, the browser can still route them by
-the frame's old size. Before clicking into a panel that has just opened, call
-`waitForStablePanel(page)` first; it waits until the frame has kept its size for 100 ms.
-`openPanel` calls both. For a panel inside another frame, call
+there to the panel: for a few frames after the panel opens or grows, the browser can still route
+them by the frame's old position and size. Before clicking into a panel that has just opened or
+grown, also call `waitForStablePanel(page)`, which waits until the frame has kept its position
+and size for 100 ms. `openPanel` calls both. For a panel inside another frame, call
 `waitForStablePanel(page, frame.locator(PANEL))`, and pass `waitForPanelFit` the panel's
 `frame.frameLocator(PANEL)` as the second argument and `frame.locator(PANEL)` as the third, where
 `frame` is the frame that holds the panel.
