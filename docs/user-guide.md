@@ -358,8 +358,8 @@ Docs has no documented interface for inserting text, so the extension relies on 
 delivers focus and pastes. If Google changes the editor, the panel still opens: at the cursor when
 the extension can find it, and otherwise at your last click or at the top of the document. After
 each insert the extension checks that the Docs cursor moved. If it cannot confirm the insert, it
-copies the snippet's text, without formatting, to the clipboard and shows a notice asking you to
-press Ctrl+V. Only Docs documents get this support, not Slides or Sheets.
+copies the snippet to the clipboard, with its formatting when it has some, and shows a notice
+asking you to press Ctrl+V. Only Docs documents get this support, not Slides or Sheets.
 
 ## When something fails
 

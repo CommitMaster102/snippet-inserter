@@ -294,11 +294,13 @@ export function create(shared) {
   }
 
   // The last resort when Docs did not take the paste: the snippet goes to the clipboard, and a
-  // notice tells the user to paste it. The clipboard is written only in this case.
-  async function docsInsertFallback(content) {
+  // notice tells the user to paste it. The clipboard is written only in this case. `markup` is the
+  // HTML of a formatted snippet, the same as in the paste, and the clipboard holds it beside the
+  // text, so pasting keeps the formatting.
+  async function docsInsertFallback(content, markup = null) {
     let copied = false;
     try {
-      await navigator.clipboard.writeText(content);
+      await writeClipboard(content, markup);
       copied = true;
     } catch {
       // The page did not allow the clipboard write; the notice says where to copy it from.
@@ -308,6 +310,25 @@ export function create(shared) {
         ? msg('noticeDocsCopied', IS_MAC ? `${msg('keyCmd')}+V` : `${msg('keyCtrl')}+V`)
         : msg('noticeDocsNotInserted')
     );
+  }
+
+  // Writes the text, and the HTML when there is some, to the clipboard. If the browser refuses
+  // the HTML, the text alone is written.
+  async function writeClipboard(text, html) {
+    if (html !== null && typeof ClipboardItem === 'function') {
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/plain': new Blob([text], { type: 'text/plain' }),
+            'text/html': new Blob([html], { type: 'text/html' }),
+          }),
+        ]);
+        return;
+      } catch {
+        // Fall through to the text alone.
+      }
+    }
+    await navigator.clipboard.writeText(text);
   }
 
   // A short message at the top of the page. It sits in a shadow root, so the page's styles do
@@ -601,7 +622,7 @@ export function create(shared) {
       // Without any caret the insert cannot be confirmed, and counts as failed.
       const before = docsCaretRect() || (ctx.caretFound ? ctx.caret : null);
       pasteIntoDocs(ctx, text, markup);
-      if (!(await docsCaretMoved(before))) await docsInsertFallback(text);
+      if (!(await docsCaretMoved(before))) await docsInsertFallback(text, markup);
       return;
     }
     const body = ctx.kind === 'input' ? joinLinesKeepingCursor(expanded.text, expanded.cursor) : expanded;

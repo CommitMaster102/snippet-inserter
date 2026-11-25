@@ -178,6 +178,71 @@ test('fill-in values and placeholders go into the HTML for Docs as text', async 
   await expectNoNotice(page);
 });
 
+// The extension marks the {cursor} position with a private-use character while it fills in a
+// formatted snippet. In Docs, {cursor} has no effect, and neither the marker nor the placeholder
+// may reach the document.
+test('a formatted snippet with {cursor} goes into Docs without the placeholder or its marker', async ({
+  page,
+  serviceWorker,
+}) => {
+  await seedSnippets(serviceWorker, [
+    {
+      title: 'Text',
+      content: 'Hi {cursor}there\n  x = 1;{cursor}',
+      html: '<b>Hi</b> {cursor}there<pre><code>  x = 1;{cursor}</code></pre>',
+    },
+    {
+      title: 'Code',
+      content: 'Code:\n  {cursor}y = 2;\nz',
+      html: 'Code:<pre><code>  {cursor}y = 2;<br>z</code></pre>',
+    },
+  ]);
+  await openDocs(page);
+  await focusDocument(page, 5);
+  await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect.poll(() => page.evaluate(() => window.docState.pastes.length)).toBe(1);
+
+  await focusDocument(page, 0);
+  await openPanel(page);
+  await pressInPanel(page, '3', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect.poll(() => page.evaluate(() => window.docState.pastes.length)).toBe(2);
+  const state = await page.evaluate(() => window.docState);
+  for (const html of state.pasteHtml) {
+    expect(html, 'the HTML holds the {cursor} marker U+E000').not.toContain('');
+    expect(html, 'the HTML holds {cursor}').not.toContain('{cursor}');
+  }
+  for (const text of state.pastes) {
+    expect(text, 'the plain text holds the {cursor} marker U+E000').not.toContain('');
+    expect(text, 'the plain text holds {cursor}').not.toContain('{cursor}');
+  }
+  expect(state.pasteHtml).toEqual(['<b>Hi</b> there<pre><code>  x = 1;</code></pre>', 'Code:<pre><code>  y = 2;\nz</code></pre>']);
+  expect(state.pastes).toEqual(['Hi there\n  x = 1;', 'Code:\n  y = 2;\nz']);
+  await expectNoNotice(page);
+});
+
+test('a plain snippet that includes a formatted one goes into Docs with that formatting', async ({
+  page,
+  serviceWorker,
+}) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'See', content: 'See {snippet:;fmt} now' },
+    { title: 'Bold', content: 'bold', html: '<b>bold</b>', abbreviation: ';fmt' },
+  ]);
+  await openDocs(page);
+  await focusDocument(page, 5);
+  await openPanel(page);
+  await pressInPanel(page, '2', { ctrl: true });
+  await expectPanelClosed(page);
+  await expect.poll(() => page.evaluate(() => window.docState.pastes)).toEqual(['See bold now']);
+  const state = await page.evaluate(() => window.docState);
+  expect(state.pasteTypes).toEqual([['text/plain', 'text/html']]);
+  expect(state.pasteHtml).toEqual(['See <b>bold</b> now']);
+  await expectNoNotice(page);
+});
+
 test('offers the Docs selection as a new snippet and replaces it on insert', async ({
   context,
   page,
@@ -323,7 +388,7 @@ test.describe('when Google changes the editor', () => {
     expect(await documentText(page)).toBe('Hello world.');
   });
 
-  test('an ignored paste of a formatted snippet puts its plain text on the clipboard', async ({
+  test('an ignored paste of a formatted snippet puts its HTML and its plain text on the clipboard', async ({
     context,
     page,
     serviceWorker,
@@ -341,7 +406,13 @@ test.describe('when Google changes the editor', () => {
     await expectPanelClosed(page);
 
     await expect(page.getByRole('status')).toHaveText(NOTICE_TEXT);
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('Bold and site (https://example.com/)');
+    const clipboard = await page.evaluate(async () => {
+      const [item] = await navigator.clipboard.read();
+      const read = async (type) => (item.types.includes(type) ? (await item.getType(type)).text() : null);
+      return { text: await read('text/plain'), html: await read('text/html') };
+    });
+    expect(clipboard.text).toBe('Bold and site (https://example.com/)');
+    expect(clipboard.html).toContain('<b>Bold</b> and <a href="https://example.com/">site</a>');
     expect(await documentText(page)).toBe('Hello world.');
   });
 
