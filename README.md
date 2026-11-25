@@ -351,8 +351,10 @@ and its frame match the height of its content. That does not yet mean the browse
 there to the panel: for a few frames after the panel opens, the browser can still route them by
 the frame's old size. Before clicking into a panel that has just opened, call
 `waitForStablePanel(page)` first; it waits until the frame has kept its size for 100 ms.
-`openPanel` calls both. For a panel inside another frame, pass that frame's iframe locator as
-the last argument to each.
+`openPanel` calls both. For a panel inside another frame, call
+`waitForStablePanel(page, frame.locator(PANEL))`, and pass `waitForPanelFit` the panel's
+`frame.frameLocator(PANEL)` as the second argument and `frame.locator(PANEL)` as the third, where
+`frame` is the frame that holds the panel.
 
 ## Contributing
 
