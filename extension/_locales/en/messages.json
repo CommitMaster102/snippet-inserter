@@ -1401,8 +1401,8 @@
     "description": "JSON error in a number, for example after a minus sign or a decimal point."
   },
   "jsonEndWhereValue": {
-    "message": "Unexpected end of the text, where a value is expected.",
-    "description": "JSON error. A value is a string, number, list, or object."
+    "message": "The text ends where a value is expected.",
+    "description": "JSON error when the text ends after [, after a comma in a list, or after the colon of a property. A value is a string, number, list, or object."
   },
   "jsonTooDeep": {
     "message": "Arrays and objects are nested more than $DEPTH$ levels deep.",
@@ -1426,7 +1426,7 @@
   },
   "jsonUnexpected": {
     "message": "Unexpected $WHAT$.",
-    "description": "JSON error. What was found is filled in for you, as a character in quotes or the phrase for the end of the text.",
+    "description": "JSON error. What was found is filled in for you, as a character in quotes.",
     "placeholders": {
       "what": {
         "content": "$1",
@@ -1495,7 +1495,7 @@
   },
   "jsonExpectedNameEnd": {
     "message": "The text ends where a property name in double quotes is expected.",
-    "description": "JSON error when an object ends after a comma, at the end of the text."
+    "description": "JSON error when the text ends after { or after a comma in an object."
   },
   "jsonExpectedColon": {
     "message": "Expected $COLON$ after the property name but found $WHAT$.",

@@ -117,7 +117,11 @@ test('an error at the end of the text is one whole sentence, not a sentence with
     ['[1, 2', 'The text ends where , or ] is expected.'],
     ['{"a": 1', 'The text ends where , or } is expected.'],
     ['{"a": 1,', 'The text ends where a property name in double quotes is expected.'],
+    ['{', 'The text ends where a property name in double quotes is expected.'],
     ['{"a"', 'The text ends where : is expected after the property name.'],
+    ['[', 'The text ends where a value is expected.'],
+    ['[1,', 'The text ends where a value is expected.'],
+    ['{"a":', 'The text ends where a value is expected.'],
   ];
   for (const [text, message] of cases) assert.equal(format(text).message.replace(/^Line \d+, column \d+: /, ''), message, text);
 });
