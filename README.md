@@ -260,6 +260,30 @@ says how many it changed. Clearing an abbreviation leaves the references as they
 then inserted as written. Deleting an included snippet gives no warning; Undo or Recently deleted
 brings it back and the references work again.
 
+## Languages
+
+The panel, the snippet manager, the right-click menu items, the shortcut's description, and the
+notices on pages use your browser's display language when Snippet Inserter has it, and English
+otherwise. Chrome makes that choice, so the extension has no language setting. To change the
+language, change the browser's. The name stays "Snippet Inserter" in every language, and
+placeholders such as `{date}` and `{input:Label}` are written the same way in every language.
+
+Snippet Inserter has these languages besides English: TODO-LANGUAGE-LIST.
+
+A language model drafted every translation, and automatic checks (`npm run test:locales`) test
+that each one has every message, the same placeholders as English, the plural forms its language
+uses, and text that fits its spot. A native speaker has not read any of them yet. This table lists
+the languages a native speaker has reviewed:
+
+| Language | Reviewed by | Date |
+| --- | --- | --- |
+| None yet | | |
+
+If a translation is wrong, unclear, or does not fit, report it with the
+[Translation problem form](https://github.com/CommitMaster102/snippet-inserter/issues/new?template=translation.yml).
+In every language except English, Settings and backup links to it. To fix the text yourself, see
+"Fix a translation" in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Google Docs
 
 Docs draws the document on a canvas and takes typing through a hidden frame. The extension opens
