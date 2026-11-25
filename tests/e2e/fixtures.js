@@ -19,6 +19,25 @@ const { test: base, chromium, expect } = require('@playwright/test');
 const EXTENSION_PATH = path.resolve(process.env.EXTENSION_PATH || path.join(__dirname, '..', '..', 'extension'));
 const PAGES_DIR = path.resolve(__dirname, '..', 'pages');
 
+// The ports Chromium refuses to connect to (net/base/port_util.cc, kRestrictedPorts). The
+// operating system can hand out one of these as a dynamic port, and a page served there never loads.
+const RESTRICTED_PORTS = new Set([
+  1, 7, 9, 11, 13, 15, 17, 19, 20, 21, 22, 23, 25, 37, 42, 43, 53, 69, 77, 79, 87, 95, 101, 102, 103, 104,
+  109, 110, 111, 113, 115, 117, 119, 123, 135, 137, 139, 143, 161, 179, 389, 427, 465, 512, 513, 514, 515,
+  526, 530, 531, 532, 540, 548, 554, 556, 563, 587, 601, 636, 989, 990, 993, 995, 1719, 1720, 1723, 2049,
+  3659, 4045, 4190, 5060, 5061, 6000, 6566, 6665, 6666, 6667, 6668, 6669, 6679, 6697, 10080,
+]);
+
+// Listens on a free local port that Chromium allows, and tries again when the system picks a
+// restricted one.
+async function listenOnAllowedPort(server) {
+  for (;;) {
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    if (!RESTRICTED_PORTS.has(server.address().port)) return;
+    await new Promise((resolve) => server.close(resolve));
+  }
+}
+
 // A persistent context is required for extensions. An empty profile path makes Playwright use a
 // new temporary profile, and the "chromium" channel runs the full browser, whose headless mode
 // supports extensions.
@@ -53,7 +72,7 @@ const test = base.extend({
         response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
         fs.createReadStream(file).pipe(response);
       });
-      await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+      await listenOnAllowedPort(server);
       await use(`http://127.0.0.1:${server.address().port}`);
       server.closeAllConnections();
       await new Promise((resolve) => server.close(resolve));
