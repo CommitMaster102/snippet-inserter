@@ -18,6 +18,13 @@ const countText = (n) => i18n.number(n, { grouping: true });
 // The static text, language, and direction of the page come from the message catalog before
 // anything below reads the page.
 i18n.apply();
+// Every language except English names its language in Settings and links to the form for a wrong
+// translation. English is the source text, so it has nothing to report. Only the English catalog
+// names its language "English", which is also why a stretched or mirrored test catalog shows it.
+if (t('languageName') !== 'English') {
+  document.getElementById('languageNoteText').textContent = t('languageNote', t('languageName'));
+  document.getElementById('languageNote').hidden = false;
+}
 const richText = lib.richText;
 const IS_MAC = navigator.userAgent.includes('Mac OS');
 const VIEWS = ['snippets', 'deleted', 'settings'];

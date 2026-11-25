@@ -390,3 +390,22 @@ base('the layout check reports text that is cut off, and accepts an ellipsis', a
   expect(problems.filter((problem) => problem.includes('#cut'))).not.toEqual([]);
   expect(problems.filter((problem) => problem.includes('#dots'))).toEqual([]);
 });
+
+const REPORT_URL = 'https://github.com/CommitMaster102/snippet-inserter/issues/new?template=translation.yml';
+
+base('the English settings have no language line and no link to the translation form', async ({ context, extensionId }) => {
+  const manager = await openManager(context, extensionId, 'settings');
+  await expect(manager.locator('#translationReport')).toBeHidden();
+  await expect(manager.locator('#languageNote')).toBeHidden();
+});
+
+testWith('stretched')('the settings of another language name it and link to the translation form', async ({ context, extensionId }) => {
+  const manager = await openManager(context, extensionId, 'settings');
+  const link = manager.locator('#translationReport');
+  await expect(link).toBeVisible();
+  await expect(link).toHaveAttribute('href', REPORT_URL);
+  await expect(link).toHaveAttribute('target', '_blank');
+  await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  await expect(link).toContainText('⟦');
+  await expect(manager.locator('#languageNoteText')).toContainText('Stretched');
+});
