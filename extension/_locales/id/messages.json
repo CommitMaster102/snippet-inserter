@@ -359,7 +359,7 @@
     }
   },
   "siteOff": {
-    "message": "Nonaktifkan tekan dua kali dan singkatan untuk $HOST$",
+    "message": "Nonaktifkan fitur tekan dua kali dan singkatan untuk $HOST$",
     "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are on. The site name is filled in for you.",
     "placeholders": {
       "host": {
@@ -369,7 +369,7 @@
     }
   },
   "siteOn": {
-    "message": "Aktifkan lagi tekan dua kali dan singkatan untuk $ENTRY$",
+    "message": "Aktifkan lagi fitur tekan dua kali dan singkatan untuk $ENTRY$",
     "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are off. $ENTRY$ is the entry in the list of turned-off sites that covers this site: the site itself, or a shorter address that covers it, such as example.com on mail.example.com.",
     "placeholders": {
       "entry": {

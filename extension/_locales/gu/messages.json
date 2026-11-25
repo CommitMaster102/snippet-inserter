@@ -1010,7 +1010,7 @@
     "description": "Text under the empty list of sites where the extension is off."
   },
   "offSitesNote": {
-    "message": "સાઇટમાં તેના સબડોમેન પણ આવી જાય છે: $EXAMPLE$માં $SUBDOMAIN$ પણ આવે છે. આ સાઇટ પર કીબોર્ડ શૉર્ટકટ અને રાઇટ-ક્લિક મેનૂ હજી પણ પૅનલ ખોલે છે. પૅનલની ટોચ પર બંધ કરો બટનની બાજુનું બટન હાલની સાઇટ પર બે વાર દબાવવું અને સંક્ષેપ બંધ કરે છે અથવા ફરી ચાલુ કરે છે.",
+    "message": "સાઇટમાં તેના સબડોમેન પણ આવી જાય છે: $EXAMPLE$માં $SUBDOMAIN$ પણ આવે છે. આ સાઇટ પર કીબોર્ડ શૉર્ટકટ અને રાઇટ-ક્લિક મેનૂ હજી પણ પૅનલ ખોલે છે. પૅનલની ટોચ પર \"બંધ કરો\" બટનની બાજુનું બટન હાલની સાઇટ પર બે વાર દબાવવું અને સંક્ષેપ બંધ કરે છે અથવા ફરી ચાલુ કરે છે.",
     "description": "Text under the list of sites where the extension is off. Close is the name of a button in the panel; write it as in the message Close. The two web addresses are filled in for you.",
     "placeholders": {
       "example": {

@@ -403,7 +403,7 @@
     }
   },
   "siteOff": {
-    "message": "$HOST$ కోసం రెండుసార్లు నొక్కడం, సంక్షిప్త రూపాలను ఆఫ్ చేయండి",
+    "message": "$HOST$ కోసం రెండుసార్లు నొక్కడాన్ని, సంక్షిప్త రూపాలను ఆఫ్ చేయండి",
     "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are on. The site name is filled in for you.",
     "placeholders": {
       "host": {
@@ -413,7 +413,7 @@
     }
   },
   "siteOn": {
-    "message": "$ENTRY$ కోసం రెండుసార్లు నొక్కడం, సంక్షిప్త రూపాలను మళ్లీ ఆన్ చేయండి",
+    "message": "$ENTRY$ కోసం రెండుసార్లు నొక్కడాన్ని, సంక్షిప్త రూపాలను మళ్లీ ఆన్ చేయండి",
     "description": "Tooltip on the button next to Close at the top of the panel, on a site where the double tap and abbreviations are off. $ENTRY$ is the entry in the list of turned-off sites that covers this site: the site itself, or a shorter address that covers it, such as example.com on mail.example.com.",
     "placeholders": {
       "entry": {
@@ -509,7 +509,7 @@
     "description": "Tooltip on the grip of a snippet row in the manager, when folders exist."
   },
   "moved": {
-    "message": "$TITLE$ $TOTAL$ స్థానాల్లో $POSITION$వ స్థానానికి తరలించబడింది.",
+    "message": "$TITLE$, $TOTAL$ స్థానాల్లో $POSITION$వ స్థానానికి తరలించబడింది.",
     "description": "Message for screen readers after a snippet was moved up or down in the list. It is not shown. The name of the snippet and the numbers are filled in for you.",
     "placeholders": {
       "title": {

@@ -1010,7 +1010,7 @@
     "description": "Text under the empty list of sites where the extension is off."
   },
   "offSitesNote": {
-    "message": "কোনো সাইটের মধ্যে তার সাবডোমেনও পড়ে: $EXAMPLE$ বলতে $SUBDOMAIN$-ও বোঝায়। এই সাইটগুলিতেও কীবোর্ড শর্টকাট আর রাইট-ক্লিক মেনু দিয়ে প্যানেল খোলা যায়। প্যানেলের উপরে বন্ধ করুন বোতামের পাশের বোতামটি বর্তমান সাইটে দুবার প্রেস করা আর সংক্ষিপ্ত রূপ বন্ধ করে বা আবার চালু করে।",
+    "message": "কোনো সাইটের মধ্যে তার সাবডোমেনও পড়ে: $EXAMPLE$ বলতে $SUBDOMAIN$-ও বোঝায়। এই সাইটগুলিতেও কীবোর্ড শর্টকাট আর রাইট-ক্লিক মেনু দিয়ে প্যানেল খোলা যায়। প্যানেলের উপরে “বন্ধ করুন” বোতামের পাশের বোতামটি বর্তমান সাইটে দুবার প্রেস করা আর সংক্ষিপ্ত রূপ বন্ধ করে বা আবার চালু করে।",
     "description": "Text under the list of sites where the extension is off. Close is the name of a button in the panel; write it as in the message Close. The two web addresses are filled in for you.",
     "placeholders": {
       "example": {

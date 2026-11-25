@@ -179,7 +179,7 @@
     "description": "Button in the panel form for a saved snippet. It deletes the snippet and offers Undo."
   },
   "editDuplicate": {
-    "message": "துணுக்கை நகலெடு",
+    "message": "துணுக்கின் நகலை உருவாக்கு",
     "description": "Button in the panel form for a saved snippet. It makes a copy of the snippet."
   },
   "editError": {
@@ -191,7 +191,7 @@
     "description": "Error in the panel after deleting a snippet failed."
   },
   "duplicateError": {
-    "message": "துணுக்கை நகலெடுக்க முடியவில்லை.",
+    "message": "துணுக்கின் நகலை உருவாக்க முடியவில்லை.",
     "description": "Error in the panel after copying a snippet failed."
   },
   "moveError": {
@@ -215,7 +215,7 @@
     "description": "Grey hint inside the empty name box of the panel form. The ellipsis character is part of the style. At most 38 characters."
   },
   "placeholderAbbreviation": {
-    "message": "சுருக்கக் குறியீடு (விரும்பினால்): $EXAMPLE$",
+    "message": "சுருக்கக் குறியீடு (விரும்பினால்), எ.கா. $EXAMPLE$",
     "description": "Grey hint inside the empty abbreviation box of the panel form. An abbreviation is a short code the user types to insert a snippet. The example is filled in for you. At most 60 characters, counting the example.",
     "placeholders": {
       "example": {
@@ -680,7 +680,7 @@
     }
   },
   "duplicate": {
-    "message": "நகலெடு",
+    "message": "நகல் உருவாக்கு",
     "description": "Button in the manager form that makes a copy of the snippet."
   },
   "delete": {

@@ -41,11 +41,11 @@
     "description": "Short notice at the top of a web page after the user chose Insert snippet from the right-click menu on something that is not a text field the extension can fill."
   },
   "noticeFieldGone": {
-    "message": "Chưa chèn đoạn văn bản vì trường đã biến mất.",
+    "message": "Đoạn văn bản không được chèn vì trường đã biến mất.",
     "description": "Short notice at the top of a web page. The text field closed or was removed while the panel was open."
   },
   "noticeFieldChanged": {
-    "message": "Văn bản trong trường đã thay đổi nên chưa chèn đoạn văn bản.",
+    "message": "Văn bản trong trường đã thay đổi nên đoạn văn bản không được chèn.",
     "description": "Short notice at the top of a web page. The user typed an abbreviation and filled in a form, but the field changed in the meantime."
   },
   "noticeDocsCopied": {
@@ -63,7 +63,7 @@
     "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
   },
   "noticeFieldRoom_other": {
-    "message": "Trường này chỉ nhận thêm $FREE$ ký tự, còn đoạn văn bản dài $TOTAL$. Chưa chèn gì cả.",
+    "message": "Trường này chỉ nhận thêm $FREE$ ký tự, còn đoạn văn bản dài $TOTAL$ ký tự. Không có gì được chèn.",
     "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
     "placeholders": {
       "free": {

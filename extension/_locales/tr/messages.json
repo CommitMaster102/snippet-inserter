@@ -207,7 +207,7 @@
     "description": "Error in the panel or the manager when the snippet to show no longer exists."
   },
   "placeholderContent": {
-    "message": "Biraz metin girin …",
+    "message": "Metin girin …",
     "description": "Grey hint inside the empty text box of the panel form. The ellipsis character is part of the style. At most 38 characters."
   },
   "placeholderTitle": {
@@ -1010,7 +1010,7 @@
     "description": "Text under the empty list of sites where the extension is off."
   },
   "offSitesNote": {
-    "message": "Bir site alt alan adlarını da kapsar: $EXAMPLE$ adresi $SUBDOMAIN$ adresini de kapsar. Bu sitelerde klavye kısayolu ve sağ tıklama menüsü paneli yine açar. Panelin üstünde Kapat düğmesinin yanındaki düğme, geçerli siteyi kapatır veya yeniden etkinleştirir.",
+    "message": "Bir site alt alan adlarını da kapsar: $EXAMPLE$ adresi $SUBDOMAIN$ adresini de kapsar. Bu sitelerde klavye kısayolu ve sağ tıklama menüsü paneli yine açar. Panelin üstünde Kapat düğmesinin yanındaki düğme, geçerli sitede çift basmayı ve kısaltmaları kapatır veya yeniden etkinleştirir.",
     "description": "Text under the list of sites where the extension is off. Close is the name of a button in the panel; write it as in the message Close. The two web addresses are filled in for you.",
     "placeholders": {
       "example": {

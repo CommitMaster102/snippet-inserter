@@ -207,11 +207,11 @@
     "description": "Grey hint inside the empty text box of the panel form. The ellipsis character is part of the style. At most 38 characters."
   },
   "placeholderTitle": {
-    "message": "Andika jina (ya hiari) …",
+    "message": "Andika jina (la hiari) …",
     "description": "Grey hint inside the empty name box of the panel form. The ellipsis character is part of the style. At most 38 characters."
   },
   "placeholderAbbreviation": {
-    "message": "Kifupisho (ya hiari), k.m. $EXAMPLE$ …",
+    "message": "Kifupisho (cha hiari), k.m. $EXAMPLE$ …",
     "description": "Grey hint inside the empty abbreviation box of the panel form. An abbreviation is a short code the user types to insert a snippet. The example is filled in for you. At most 60 characters, counting the example.",
     "placeholders": {
       "example": {
@@ -280,7 +280,7 @@
     }
   },
   "labelEdited": {
-    "message": "kimebadilika",
+    "message": "kimebadiliwa",
     "description": "Small label next to a snippet in the panel list that was just changed. At most 12 characters."
   },
   "labelNew": {

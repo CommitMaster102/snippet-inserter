@@ -29,7 +29,7 @@
     "description": "The name of this language, written in this language, such as Deutsch for German."
   },
   "menuSaveSelection": {
-    "message": "ಆಯ್ಕೆಯನ್ನು ತುಣುಕಾಗಿ ಸೇವ್ ಮಾಡಿ",
+    "message": "ಆಯ್ಕೆಮಾಡಿದ ಪಠ್ಯವನ್ನು ತುಣುಕಾಗಿ ಸೇವ್ ಮಾಡಿ",
     "description": "Right-click menu item shown when text on a page is selected. It opens the form for a new snippet that starts with that text. At most 50 characters."
   },
   "menuInsertSnippet": {
@@ -139,7 +139,7 @@
     "description": "First entry in the panel list. It opens the form for a new snippet. At most 40 characters."
   },
   "createFromSelection": {
-    "message": "ಆಯ್ಕೆಯಿಂದ ತುಣುಕನ್ನು ರಚಿಸಿ",
+    "message": "ಆಯ್ಕೆಮಾಡಿದ ಪಠ್ಯದಿಂದ ತುಣುಕನ್ನು ರಚಿಸಿ",
     "description": "First entry in the panel list when text was selected on the page. The new snippet starts with that text."
   },
   "emptyApply": {

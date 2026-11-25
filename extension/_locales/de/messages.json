@@ -344,7 +344,7 @@
     }
   },
   "referenceLimit": {
-    "message": "Ein Einfügen enthält höchstens $LIMIT$ Snippets, daher werden die übrigen Verweise unverändert eingefügt.",
+    "message": "Pro Einfügen werden höchstens $LIMIT$ Snippets eingebunden, daher werden die übrigen Verweise unverändert eingefügt.",
     "description": "Warning under a snippet that includes more other snippets than one insert allows. The limit, always 100, is filled in for you, so write the word for snippets in the form that goes with 100.",
     "placeholders": {
       "limit": {
@@ -947,7 +947,7 @@
     "description": "Text under the keyboard shortcut setting."
   },
   "expandAbbreviations": {
-    "message": "Kürzel erweitern",
+    "message": "Kürzel ersetzen",
     "description": "Label of the menu where the user picks when a typed abbreviation is replaced by its snippet."
   },
   "abbreviationsImmediate": {
@@ -970,7 +970,7 @@
     }
   },
   "abbreviationsNote": {
-    "message": "Wenn du das Kürzel eines Snippets in ein Textfeld tippst, wird es durch das Snippet ersetzt, und mit <kbd>$CTRL$</kbd>+<kbd>$Z$</kbd> erhältst du den getippten Text zurück. Warten die Kürzel auf $SPACE$, $TAB$ oder $ENTER$, bleibt nach dem Snippet ein Leerzeichen stehen, während $TAB$ und $ENTER$ das Kürzel nur erweitern. In $GOOGLE_DOCS$ funktioniert das nicht.",
+    "message": "Wenn du das Kürzel eines Snippets in ein Textfeld tippst, wird es durch das Snippet ersetzt, und mit <kbd>$CTRL$</kbd>+<kbd>$Z$</kbd> erhältst du den getippten Text zurück. Warten die Kürzel auf $SPACE$, $TAB$ oder $ENTER$, bleibt nach dem Snippet ein Leerzeichen stehen, während $TAB$ und $ENTER$ das Kürzel nur ersetzen. In $GOOGLE_DOCS$ funktioniert das nicht.",
     "description": "Text under the abbreviations menu. Keep each <kbd>...</kbd> pair around the name of a key. The key names, the letter Z, and the product name are filled in for you. You may change a key name to the one keyboards in your language print, the same way in every message.",
     "placeholders": {
       "ctrl": {
@@ -1340,7 +1340,7 @@
     }
   },
   "importAbbrDropped_one": {
-    "message": "$COUNT$ Snippet hat sein Kürzel verloren, weil es schon ein anderes Snippet verwendet.",
+    "message": "$COUNT$ Snippet hat sein Kürzel verloren, weil ein anderes Snippet es bereits verwendet.",
     "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. This is the form for the plural category one. English uses it only for 1, but some languages use it for other numbers too, such as 2 in Filipino. Keep $COUNT$ in the text unless i18n/glossary.md says your language uses this form only for 1.",
     "placeholders": {
       "count": {
@@ -1350,7 +1350,7 @@
     }
   },
   "importAbbrDropped_other": {
-    "message": "$COUNT$ Snippets haben ihr Kürzel verloren, weil es schon ein anderes Snippet verwendet.",
+    "message": "$COUNT$ Snippets haben ihr Kürzel verloren, weil ein anderes Snippet es bereits verwendet.",
     "description": "Sentence in the report after an import, for snippets imported without their abbreviation because another snippet already has it. Plural form.",
     "placeholders": {
       "count": {

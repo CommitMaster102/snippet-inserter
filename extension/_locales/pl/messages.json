@@ -352,7 +352,7 @@
     }
   },
   "labelEdited": {
-    "message": "edytowano",
+    "message": "edytowany",
     "description": "Small label next to a snippet in the panel list that was just changed. At most 12 characters."
   },
   "labelNew": {

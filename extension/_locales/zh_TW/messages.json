@@ -63,7 +63,7 @@
     "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
   },
   "noticeFieldRoom_other": {
-    "message": "這個欄位只能再容納 $FREE$ 個字元，而片段的長度是 $TOTAL$。未插入任何內容。",
+    "message": "這個欄位只能再容納 $FREE$ 個字元，而片段的字元數是 $TOTAL$。未插入任何內容。",
     "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
     "placeholders": {
       "free": {
@@ -1082,7 +1082,7 @@
     }
   },
   "siteCovered": {
-    "message": "$HOST$ 已關閉，因為 $COVERING$ 已在清單中。",
+    "message": "$HOST$ 上的連按兩下和縮寫已經關閉，因為 $COVERING$ 已在清單中。",
     "description": "Error under the box where a site is added, when a shorter entry already covers it. Both sites are filled in for you.",
     "placeholders": {
       "host": {

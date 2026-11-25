@@ -59,7 +59,7 @@
     "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
   },
   "noticeFieldRoom_other": {
-    "message": "ช่องนี้รับได้อีก $FREE$ อักขระ แต่ข้อความสำเร็จรูปยาว $TOTAL$ จึงไม่มีการแทรกข้อความ",
+    "message": "ช่องนี้รับได้อีก $FREE$ อักขระ แต่จำนวนอักขระของข้อความสำเร็จรูปคือ $TOTAL$ จึงไม่มีการแทรกข้อความ",
     "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
     "placeholders": {
       "free": {

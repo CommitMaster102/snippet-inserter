@@ -63,7 +63,7 @@
     "description": "Short notice at the top of a Google Docs page. The pencil is the Edit button in the snippet panel."
   },
   "noticeFieldRoom_other": {
-    "message": "此文本框只能再输入 $FREE$ 个字符，而片段长度为 $TOTAL$。未插入任何内容。",
+    "message": "此文本框只能再输入 $FREE$ 个字符，而片段的字符数为 $TOTAL$。未插入任何内容。",
     "description": "Short notice at the top of a web page. The field has a maximum length and the snippet does not fit. $FREE$ is the number of characters that still fit, and it chooses the plural form. $TOTAL$ is the length of the snippet; write the sentence so that no word for characters follows it, as the English does. Plural form.",
     "placeholders": {
       "free": {
@@ -149,7 +149,7 @@
     "description": "Heading above the error in the panel when stored snippets could not be read."
   },
   "emptyText": {
-    "message": "片段是可重复使用的简短文本，适合保存经常输入的内容，帮您节省时间（例如地址、电子邮件）。",
+    "message": "片段是可重复使用的简短文本（例如地址、电子邮件），适合保存经常输入的内容，帮您节省时间。",
     "description": "Explanation in the empty panel of what a snippet is. The examples in brackets are things people often save."
   },
   "formApply": {
@@ -1082,7 +1082,7 @@
     }
   },
   "siteCovered": {
-    "message": "$HOST$ 已处于关闭状态，因为 $COVERING$ 已在列表中。",
+    "message": "已在 $HOST$ 上关闭连按两次和缩写功能，因为 $COVERING$ 已在列表中。",
     "description": "Error under the box where a site is added, when a shorter entry already covers it. Both sites are filled in for you.",
     "placeholders": {
       "host": {

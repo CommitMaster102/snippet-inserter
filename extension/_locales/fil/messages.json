@@ -240,7 +240,7 @@
     "description": "Accessible name of the row of folder buttons. Screen readers read it; it is not shown."
   },
   "validationEmpty": {
-    "message": "Hindi dapat walang laman ang field na ito.",
+    "message": "Kailangang may laman ang field na ito.",
     "description": "Error under a form field that was left empty."
   },
   "validationTooLong_one": {
@@ -308,7 +308,7 @@
     "description": "Label before the list of placeholders in a snippet text. A placeholder is a word in braces, such as {date}, that is replaced when the snippet is inserted."
   },
   "placeholdersUnrecognized": {
-    "message": "Hindi kilala, inilalagay nang eksakto sa pagkakasulat",
+    "message": "Hindi makilala, inilalagay nang eksakto sa pagkakasulat",
     "description": "Label before the list of text in braces that looks like a placeholder but is not one. It is inserted exactly as typed."
   },
   "includes": {
