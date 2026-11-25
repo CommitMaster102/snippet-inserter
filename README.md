@@ -166,7 +166,9 @@ the start of the field or after a space, punctuation, or a symbol, so `;addr` in
 as typed. With a Japanese, Chinese, or Korean input method, an abbreviation such as `あいさつ` expands
 when you commit the text, not while it is still being composed. In a rich-text editor the snippet
 goes in a few tens of milliseconds after the abbreviation, and text, Enter, or Shift+Enter that you
-type in that time goes in after the snippet.
+type in that time goes in after the snippet. The abbreviation of a snippet with fill-in fields
+stays selected while you fill them in. If the page changes it in that time, the snippet is not
+inserted, and a notice says so.
 
 In the manager's Settings, "Expand abbreviations" has 3 choices. "As soon as I type them" is the
 default. "After I press Space, Tab, or Enter" waits for one of those keys: Space expands the

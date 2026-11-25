@@ -544,7 +544,11 @@ export function create(shared) {
     const text = (left ? ' ' : '') + body.text + (right ? ' ' : '') + (ctx.suffix || '');
     const caret = body.cursor === null ? null : body.cursor + (left ? 1 : 0);
     if (isValueField(ctx)) {
-      if (!stillReplaces(ctx) || !fitsMaxLength(ctx, text)) return;
+      if (!stillReplaces(ctx)) {
+        noticeIfFilledIn(ctx, values);
+        return;
+      }
+      if (!fitsMaxLength(ctx, text)) return;
       insertIntoTextarea(ctx.el, ctx.start, ctx.end, text);
       if (caret !== null) ctx.el.setSelectionRange(ctx.start + caret, ctx.start + caret);
       return;
@@ -552,7 +556,10 @@ export function create(shared) {
     const hold = holdTyping(ctx);
     try {
       await wait(SELECTION_SETTLE_MS);
-      if (!stillReplaces(ctx)) return;
+      if (!stillReplaces(ctx)) {
+        noticeIfFilledIn(ctx, values);
+        return;
+      }
       pasteIntoRichEditor(ctx, text);
       // Editors that handle the paste themselves may update the page a moment later, so the caret
       // moves to {cursor}, and held keys are typed, only after that.
@@ -649,6 +656,15 @@ export function create(shared) {
     if (!selection || !selection.rangeCount) return false;
     const range = selection.getRangeAt(0);
     return ctx.el.contains(range.commonAncestorContainer) && range.toString() === ctx.replaces;
+  }
+
+  // When an abbreviation's insert gives up after a fill-in form, a notice says that nothing was
+  // inserted, because the values typed in the form are lost. Without a form no values are lost,
+  // and the insert gives up without a notice.
+  function noticeIfFilledIn(ctx, values) {
+    if (Object.keys(values).length) {
+      showNotice('The text in the field changed, so the snippet was not inserted.', ctx);
+    }
   }
 
   // A field with a maxlength attribute would cut the snippet short, so nothing is inserted and a

@@ -192,8 +192,10 @@ test('Escape in that form keeps the typed abbreviation and the caret after it', 
   await expect(page.locator('#plain')).toHaveValue('Hello world ;sig!');
 });
 
-// The insert replaces the abbreviation only if it is still where the form found it.
-test('the fill-in form inserts nothing if the page changed the abbreviation while it was open', async ({ page, serviceWorker }) => {
+// The insert replaces the abbreviation only if it is still where the form found it. Otherwise a
+// notice says that nothing was inserted, because what the user typed in the form is lost.
+test('the fill-in form inserts nothing, and says so, if the page changed the abbreviation while it was open', async ({ page, serviceWorker }) => {
+  const notice = page.getByRole('status');
   await seedSnippets(serviceWorker, SNIPPETS);
   await ready(page, () => selectInTextarea(page, '#plain', 11));
   await page.keyboard.type(' ;sig');
@@ -204,8 +206,11 @@ test('the fill-in form inserts nothing if the page changed the abbreviation whil
   await page.keyboard.type('Ana');
   await pressInPanel(page, 'Enter');
   await expectPanelClosed(page);
+  await expect(notice).toHaveText('The text in the field changed, so the snippet was not inserted.');
   await page.waitForTimeout(300);
   await expect(page.locator('#plain')).toHaveValue('Hello world ;sog');
+  // The notice stays for a few seconds, so it is removed before the second case.
+  await notice.evaluate((box) => box.getRootNode().host.remove());
 
   await caretAtEndOf(page, '#pasteEditor');
   await page.keyboard.type(' ;sig');
@@ -216,6 +221,7 @@ test('the fill-in form inserts nothing if the page changed the abbreviation whil
   await page.keyboard.type('Ana');
   await pressInPanel(page, 'Enter');
   await expectPanelClosed(page);
+  await expect(notice).toHaveText('The text in the field changed, so the snippet was not inserted.');
   await page.waitForTimeout(300);
   await expect(page.locator('#pasteEditor')).toHaveText('Editor: ;sog');
 });
