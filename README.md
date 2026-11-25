@@ -34,7 +34,8 @@ Ctrl+Shift+Space. You can also right-click a field and choose "Insert snippet...
 - With snippets saved, the panel lists them. Pick one with the mouse, with the arrow keys and
   Enter, or with Ctrl+2 to Ctrl+9 (Ctrl+1 is "Create new snippet"). The Ctrl shortcuts in the
   panel and the manager (Ctrl+1 to Ctrl+9, Ctrl+Z, Ctrl+S, Ctrl+K) work on any keyboard layout, such
-  as French AZERTY or Russian, because they follow the physical key.
+  as French AZERTY or Russian, because they use the Latin letter or digit printed on the key, or the
+  key's position when it prints another alphabet or a symbol.
 - Type in the search box to filter. The list keeps the snippets whose name, text, or folder has a
   word that starts with what you type, or whose abbreviation starts with it. A word starts after a
   space, an apostrophe, or a hyphen, so "école" is found in "l'école". In Japanese, Chinese, and
@@ -421,10 +422,10 @@ replaced by a pseudo-language: one about 40 percent longer, and one written from
 check that the panel, the manager, and the page notices fit and mirror, including the manager's
 formatting toolbar and link bar, and the manager at 800 pixels wide, where the list sits above the
 editor. In the longer one, every text that is not snippet text must carry its marks, so a text the
-code builds itself, outside the catalog, fails the test. The right-to-left one also
-runs with Persian digits, to check that every count and position on the pages and in a notice is
-written in the digits of the interface language. `npm run test:locales` checks the real language
-folders and passes while only English is present. It lets a translation write a fixed number, such
+code builds itself, outside the catalog, fails the test. The right-to-left one also runs with
+Persian digits, to check that every count and position on the pages and in a notice is written in
+the digits of the interface language. `npm run test:locales` checks the real language folders and
+passes while only English is present. It lets a translation write a fixed number, such
 as the 20 of Recently deleted, in the digits of its language, and a key name, such as Ctrl, as
 keyboards in its language print it, the same way in every message.
 

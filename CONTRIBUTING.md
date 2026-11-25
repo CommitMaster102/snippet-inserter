@@ -12,7 +12,7 @@ Open an issue and pick the bug report or feature request form. Issues are public
 2. Run `npm install`, then `npm run browsers` to download the browser the tests use.
 3. Load the `extension` folder as the README's "Install from source" section describes, and try the change.
 4. Run `npm run test:unit` and `npm test`. A change in behavior needs a test that covers it. The README's Tests section describes the suite.
-5. Write any text a person reads in `extension/_locales/en/messages.json`, with a note for translators in its `description`, and ask for it with `chrome.i18n` or a `data-i18n` attribute. Put numbers, names, and syntax such as `{date}` in `$placeholders$`.
+5. Write any text a person reads in `extension/_locales/en/messages.json`, with a note for translators in its `description`. The pages ask for it with `t()` and `plural()` from `lib/i18n.js` or a `data-i18n` attribute, and the content scripts with `chrome.i18n.getMessage`. Write the key as a string in the call, because `npm run test:unit` finds the keys in use that way. Put numbers, names, key names such as Ctrl, and syntax such as `{date}` in `$placeholders$`, and a message that is given a count needs plural forms. Format a number with `i18n.number` so it has the digits of the interface language.
 6. Leave `version` in `extension/manifest.json` unchanged. The version goes up when a release is uploaded to the Chrome Web Store.
 7. Open a pull request that says what changed and why.
 
