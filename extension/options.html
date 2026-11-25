@@ -73,10 +73,41 @@
             </label>
             <p id="folderError" class="field-error" hidden></p>
             <datalist id="folderOptions"></datalist>
-            <label class="field field-grow">
-              <span class="field-label">Text</span>
+            <div class="field field-grow">
+              <div class="field-head">
+                <label id="contentLabel" class="field-label" for="content">Text</label>
+                <label class="inline-check"><input id="formatted" type="checkbox" /> Formatted text</label>
+              </div>
+              <div id="toolbar" class="toolbar" role="toolbar" aria-label="Formatting" aria-controls="richContent" hidden>
+                <button class="tool" type="button" data-tool="bold" aria-label="Bold (Ctrl+B)" title="Bold (Ctrl+B)" aria-pressed="false"><b aria-hidden="true">B</b></button>
+                <button class="tool" type="button" data-tool="italic" aria-label="Italic (Ctrl+I)" title="Italic (Ctrl+I)" aria-pressed="false"><i aria-hidden="true">I</i></button>
+                <button class="tool" type="button" data-tool="underline" aria-label="Underline (Ctrl+U)" title="Underline (Ctrl+U)" aria-pressed="false"><u aria-hidden="true">U</u></button>
+                <span class="tool-separator" aria-hidden="true"></span>
+                <button class="tool" type="button" data-tool="link" aria-label="Link (Ctrl+K)" title="Link (Ctrl+K)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M6.5 9.5l3-3"/><path d="M7.3 4.7l1.2-1.2a2.6 2.6 0 0 1 3.7 3.7L11 8.4"/><path d="M8.7 11.3l-1.2 1.2a2.6 2.6 0 0 1-3.7-3.7L5 7.6"/></svg></button>
+                <span class="tool-separator" aria-hidden="true"></span>
+                <button class="tool" type="button" data-tool="bulleted" aria-label="Bulleted list" title="Bulleted list" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M6.5 4.5h7M6.5 8h7M6.5 11.5h7"/><path d="M3 4.5h.01M3 8h.01M3 11.5h.01" stroke-width="2.2"/></svg></button>
+                <button class="tool" type="button" data-tool="numbered" aria-label="Numbered list" title="Numbered list" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 4.5h7M6.5 8h7M6.5 11.5h7"/><path d="M2.5 3.5l1-.6v3.1"/><path d="M2.4 9.6c.3-.5 1.8-.6 1.8.3 0 .7-1.8 1.4-1.8 2.1h1.9"/></svg></button>
+                <span class="tool-separator" aria-hidden="true"></span>
+                <button class="tool" type="button" data-tool="code" aria-label="Code" title="Code" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 5L2.5 8l3 3M10.5 5l3 3-3 3"/></svg></button>
+                <button class="tool" type="button" data-tool="codeBlock" aria-label="Code block" title="Code block" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M6.2 6.3L4.5 8l1.7 1.7M9.8 6.3L11.5 8l-1.7 1.7"/></svg></button>
+                <span class="tool-separator" aria-hidden="true"></span>
+                <button class="tool" type="button" data-tool="clear" aria-label="Clear formatting" title="Clear formatting"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M4 3.5h8M8 3.5v9"/><path d="M3 13.5l10-10"/></svg></button>
+              </div>
+              <div id="linkBar" class="link-bar" hidden>
+                <label for="linkUrl">Link address</label>
+                <input id="linkUrl" class="input link-input" type="text" inputmode="url" placeholder="https://example.com" autocomplete="off" spellcheck="false" />
+                <button id="linkApply" class="primary" type="button">Apply</button>
+                <button id="linkRemove" class="secondary" type="button">Remove link</button>
+                <button id="linkCancel" class="secondary" type="button">Cancel</button>
+              </div>
+              <p id="linkError" class="field-error" hidden></p>
               <textarea id="content" class="input content" dir="auto" spellcheck="true"></textarea>
-            </label>
+              <div id="richContent" class="input content rich" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="contentLabel" dir="auto" spellcheck="true" hidden></div>
+              <p id="formatHint" class="muted format-hint" hidden>
+                Rich-text editors, such as webmail, get this formatting. Text boxes and Google Docs get the
+                plain text, with bullets as dots and each link's address in parentheses after it.
+              </p>
+            </div>
             <p id="contentError" class="field-error" hidden></p>
             <p id="placeholderList" class="placeholder-list" hidden></p>
             <p id="unrecognizedList" class="placeholder-list" hidden></p>

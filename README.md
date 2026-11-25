@@ -158,6 +158,27 @@ included snippet. A reference with no target is red in that row, and a line belo
 reference is inserted as written and why, including a snippet that includes itself. These lines
 never stop you from saving.
 
+## Formatting
+
+In the snippet manager, the "Formatted text" box above a snippet's text turns the text box into an
+editor with a toolbar: Bold, Italic, Underline, Link, Bulleted list, Numbered list, Code, Code
+block, and Clear formatting. Ctrl+B, Ctrl+I, and Ctrl+U work as in other editors, and Ctrl+K opens
+the link field. The toolbar is one Tab stop, and the Left and Right arrows move between its buttons.
+Code marks a word or a line in a fixed-width font. Code block turns lines into a block that keeps
+every space, tab, and line break. Clear formatting removes bold, italic, underline, code, and links,
+and keeps lists and code blocks. Lists nest up to 3 levels.
+
+A link needs an address that starts with `https://`, `http://`, `mailto:`, or `tel:`. A typed
+address such as `example.com` becomes `https://example.com/`, and an email address becomes a
+`mailto:` link. Text pasted into the editor keeps only this formatting: images, tables, colors,
+fonts, headings, and anything else a snippet cannot hold are left out, and their text stays.
+Placeholders and `{snippet:...}` references work in formatted text, and the Placeholders and
+Includes rows list them as for plain text.
+
+Turning the box off asks nothing. The text box gets the text without its formatting, with a bullet
+or a number before each list item and each link's address in parentheses after its text, and Save
+then removes the formatting.
+
 ## Abbreviations
 
 A snippet can have an abbreviation, such as `;addr`. Typing the abbreviation in a text field

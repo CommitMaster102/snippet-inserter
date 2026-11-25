@@ -419,6 +419,123 @@ select:focus {
   resize: vertical;
 }
 
+/* Formatted text: the label row with its check box, the toolbar, the link bar, and the editor. */
+
+.field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+}
+
+.tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-default);
+}
+
+.tool:hover,
+.tool[aria-pressed="true"] {
+  background: var(--bg-neutral);
+}
+
+.tool[aria-pressed="true"] {
+  color: var(--brand-default);
+}
+
+.tool:focus-visible {
+  outline: 2px solid var(--brand-default);
+  outline-offset: 1px;
+}
+
+.tool-separator {
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background: var(--border-default);
+}
+
+.link-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.link-input {
+  flex: 1;
+  min-width: 180px;
+  width: auto;
+}
+
+/* The editor keeps typed spaces, and its formatting looks as the panel shows it. */
+.rich {
+  height: auto;
+  flex: 1;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.rich ul,
+.rich ol {
+  margin: 0;
+  padding-inline-start: 24px;
+}
+
+.rich a {
+  color: var(--brand-default);
+}
+
+.rich code,
+.rich pre {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 13px;
+  background: var(--bg-neutral);
+  border-radius: 4px;
+}
+
+.rich code {
+  padding: 0 3px;
+}
+
+.rich pre {
+  margin: 4px 0;
+  padding: 6px 8px;
+  white-space: pre-wrap;
+}
+
+.rich pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.format-hint {
+  margin: -4px 0 0;
+  font-size: 12px;
+}
+
 .placeholder-list {
   display: flex;
   flex-wrap: wrap;

@@ -10,7 +10,12 @@
 'use strict';
 
 const lib = window.SnippetInserter;
+const richText = lib.richText;
+const IS_MAC = navigator.userAgent.includes('Mac OS');
 const VIEWS = ['snippets', 'deleted', 'settings'];
+// While the rich editor has the focus, the count and the lists under it follow the typing after
+// this pause, because each update reads the whole editor.
+const RICH_UPDATE_MS = 150;
 // background.js leaves selected text here before opening the page at #new.
 const PENDING_KEY = 'pendingSnippet';
 // A second click on "Delete forever" within this time deletes the snippet for good.
@@ -67,6 +72,16 @@ const els = {
   offSiteList: $('offSiteList'),
   offSitesEmpty: $('offSitesEmpty'),
   content: $('content'),
+  formatted: $('formatted'),
+  toolbar: $('toolbar'),
+  linkBar: $('linkBar'),
+  linkUrl: $('linkUrl'),
+  linkApply: $('linkApply'),
+  linkRemove: $('linkRemove'),
+  linkCancel: $('linkCancel'),
+  linkError: $('linkError'),
+  richContent: $('richContent'),
+  formatHint: $('formatHint'),
   contentError: $('contentError'),
   placeholderList: $('placeholderList'),
   unrecognizedList: $('unrecognizedList'),
@@ -140,8 +155,23 @@ function showView(name) {
 }
 
 // #new opens the editor with a new snippet, holding any text that background.js left in session
-// storage, and then shows as #snippets.
+// storage, and then shows as #snippets. #edit=<id>, which the panel opens for a formatted snippet,
+// selects that snippet and also shows as #snippets.
 async function route() {
+  const edit = /^#edit=(.*)$/.exec(location.hash);
+  if (edit) {
+    history.replaceState(null, '', '#snippets');
+    showView('snippets');
+    let id = '';
+    try {
+      id = decodeURIComponent(edit[1]);
+    } catch {
+      // A malformed address names no snippet.
+    }
+    if (state.snippets.some((s) => s.id === id)) requestSelect(id);
+    else reportError('Could not find the snippet.');
+    return;
+  }
   if (location.hash !== '#new') {
     showView(currentView());
     return;
@@ -556,10 +586,18 @@ els.search.addEventListener('input', () => renderList());
 
 // The editor.
 
+// The text as it would be saved: the text box, or the rich editor read through the cleaner, with
+// `html` only when the text has formatting.
+function textFields() {
+  if (!els.formatted.checked) return { content: els.content.value, html: '' };
+  const clean = richText.clean(els.richContent);
+  return { content: clean.text, html: clean.formatted ? clean.html : '' };
+}
+
 function fields() {
   return {
     title: els.title.value,
-    content: els.content.value,
+    ...textFields(),
     abbreviation: els.abbreviation.value.trim(),
     folder: lib.cleanFolder(els.folder.value),
   };
@@ -570,6 +608,7 @@ function snippetFields(snippet) {
   return {
     title: snippet.title || '',
     content: snippet.content,
+    html: snippet.html || '',
     abbreviation: snippet.abbreviation || '',
     folder: snippet.folder || '',
   };
@@ -580,6 +619,7 @@ function sameFields(a, b) {
     Boolean(a && b) &&
     a.title === (b.title || '') &&
     a.content === b.content &&
+    (a.html || '') === (b.html || '') &&
     (a.abbreviation || '') === (b.abbreviation || '') &&
     (a.folder || '') === (b.folder || '')
   );
@@ -610,7 +650,7 @@ function renderReferences() {
   const own = {
     id: state.creating ? '' : state.selectedId || '',
     title: els.title.value,
-    content: els.content.value,
+    content: textFields().content,
     abbreviation: els.abbreviation.value.trim(),
   };
   const all = [...state.snippets.filter((s) => s.id !== own.id), own];
@@ -646,10 +686,11 @@ function renderReferences() {
 
 // The character count, and the placeholders the text contains, which are replaced on insert.
 function updateCount() {
-  els.count.textContent = lib.characterCount(els.content.value);
+  const text = textFields().content;
+  els.count.textContent = lib.characterCount(text);
   renderReferences();
-  renderUnrecognized(lib.placeholders.unrecognized(els.content.value));
-  const found = lib.placeholders.listPlaceholders(els.content.value);
+  renderUnrecognized(lib.placeholders.unrecognized(text));
+  const found = lib.placeholders.listPlaceholders(text);
   els.placeholderList.hidden = !found.length;
   els.placeholderList.replaceChildren();
   if (!found.length) return;
@@ -680,11 +721,15 @@ function loadEditor(snippet, initialContent = '', initialFolder = '') {
   els.editorHeading.textContent = snippet ? 'Edit snippet' : 'New snippet';
   els.title.value = snippet ? snippet.title || '' : '';
   els.content.value = snippet ? snippet.content : initialContent;
+  const html = snippet && snippet.html ? snippet.html : '';
+  showFormatted(Boolean(html), html);
   els.abbreviation.value = snippet ? snippet.abbreviation || '' : '';
   els.folder.value = snippet ? snippet.folder || '' : initialFolder;
+  // A formatted snippet's text is compared as the editor reads it back, so opening one leaves
+  // nothing unsaved.
   state.snapshot = snippet
-    ? snippetFields(snippet)
-    : { title: '', content: '', abbreviation: '', folder: initialFolder };
+    ? { ...snippetFields(snippet), ...(html ? textFields() : {}) }
+    : { title: '', content: '', html: '', abbreviation: '', folder: initialFolder };
   els.duplicate.hidden = !snippet;
   els.delete.hidden = !snippet;
   els.titleError.hidden = true;
@@ -816,7 +861,7 @@ async function run(work, { fromEditor = false } = {}) {
 // than 128 characters, and the folder must not be longer than 64.
 function validate() {
   let valid = true;
-  els.contentError.hidden = els.content.value.trim() !== '';
+  els.contentError.hidden = textFields().content.trim() !== '';
   if (!els.contentError.hidden) {
     els.contentError.textContent = 'This field must not be empty.';
     valid = false;
@@ -912,6 +957,371 @@ els.folder.addEventListener('input', () => {
   els.editorStatus.textContent = '';
 });
 
+// Formatted text. The "Formatted text" box swaps the text box for a rich editor with a toolbar.
+// Whatever the editor holds is read through lib/richtext.js, so what is counted, compared with the
+// saved snippet, and saved is always the cleaned HTML and its plain text.
+
+// Shows the rich editor holding `html`, or the text box.
+function showFormatted(on, html = '') {
+  if (on) els.richContent.replaceChildren(richText.toFragment(html, document, { titles: true }));
+  els.formatted.checked = on;
+  els.content.hidden = on;
+  for (const node of [els.richContent, els.toolbar, els.formatHint]) node.hidden = !on;
+  closeLinkBar(false);
+}
+
+// Turning the box on brings the text along with its lines. Turning it off asks nothing: the text
+// box gets the plain text, with bullets and link addresses, and saving then drops the formatting.
+els.formatted.addEventListener('change', () => {
+  if (els.formatted.checked) {
+    showFormatted(true, richText.fromText(els.content.value));
+    els.richContent.focus();
+  } else {
+    els.content.value = richText.clean(els.richContent).text;
+    showFormatted(false);
+    els.content.focus();
+  }
+  els.editorStatus.textContent = '';
+  updateCount();
+});
+
+let richTimer = null;
+els.richContent.addEventListener('input', () => {
+  els.contentError.hidden = true;
+  els.editorStatus.textContent = '';
+  refreshTools();
+  clearTimeout(richTimer);
+  richTimer = setTimeout(updateCount, RICH_UPDATE_MS);
+});
+
+// The editor's selection, kept while the focus is in the toolbar or the link bar.
+let editorRange = null;
+
+// Remembers the selection when it is in the editor now, and returns whether it is.
+function captureEditorRange() {
+  const selection = getSelection();
+  if (els.richContent.hidden || !selection.rangeCount) return false;
+  const range = selection.getRangeAt(0);
+  if (!els.richContent.contains(range.commonAncestorContainer)) return false;
+  editorRange = range.cloneRange();
+  return true;
+}
+
+document.addEventListener('selectionchange', () => {
+  if (captureEditorRange()) refreshTools();
+});
+
+// Puts the focus back in the editor with its selection. A selection that is in the editor already
+// is newer than the kept one, which typing has left behind, so it stays.
+function restoreEditorRange() {
+  if (document.activeElement === els.richContent && captureEditorRange()) return;
+  els.richContent.focus({ preventScroll: true });
+  if (editorRange && els.richContent.contains(editorRange.commonAncestorContainer)) {
+    const selection = getSelection();
+    selection.removeAllRanges();
+    selection.addRange(editorRange);
+  }
+}
+
+function selectContents(node) {
+  const range = document.createRange();
+  range.selectNodeContents(node);
+  const selection = getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
+// The element named `tag` (upper case) that holds the editor's selection, or null.
+function enclosing(tag) {
+  for (let node = editorRange && editorRange.commonAncestorContainer; node && node !== els.richContent; node = node.parentNode) {
+    if (node.nodeName === tag) return node;
+  }
+  return null;
+}
+
+function unwrap(element) {
+  element.replaceWith(...element.childNodes);
+}
+
+// The number of characters of editor text before a point.
+function textOffset(node, offset) {
+  const range = document.createRange();
+  range.setStart(els.richContent, 0);
+  range.setEnd(node, offset);
+  return range.toString().length;
+}
+
+// The point `offset` characters into the editor text. Where it falls between two text nodes, it
+// goes to the end of the first, or with `atStart` to the start of the second.
+function pointAt(offset, atStart) {
+  const walker = document.createTreeWalker(els.richContent, NodeFilter.SHOW_TEXT);
+  let last = null;
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (atStart ? offset < node.data.length : offset <= node.data.length) return [node, offset];
+    offset -= node.data.length;
+    last = node;
+  }
+  return last ? [last, last.data.length] : null;
+}
+
+// Runs a command that changes the lines but not the text, and puts the selection back at the same
+// place in the text. Chromium's list and block commands leave the caret at the start of the line,
+// where the next typed character would go.
+function keepingSelection(command) {
+  const selection = getSelection();
+  const range = selection.rangeCount ? selection.getRangeAt(0) : null;
+  const ends = range && [
+    [textOffset(range.startContainer, range.startOffset), range.startOffset === 0],
+    [textOffset(range.endContainer, range.endOffset), range.endOffset === 0],
+  ];
+  command();
+  const start = ends && pointAt(...ends[0]);
+  const end = ends && pointAt(...ends[1]);
+  if (!start || !end) return;
+  const restored = document.createRange();
+  restored.setStart(...start);
+  restored.setEnd(...end);
+  selection.removeAllRanges();
+  selection.addRange(restored);
+}
+
+const COMMANDS = {
+  bold: 'bold',
+  italic: 'italic',
+  underline: 'underline',
+  bulleted: 'insertUnorderedList',
+  numbered: 'insertOrderedList',
+};
+
+// The pressed state of the toolbar buttons follows the selection.
+function refreshTools() {
+  const state = (command) => {
+    try {
+      return document.queryCommandState(command);
+    } catch {
+      return false;
+    }
+  };
+  const inPre = Boolean(enclosing('PRE'));
+  const pressed = { code: !inPre && Boolean(enclosing('CODE')), codeBlock: inPre };
+  for (const [tool, command] of Object.entries(COMMANDS)) pressed[tool] = state(command);
+  for (const button of els.toolbar.querySelectorAll('[aria-pressed]')) {
+    button.setAttribute('aria-pressed', String(Boolean(pressed[button.dataset.tool])));
+  }
+}
+
+// Code marks the selected text, or removes the mark when the selection is in code. Inside a code
+// block it does nothing.
+function toggleCode() {
+  if (enclosing('PRE')) return;
+  const code = enclosing('CODE');
+  if (code) {
+    unwrap(code);
+    updateCount();
+    return;
+  }
+  const selection = getSelection();
+  if (selection.isCollapsed) return;
+  const escape = (text) => text.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  const lines = selection.toString().split(/\r\n?|\n/);
+  document.execCommand('insertHTML', false, lines.map((line) => (line ? `<code>${escape(line)}</code>` : '')).join('<br>'));
+}
+
+// Code block turns the lines of the selection into a code block, or the whole code block back into
+// lines. The browser's block command would keep the code element of a stored code block inside the
+// lines it makes, where it would read as inline code, so that element is unwrapped first.
+function toggleCodeBlock() {
+  const pre = enclosing('PRE');
+  if (!pre) {
+    keepingSelection(() => document.execCommand('formatBlock', false, 'pre'));
+    return;
+  }
+  for (const code of pre.querySelectorAll('code')) unwrap(code);
+  keepingSelection(() => {
+    selectContents(pre);
+    document.execCommand('formatBlock', false, 'div');
+  });
+}
+
+function runTool(tool) {
+  if (tool === 'link') {
+    openLinkBar();
+    return;
+  }
+  restoreEditorRange();
+  if (tool === 'code') toggleCode();
+  else if (tool === 'codeBlock') toggleCodeBlock();
+  else if (tool === 'clear') {
+    // Clear formatting removes bold, italic, underline, code, and links, and keeps lists and code
+    // blocks.
+    document.execCommand('removeFormat');
+    document.execCommand('unlink');
+  } else if (tool === 'bulleted' || tool === 'numbered') {
+    keepingSelection(() => document.execCommand(COMMANDS[tool]));
+  } else document.execCommand(COMMANDS[tool]);
+  refreshTools();
+}
+
+// The toolbar is one Tab stop. The arrow keys move between its buttons, and Home and End go to
+// the first and last.
+function toolButtons() {
+  return [...els.toolbar.querySelectorAll('.tool')];
+}
+
+function setToolStop(stop) {
+  for (const button of toolButtons()) button.tabIndex = button === stop ? 0 : -1;
+}
+
+if (IS_MAC) {
+  for (const button of toolButtons()) {
+    for (const name of ['aria-label', 'title']) button.setAttribute(name, button.getAttribute(name).replace('Ctrl+', 'Cmd+'));
+  }
+}
+setToolStop(toolButtons()[0]);
+
+// A click keeps the focus and the selection in the editor.
+els.toolbar.addEventListener('mousedown', (event) => {
+  if (event.target.closest('.tool')) event.preventDefault();
+});
+els.toolbar.addEventListener('click', (event) => {
+  const button = event.target.closest('.tool');
+  if (!button) return;
+  setToolStop(button);
+  runTool(button.dataset.tool);
+});
+els.toolbar.addEventListener('keydown', (event) => {
+  const buttons = toolButtons();
+  const at = buttons.indexOf(document.activeElement);
+  if (at === -1) return;
+  const rtl = getComputedStyle(els.toolbar).direction === 'rtl';
+  let to = -1;
+  if (event.key === (rtl ? 'ArrowLeft' : 'ArrowRight')) to = (at + 1) % buttons.length;
+  else if (event.key === (rtl ? 'ArrowRight' : 'ArrowLeft')) to = (at - 1 + buttons.length) % buttons.length;
+  else if (event.key === 'Home') to = 0;
+  else if (event.key === 'End') to = buttons.length - 1;
+  else return;
+  event.preventDefault();
+  setToolStop(buttons[to]);
+  buttons[to].focus();
+});
+
+// The link bar.
+
+const LINK_ERROR = 'Use an address that starts with https://, http://, mailto:, or tel:.';
+
+// The address for what the user typed: an address with a scheme as typed, an email address as a
+// mailto: link, and a host name such as example.com as an https address. Null when the result is
+// not an address the cleaner keeps.
+function linkAddress(typed) {
+  const text = typed.trim();
+  if (/^[a-z][a-z0-9+.-]*:/i.test(text)) return richText.normalizeUrl(text);
+  if (/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(text)) return richText.normalizeUrl(`mailto:${text}`);
+  return /^[^\s/]+\.[^\s/]+/.test(text) ? richText.normalizeUrl(`https://${text}`) : null;
+}
+
+function openLinkBar() {
+  if (els.richContent.hidden) return;
+  captureEditorRange();
+  const link = enclosing('A');
+  els.linkUrl.value = link ? link.getAttribute('href') || '' : '';
+  els.linkRemove.hidden = !link;
+  els.linkError.hidden = true;
+  els.linkBar.hidden = false;
+  els.linkUrl.focus();
+  els.linkUrl.select();
+}
+
+function closeLinkBar(returnFocus) {
+  els.linkBar.hidden = true;
+  els.linkError.hidden = true;
+  if (returnFocus) restoreEditorRange();
+}
+
+// With text selected, the link goes on that text. Without, it goes on the link at the caret, or
+// the address itself goes in as the link's text.
+function applyLink() {
+  const url = linkAddress(els.linkUrl.value);
+  if (!url) {
+    els.linkError.textContent = LINK_ERROR;
+    els.linkError.hidden = false;
+    return;
+  }
+  restoreEditorRange();
+  const link = enclosing('A');
+  if (link && getSelection().isCollapsed) selectContents(link);
+  if (getSelection().isCollapsed) {
+    const escaped = url.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    document.execCommand('insertHTML', false, `<a href="${escaped}">${escaped}</a>`);
+  } else {
+    document.execCommand('createLink', false, url);
+  }
+  closeLinkBar(false);
+}
+
+function removeLink() {
+  restoreEditorRange();
+  const link = enclosing('A');
+  if (link && getSelection().isCollapsed) selectContents(link);
+  document.execCommand('unlink');
+  closeLinkBar(false);
+}
+
+els.linkApply.addEventListener('click', applyLink);
+els.linkRemove.addEventListener('click', removeLink);
+els.linkCancel.addEventListener('click', () => closeLinkBar(true));
+// Enter applies the link instead of saving the form, and Escape goes back to the editor.
+els.linkUrl.addEventListener('keydown', (event) => {
+  if (event.isComposing) return;
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    applyLink();
+  } else if (event.key === 'Escape') {
+    event.preventDefault();
+    closeLinkBar(true);
+  }
+});
+els.linkUrl.addEventListener('input', () => {
+  els.linkError.hidden = true;
+});
+
+// A paste or a drop from elsewhere goes in through the cleaner, so the editor never holds an
+// image, a script, or any other content a snippet cannot keep.
+function insertTransfer(data) {
+  const html = data.getData('text/html');
+  if (html) {
+    const clean = richText.fragment(html, { pasted: true });
+    if (clean) document.execCommand('insertHTML', false, clean);
+    return;
+  }
+  const text = data.getData('text/plain');
+  if (text) document.execCommand('insertText', false, text);
+}
+
+els.richContent.addEventListener('paste', (event) => {
+  if (!event.clipboardData) return;
+  event.preventDefault();
+  insertTransfer(event.clipboardData);
+});
+
+// Text dragged inside the editor holds only what the editor already had, so the browser moves it.
+let draggingInEditor = false;
+els.richContent.addEventListener('dragstart', () => {
+  draggingInEditor = true;
+});
+els.richContent.addEventListener('dragend', () => {
+  draggingInEditor = false;
+});
+els.richContent.addEventListener('drop', (event) => {
+  if (draggingInEditor || !event.dataTransfer) return;
+  event.preventDefault();
+  const range = document.caretRangeFromPoint(event.clientX, event.clientY);
+  if (range) {
+    getSelection().removeAllRanges();
+    getSelection().addRange(range);
+  }
+  insertTransfer(event.dataTransfer);
+});
+
 els.duplicate.addEventListener('click', () =>
   whenSaved(async () => {
     const result = await run(() => lib.duplicateSnippet(state.selectedId), { fromEditor: true });
@@ -968,6 +1378,9 @@ document.addEventListener('keydown', (event) => {
   if (modifier && event.key.toLowerCase() === 's' && !els.editor.hidden && currentView() === 'snippets') {
     event.preventDefault();
     save();
+  } else if (modifier && event.key.toLowerCase() === 'k' && els.richContent.contains(document.activeElement)) {
+    event.preventDefault();
+    openLinkBar();
   }
 });
 
