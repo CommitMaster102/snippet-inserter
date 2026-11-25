@@ -424,7 +424,7 @@ formatting toolbar and link bar, and the manager at 800 pixels wide, where the l
 editor. In the longer one, every text that is not snippet text must carry its marks, so a text the
 code builds itself, outside the catalog, fails the test. The right-to-left one also runs with
 Persian digits, to check that every count and position on the pages and in a notice is written in
-the digits of the interface language. A last test gives Ctrl and the Mac Command key other names in
+the digits of the interface language. Another test gives Ctrl and the Mac Command key other names in
 the catalog, in a browser that reports a Mac, and checks that the formatting toolbar's shortcuts
 use them. `npm run test:locales` checks the real language folders and passes while only English is
 present. It lets a translation write a fixed number, such as the 20 of Recently deleted, in the

@@ -1,7 +1,7 @@
 // Layout tests with pseudo-languages in place of English: one about 40 percent longer than English,
 // and one written from right to left. Chrome ignores a language folder it does not know, so each
 // test run loads a copy of the extension whose English catalog is replaced (scripts/pseudo-locales.js)
-// and starts the browser in English. A last test loads a catalog that names keys its own way, in a
+// and starts the browser in English. Another test loads a catalog that names keys its own way, in a
 // browser that reports a Mac.
 'use strict';
 
