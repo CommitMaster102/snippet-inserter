@@ -117,7 +117,8 @@ test('Ctrl+1 under a folder starts the form in that folder, and only Ctrl+Enter 
   await expect(field).toBeVisible();
   await field.press('Control+Enter');
 
-  await expect(captions(panel)).toHaveText(['Alpha', 'Gamma', 'Fresh work textnew']);
+  await expect(captions(panel)).toHaveText(['Alpha', 'Gamma', 'Fresh work text']);
+  await expect(panel.locator('.list .item', { hasText: 'Fresh work text' }).locator('.item-label')).toHaveText('new');
   const stored = await readSnippets(serviceWorker);
   expect(stored.at(-1)).toMatchObject({ content: 'Fresh work text', folder: 'Work' });
 });
@@ -134,7 +135,8 @@ test('a snippet saved into another folder switches to that folder, so its label 
   await pressInPanel(page, 'Enter', { ctrl: true });
 
   await expect(chips(panel).filter({ hasText: 'Personal' })).toHaveAttribute('aria-selected', 'true');
-  await expect(captions(panel)).toHaveText(['Beta', 'Home textnew']);
+  await expect(captions(panel)).toHaveText(['Beta', 'Home text']);
+  await expect(panel.locator('.list .item', { hasText: 'Home text' }).locator('.item-label')).toHaveText('new');
   const stored = await readSnippets(serviceWorker);
   expect(stored.at(-1).folder).toBe('Personal');
 });

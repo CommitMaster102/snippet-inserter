@@ -163,9 +163,12 @@ select:focus {
   border-inline-end: 1px solid var(--border-default);
 }
 
+/* The gap keeps the name and the count apart below 900 pixels, where the links are no wider than
+   their text, because a flex container drops the space between the two. */
 .nav a {
   display: flex;
   justify-content: space-between;
+  gap: 6px;
   padding: 6px 10px;
   border-radius: var(--radius);
   color: var(--text-default);
@@ -340,11 +343,15 @@ select:focus {
   min-width: 0;
 }
 
+/* A name or preview reads in the direction of its own text but lines up with the page, so in a
+   right to left page a left to right snippet keeps both its lines at the right. Chrome knows this
+   value only with its prefix: it drops the standard match-parent. */
 .row-name,
 .row-preview {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  text-align: -webkit-match-parent;
 }
 
 .row-preview {

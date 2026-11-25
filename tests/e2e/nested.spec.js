@@ -192,7 +192,8 @@ test('the panel form names each included snippet, flags one with no target, and 
 
   await panel.locator('textarea.input-content').fill('Thanks.\n{snippet:;sgi}');
   await pressInPanel(page, 'Enter', { ctrl: true });
-  await expect(panel.locator('.list .item-caption')).toHaveText(['Signature', 'Thanks.new']);
+  await expect(panel.locator('.list .item-caption')).toHaveText(['Signature', 'Thanks.']);
+  await expect(panel.locator('.list .item', { hasText: 'Thanks.' }).locator('.item-label')).toHaveText('new');
 });
 
 test('the panel form says so when a snippet would include itself, before the first save', async ({ page, serviceWorker }) => {

@@ -233,7 +233,7 @@
   },
   "folderNone": {
     "message": "No folder",
-    "description": "Label of the folder button that shows the snippets that are in no folder."
+    "description": "Label of the folder button that shows the snippets that are in no folder. It shares one row of the narrow panel with the other folder buttons, so keep it short. At most 20 characters."
   },
   "foldersLabel": {
     "message": "Folders",

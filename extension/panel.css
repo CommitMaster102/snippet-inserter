@@ -201,6 +201,13 @@ svg {
   cursor: pointer;
 }
 
+/* The 140-pixel limit is for the folder names a user types. All and No folder come from the
+   catalog and are never cut, because a translation can be wider: the Tamil "No folder" measured
+   172 pixels. */
+.folder-chip-builtin {
+  max-width: none;
+}
+
 .folder-chip[aria-selected='true'] {
   border-color: var(--brand-default);
   background: var(--brand-subtle);
@@ -305,9 +312,18 @@ svg {
   min-width: 0;
 }
 
+/* The name and its "new" or "edited" label. The space after them is set here and not on the name,
+   because the name takes the direction of its own text, and a margin on it would land on the side
+   that direction gives. */
+.item-title {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  margin-inline-end: 8px;
+}
+
 .item-caption {
   height: 20px;
-  margin-inline-end: 8px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -315,6 +331,7 @@ svg {
 }
 
 .item-label {
+  flex-shrink: 0;
   margin-inline-start: 4px;
   color: var(--text-selected);
   font-weight: 600;
@@ -347,10 +364,14 @@ svg {
   line-height: 18px;
 }
 
+/* The preview reads in the direction of its own text but lines up with the page, as the name above
+   it does, so a left to right snippet in a right to left page keeps both lines at the right. Chrome
+   knows this value only with its prefix: it drops the standard match-parent. */
 .item-preview {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  text-align: -webkit-match-parent;
   color: var(--text-subtle);
   font-size: var(--font-small);
   line-height: 16px;

@@ -45,7 +45,8 @@ test('Duplicate places a copy right after the original', async ({ page, serviceW
   await waitForPanelFit(page, panel);
   await panel.locator('.item-action', { hasText: 'Duplicate snippet' }).click();
 
-  await expect(panel.locator('.list .item-caption')).toHaveText(['Greeting', 'Copy of Greetingnew', 'Other']);
+  await expect(panel.locator('.list .item-caption')).toHaveText(['Greeting', 'Copy of Greeting', 'Other']);
+  await expect(panel.locator('.list .item', { hasText: 'Copy of Greeting' }).locator('.item-label')).toHaveText('new');
   const stored = await readSnippets(serviceWorker);
   expect(stored.map((s) => s.title)).toEqual(['Greeting', 'Copy of Greeting', 'Other']);
   expect(stored[1].content).toBe('Hi there');

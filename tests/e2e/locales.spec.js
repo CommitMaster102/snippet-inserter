@@ -139,6 +139,49 @@ async function openEditForm(panel, name) {
   await item.locator('.edit-button').click();
 }
 
+// The left and right edges of the text in `locator`. They are measured on the text, not on the
+// element, because a line that fills its row has a box as wide as the row on whichever side its
+// text sits.
+async function textEdges(locator) {
+  return locator.evaluate((element) => {
+    const range = element.ownerDocument.createRange();
+    range.selectNodeContents(element);
+    const { left, right } = range.getBoundingClientRect();
+    return { left, right };
+  });
+}
+
+// Saves the snippet named `name` unchanged from the panel's edit form, which gives its row the
+// "edited" label, and returns that row.
+async function markEdited(panel, name) {
+  await openEditForm(panel, name);
+  await panel.locator('textarea.input-content').press('Control+Enter');
+  const item = panel.locator('.list .item', { hasText: name });
+  await expect(item.locator('.item-label')).toHaveCount(1);
+  return item;
+}
+
+// Where the "new" or "edited" label of a panel row sits: whether the label shows in full, as the
+// element at its center, and the edges of the label and of the snippet's name.
+async function labelPlace(item) {
+  return item.evaluate((node) => {
+    const doc = node.ownerDocument;
+    const label = node.querySelector('.item-label').getBoundingClientRect();
+    const range = doc.createRange();
+    range.selectNodeContents(node.querySelector('.item-caption').firstChild);
+    const name = range.getBoundingClientRect();
+    const atCenter = doc.elementFromPoint(label.left + label.width / 2, label.top + label.height / 2);
+    const row = node.getBoundingClientRect();
+    return {
+      shown: Boolean(atCenter && atCenter.closest('.item-label')) && label.left >= row.left && label.right <= row.right,
+      labelLeft: label.left,
+      labelRight: label.right,
+      nameLeft: name.left,
+      nameRight: name.right,
+    };
+  });
+}
+
 for (const kind of ['stretched', 'mirrored']) {
   const test = testWith(kind);
 
@@ -291,6 +334,42 @@ mirrored.describe('mirrored pseudo-language layout', () => {
     expect(direction).toBe('rtl');
   });
 
+  // A snippet's lines keep their own reading direction but line up with the page, so a left to
+  // right name and its preview both start at the right edge.
+  mirrored('a left to right name and its preview line up at the right edge, in the panel and the manager', async ({ context, extensionId, page, serviceWorker }) => {
+    await seedSnippets(serviceWorker, [
+      { title: 'Address', content: '14 Elm Street' },
+      { title: 'Reply', content: 'Thanks', folder: 'Home' },
+    ]);
+    await selectInTextarea(page, '#plain', 0, 5);
+    const panel = await openPanel(page);
+    const item = panel.locator('.list .item', { hasText: 'Address' });
+    const name = await textEdges(item.locator('.item-caption'));
+    const preview = await textEdges(item.locator('.item-preview'));
+    expect(Math.abs(name.right - preview.right), 'panel: right edges of the name and the preview').toBeLessThanOrEqual(1);
+    await pressInPanel(page, 'Escape');
+
+    const manager = await openManager(context, extensionId);
+    const address = manager.locator('#snippetList .row', { hasText: 'Address' });
+    const rowName = await textEdges(address.locator('.row-name'));
+    const rowPreview = await textEdges(address.locator('.row-preview'));
+    expect(Math.abs(rowName.right - rowPreview.right), 'manager: right edges of the name and the preview').toBeLessThanOrEqual(1);
+    // Under All, the second line of a snippet in a folder starts with the folder.
+    const reply = manager.locator('#snippetList .row', { hasText: 'Reply' });
+    const replyName = await textEdges(reply.locator('.row-name'));
+    const folder = await reply.locator('.row-folder').boundingBox();
+    expect(Math.abs(replyName.right - (folder.x + folder.width)), 'manager: right edges of the name and the folder').toBeLessThanOrEqual(1);
+  });
+
+  mirrored('the edited label of a left to right name sits at its left, the end of a right to left row', async ({ page, serviceWorker }) => {
+    await seedSnippets(serviceWorker, [{ title: 'Address', content: '14 Elm Street' }]);
+    await selectInTextarea(page, '#plain', 0, 5);
+    const panel = await openPanel(page);
+    const place = await labelPlace(await markEdited(panel, 'Address'));
+    expect(place.shown, 'the label shows in full').toBe(true);
+    expect(place.labelRight, 'the label is at the left of the name').toBeLessThanOrEqual(place.nameLeft + 1);
+  });
+
   mirrored('the manager mirrors: its navigation sits at the right and the page is right to left', async ({ context, extensionId, serviceWorker }) => {
     await seedSnippets(serviceWorker, SNIPPETS);
     const manager = await openManager(context, extensionId);
@@ -436,6 +515,80 @@ base('the layout check reports text that is cut off, and accepts an ellipsis', a
   const problems = await layoutProblems(page.locator('body'));
   expect(problems.filter((problem) => problem.includes('#cut'))).not.toEqual([]);
   expect(problems.filter((problem) => problem.includes('#dots'))).toEqual([]);
+});
+
+const ARABIC_NAME = 'عنوان المنزل';
+
+base('a right to left name and its preview line up at the left edge in English, in the panel and the manager', async ({ context, extensionId, page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: ARABIC_NAME, content: 'شارع النخيل' },
+    { title: 'رد', content: 'شكرا لك', folder: 'Home' },
+  ]);
+  await selectInTextarea(page, '#plain', 0, 5);
+  const panel = await openPanel(page);
+  const item = panel.locator('.list .item', { hasText: ARABIC_NAME });
+  const name = await textEdges(item.locator('.item-caption'));
+  const preview = await textEdges(item.locator('.item-preview'));
+  expect(Math.abs(name.left - preview.left), 'panel: left edges of the name and the preview').toBeLessThanOrEqual(1);
+  await pressInPanel(page, 'Escape');
+
+  const manager = await openManager(context, extensionId);
+  const row = manager.locator('#snippetList .row', { hasText: ARABIC_NAME });
+  const rowName = await textEdges(row.locator('.row-name'));
+  const rowPreview = await textEdges(row.locator('.row-preview'));
+  expect(Math.abs(rowName.left - rowPreview.left), 'manager: left edges of the name and the preview').toBeLessThanOrEqual(1);
+  const reply = manager.locator('#snippetList .row', { hasText: 'رد' });
+  const replyName = await textEdges(reply.locator('.row-name'));
+  const folder = await reply.locator('.row-folder').boundingBox();
+  expect(Math.abs(replyName.left - folder.x), 'manager: left edges of the name and the folder').toBeLessThanOrEqual(1);
+});
+
+base('the edited label shows in full after a long name, and sits at the right of a right to left name in English', async ({ page, serviceWorker }) => {
+  const long = 'A snippet with a rather long name that cannot fit in one line of the panel';
+  await seedSnippets(serviceWorker, [
+    { title: long, content: 'Kind regards' },
+    { title: ARABIC_NAME, content: 'شارع النخيل' },
+  ]);
+  await selectInTextarea(page, '#plain', 0, 5);
+  const panel = await openPanel(page);
+  const cut = await labelPlace(await markEdited(panel, long));
+  expect(cut.shown, 'the label after a long name shows in full').toBe(true);
+
+  const arabic = await labelPlace(await markEdited(panel, ARABIC_NAME));
+  expect(arabic.shown, 'the label after an Arabic name shows in full').toBe(true);
+  expect(arabic.labelLeft, 'the label is at the right of the Arabic name').toBeGreaterThanOrEqual(arabic.nameRight - 1);
+});
+
+// A catalog whose No folder button has a name wider than the 140 pixels a folder button may take.
+const longNoFolder = testWith((catalog) => {
+  catalog.folderNone.message = 'Snippets that are in no folder';
+  return catalog;
+});
+
+longNoFolder('the All and No folder buttons show their whole name, and only a folder name the user typed is cut', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Loose', content: 'x' },
+    { title: 'Filed', content: 'y', folder: 'A folder name long enough to be cut short' },
+  ]);
+  await selectInTextarea(page, '#plain', 0, 5);
+  const panel = await openPanel(page);
+  const chips = panel.locator('.folder-chip');
+  await expect(chips).toHaveText(['All', 'A folder name long enough to be cut short', 'Snippets that are in no folder']);
+  const cut = await chips.evaluateAll((list) => list.map((chip) => chip.scrollWidth > chip.clientWidth + 1));
+  expect(cut).toEqual([false, true, false]);
+});
+
+// Below 900 pixels the navigation is a row, where the links no longer spread their name and count
+// apart, and a flex container drops the space between the two.
+base('below 900 pixels the manager navigation keeps a space between a section name and its count', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, SNIPPETS);
+  const manager = await openManager(context, extensionId);
+  await manager.setViewportSize({ width: 800, height: 720 });
+  const link = manager.locator('.nav a[data-view="snippets"]');
+  await expect(link.locator('.nav-count')).toHaveText('3');
+  const name = await link.locator('span').first().boundingBox();
+  const count = await link.locator('.nav-count').boundingBox();
+  expect(count.x - (name.x + name.width)).toBeGreaterThanOrEqual(4);
 });
 
 const REPORT_URL = 'https://github.com/CommitMaster102/snippet-inserter/issues/new?template=translation.yml';

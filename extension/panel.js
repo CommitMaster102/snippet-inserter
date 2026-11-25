@@ -423,6 +423,8 @@ function renderFolders() {
   let selected = null;
   for (const [label, folder] of choices) {
     const chip = el('button', 'folder-chip', label);
+    // All and No folder show their whole name, which a translation can make long.
+    if (folder === null || folder === '') chip.classList.add('folder-chip-builtin');
     chip.type = 'button';
     chip.dir = 'auto';
     chip.title = label;
@@ -585,12 +587,16 @@ function snippetItem(snippet, index) {
   const caption = el('div', 'item-caption');
   caption.dir = 'auto';
   caption.append(document.createTextNode(lib.displayTitle(snippet)));
+  // The "new" or "edited" label sits next to the name, not inside it, so a long name is cut short
+  // instead of the label, and the label follows the direction of the page, not that of the name.
+  const title = el('div', 'item-title');
+  title.append(caption);
   const label =
     snippet.id === state.isEditedId ? TEXT.labelEdited : snippet.id === state.isNewId ? TEXT.labelNew : '';
-  if (label) caption.append(el('span', 'item-label', label));
+  if (label) title.append(el('span', 'item-label', label));
 
   const heading = el('div', 'item-heading');
-  heading.append(caption);
+  heading.append(title);
   if (snippet.abbreviation) {
     // Left to right, as the abbreviation input is, so ;addr keeps its semicolon in front in a
     // right-to-left language.
