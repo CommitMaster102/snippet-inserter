@@ -491,11 +491,10 @@ code builds itself, outside the catalog, fails the test. The right-to-left one a
 Persian digits, to check that every count and position on the pages and in a notice is written in
 the digits of the interface language. Another test gives Ctrl and the Mac Command key other names in
 the catalog, in a browser that reports a Mac, and checks that the formatting toolbar's shortcuts and
-the notes in the settings use the catalog's name for the Command key. `npm run test:locales` checks
-all 30 language folders. It lets a translation write a
-fixed number, such as the 20 of Recently deleted, in the digits of its language, and a key name,
-such as Ctrl or Cmd, as keyboards in its language print it, the same way in every message and with
-no space around a plus sign.
+the notes in the settings use the catalog's name for the Command key. `npm run test:locales` lets a
+translation write a fixed number, such as the 20 of Recently deleted, in the digits of its language,
+and a key name, such as Ctrl or Cmd, as keyboards in its language print it, the same way in every
+message and with no space around a plus sign.
 
 `extension/lib/richtext.js` parses HTML with the browser's own parser, so its unit tests,
 `tests/e2e/richtext.spec.js`, run in Playwright's Chromium with `npm test` instead of in Node.
