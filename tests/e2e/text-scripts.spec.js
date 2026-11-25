@@ -146,3 +146,27 @@ test('a tab or an ideographic space after the commit does not expand the abbrevi
   await commitAndInsert(page, '감사', ' ');
   await expect(page.locator('#plain')).toHaveValue('Hello world 감사합니다. ');
 });
+
+// In a rich editor the abbreviation is selected before the snippet is pasted. A space from the
+// input method that arrives while the selection settles must not replace the abbreviation.
+test('in a rich editor, a space that arrives 5 ms after the commit is kept after the snippet', async ({ page, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [{ content: '감사합니다.', abbreviation: '감사' }]);
+  await ready(page, () => caretAtEndOf(page, '#pasteEditor'));
+  await page.locator('#pasteEditor').evaluate(
+    (el) =>
+      new Promise((resolve) => {
+        el.focus();
+        el.textContent = 'Hi 감사';
+        getSelection().collapse(el.firstChild, el.firstChild.data.length);
+        el.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '감사' }));
+        setTimeout(() => {
+          document.execCommand('insertText', false, ' ');
+          resolve();
+        }, 5);
+      })
+  );
+  const text = () => page.locator('#pasteEditor').evaluate((el) => el.textContent.replace(/ /g, ' '));
+  await expect.poll(text).toBe('Hi 감사합니다. ');
+  await page.waitForTimeout(100);
+  expect(await text()).toBe('Hi 감사합니다. ');
+});

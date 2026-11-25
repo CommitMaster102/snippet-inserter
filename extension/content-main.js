@@ -109,12 +109,26 @@ export function create(shared) {
       return;
     }
     if (!snippet || panel || !extensionAlive()) return;
-    const follower = selectTypedText(target, abbreviation + delimiter, committed);
+    const { content } = placeholders.resolveReferences(snippet, list);
+    const typed = abbreviation + delimiter;
+    // A rich editor is given time to register a selection before the paste. The text is selected
+    // only after that wait, because a space from an input method that arrives during it would
+    // replace a selected abbreviation.
+    if (!isValueField(target) && target.kind !== 'docs' && !placeholders.inputLabels(content).length) {
+      const ctx = {
+        ...captureContext(target),
+        noSpacing: true,
+        suffix: !committed && delimiter ? ' ' : '',
+        reselect: { text: typed, committed },
+      };
+      insertSnippet(ctx, content);
+      return;
+    }
+    const follower = selectTypedText(target, typed, committed);
     if (follower === null) return;
     // The user typed the abbreviation where the text belongs, so no spaces are added.
     const suffix = committed ? follower : delimiter ? ' ' : '';
     const ctx = { ...captureContext(target), noSpacing: true, suffix };
-    const { content } = placeholders.resolveReferences(snippet, list);
     if (placeholders.inputLabels(content).length) {
       openPanel(null, { ctx, mode: 'fill-only', snippetId: snippet.id });
     } else {
@@ -509,7 +523,9 @@ export function create(shared) {
   // single-line field the lines are joined next, and the spacing rule runs last. `caret`, the
   // {cursor} position inside the text, is carried through each step.
   async function insertSnippet(ctx, content, values = {}) {
-    if (!restoreSelection(ctx)) {
+    // With `reselect`, the typed abbreviation is selected after the wait below, so the caret is
+    // left where the user has it until then.
+    if (ctx.reselect ? !ctx.el.isConnected : !restoreSelection(ctx)) {
       // Only a field that was in the page when the panel opened can have gone away.
       if (ctx.kind !== 'none') showNotice('The snippet was not inserted, because the field is gone.', ctx);
       return;
@@ -536,11 +552,19 @@ export function create(shared) {
       return;
     }
     await wait(SELECTION_SETTLE_MS);
-    pasteIntoRichEditor(ctx, text);
+    let pasted = text;
+    if (ctx.reselect) {
+      // An input method's space or line break after a commit is replaced and put back, as in
+      // expandAbbreviation.
+      const follower = selectTypedText(ctx, ctx.reselect.text, ctx.reselect.committed);
+      if (follower === null) return;
+      pasted = text + follower;
+    }
+    pasteIntoRichEditor(ctx, pasted);
     if (caret !== null) {
       // Editors that handle the paste themselves may update the page a moment later.
       await wait(SELECTION_SETTLE_MS);
-      moveCaretBack(ctx, text.length - caret);
+      moveCaretBack(ctx, pasted.length - caret);
     }
   }
 
