@@ -224,8 +224,9 @@ documents get this support, not Slides or Sheets.
 ## Storage
 
 Snippets are kept in `chrome.storage.local` under `snippet_manager.snippets`, as an array of
-`{ createdAt, content, title, id }` records, plus `abbreviation` and `folder` when a snippet has
-them. A folder name has up to 64 characters. There is no list of folders: the folders are the names
+`{ createdAt, content, title, id }` records, plus `abbreviation`, `folder`, and `html` when a snippet
+has them. `html` holds the formatting of a formatted snippet, and `content` then holds the same text
+without formatting, which is what text boxes and search use. A folder name has up to 64 characters. There is no list of folders: the folders are the names
 that snippets carry, so a folder exists while a snippet is in it. The array order is the order of
 the list, and moving a snippet to another folder does not change its place. Deleted snippets go to
 `snippet_manager.deleted`, newest first, at most 20, each with `deletedAt` and its old position.
@@ -250,8 +251,11 @@ Export in the manager saves every snippet to `snippets-YYYY-MM-DD.json`:
 Import accepts that file, or a bare array of records. It never changes or removes a stored
 snippet. It skips a record whose name and text match a stored snippet, gives a new id to a record
 whose id is in use, and drops an abbreviation that is already taken. A folder that differs from
-one already known only in capitals joins it, so "work" goes into "Work". A file with a higher
-`version` is refused with a message to update the extension.
+one already known only in capitals joins it, so "work" goes into "Work". The `html` of a record goes
+through the same cleaner as a saved snippet, and the record's text is taken from it, so a file
+cannot show one text and insert another. A file with a higher `version` is refused with a message to update the
+extension. Version 1.2.0 imports a file with formatted snippets and keeps their text without the
+formatting.
 
 ## Resource use
 

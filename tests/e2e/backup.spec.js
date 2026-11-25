@@ -62,6 +62,47 @@ test('a backup moves every snippet to another profile, and a second import skips
   }
 });
 
+test('a formatted snippet keeps its formatting through a backup, and an imported file is cleaned', async ({ context, extensionId, serviceWorker }) => {
+  await seedSnippets(serviceWorker, [
+    { title: 'Formatted', content: 'Bold and link (https://example.com/)', html: '<b>Bold</b> and <a href="https://example.com/">link</a>' },
+    { title: 'Plain', content: 'Plain text' },
+  ]);
+  const source = await openManager(context, extensionId, 'settings');
+  const { name, text } = await exportFile(source);
+  const data = JSON.parse(text);
+  expect(data.version).toBe(1);
+  expect(data.snippets[0].html).toBe('<b>Bold</b> and <a href="https://example.com/">link</a>');
+  expect('html' in data.snippets[1]).toBe(false);
+  const before = await readSnippets(serviceWorker);
+
+  const other = await launchContext();
+  try {
+    const { worker, id } = await extensionWorker(other);
+    const target = await openManager(other, id, 'settings');
+    await target.locator('#importFile').setInputFiles({ name, mimeType: 'application/json', buffer: Buffer.from(text) });
+    await expect(target.locator('#importResult')).toHaveText('Imported 2 snippets.');
+    expect(await readSnippets(worker)).toEqual(before);
+
+    const hostile = JSON.stringify({
+      format: 'snippet-inserter',
+      version: 1,
+      snippets: [
+        {
+          title: 'Hostile',
+          content: 'Looks harmless',
+          html: '<img src=x onerror="document.title = 1"><b onclick="x">Hi</b> <a href="javascript:alert(1)">there</a>',
+        },
+      ],
+    });
+    await target.locator('#importFile').setInputFiles({ name: 'hostile.json', mimeType: 'application/json', buffer: Buffer.from(hostile) });
+    await expect(target.locator('#importResult')).toHaveText('Imported 1 snippet.');
+    const imported = (await readSnippets(worker)).find((s) => s.title === 'Hostile');
+    expect([imported.content, imported.html]).toEqual(['Hi there', '<b>Hi</b> there']);
+  } finally {
+    await other.close();
+  }
+});
+
 test('an unreadable file shows an error and changes nothing', async ({ context, extensionId, serviceWorker }) => {
   await seedSnippets(serviceWorker, [{ content: 'Keep' }]);
   const manager = await openManager(context, extensionId, 'settings');

@@ -2,10 +2,13 @@
  * Snippet storage, shared by the content script, the snippet panel, and the manager page.
  *
  * Snippets live in chrome.storage.local under STORAGE_KEY as an array of records shaped
- * { createdAt, content, title, id }, plus an optional `abbreviation` and an optional `folder`.
- * The folders are not stored on their own: the list of folders is the set of names the snippets
- * carry. The array order is the order in which the panel and the manager list them. A deleted snippet moves to DELETED_KEY,
- * newest first, so it can be restored; that list keeps at most DELETED_MAX entries.
+ * { createdAt, content, title, id }, plus an optional `abbreviation`, an optional `folder`, and an
+ * optional `html`. The folders are not stored on their own: the list of folders is the set of names
+ * the snippets carry. A formatted snippet keeps its plain text in `content`, like every snippet,
+ * and its formatting in `html`, written by lib/richtext.js; `content` is then always the plain text
+ * of `html`. The array order is the order in which the panel and the manager list them. A deleted
+ * snippet moves to DELETED_KEY, newest first, so it can be restored; that list keeps at most
+ * DELETED_MAX entries.
  *
  * Every write first reads the stored list, so two pages that change snippets at about the same
  * time lose at most the change made within one storage round trip. The functions that do not
@@ -187,13 +190,30 @@
     return offSites;
   }
 
-  // A record as stored. The abbreviation and the folder are left out when they are empty, so a
-  // snippet without them keeps the record shape that version 1.1.1 wrote.
-  function record({ createdAt, content, title, id, abbreviation, folder }) {
+  // A record as stored. The abbreviation, the folder, and the formatting are left out when they are
+  // empty, so a snippet without them keeps the record shape that version 1.1.1 wrote.
+  function record({ createdAt, content, title, id, abbreviation, folder, html }) {
     const result = { createdAt, content, title: title || '', id };
     if (abbreviation) result.abbreviation = abbreviation;
     if (folder) result.folder = folder;
+    if (typeof html === 'string' && html) result.html = html;
     return result;
+  }
+
+  // The cleaner in lib/richtext.js, which the manager and the panel load. It is looked up when it
+  // is used, so the order of the script tags does not matter.
+  function defaultRichText() {
+    return root.SnippetInserter && root.SnippetInserter.richText;
+  }
+
+  // The text fields to store for `content` and `html`. Non-empty html is cleaned, `content` becomes
+  // its plain text, whatever was passed, and the html is kept only when it has formatting. Without
+  // html, `content` is kept as given.
+  function formatFields(content, html, richText = defaultRichText()) {
+    if (typeof html !== 'string' || !html) return { content, html: '' };
+    if (!richText) throw new Error('Formatted text needs lib/richtext.js.');
+    const clean = richText.clean(html);
+    return { content: clean.text, html: clean.formatted ? clean.html : '' };
   }
 
   // Folders. A folder name has up to FOLDER_MAX_LENGTH characters, and capitals do not make a
@@ -261,12 +281,14 @@
     }
   }
 
-  async function createSnippet({ content, title, abbreviation, folder }) {
+  async function createSnippet({ content, html, title, abbreviation, folder }) {
     const list = await readSnippets();
     requireFreeAbbreviation(abbreviation, list);
+    const text = formatFields(content, html);
     const created = record({
       createdAt: new Date().toISOString(),
-      content,
+      content: text.content,
+      html: text.html,
       title,
       id: freshId(new Set(list.map((s) => s.id))),
       abbreviation,
@@ -278,7 +300,9 @@
   }
 
   // Changes the fields that `changes` names and keeps the others, so a change of the folder alone
-  // leaves the text and the abbreviation as stored.
+  // leaves the text and the abbreviation as stored. A change of the text goes through
+  // formatFields, so new text for a formatted snippet keeps its formatting unless `changes` sets
+  // `html` to ''.
   async function updateSnippet(id, changes) {
     const list = await readSnippets();
     const index = list.findIndex((s) => s.id === id);
@@ -286,6 +310,9 @@
     const merged = { ...list[index] };
     for (const [key, value] of Object.entries(changes)) if (value !== undefined) merged[key] = value;
     requireFreeAbbreviation(merged.abbreviation, list, id);
+    if (changes.content !== undefined || changes.html !== undefined) {
+      Object.assign(merged, formatFields(merged.content, merged.html));
+    }
     if (changes.folder !== undefined) {
       merged.folder = matchFolder(changes.folder, list.filter((s) => s.id !== id));
     }
@@ -311,13 +338,24 @@
 
   // Replaces {snippet:from} with {snippet:to} in the text of every snippet except `exceptId`, in
   // place, and returns how many snippets changed. Other fields of a changed record stay as they are.
+  // In a formatted snippet the cleaner renames the reference in the html, also where formatting
+  // splits it, and the plain text is taken from the result. Without the cleaner, the escaped
+  // reference is replaced in the html.
   function renameReferences(list, from, to, exceptId) {
     const oldToken = `{snippet:${from}}`;
     const newToken = `{snippet:${to}}`;
+    const richText = defaultRichText();
+    const escape = (text) => text.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
     let changed = 0;
     list.forEach((snippet, i) => {
       if (snippet.id === exceptId || !String(snippet.content).includes(oldToken)) return;
-      list[i] = { ...snippet, content: String(snippet.content).split(oldToken).join(newToken) };
+      let fields = { content: String(snippet.content).split(oldToken).join(newToken) };
+      if (snippet.html && richText) {
+        fields = formatFields('', richText.renameText(snippet.html, oldToken, newToken), richText);
+      } else if (snippet.html) {
+        fields.html = snippet.html.split(escape(oldToken)).join(escape(newToken));
+      }
+      list[i] = record({ ...snippet, ...fields });
       changed += 1;
     });
     return changed;
@@ -339,6 +377,7 @@
     const copy = record({
       createdAt: new Date().toISOString(),
       content: original.content,
+      html: original.html,
       title: original.title ? cutTitle(`Copy of ${original.title}`) : '',
       id: freshId(new Set(list.map((s) => s.id))),
       folder: original.folder,
@@ -476,9 +515,12 @@
   // - a record without text is counted as invalid and skipped;
   // - a title longer than TITLE_MAX_LENGTH is cut to that length;
   // - a folder that is not text is dropped, and one that differs from a known folder only in
-  //   capitals takes that folder's spelling.
+  //   capitals takes that folder's spelling;
+  // - formatting goes through the cleaner, and the text of a formatted record is taken from its
+  //   html, so a file cannot show one text in the manager and insert another. Without the cleaner,
+  //   as in the Node unit tests, the formatting is dropped and the text kept, as version 1.2.0 does.
   // A file that is not a backup throws an Error whose message can be shown to the user.
-  function parseImport(text, existing) {
+  function parseImport(text, existing, richText = defaultRichText()) {
     let data;
     try {
       data = JSON.parse(text);
@@ -499,17 +541,20 @@
 
     const known = existing.slice();
     const taken = new Set(existing.map((s) => s.id));
-    const sameText = (s) => `${s.title || ''}\u0000${s.content}`;
+    const sameText = (s) => `${s.title || ''}\u0000${s.content}\u0000${s.html || ''}`;
     const seen = new Set(existing.map(sameText));
     const result = { add: [], skipped: 0, invalid: 0, renamed: 0, abbreviationsDropped: 0 };
 
     for (const raw of records) {
-      if (!raw || typeof raw !== 'object' || typeof raw.content !== 'string' || !raw.content.trim()) {
+      const content = raw && typeof raw.content === 'string' ? raw.content : '';
+      const html = raw && typeof raw.html === 'string' && richText ? raw.html : '';
+      const fields = raw && typeof raw === 'object' ? formatFields(content, html, richText) : { content: '' };
+      if (!fields.content.trim()) {
         result.invalid++;
         continue;
       }
       const title = typeof raw.title === 'string' ? cutTitle(raw.title) : '';
-      const key = sameText({ title, content: raw.content });
+      const key = sameText({ title, ...fields });
       if (seen.has(key)) {
         result.skipped++;
         continue;
@@ -533,7 +578,7 @@
           ? raw.createdAt
           : new Date().toISOString();
       const folder = typeof raw.folder === 'string' ? matchFolder(raw.folder, known) : '';
-      const added = record({ createdAt, content: raw.content, title, id, abbreviation, folder });
+      const added = record({ createdAt, ...fields, title, id, abbreviation, folder });
       result.add.push(added);
       known.push(added);
     }
