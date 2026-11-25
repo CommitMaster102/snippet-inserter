@@ -96,6 +96,10 @@ test('the setting turns expansion off', async ({ context, extensionId, page, ser
   const manager = await openManager(context, extensionId, 'settings');
   await expect(manager.locator('#abbreviations')).toHaveValue('immediate');
   await manager.locator('#abbreviations').selectOption('off');
+  // The write may still be pending, so the manager closes only once storage shows the change.
+  await expect
+    .poll(() => serviceWorker.evaluate(async () => (await chrome.storage.local.get('settings')).settings))
+    .toEqual({ abbreviations: false });
   await manager.close();
 
   await page.bringToFront();
@@ -332,6 +336,7 @@ test('the manager select stores off and delimiter, open pages follow, and Off ne
   // A change made while the page is open applies without a reload.
   await manager.bringToFront();
   await select.selectOption('immediate');
+  await expect.poll(stored).toEqual({ abbreviations: true, abbreviationTiming: 'immediate' });
   await page.bringToFront();
   await selectInTextarea(page, '#plain', 0, 100);
   await page.keyboard.type('x ;addr');
