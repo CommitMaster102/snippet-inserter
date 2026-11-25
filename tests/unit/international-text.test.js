@@ -93,37 +93,73 @@ test('counting characters around a cluster matches the segmenter wherever a clus
 const MEGABYTE = 1048576;
 const PLAIN_MEGABYTE = 'The quick brown fox jumps over the lazy dog. '.repeat(Math.ceil(MEGABYTE / 45)).slice(0, MEGABYTE);
 
-// Times lib.characterCount, the function the panel and the manager call, after one warm-up call.
+// 1 MB of text in which characters that join a cluster are dense, so the count segments it all.
+const DENSE_MEGABYTES = {
+  Hindi: 'नमस्ते दुनिया क्षत्रिय '.repeat(Math.ceil(MEGABYTE / 23)).slice(0, MEGABYTE),
+  Thai: 'สวัสดีครับ '.repeat(Math.ceil(MEGABYTE / 11)).slice(0, MEGABYTE),
+  'Korean jamo': '각 '.repeat(MEGABYTE / 4),
+  'decomposed é': 'é'.repeat(MEGABYTE / 2),
+};
+
+// Times lib.characterCount, the function the panel and the manager call, against segmenting the
+// whole text as lib.titleLength does, which is what the count falls back to. After one warm-up
+// call of each, the two run in turn 3 times and the fastest run of each counts, so a moment when
+// the machine is busy slows both or neither. Comparing the two, instead of checking a fixed
+// number of milliseconds, keeps the tests from failing on a slow or busy machine.
 function timeCount(text) {
-  lib.characterCount(text, 'en');
-  const start = performance.now();
   const result = lib.characterCount(text, 'en');
-  return { result, took: performance.now() - start };
+  lib.titleLength(text);
+  let took = Infinity;
+  let segmenting = Infinity;
+  for (let run = 0; run < 3; run++) {
+    let start = performance.now();
+    lib.characterCount(text, 'en');
+    took = Math.min(took, performance.now() - start);
+    start = performance.now();
+    lib.titleLength(text);
+    segmenting = Math.min(segmenting, performance.now() - start);
+  }
+  return { result, took, segmenting, times: `took ${took} ms, segmenting took ${segmenting} ms` };
 }
 
-test('the character count of 1 MB of plain text takes under 15 ms', () => {
-  const { result, took } = timeCount(PLAIN_MEGABYTE);
+test('the character count of 1 MB of plain text takes less than half as long as segmenting it', () => {
+  const { result, took, segmenting, times } = timeCount(PLAIN_MEGABYTE);
   assert.equal(result, '1,048,576 characters');
-  assert.ok(took < 15, `took ${took} ms`);
+  assert.ok(took < segmenting / 2, times);
 });
 
-test('the character count of 1 MB with one clustering character takes under 15 ms', () => {
+test('the character count of 1 MB with one clustering character takes less than half as long as segmenting it', () => {
   const middle = MEGABYTE / 2;
   for (const cluster of ['❤️', '\r\n', 'é', '\u{1F468}‍\u{1F469}‍\u{1F467}']) {
     const text = PLAIN_MEGABYTE.slice(0, middle) + cluster + PLAIN_MEGABYTE.slice(middle);
-    const { result, took } = timeCount(text);
+    const { result, took, segmenting, times } = timeCount(text);
     assert.equal(result, `${(MEGABYTE + 1).toLocaleString('en')} characters`, JSON.stringify(cluster));
     assert.equal(lib.countCharacters(text), characterCount(text), JSON.stringify(cluster));
-    assert.ok(took < 15, `${JSON.stringify(cluster)} took ${took} ms`);
+    assert.ok(took < segmenting / 2, `${JSON.stringify(cluster)} ${times}`);
   }
 });
 
-test('the character count of 1 MB with 3000 emoji takes under 15 ms', () => {
+test('the character count of 1 MB with 3000 emoji takes less than half as long as segmenting it', () => {
   const emoji = '\u{1F44D}\u{1F3FD}';
   const step = Math.floor(MEGABYTE / 3000);
   let text = '';
   for (let i = 0; i < 3000; i++) text += PLAIN_MEGABYTE.slice(i * step, (i + 1) * step - emoji.length) + emoji;
-  const { took } = timeCount(text);
+  const { took, segmenting, times } = timeCount(text);
   assert.equal(lib.countCharacters(text), characterCount(text));
-  assert.ok(took < 15, `took ${took} ms`);
+  assert.ok(took < segmenting / 2, times);
+});
+
+test('the character count of 1 MB of text dense with clustering characters takes about as long as segmenting it', () => {
+  for (const [name, text] of Object.entries(DENSE_MEGABYTES)) {
+    const { result, took, segmenting, times } = timeCount(text);
+    assert.equal(result, `${characterCount(text).toLocaleString('en')} characters`, name);
+    assert.ok(took < segmenting * 1.25, `${name} ${times}`);
+  }
+});
+
+test('counting characters around a run of joined characters too long for one window matches the segmenter', () => {
+  // 3000 flags are 6000 joining characters, under the limit for 1 MB, in one run of 12000 units.
+  const flags = '\u{1F1EF}\u{1F1F5}'.repeat(3000);
+  const text = PLAIN_MEGABYTE.slice(0, MEGABYTE / 2) + flags + PLAIN_MEGABYTE.slice(MEGABYTE / 2);
+  assert.equal(lib.countCharacters(text), characterCount(text));
 });

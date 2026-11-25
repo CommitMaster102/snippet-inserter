@@ -641,10 +641,17 @@
   // The same set, scanned from one match to the next.
   const CLUSTER_JOINERS = new RegExp(CLUSTER_JOINER.source, 'gu');
 
-  // Cutting the text into windows costs less than segmenting all of it only while there is about
-  // one window for every 128 units of text. With more windows than that, the whole text is
-  // segmented instead.
+  // The count by windows is used only while there is at most one joining character for every 128
+  // units of text, and otherwise the whole text is segmented. 128 is a conservative bound. In one
+  // measurement of 1 MB, with one joining character in 128 units, the windows took about 18 ms
+  // against about 60 ms for segmenting the whole text, and the two cost about the same near one
+  // joining character in 30 units.
   const CLUSTER_WINDOW_SPAN = 128;
+
+  // A window longer than this many units also makes the count segment the whole text. The limit
+  // on joining characters already keeps each window under about text.length / 64 units, so this
+  // applies only to texts over about 256 KB, where it bounds the work spent on one window.
+  const CLUSTER_WINDOW_MAX = 4096;
 
   // The number of code points in the text.
   function countCodePoints(text) {
@@ -678,23 +685,31 @@
   // always a boundary of the segmenter, so a window starts at the code point before a joining
   // character and ends after the first code point that follows a joining character and is not
   // itself followed by one. Every code point that joins makes the count one lower, so the window's
-  // code points minus its characters are taken off.
+  // code points minus its characters are taken off. The joining characters are found and counted
+  // before any window is segmented, so a text with too many of them goes straight to segmenting
+  // the whole text.
   function countCharacters(text) {
-    let count = countCodePoints(text);
-    let windows = 0;
+    const joiners = [];
     CLUSTER_JOINERS.lastIndex = 0;
     for (let match = CLUSTER_JOINERS.exec(text); match; match = CLUSTER_JOINERS.exec(text)) {
-      if (++windows > text.length / CLUSTER_WINDOW_SPAN) return graphemes(text).length;
-      const start = previousPointStart(text, match.index);
-      let end = match.index + match[0].length;
+      joiners.push(match.index);
+      if (joiners.length > text.length / CLUSTER_WINDOW_SPAN) return graphemes(text).length;
+    }
+    let count = countCodePoints(text);
+    let end = 0;
+    for (const index of joiners) {
+      // A joining character inside the last window was counted with it.
+      if (index < end) continue;
+      const start = previousPointStart(text, index);
+      end = index + (text.codePointAt(index) > 0xffff ? 2 : 1);
       while (end < text.length) {
+        if (end - start > CLUSTER_WINDOW_MAX) return graphemes(text).length;
         const point = text.codePointAt(end);
         end += point > 0xffff ? 2 : 1;
         if (!CLUSTER_JOINER.test(String.fromCodePoint(point)) && !joinsAt(text, end)) break;
       }
       const window = text.slice(start, end);
       count -= countCodePoints(window) - graphemes(window).length;
-      CLUSTER_JOINERS.lastIndex = end;
     }
     return count;
   }
