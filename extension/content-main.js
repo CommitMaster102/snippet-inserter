@@ -26,8 +26,8 @@ export function create(shared) {
   // Editors read the selection on "selectionchange", which fires after a task, so the insert
   // waits briefly after restoring the selection.
   const SELECTION_SETTLE_MS = 20;
-  // The "beforeinput" types of the keys that an insert into a rich editor holds back until it is
-  // done: typed text, Enter, and Shift+Enter. See holdTyping().
+  // The "beforeinput" types that an insert into a rich editor holds back until it is done: inserted
+  // text, a new paragraph, and a line break. See holdTyping().
   const HELD_INPUT_TYPES = new Set(['insertText', 'insertParagraph', 'insertLineBreak']);
   // The characters that count as an existing space when deciding whether to pad a snippet:
   // the no-break space, the ordinary space, the thin space, and the narrow no-break space. They
@@ -565,38 +565,77 @@ export function create(shared) {
 
   // Holds back what the user types into a rich editor while an insert runs. The insert selects the
   // text it replaces and waits for the editor to read the selection, and a key typed in that time
-  // would replace the selected text. Until release(), typed text, Enter, and Shift+Enter aimed at
-  // the field are cancelled and kept. release() types them at the caret, in order: after the
-  // snippet, at its {cursor} if it has one, or, when the insert gave up, after the text it would
-  // have replaced. If the selection has left the field by then, they are not typed.
+  // would replace the selected text. Until release(), two kinds of events aimed at the field are
+  // cancelled and kept. One is a cancelable "beforeinput" of a type in HELD_INPUT_TYPES, which is
+  // how typed text, Enter, and Shift+Enter reach an editor that leaves them to the browser. The
+  // other is a keydown of Enter or Shift+Enter without Ctrl, Alt, or Meta and outside a
+  // composition, because editors such as ProseMirror and Lexical act on Enter at keydown and
+  // cancel it, so no "beforeinput" follows. Nothing else is held. Backspace, Delete, other keys an
+  // editor handles at keydown, a paste, the text of a composition, and text inserted without a
+  // cancelable "beforeinput" still reach the editor, and when they change the selected text the
+  // insert gives up. release() replays what it kept at the caret, in order: after the snippet, at
+  // its {cursor} if it has one, or, when the insert gave up, after the text it would have
+  // replaced. See replayEnter() for Enter. If the selection has left the field by then, nothing is
+  // replayed.
   function holdTyping(ctx) {
     const doc = ctx.el.ownerDocument;
     const win = doc.defaultView;
     const kept = [];
+    const keep = (event, key) => {
+      event.preventDefault();
+      // The editor's own handler must not act on the key as well.
+      event.stopImmediatePropagation();
+      kept.push(key);
+    };
     const onBeforeInput = (event) => {
       if (!HELD_INPUT_TYPES.has(event.inputType) || !event.cancelable) return;
-      if (!event.composedPath().includes(ctx.el)) return;
-      event.preventDefault();
-      // The editor's own handler must not insert the text as well.
-      event.stopImmediatePropagation();
-      kept.push({ type: event.inputType, data: event.data });
+      if (event.composedPath().includes(ctx.el)) keep(event, { type: event.inputType, data: event.data });
+    };
+    const onKeyDown = (event) => {
+      if (event.key !== 'Enter' || !event.cancelable || event.isComposing) return;
+      if (event.ctrlKey || event.altKey || event.metaKey) return;
+      if (event.composedPath().includes(ctx.el)) keep(event, { type: 'keydown', shiftKey: event.shiftKey });
     };
     win.addEventListener('beforeinput', onBeforeInput, true);
+    win.addEventListener('keydown', onKeyDown, true);
     return {
       typed: () => kept.length > 0,
       release() {
         win.removeEventListener('beforeinput', onBeforeInput, true);
+        win.removeEventListener('keydown', onKeyDown, true);
         if (!kept.length) return;
         const selection = selectionFor(ctx.el);
         if (!selection || !selection.rangeCount || !ctx.el.contains(selection.focusNode)) return;
         // Text that is still selected stays, and the held keys go in after it.
         if (!selection.isCollapsed) selection.collapseToEnd();
-        for (const { type, data } of kept) {
-          if (type !== 'insertText') doc.execCommand(type);
+        for (const { type, data, shiftKey } of kept) {
+          if (type === 'keydown') replayEnter(ctx, shiftKey);
+          else if (type !== 'insertText') doc.execCommand(type);
           else if (data) doc.execCommand('insertText', false, data);
         }
       },
     };
+  }
+
+  // Sends a held Enter or Shift+Enter to the field as a new keydown, so the editor's own handler
+  // gives the key its meaning, such as sending the message in a chat app. ProseMirror and Lexical
+  // act on such a keydown although the browser did not send it. When no handler cancels it, the
+  // new paragraph or line break goes in with execCommand, as the browser would have inserted it.
+  function replayEnter(ctx, shiftKey) {
+    const doc = ctx.el.ownerDocument;
+    const active = deepActiveElement(doc);
+    const target = active && ctx.el.contains(active) ? active : ctx.el;
+    const event = new doc.defaultView.KeyboardEvent('keydown', {
+      key: 'Enter',
+      code: 'Enter',
+      keyCode: 13,
+      which: 13,
+      shiftKey,
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    });
+    if (target.dispatchEvent(event)) doc.execCommand(shiftKey ? 'insertLineBreak' : 'insertParagraph');
   }
 
   // Whether the selection still covers exactly `ctx.replaces`, the typed text that an

@@ -37,6 +37,7 @@
     <div id="rich" contenteditable="true"><p>Dear team,</p><p>Thanks</p></div>
     <div id="pasteEditor" contenteditable="true">Editor:</div>
     <div id="trackingEditor" contenteditable="true">Editor:</div>
+    <div id="keymapEditor" contenteditable="true">Editor:</div>
     <script>
       // The send form counts how often it is submitted, for the Enter key tests.
       window.submits = 0;
@@ -73,6 +74,16 @@
           getSelection().addRange(trackedRange);
         }
         document.execCommand('insertText', false, event.clipboardData.getData('text/plain'));
+      });
+      // The keymap editor stands in for ProseMirror with its base keymap, and for Lexical, which
+      // handle Enter at keydown: they cancel the key, so no "beforeinput" follows, and split the
+      // block, or break the line for Shift+Enter, themselves. `keymapKeys` lists the keys it handled.
+      window.keymapKeys = [];
+      document.getElementById('keymapEditor').addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        window.keymapKeys.push(event.shiftKey ? 'Shift+Enter' : 'Enter');
+        document.execCommand(event.shiftKey ? 'insertLineBreak' : 'insertParagraph');
       });
     </script>
   </body>

@@ -76,33 +76,44 @@ test('expands in an editor that reads the selection from selectionchange', async
   await expect(page.locator('#trackingEditor')).toHaveText('Editor: Tea time');
 });
 
-// Types each character of `keys` into the editor `selector` 5 ms after the expansion selects
-// `typed`, while the insert waits for the editor to take the selection. For each key the page does
-// what the browser does: it sends a cancelable "beforeinput" event and, unless a listener cancels
-// it, inserts the character in place of the selection. With `collapse`, the page then moves the
-// caret to the end of the selection, so the selection no longer covers the abbreviation.
+// Types each key of `keys` into the editor `selector` 5 ms after the expansion selects `typed`,
+// while the insert waits for the editor to take the selection. `keys` is a string of characters,
+// or an array that may also hold 'Enter' and 'Shift+Enter'. For each key the page does what the
+// browser does: it sends a cancelable keydown event, then, unless a listener cancels it, a
+// cancelable "beforeinput" event, and then, unless a listener cancels that, inserts the character,
+// the paragraph, or the line break in place of the selection. With `collapse`, the page then moves
+// the caret to the end of the selection, so the selection no longer covers the abbreviation.
 async function typeDuringExpansion(page, selector, typed, keys, { collapse = false } = {}) {
   await page.evaluate(
-    ([editorSelector, abbreviation, characters, moveCaret]) => {
+    ([editorSelector, abbreviation, pressed, moveCaret]) => {
       const editor = document.querySelector(editorSelector);
+      const type = (key) => {
+        const enter = key === 'Enter' || key === 'Shift+Enter';
+        const shiftKey = key === 'Shift+Enter';
+        const down = enter
+          ? { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, shiftKey }
+          : { key, keyCode: 0, which: 0 };
+        const events = { bubbles: true, cancelable: true, composed: true };
+        if (!editor.dispatchEvent(new KeyboardEvent('keydown', { ...down, ...events }))) return;
+        const inputType = !enter ? 'insertText' : shiftKey ? 'insertLineBreak' : 'insertParagraph';
+        const input = { inputType, data: enter ? null : key, ...events };
+        if (!editor.dispatchEvent(new InputEvent('beforeinput', input))) return;
+        if (enter) document.execCommand(inputType);
+        else document.execCommand('insertText', false, key);
+      };
       const onSelectionChange = () => {
         const selection = getSelection();
         if (!selection.rangeCount || !editor.contains(selection.anchorNode)) return;
         if (selection.toString() !== abbreviation) return;
         document.removeEventListener('selectionchange', onSelectionChange);
         setTimeout(() => {
-          for (const key of characters) {
-            const init = { inputType: 'insertText', data: key, bubbles: true, cancelable: true, composed: true };
-            if (editor.dispatchEvent(new InputEvent('beforeinput', init))) {
-              document.execCommand('insertText', false, key);
-            }
-          }
+          for (const key of pressed) type(key);
           if (moveCaret) getSelection().collapseToEnd();
         }, 5);
       };
       document.addEventListener('selectionchange', onSelectionChange);
     },
-    [selector, typed, keys, collapse]
+    [selector, typed, Array.from(keys), collapse]
   );
 }
 
@@ -119,6 +130,31 @@ for (const [where, editor] of [
     await page.waitForTimeout(100);
     await expect(page.locator(editor)).toHaveText('Editor: Tea time!');
   });
+}
+
+// The keymap editor handles Enter at keydown, as ProseMirror and Lexical do, so no "beforeinput"
+// would show the key. The paste editor leaves Enter to the browser. Either way the key goes in
+// after the snippet, and in the keymap editor through its own handler.
+for (const [where, editor] of [
+  ['an editor that handles Enter at keydown', '#keymapEditor'],
+  ['an editor that leaves Enter to the browser', '#pasteEditor'],
+]) {
+  for (const [key, html] of [
+    ['Enter', 'Editor: Tea time<div>!</div>'],
+    ['Shift+Enter', 'Editor: Tea time<br>!'],
+  ]) {
+    test(`in ${where}, ${key} typed while the selection settles goes in after the snippet`, async ({ page, serviceWorker }) => {
+      await seedSnippets(serviceWorker, [{ content: 'Tea time', abbreviation: ';tt' }]);
+      await ready(page, () => caretAtEndOf(page, editor));
+      await typeDuringExpansion(page, editor, ';tt', [key, '!']);
+      await page.keyboard.type(' ;tt');
+      const content = () => page.locator(editor).evaluate((el) => el.innerHTML.replace(/&nbsp;/g, ' '));
+      await expect.poll(content).toBe(html);
+      await page.waitForTimeout(100);
+      expect(await content()).toBe(html);
+      expect(await page.evaluate(() => window.keymapKeys)).toEqual(editor === '#keymapEditor' ? [key] : []);
+    });
+  }
 }
 
 test('keys typed before a rich-editor expansion gives up go in after the abbreviation, in order', async ({ page, serviceWorker }) => {

@@ -164,7 +164,9 @@ A snippet can have an abbreviation, such as `;addr`. Typing the abbreviation in 
 replaces it with the snippet, and Ctrl+Z brings the typed text back. An abbreviation expands only at
 the start of the field or after a space, punctuation, or a symbol, so `;addr` inside `x;addr` stays
 as typed. With a Japanese, Chinese, or Korean input method, an abbreviation such as `あいさつ` expands
-when you commit the text, not while it is still being composed.
+when you commit the text, not while it is still being composed. In a rich-text editor the snippet
+goes in a few tens of milliseconds after the abbreviation, and text, Enter, or Shift+Enter that you
+type in that time goes in after the snippet.
 
 In the manager's Settings, "Expand abbreviations" has 3 choices. "As soon as I type them" is the
 default. "After I press Space, Tab, or Enter" waits for one of those keys: Space expands the
