@@ -4,7 +4,20 @@ Bug reports, feature requests, and pull requests are welcome. Everyone taking pa
 
 ## Report a bug or suggest a feature
 
-Open an issue and pick the bug report or feature request form. Issues are public, so use a made-up snippet in examples. Report a security problem privately, as [SECURITY.md](SECURITY.md) describes.
+Open an issue and pick the bug report or feature request form. For a wrong or unclear translation, pick the Translation problem form. Issues are public, so use a made-up snippet in examples. Report a security problem privately, as [SECURITY.md](SECURITY.md) describes.
+
+## Fix a translation
+
+Every translation was drafted by a language model, so fixes from people who speak the language are the most useful contribution. To report a problem without changing a file, open the Translation problem form. Settings and backup links to it in every language except English.
+
+To fix the text yourself:
+
+1. Open `extension/_locales/<code>/messages.json`, where `<code>` is the folder named after the language, such as `de` or `pt_BR`. The English file, `extension/_locales/en/messages.json`, has a `description` on each message that says where the text appears and how long it may be. A translation file has no descriptions.
+2. Change only the `message` text. Keep every `$PLACEHOLDER$`, every `<kbd>...</kbd>` pair, and the names in `placeholders` as they are. Leave `{date}`, `{input:Name}`, `;addr`, Snippet Inserter, Google Docs, and Ko-fi untranslated.
+3. Use the terms for your language in [i18n/glossary.md](i18n/glossary.md), so that each thing has one name in the panel, the manager, and the menus. Corrections to a glossary term are welcome too.
+4. Run `npm run test:locales`. It checks that the file has every message, the same placeholders as English, the plural forms your language uses, and no text longer than its spot allows. Run `npm run test:unit` as well.
+5. Write the text yourself. Do not copy the translations of another extension.
+6. Open a pull request that names the language and says whether you speak it natively. The README's Languages section lists the languages that a native speaker has reviewed.
 
 ## Change the code
 
