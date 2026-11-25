@@ -74,7 +74,7 @@ test('Format JSON names the line and column of the first error and changes nothi
   await expect(manager.locator('#content')).toHaveValue('[\n  1,\n  2\n]');
 });
 
-test('the Format JSON button is described by an error only while the error shows', async ({ context, extensionId, serviceWorker }) => {
+test('the Format JSON button is described by its own error only while that error shows', async ({ context, extensionId, serviceWorker }) => {
   await seedSnippets(serviceWorker, [{ title: 'Other', content: 'x' }]);
   const manager = await openManager(context, extensionId);
   await manager.locator('#newSnippet').click();
@@ -87,10 +87,12 @@ test('the Format JSON button is described by an error only while the error shows
   await expect(manager.locator('#contentError')).toBeHidden();
   await expect(button).toHaveAccessibleDescription('');
 
-  // The check of an empty text on Save shares the error line with Format JSON.
+  // The check of an empty text on Save shares the error line with Format JSON, but its error is
+  // about the text, not the button.
   await manager.locator('#content').fill('');
   await manager.locator('#save').click();
   await expect(manager.locator('#contentError')).toHaveText('This field must not be empty.');
+  await expect(button).toHaveAccessibleDescription('');
   await manager.locator('#content').fill('a');
   await expect(manager.locator('#contentError')).toBeHidden();
   await expect(button).toHaveAccessibleDescription('');

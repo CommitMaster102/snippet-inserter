@@ -867,12 +867,13 @@ async function run(work, { fromEditor = false } = {}) {
   }
 }
 
-// Shows the error line under the text, or hides it when the message is empty. The Format JSON
-// button names this line as its description, and a hidden element named that way still describes
-// it, so hiding the line also clears its text.
+// Shows the error line under the text, or hides it when the message is empty. The line describes
+// the Format JSON button only while it holds an error of that button, which showJsonError sets, so
+// any other message, or none, removes the description.
 function showContentError(message) {
   els.contentError.textContent = message;
   els.contentError.hidden = !message;
+  els.formatJson.removeAttribute('aria-describedby');
 }
 
 // The error for a field longer than `max` characters, in the plural form that `max` takes.
@@ -1285,6 +1286,7 @@ els.toolbar.addEventListener('keydown', (event) => {
 
 function showJsonError(message) {
   showContentError(message);
+  els.formatJson.setAttribute('aria-describedby', 'contentError');
   els.editorStatus.textContent = '';
 }
 
