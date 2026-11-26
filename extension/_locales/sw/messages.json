@@ -1,4 +1,8 @@
 {
+  "extName": {
+    "message": "Snippet Inserter",
+    "description": "The name of the extension. It is a product name and stays the same in every language."
+  },
   "extDescription": {
     "message": "Ingiza vijisehemu ulivyohifadhi katika sehemu yoyote ya maandishi kwa kubonyeza $KEY$ mara mbili. Havina kikomo cha urefu.",
     "description": "One sentence shown on the extension page in the browser and in the Chrome Web Store. At most 132 characters, counting the key name. The key name is filled in for you. You may change it to the name keyboards in your language print, the same way in every message.",

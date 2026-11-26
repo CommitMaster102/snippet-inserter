@@ -14,7 +14,6 @@ function german() {
   const catalog = copy(english);
   catalog.localeCode.message = 'de';
   catalog.languageName.message = 'Deutsch';
-  delete catalog.extName;
   return catalog;
 }
 
@@ -47,10 +46,14 @@ test('a missing message and an extra message are reported by key', () => {
   assert.match(text, /madeUp: not in the English catalog/);
 });
 
-test('extName may be left out and may not be changed', () => {
+// The Chrome Web Store refuses a package when a language folder has no extName, even though
+// Chrome itself would fall back to the English name.
+test('extName must be in every catalog and may not be changed', () => {
   const catalog = german();
+  delete catalog.extName;
+  assert.match(problems('de', catalog).join('\n'), /extName: missing/);
   catalog.extName = { message: 'Textbausteine' };
-  assert.match(problems('de', catalog).join('\n'), /extName/);
+  assert.match(problems('de', catalog).join('\n'), /extName: the name of the extension is not translated/);
   catalog.extName = copy(english.extName);
   assert.deepEqual(problems('de', catalog), []);
 });
@@ -127,7 +130,6 @@ test('a fixed number may be written in the digits of the language, but stays the
   const persian = copy(english);
   persian.localeCode.message = 'fa';
   persian.textDirection.message = 'rtl';
-  delete persian.extName;
   persian.deletedNote.placeholders.count.content = '۲۰';
   persian.referenceLimit.placeholders.limit.content = '۱۰۰';
   assert.deepEqual(problems('fa', persian), []);
@@ -146,7 +148,6 @@ test('the number of <kbd> pairs must match', () => {
 test('a language gets the plural forms of its own rules', () => {
   const russian = copy(english);
   russian.localeCode.message = 'ru';
-  delete russian.extName;
   assert.match(problems('ru', russian).join('\n'), /exportNote_few: missing/);
   // A name may have 128 characters and a folder 64, which Russian counts with different forms.
   assert.match(problems('ru', russian).join('\n'), /validationTooLong_few: missing/);
@@ -163,7 +164,6 @@ test('a language gets the plural forms of its own rules', () => {
 
   const japanese = copy(english);
   japanese.localeCode.message = 'ja';
-  delete japanese.extName;
   assert.match(problems('ja', japanese).join('\n'), /exportNote_one: .*do not use/);
   for (const key of Object.keys(japanese)) if (/_one$/.test(key)) delete japanese[key];
   assert.deepEqual(problems('ja', japanese), []);
@@ -180,7 +180,6 @@ test('the language code and direction must match the folder', () => {
 
   const arabic = copy(english);
   arabic.localeCode.message = 'ar';
-  delete arabic.extName;
   for (const key of Object.keys(english)) {
     const match = /^(.*)_other$/.exec(key);
     if (match) for (const form of ['zero', 'one', 'two', 'few', 'many']) arabic[`${match[1]}_${form}`] = copy(english[key]);

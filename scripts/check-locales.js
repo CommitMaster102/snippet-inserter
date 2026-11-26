@@ -139,12 +139,17 @@ function checkCatalog(code, catalog, english, budgets) {
         families.add(base);
         for (const category of categories) required.add(`${base}_${category}`);
       }
-    } else if (key !== 'extName' || code === 'en') {
+    } else {
       required.add(key);
     }
   }
 
   for (const key of required) if (!catalog[key]) problems.push(`${key}: missing`);
+  // Every catalog needs extName, because the Chrome Web Store refuses a package when a language
+  // folder has no name for the extension. The name itself stays in English.
+  if (catalog.extName && catalog.extName.message !== english.extName.message) {
+    problems.push('extName: the name of the extension is not translated');
+  }
   // Each named key, such as Ctrl, with every way the catalog writes it.
   const names = new Map();
   for (const key of Object.keys(catalog)) {
@@ -152,8 +157,6 @@ function checkCatalog(code, catalog, english, budgets) {
     const match = PLURAL_SUFFIX.exec(key);
     if (match && families.has(key.slice(0, match.index))) {
       problems.push(`${key}: the language rules of ${code} do not use the form ${match[1]} (they use ${categories.join(', ')})`);
-    } else if (key === 'extName') {
-      if (catalog.extName.message !== english.extName.message) problems.push('extName: the name of the extension is not translated');
     } else {
       problems.push(`${key}: not in the English catalog`);
     }
